@@ -1,0 +1,14 @@
+name = "StdSimplexMeasure"
+version = "0.1.0"
+defaultTargets = ["stdsimplexmeasure"]
+
+[[lean_lib]]
+name = "StdSimplexMeasure"
+
+[[lean_exe]]
+name = "stdsimplexmeasure"
+root = "Main"
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
