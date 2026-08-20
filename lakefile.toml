@@ -1,6 +1,6 @@
 name = "StdSimplexMeasure"
 version = "0.1.0"
-defaultTargets = ["stdsimplexmeasure" "pochhammer"]
+defaultTargets = ["StdSimplexMeasure", "Pochhammer"]
 
 [[lean_lib]]
 name = "StdSimplexMeasure"
