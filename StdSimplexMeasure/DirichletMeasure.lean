@@ -173,7 +173,43 @@ theorem integral_dirichletMeasure [Nonempty ι]
 theorem dirichletMeasure_stdSimplex
     [Nonempty ι] {b : ι → ℝ} (hb : b ∈ mvBetaDomain) :
     dirichletMeasure b (stdSimplex ℝ ι) = 1 := by
-  sorry
+  let p : (ι → ℝ) → ℝ := fun u => ∏ i, u i ^ (b i - 1)
+  have hp_int : IntegrableOn p (stdSimplex ℝ ι) stdSimplexMeasure := by
+    apply Integrable.of_integral_ne_zero
+    rw [← mvBeta_eq_integral hb]
+    exact ne_of_gt (mvBeta_pos hb)
+  have hd_int : IntegrableOn (dirichletPdfReal b) (stdSimplex ℝ ι)
+      stdSimplexMeasure := by
+    apply hp_int.const_mul (1 / mvBeta b) |>.congr
+    have hae := ae_zero_lt_of_mem_stdSimplex (ι := ι)
+    have hmem := self_mem_ae_restrict
+      (μ := stdSimplexMeasure) (isClosed_stdSimplex ℝ ι).measurableSet
+    filter_upwards [hmem, hae] with u hu hpos
+    simp [dirichletPdfReal, stdSimplexInterior, hu, hpos, p]
+  have hd_integral :
+      ∫ u in stdSimplex ℝ ι, dirichletPdfReal b u ∂stdSimplexMeasure = 1 := by
+    have hae := ae_zero_lt_of_mem_stdSimplex (ι := ι)
+    have hmem := self_mem_ae_restrict
+      (μ := stdSimplexMeasure) (isClosed_stdSimplex ℝ ι).measurableSet
+    calc
+      ∫ u in stdSimplex ℝ ι, dirichletPdfReal b u ∂stdSimplexMeasure =
+          ∫ u in stdSimplex ℝ ι, (1 / mvBeta b) * p u ∂stdSimplexMeasure := by
+            apply integral_congr_ae
+            filter_upwards [hmem, hae] with u hu hpos
+            simp [dirichletPdfReal, stdSimplexInterior, hu, hpos, p]
+      _ = (1 / mvBeta b) * ∫ u in stdSimplex ℝ ι, p u ∂stdSimplexMeasure := by
+        rw [MeasureTheory.integral_const_mul]
+      _ = 1 := by
+        rw [← mvBeta_eq_integral hb]
+        field_simp [ne_of_gt (mvBeta_pos hb)]
+  unfold dirichletMeasure
+  rw [withDensity_apply _ (isClosed_stdSimplex ℝ ι).measurableSet]
+  unfold dirichletPdf
+  rw [← ofReal_integral_eq_lintegral_ofReal hd_int]
+  · rw [hd_integral]
+    simp
+  · filter_upwards with u
+    exact dirichletPdfReal_nonneg hb u
 
 /-- The Dirichlet density vanishes outside `stdSimplex ℝ ι`. -/
 theorem dirichletPdf_eq_zero_of_not_mem_stdSimplex
@@ -231,12 +267,58 @@ theorem dirichletMeasureUniform_one :
       stdSimplexMeasure.restrict (stdSimplex ℝ ι) := by
   sorry
 
+private lemma dirichletPdf_perm (b : ι → ℝ) (σ : Equiv.Perm ι) (u : ι → ℝ) :
+    dirichletPdf (b ∘ σ) (u ∘ σ) = dirichletPdf b u := by
+  unfold dirichletPdf dirichletPdfReal
+  have hbeta : mvBeta (b ∘ σ) = mvBeta b := by
+    unfold mvBeta
+    simp only [Function.comp_apply, Equiv.sum_comp]
+    congr 1
+    exact Equiv.prod_comp σ (fun i => Gamma (b i))
+  have hinter : (u ∘ σ) ∈ stdSimplexInterior ↔ u ∈ stdSimplexInterior := by
+    have hsimp : (u ∘ σ) ∈ stdSimplex ℝ ι ↔ u ∈ stdSimplex ℝ ι := by
+      change u ∈ (fun v => v ∘ σ) ⁻¹' stdSimplex ℝ ι ↔ _
+      rw [preimage_stdSimplex_perm]
+    simp only [stdSimplexInterior]
+    constructor
+    · rintro ⟨hu, hp⟩
+      exact ⟨hsimp.mp hu, fun i => by simpa using hp (σ.symm i)⟩
+    · rintro ⟨hu, hp⟩
+      exact ⟨hsimp.mpr hu, fun i => hp (σ i)⟩
+  rw [hbeta]
+  by_cases hu : u ∈ stdSimplexInterior
+  · rw [Set.indicator_of_mem hu, Set.indicator_of_mem (hinter.mpr hu)]
+    congr 2
+    simpa [Function.comp_def] using
+      (Equiv.prod_comp σ (fun i => u i ^ (b i - 1)))
+  · rw [Set.indicator_of_notMem hu, Set.indicator_of_notMem (mt hinter.mp hu)]
+
 /-- Permuting coordinates together with parameters is a measure-preserving transformation of
 `dirichletMeasure`. -/
 theorem measurePreserving_dirichletMeasure_perm (b : ι → ℝ) (σ : Equiv.Perm ι) :
   MeasurePreserving (fun x => x ∘ σ)
     (dirichletMeasure b) (dirichletMeasure (b ∘ σ)) := by
-  sorry
+  let g : (ι → ℝ) ≃ᵐ (ι → ℝ) := {
+    toFun x := x ∘ σ
+    invFun x := x ∘ σ.symm
+    left_inv x := by funext i; simp
+    right_inv x := by funext i; simp
+    measurable_toFun := continuous_pi (fun i => continuous_apply (σ i)) |>.measurable
+    measurable_invFun := continuous_pi (fun i => continuous_apply (σ.symm i)) |>.measurable
+  }
+  have hg : MeasurePreserving g stdSimplexMeasure stdSimplexMeasure := by
+    simpa [g] using measurePreserving_stdSimplexMeasure_perm σ
+  refine ⟨g.measurable, ?_⟩
+  change Measure.map g (dirichletMeasure b) = dirichletMeasure (b ∘ σ)
+  unfold dirichletMeasure
+  ext s hs
+  rw [Measure.map_apply g.measurable hs]
+  rw [withDensity_apply _ (g.measurable hs), withDensity_apply _ hs]
+  have hchange := hg.setLIntegral_comp_preimage hs (measurable_dirichletPdf (b ∘ σ))
+  rw [← hchange]
+  apply setLIntegral_congr_fun (g.measurable hs)
+  intro x hx
+  exact (dirichletPdf_perm b σ x).symm
 
 /-- Dirichlet measure is closed under marginalisation or coarsening: pushing
 `dirichletMeasure b` forward along `stdSimplexAggregate f` gives the Dirichlet
@@ -272,7 +354,65 @@ theorem integral_dirichletMeasure_power_product {b : ι → ℝ} (hb : b ∈ mvB
     ∫ u, (∏ i, u i ^ m i) ∂(dirichletMeasure b) =
       (Gamma (∑ i, b i) / Gamma (∑ i, (b i + m i))) *
         ∏ i, (Gamma (b i + m i) / Gamma (b i)) := by
-  sorry
+  cases isEmpty_or_nonempty ι with
+  | inl h =>
+      letI : IsEmpty ι := h
+      simp [dirichletMeasure, stdSimplexMeasure_empty]
+  | inr h =>
+      letI : Nonempty ι := h
+      rw [integral_dirichletMeasure hb]
+      have hae := ae_zero_lt_of_mem_stdSimplex (ι := ι)
+      have hmem := self_mem_ae_restrict
+        (μ := stdSimplexMeasure) (isClosed_stdSimplex ℝ ι).measurableSet
+      have hint :
+          (∫ u in stdSimplex ℝ ι,
+            (∏ i, u i ^ m i) * dirichletPdfReal b u ∂stdSimplexMeasure) =
+          (1 / mvBeta b) *
+            ∫ u in stdSimplex ℝ ι, ∏ i, u i ^ ((b + m) i - 1)
+              ∂stdSimplexMeasure := by
+        rw [← MeasureTheory.integral_const_mul]
+        apply integral_congr_ae
+        filter_upwards [hmem, hae] with u hu hpos
+        have hui : u ∈ stdSimplexInterior := ⟨hu, hpos⟩
+        rw [dirichletPdfReal, Set.indicator_of_mem hui]
+        rw [show (∏ i, u i ^ m i) * ((1 / mvBeta b) * ∏ i, u i ^ (b i - 1)) =
+          (1 / mvBeta b) * ((∏ i, u i ^ m i) * ∏ i, u i ^ (b i - 1)) by ring]
+        rw [← Finset.prod_mul_distrib]
+        congr 1
+        apply Finset.prod_congr rfl
+        intro i _
+        calc
+          u i ^ m i * u i ^ (b i - 1) = u i ^ (m i + (b i - 1)) :=
+            (Real.rpow_add (hpos i) (m i) (b i - 1)).symm
+          _ = u i ^ ((b + m) i - 1) := by
+            congr 1
+            simp only [Pi.add_apply]
+            ring
+      rw [hint, ← mvBeta_eq_integral hm]
+      unfold mvBeta
+      simp only [Pi.add_apply]
+      have hb_sum : Gamma (∑ i, b i) ≠ 0 :=
+        ne_of_gt (Gamma_pos_of_pos (Finset.sum_pos (fun i _ => hb i) Finset.univ_nonempty))
+      have hm_sum : Gamma (∑ i, (b i + m i)) ≠ 0 :=
+        ne_of_gt (Gamma_pos_of_pos
+          (Finset.sum_pos (fun i _ => hm i) Finset.univ_nonempty))
+      have hb_each : ∀ i, Gamma (b i) ≠ 0 := fun i =>
+        ne_of_gt (Gamma_pos_of_pos (hb i))
+      rw [Finset.prod_div_distrib]
+      field_simp
+
+private lemma gamma_add_nat_div_gamma_eq_ascPochhammer
+    (x : ℝ) (hx : 0 < x) (n : ℕ) :
+    Gamma (x + n) / Gamma x = (ascPochhammer ℝ n).eval x := by
+  induction n with
+  | zero => simp [ne_of_gt (Gamma_pos_of_pos hx)]
+  | succ n ih =>
+      rw [Nat.cast_succ]
+      rw [show x + ((n : ℝ) + 1) = (x + n) + 1 by ring]
+      rw [Gamma_add_one (by positivity : x + (n : ℝ) ≠ 0)]
+      rw [ascPochhammer_succ_eval]
+      rw [mul_div_assoc, ih]
+      ring
 
 /-- The integral of a monomial against the Dirichlet measure. -/
 /- The `[Nonempty ι]` hypothesis is essential.  For an empty index type the left side is
@@ -283,13 +423,80 @@ theorem integral_dirichletMeasure_monomial [Nonempty ι]
     ∫ u, (∏ i, u i ^ m i) ∂(dirichletMeasure b) =
       (∏ i, (ascPochhammer ℝ (m i)).eval (b i)) /
         (ascPochhammer ℝ (∑ i, m i)).eval (∑ i, b i) := by
-  sorry
+  let mr : ι → ℝ := fun i => m i
+  have hm : b + mr ∈ mvBetaDomain := by
+    intro i
+    exact add_pos_of_pos_of_nonneg (hb i) (Nat.cast_nonneg _)
+  have hpow := integral_dirichletMeasure_power_product hb mr hm
+  have hfun : (fun u : ι → ℝ => ∏ i, u i ^ mr i) = fun u => ∏ i, u i ^ m i := by
+    funext u
+    simp [mr, Real.rpow_natCast]
+  rw [hfun] at hpow
+  rw [hpow]
+  have hsum_pos : 0 < ∑ i, b i :=
+    Finset.sum_pos (fun i _ => hb i) Finset.univ_nonempty
+  have hsum : (∑ i, (b i + mr i)) = (∑ i, b i) + (∑ i, m i) := by
+    simp [mr, Finset.sum_add_distrib]
+  rw [hsum]
+  have hnum : Gamma ((∑ i, b i) + (∑ i, m i)) / Gamma (∑ i, b i) =
+      (ascPochhammer ℝ (∑ i, m i)).eval (∑ i, b i) :=
+    gamma_add_nat_div_gamma_eq_ascPochhammer _ hsum_pos _
+  have hprod : ∏ i, (Gamma (b i + mr i) / Gamma (b i)) =
+      ∏ i, (ascPochhammer ℝ (m i)).eval (b i) := by
+    apply Finset.prod_congr rfl
+    intro i _
+    simpa [mr] using gamma_add_nat_div_gamma_eq_ascPochhammer (b i) (hb i) (m i)
+  rw [hprod]
+  have hG : Gamma (∑ i, b i) ≠ 0 := ne_of_gt (Gamma_pos_of_pos hsum_pos)
+  have hGN : Gamma ((∑ i, b i) + (∑ i, m i)) ≠ 0 := by
+    apply ne_of_gt (Gamma_pos_of_pos ?_)
+    have hm_nonneg : (0 : ℝ) ≤ ∑ i, m i := by positivity
+    linarith
+  have hP : (ascPochhammer ℝ (∑ i, m i)).eval (∑ i, b i) ≠ 0 := by
+    rw [← hnum]
+    exact div_ne_zero hGN hG
+  have hratio : Gamma (∑ i, b i) / Gamma ((∑ i, b i) + (∑ i, m i)) =
+      ((ascPochhammer ℝ (∑ i, m i)).eval (∑ i, b i))⁻¹ := by
+    rw [← hnum]
+    field_simp
+  rw [hratio, div_eq_mul_inv, mul_comm]
 
 /-- The mean of a single `u i`; a specialization of monomial integration. -/
 theorem integral_dirichletMeasure_coordinate
     {b : ι → ℝ} (hb : b ∈ mvBetaDomain) (i : ι) :
     ∫ u, (u i) ∂(dirichletMeasure b) = (b i) / (∑ j, b j) := by
-  sorry
+  letI : Nonempty ι := ⟨i⟩
+  let m : ι → ℝ := fun j => if j = i then 1 else 0
+  have hm : b + m ∈ mvBetaDomain := by
+    intro j
+    dsimp [m]
+    split_ifs
+    · exact add_pos_of_pos_of_nonneg (hb j) zero_le_one
+    · simpa using hb j
+  have hpow := integral_dirichletMeasure_power_product hb m hm
+  have hsum_pos : 0 < ∑ j, b j :=
+    Finset.sum_pos (fun j _ => hb j) Finset.univ_nonempty
+  have hgamma_sum : Gamma (∑ j, b j) ≠ 0 := ne_of_gt (Gamma_pos_of_pos hsum_pos)
+  have hprod : (fun u : ι → ℝ => ∏ j, u j ^ m j) = fun u => u i := by
+    funext u
+    simp [m]
+  rw [hprod] at hpow
+  have hsum_m : ∑ j, (b j + m j) = (∑ j, b j) + 1 := by
+    simp [m, Finset.sum_add_distrib]
+  have hprod_m : ∏ j, (Gamma (b j + m j) / Gamma (b j)) = b i := by
+    calc
+      ∏ j, (Gamma (b j + m j) / Gamma (b j)) =
+          ∏ j, if j = i then b i else 1 := by
+            apply Finset.prod_congr rfl
+            intro j _
+            by_cases hji : j = i
+            · subst j
+              simp [m, Gamma_add_one, (hb i).ne',
+                ne_of_gt (Gamma_pos_of_pos (hb i))]
+            · simp [m, hji, ne_of_gt (Gamma_pos_of_pos (hb j))]
+      _ = b i := by simp
+  rw [hpow, hsum_m, hprod_m, Gamma_add_one hsum_pos.ne']
+  field_simp
 
 /-- The variance of the coordinate `u i`. -/
 theorem variance_dirichletMeasure_coordinate
