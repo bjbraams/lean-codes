@@ -563,7 +563,7 @@ parametrization `x ↦ ![x, 1 - x]`. -/
   rw [dirichletPdfReal, betaPDFReal, mvBeta_fin_two]
   by_cases hx : 0 < x ∧ x < 1
   · simp [hx, mul_assoc]
-  · rw [ite_eq_right hx]
+  · rw [if_neg hx]
     simp [mem_stdSimplexInterior_fin_two, hx]
 
 /-- The two-variable `ENNReal`-valued Dirichlet density is the beta density. -/

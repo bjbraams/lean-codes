@@ -465,7 +465,7 @@ def stdSimplexMeasure :
 theorem stdSimplexMeasure_eq_at [Nonempty ι] (i : ι) :
     stdSimplexMeasure (ι := ι) = stdSimplexMeasureAt i := by
   unfold stdSimplexMeasure
-  rw [dite_eq_left (inferInstance : Nonempty ι)]
+  rw [dif_pos (inferInstance : Nonempty ι)]
   exact stdSimplexMeasureAt_eq _ i
 
 /-- The coordinate map pushes the restricted volume on the free coordinates to the restricted
@@ -486,7 +486,7 @@ theorem stdSimplexMeasure_restrict_stdSimplex
 @[simp] theorem stdSimplexMeasure_empty [IsEmpty ι] :
     stdSimplexMeasure (ι := ι) = 0 := by
   unfold stdSimplexMeasure
-  exact dite_eq_right (not_nonempty_iff.mpr inferInstance)
+  exact dif_neg (not_nonempty_iff.mpr inferInstance)
 
 /-- For a type with a unique element, the pushforward measure at that element is a Dirac mass
 at the all-ones point. -/
@@ -764,7 +764,7 @@ theorem integral_stdSimplex_unique
   change ∫ u, f u ∂(dirac (fun _ : ι => (1 : ℝ))).restrict (stdSimplex ℝ ι) = _
   rw [MeasureTheory.restrict_dirac' (isClosed_stdSimplex ℝ ι).measurableSet]
   have hmem : (fun _ : ι => (1 : ℝ)) ∈ stdSimplex ℝ ι := by simp [stdSimplex]
-  rw [ite_eq_left hmem]
+  rw [if_pos hmem]
   exact MeasureTheory.integral_dirac f (fun _ : ι => (1 : ℝ))
 
 /-- Basic recursion for evaluation of a monomial integral. -/
