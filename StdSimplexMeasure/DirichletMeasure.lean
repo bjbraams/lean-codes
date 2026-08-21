@@ -111,11 +111,11 @@ instance :
     SigmaFinite (stdSimplexMeasure (ι := ι)) := by
   cases isEmpty_or_nonempty ι with
   | inl h =>
-      letI : IsEmpty ι := h
+      let : IsEmpty ι := h
       rw [stdSimplexMeasure_empty]
       infer_instance
   | inr h =>
-      letI : Nonempty ι := h
+      let : Nonempty ι := h
       let i : ι := Classical.choice h
       rw [stdSimplexMeasure_eq_at i]
       unfold stdSimplexMeasureAt
@@ -123,7 +123,7 @@ instance :
 
 /-- The Radon-Nikodym derivative of the Dirichlet measure is almost everywhere
 equal to the Dirichlet PDF. -/
-theorem rnDeriv_dirichletMeasure {b : ι → ℝ} (hb : b ∈ mvBetaDomain) :
+theorem rnDeriv_dirichletMeasure {b : ι → ℝ} (_ : b ∈ mvBetaDomain) :
     (dirichletMeasure b).rnDeriv stdSimplexMeasure =ᵐ[stdSimplexMeasure]
       dirichletPdf b := by
   rw [dirichletMeasure]
@@ -356,10 +356,10 @@ theorem integral_dirichletMeasure_power_product {b : ι → ℝ} (hb : b ∈ mvB
         ∏ i, (Gamma (b i + m i) / Gamma (b i)) := by
   cases isEmpty_or_nonempty ι with
   | inl h =>
-      letI : IsEmpty ι := h
+      let : IsEmpty ι := h
       simp [dirichletMeasure, stdSimplexMeasure_empty]
   | inr h =>
-      letI : Nonempty ι := h
+      let : Nonempty ι := h
       rw [integral_dirichletMeasure hb]
       have hae := ae_zero_lt_of_mem_stdSimplex (ι := ι)
       have hmem := self_mem_ae_restrict
@@ -465,7 +465,7 @@ theorem integral_dirichletMeasure_monomial [Nonempty ι]
 theorem integral_dirichletMeasure_coordinate
     {b : ι → ℝ} (hb : b ∈ mvBetaDomain) (i : ι) :
     ∫ u, (u i) ∂(dirichletMeasure b) = (b i) / (∑ j, b j) := by
-  letI : Nonempty ι := ⟨i⟩
+  let : Nonempty ι := ⟨i⟩
   let m : ι → ℝ := fun j => if j = i then 1 else 0
   have hm : b + m ∈ mvBetaDomain := by
     intro j

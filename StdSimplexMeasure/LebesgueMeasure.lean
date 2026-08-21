@@ -395,6 +395,12 @@ theorem stdSimplexMeasureAt_eq_map_piSplitAt_symm (i : ι) :
   · exact (Homeomorph.piSplitAt i (fun _ => ℝ)).symm.measurable
   · fun_prop
 
+/- A helper lemma towards `stdSimplexMeasureAt_map_perm`.  -/
+private lemma stdSimplexScaleMap_det (t : ℝ) (i : ι) :
+    abs (LinearMap.det ((1 - t) • (LinearMap.id : ({j // j ≠ i} → ℝ) →ₗ[ℝ] _)))
+      = abs (1 - t) ^ (card ι - 1) := by
+  simp [LinearMap.det_smul, Fintype.card_subtype_compl, abs_pow]
+
 /-- Pushing `stdSimplexMeasureAt (σ i)` forward along `σ` gives `stdSimplexMeasureAt i`. -/
 theorem stdSimplexMeasureAt_map_perm (i : ι) (σ : Equiv.Perm ι) :
   Measure.map (fun u => u ∘ σ)
@@ -486,7 +492,7 @@ theorem stdSimplexMeasure_restrict_stdSimplex
 at the all-ones point. -/
 @[simp] theorem stdSimplexMeasureAt_of_unique [Unique ι] (i : ι) :
     stdSimplexMeasureAt i = dirac (fun _ ↦ (1 : ℝ)) := by
-  letI : IsEmpty {j : ι // j ≠ i} :=
+  let : IsEmpty {j : ι // j ≠ i} :=
     ⟨fun j => j.property (Subsingleton.elim _ _)⟩
   unfold stdSimplexMeasureAt
   rw [Measure.volume_pi_eq_dirac]
@@ -508,10 +514,10 @@ theorem stdSimplexMeasure_restrict_stdSimplexAffineSet :
     stdSimplexMeasure.restrict stdSimplexAffineSet := by
   cases isEmpty_or_nonempty ι with
   | inl h =>
-      letI : IsEmpty ι := h
+      let : IsEmpty ι := h
       simp
   | inr h =>
-      letI : Nonempty ι := h
+      let : Nonempty ι := h
       let i : ι := Classical.choice h
       rw [stdSimplexMeasure_eq_at i]
       unfold stdSimplexMeasureAt
@@ -529,10 +535,10 @@ instance : IsFiniteMeasure (stdSimplexMeasure.restrict (stdSimplex ℝ ι)) := b
   refine ⟨?_⟩
   cases isEmpty_or_nonempty ι with
   | inl h =>
-      letI : IsEmpty ι := h
+      let : IsEmpty ι := h
       simp
   | inr h =>
-      letI : Nonempty ι := h
+      let : Nonempty ι := h
       let i : ι := Classical.choice h
       rw [stdSimplexMeasure_restrict_stdSimplex i]
       rw [Measure.map_apply (measurable_stdSimplexCoordMap i) MeasurableSet.univ]
@@ -598,7 +604,7 @@ theorem stdSimplexMeasure_coord_eq_zero [Nonempty ι] (i : ι) :
   stdSimplexMeasure {u : ι → ℝ | u i = 0} = 0 := by
   cases subsingleton_or_nontrivial ι with
   | inl hι =>
-      letI : Unique ι :=
+      let : Unique ι :=
         ⟨⟨Classical.choice (inferInstance : Nonempty ι)⟩, fun a => hι.elim _ _⟩
       rw [stdSimplexMeasure_unique]
       simp
@@ -758,7 +764,7 @@ theorem integral_stdSimplex_unique
   change ∫ u, f u ∂(dirac (fun _ : ι => (1 : ℝ))).restrict (stdSimplex ℝ ι) = _
   rw [MeasureTheory.restrict_dirac' (isClosed_stdSimplex ℝ ι).measurableSet]
   have hmem : (fun _ : ι => (1 : ℝ)) ∈ stdSimplex ℝ ι := by simp [stdSimplex]
-  rw [if_pos hmem]
+  rw [ite_eq_left hmem]
   exact MeasureTheory.integral_dirac f (fun _ : ι => (1 : ℝ))
 
 /-- Basic recursion for evaluation of a monomial integral. -/
