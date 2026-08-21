@@ -106,12 +106,28 @@ theorem measurable_dirichletPdf (b : ι → ℝ) :
   exact ENNReal.measurable_ofReal.comp
     (measurable_dirichletPdfReal b)
 
+/-- `stdSimplexMeasure` is a `SigmaFinite` measure. -/
+instance :
+    SigmaFinite (stdSimplexMeasure (ι := ι)) := by
+  cases isEmpty_or_nonempty ι with
+  | inl h =>
+      letI : IsEmpty ι := h
+      rw [stdSimplexMeasure_empty]
+      infer_instance
+  | inr h =>
+      letI : Nonempty ι := h
+      let i : ι := Classical.choice h
+      rw [stdSimplexMeasure_eq_at i]
+      unfold stdSimplexMeasureAt
+      exact (isClosedEmbedding_stdSimplexCoordMap i).measurableEmbedding.sigmaFinite_map
+
 /-- The Radon-Nikodym derivative of the Dirichlet measure is almost everywhere
 equal to the Dirichlet PDF. -/
 theorem rnDeriv_dirichletMeasure {b : ι → ℝ} (hb : b ∈ mvBetaDomain) :
     (dirichletMeasure b).rnDeriv stdSimplexMeasure =ᵐ[stdSimplexMeasure]
       dirichletPdf b := by
-  sorry
+  rw [dirichletMeasure]
+  exact Measure.rnDeriv_withDensity _ (measurable_dirichletPdf b)
 
 /-- The real-valued Dirichlet density is nonnegative. -/
 theorem dirichletPdfReal_nonneg [Nonempty ι]
@@ -153,14 +169,9 @@ theorem integral_dirichletMeasure [Nonempty ι]
   · simp [hu, dirichletPdf, dirichletPdfReal,
       stdSimplexInterior]
 
-/-- `stdSimplexMeasure` is a `SigmaFinite` measure. -/
-instance [Nonempty ι] :
-    SigmaFinite (stdSimplexMeasure (ι := ι)) := by
-  sorry
-
 /-- The measure of the standard simplex under the Dirichlet measure equals 1. -/
 theorem dirichletMeasure_stdSimplex
-    {b : ι → ℝ} (hb : b ∈ mvBetaDomain) :
+    [Nonempty ι] {b : ι → ℝ} (hb : b ∈ mvBetaDomain) :
     dirichletMeasure b (stdSimplex ℝ ι) = 1 := by
   sorry
 
@@ -187,7 +198,8 @@ theorem dirichletMeasure_restrict (b : ι → ℝ) :
       stdSimplexInterior]
 
 /-- The Dirichlet measure satisfies `isProbabilityMeasure`. -/
-theorem isProbabilityMeasure_dirichletMeasure {b : ι → ℝ} (hb : b ∈ mvBetaDomain) :
+theorem isProbabilityMeasure_dirichletMeasure [Nonempty ι]
+    {b : ι → ℝ} (hb : b ∈ mvBetaDomain) :
     IsProbabilityMeasure (dirichletMeasure b) := by
   refine ⟨?_⟩
   rw [← dirichletMeasure_restrict b]
@@ -196,7 +208,8 @@ theorem isProbabilityMeasure_dirichletMeasure {b : ι → ℝ} (hb : b ∈ mvBet
 
 /-- The total mass / integral of the constant function 1 with respect to the Dirichlet
 measure is 1. -/
-theorem integral_dirichletMeasure_one {b : ι → ℝ} (hb : b ∈ mvBetaDomain) :
+theorem integral_dirichletMeasure_one [Nonempty ι]
+    {b : ι → ℝ} (hb : b ∈ mvBetaDomain) :
     ∫ _, (1 : ℝ) ∂(dirichletMeasure b) = 1 := by
   let : IsProbabilityMeasure (dirichletMeasure b) :=
     isProbabilityMeasure_dirichletMeasure hb
@@ -262,7 +275,10 @@ theorem integral_dirichletMeasure_power_product {b : ι → ℝ} (hb : b ∈ mvB
   sorry
 
 /-- The integral of a monomial against the Dirichlet measure. -/
-theorem integral_dirichletMeasure_monomial {b : ι → ℝ} (hb : b ∈ mvBetaDomain)
+/- The `[Nonempty ι]` hypothesis is essential.  For an empty index type the left side is
+zero, while the empty products and the degree-zero rising factorial make the right side one. -/
+theorem integral_dirichletMeasure_monomial [Nonempty ι]
+    {b : ι → ℝ} (hb : b ∈ mvBetaDomain)
     (m : ι → ℕ) :
     ∫ u, (∏ i, u i ^ m i) ∂(dirichletMeasure b) =
       (∏ i, (ascPochhammer ℝ (m i)).eval (b i)) /

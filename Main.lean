@@ -1,5 +1,3 @@
-import StdSimplexMeasure
-import Pochhammer
-
-def main : IO Unit :=
-  IO.println s!"Hello, {hello}!"
+import StdSimplexMeasure.LebesgueMeasure
+import StdSimplexMeasure.DirichletMeasure
+import Pochhammer.PochhammerTransform

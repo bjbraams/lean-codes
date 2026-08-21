@@ -144,7 +144,14 @@ def stdSimplexCoordMap (i : ι) (x : {j : ι // j ≠ i} → ℝ) : ι → ℝ :
 /-- The coordinate map maps to `stdSimplexAffineSet`. -/
 @[simp] theorem sum_stdSimplexCoordMap (i : ι) (x : {j : ι // j ≠ i} → ℝ) :
     stdSimplexCoordMap i x ∈ stdSimplexAffineSet := by
-  sorry
+  rw [stdSimplexAffineSet, Set.mem_ofPred_eq, sum_eq_apply_add_sum_ne _ i,
+    stdSimplexCoordMap_apply_self]
+  have h : (∑ j : {j : ι // j ≠ i}, stdSimplexCoordMap i x j) = ∑ j, x j := by
+    apply Finset.sum_congr rfl
+    intro j _
+    exact stdSimplexCoordMap_apply_of_ne i j j.property x
+  rw [h]
+  ring
 
 /-- Projecting after applying the coordinate map recovers the free coordinates. -/
 @[simp] theorem stdSimplexCoordProj_coordMap
@@ -187,8 +194,17 @@ stdSimplexCoordMap i applied to the permuted free coordinates. -/
 theorem stdSimplexCoordMap_comp_perm (i : ι) (σ : Equiv.Perm ι)
     (x : {j : ι // j ≠ σ i} → ℝ) :
   stdSimplexCoordMap (σ i) x ∘ σ =
-    stdSimplexCoordMap i (fun ⟨j, hj⟩ ↦ x ⟨σ j, fun h ↦ hj (σ.injective h)⟩) := by
-  sorry
+    stdSimplexCoordMap i (fun ⟨j, hj⟩ ↦
+      x ⟨σ j, fun h ↦ hj (σ.injective h)⟩) := by
+  have hu : stdSimplexCoordMap (σ i) x ∘ σ ∈ stdSimplexAffineSet := by
+    simpa [stdSimplexAffineSet, Equiv.sum_comp] using
+      sum_stdSimplexCoordMap (σ i) x
+  symm
+  rw [← stdSimplexCoordMap_coordProj i hu]
+  congr 1
+  funext ⟨j, hj⟩
+  change x ⟨σ j, _⟩ = stdSimplexCoordMap (σ i) x (σ j)
+  rw [stdSimplexCoordMap_apply_of_ne (σ i) (σ j) (fun h => hj (σ.injective h))]
 
 /-- The coordinate map is continuous. -/
 theorem continuous_stdSimplexCoordMap (i : ι) :
@@ -426,12 +442,21 @@ theorem stdSimplexMeasure_restrict_stdSimplex
 at the all-ones point. -/
 @[simp] theorem stdSimplexMeasureAt_of_unique [Unique ι] (i : ι) :
     stdSimplexMeasureAt i = dirac (fun _ ↦ (1 : ℝ)) := by
-  sorry
+  letI : IsEmpty {j : ι // j ≠ i} :=
+    ⟨fun j => j.property (Subsingleton.elim _ _)⟩
+  unfold stdSimplexMeasureAt
+  rw [Measure.volume_pi_eq_dirac]
+  rw [Measure.map_dirac' (measurable_stdSimplexCoordMap i)]
+  congr 1
+  funext j
+  have hji : j = i := Subsingleton.elim _ _
+  subst j
+  simp
 
 /-- Restating `stdSimplexMeasureAt_of_unique` in terms of `stdSimplexMeasure`. -/
 theorem stdSimplexMeasure_unique [Unique ι] :
     stdSimplexMeasure (ι := ι) = dirac (fun _ ↦ (1 : ℝ)) := by
-  sorry
+  rw [stdSimplexMeasure_eq_at default, stdSimplexMeasureAt_of_unique]
 
 /-- The coordinate Lebesgue measure is supported on `stdSimplexAffineSet`. -/
 theorem stdSimplexMeasure_restrict_stdSimplexAffineSet :
@@ -448,7 +473,14 @@ the map `x ↦ x ∘ σ` is measurable, and it pushes `stdSimplexMeasure` forwar
 theorem measurePreserving_stdSimplexMeasure_perm (σ : Equiv.Perm ι) :
   MeasurePreserving (fun x => x ∘ σ)
     stdSimplexMeasure stdSimplexMeasure := by
-  sorry
+  refine ⟨continuous_pi (fun j => continuous_apply (σ j)) |>.measurable, ?_⟩
+  cases isEmpty_or_nonempty ι with
+  | inl h =>
+      rw [stdSimplexMeasure_empty, Measure.map_zero]
+  | inr h =>
+      rw [stdSimplexMeasure_eq_at (σ (Classical.choice h)),
+        stdSimplexMeasureAt_map_perm]
+      exact stdSimplexMeasureAt_eq _ _
 
 /-- The pushforward of `stdSimplexMeasure` under a coordinate permutation is
 `stdSimplexMeasure` itself — the `Measure.map` equation extracted from
@@ -489,7 +521,25 @@ theorem stdSimplexMeasureAt_apply
 /-- The coordinate faces have measure 0. -/
 theorem stdSimplexMeasure_coord_eq_zero [Nonempty ι] (i : ι) :
   stdSimplexMeasure {u : ι → ℝ | u i = 0} = 0 := by
-  sorry
+  cases subsingleton_or_nontrivial ι with
+  | inl hι =>
+      letI : Unique ι :=
+        ⟨⟨Classical.choice (inferInstance : Nonempty ι)⟩, fun a => hι.elim _ _⟩
+      rw [stdSimplexMeasure_unique]
+      simp
+  | inr hι =>
+      obtain ⟨j, hji⟩ := exists_ne i
+      rw [stdSimplexMeasure_eq_at j,
+        stdSimplexMeasureAt_apply j
+          (isClosed_eq (continuous_apply i) continuous_const).measurableSet]
+      rw [volume_pi]
+      have hs : stdSimplexCoordMap j ⁻¹' {u : ι → ℝ | u i = 0} =
+          {x : {q : ι // q ≠ j} → ℝ | x ⟨i, hji.symm⟩ = 0} := by
+        ext x
+        change stdSimplexCoordMap j x i = 0 ↔ x ⟨i, hji.symm⟩ = 0
+        rw [stdSimplexCoordMap_apply_of_ne j i hji.symm]
+      rw [hs]
+      exact Measure.pi_hyperplane (fun _ : {q : ι // q ≠ j} => volume) ⟨i, hji.symm⟩ 0
 
 /-- Coordinates are almost never 0. -/
 theorem ae_zero_lt_of_mem_stdSimplex [Nonempty ι] :
@@ -560,7 +610,16 @@ theorem integral_stdSimplex_comp_perm
     (σ : Equiv.Perm ι) (f : (ι → ℝ) → E) :
   ∫ u in stdSimplex ℝ ι, f (u ∘ σ) ∂stdSimplexMeasure =
     ∫ u in stdSimplex ℝ ι, f u ∂stdSimplexMeasure := by
-  sorry
+  have hp := measurePreserving_stdSimplexMeasure_perm σ
+  have he : MeasurableEmbedding (fun u : ι → ℝ => u ∘ σ) := by
+    apply (continuous_pi (fun j => continuous_apply (σ j))).measurableEmbedding
+    intro u v huv
+    funext j
+    have := congrFun huv (σ.symm j)
+    simpa using this
+  have hr := hp.restrict_preimage_emb he (stdSimplex ℝ ι)
+  rw [preimage_stdSimplex_perm] at hr
+  exact hr.integral_comp he f
 
 /-- Continuous functions are integrable on the standard simplex. -/
 theorem ContinuousOn.integrableOn_stdSimplex
@@ -592,10 +651,16 @@ theorem integral_stdSimplex_unique
     {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
     [CompleteSpace E] [Unique ι] (f : (ι → ℝ) → E) :
   ∫ u in stdSimplex ℝ ι, f u ∂stdSimplexMeasure = f (fun _ ↦ 1) := by
-  sorry
+  classical
+  rw [stdSimplexMeasure_unique]
+  change ∫ u, f u ∂(dirac (fun _ : ι => (1 : ℝ))).restrict (stdSimplex ℝ ι) = _
+  rw [MeasureTheory.restrict_dirac' (isClosed_stdSimplex ℝ ι).measurableSet]
+  have hmem : (fun _ : ι => (1 : ℝ)) ∈ stdSimplex ℝ ι := by simp [stdSimplex]
+  rw [if_pos hmem]
+  exact MeasureTheory.integral_dirac f (fun _ : ι => (1 : ℝ))
 
 /-- Basic recursion for evaluation of a monomial integral. -/
-theorem integral_stdSimplex_explicit_monomial_succ (i : ι) (m : ι → ℕ) :
+theorem integral_stdSimplex_explicit_monomial_succ [Nontrivial ι] (i : ι) (m : ι → ℕ) :
   ∫ u in stdSimplex ℝ ι, (∏ j, u j ^ m j) ∂stdSimplexMeasure =
     (Nat.factorial (m i) * Nat.factorial (card ι + (∑ j, m j) - 2 - m i)
       / Nat.factorial (card ι + ∑ j, m j - 1) : ℝ)

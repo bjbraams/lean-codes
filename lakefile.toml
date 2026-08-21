@@ -1,15 +1,12 @@
-name = "StdSimplexMeasure"
+name = "Main"
 version = "0.1.0"
-defaultTargets = ["StdSimplexMeasure", "Pochhammer"]
+defaultTargets = ["Main"]
 
 [[lean_lib]]
-name = "StdSimplexMeasure"
-
-[[lean_lib]]
-name = "Pochhammer"
+name = "Main"
 
 [[lean_exe]]
-name = "stdsimplexmeasure"
+name = "main"
 root = "Main"
 
 [[require]]
