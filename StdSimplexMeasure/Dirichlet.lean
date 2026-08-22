@@ -4,11 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bastiaan J Braams.
 -/
 
-import StdSimplexMeasure.LebesgueMeasure
 import Mathlib.Analysis.Convex.StdSimplex
 import Mathlib.Analysis.SpecialFunctions.Gamma.Beta
-import Mathlib.Probability.Distributions.Beta
 import Mathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
+import Mathlib.Probability.Distributions.Beta
+import StdSimplexMeasure.Integral
 
 /-!
 # Real normalized Dirichlet measure on the standard simplex
@@ -16,6 +16,10 @@ import Mathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 The multivariate Dirichlet measure [KBJ00, Ch 49] is defined on the standard simplex in
 symmetric variables, i.e. `stdSimplex ℝ ι`, or $E^{k-1}$ embedded in $ℝ^k$ where
 `k = card ι`.
+
+The construction uses the standard-simplex coordinate measure and integral API exported by
+`StdSimplexMeasure.Measure` and `StdSimplexMeasure.Integral`. The coordinate constructions are
+provided transitively by `StdSimplexMeasure.Coordinates`.
 
 ## Main definitions and results
 
@@ -29,7 +33,7 @@ Online: https://dx.doi.org/10.1002/0471722065.
 open Real MeasureTheory MeasureTheory.Measure
 open scoped ENNReal
 
-noncomputable section DirichletMeasure
+noncomputable section DirichletDistribution
 
 namespace ProbabilityTheory
 
@@ -251,7 +255,7 @@ theorem integral_dirichletMeasure_one [Nonempty ι]
     isProbabilityMeasure_dirichletMeasure hb
   simp
 
-/-- The Dirichlet measure is absolutely continuous with respect to the Lebesgue measure. -/
+/-- The Dirichlet measure is absolutely continuous with respect to `stdSimplexMeasure`. -/
 theorem absolutelyContinuous_dirichletMeasure (b : ι → ℝ) :
     dirichletMeasure b ≪ stdSimplexMeasure :=
   withDensity_absolutelyContinuous _ _
@@ -265,8 +269,42 @@ theorem dirichletMeasureUniform_one :
     dirichletMeasureUniform (ι := ι) 1 =
       (1 / stdSimplexMeasure (stdSimplex ℝ ι)) •
       stdSimplexMeasure.restrict (stdSimplex ℝ ι) := by
-  sorry
+  cases isEmpty_or_nonempty ι with
+  | inl hι =>
+      let : IsEmpty ι := hι
+      simp [dirichletMeasureUniform, dirichletMeasure, stdSimplexMeasure_empty]
+  | inr hι =>
+      let : Nonempty ι := hι
+      let b : ι → ℝ := fun _ => 1
+      have hb : b ∈ mvBetaDomain := by simp [b, mvBetaDomain]
+      have hs := (isClosed_stdSimplex ℝ ι).measurableSet
+      rw [show dirichletMeasureUniform (ι := ι) 1 = dirichletMeasure b by rfl]
+      rw [← dirichletMeasure_restrict b]
+      unfold dirichletMeasure
+      rw [restrict_withDensity hs]
+      have hd : dirichletPdf b =ᵐ[stdSimplexMeasure.restrict (stdSimplex ℝ ι)]
+          fun _ => ENNReal.ofReal (1 / mvBeta b) := by
+        have hmem := self_mem_ae_restrict (μ := stdSimplexMeasure) hs
+        have hpos := ae_zero_lt_of_mem_stdSimplex (ι := ι)
+        filter_upwards [hmem, hpos] with u hu hupos
+        simp [dirichletPdf, dirichletPdfReal, stdSimplexInterior, hu, hupos, b]
+      rw [withDensity_congr_ae hd, withDensity_const]
+      congr 1
+      rw [stdSimplexMeasure_stdSimplex]
+      unfold mvBeta
+      have hcpos : 0 < Fintype.card ι := Fintype.card_pos
+      have hgamma : 0 < Gamma (Fintype.card ι : ℝ) :=
+        Real.Gamma_pos_of_pos (by exact_mod_cast hcpos)
+      simp only [b, Finset.prod_const_one, Finset.sum_const, Finset.card_univ,
+        nsmul_eq_mul, mul_one, Gamma_one]
+      have hcard : Fintype.card ι = (Fintype.card ι - 1) + 1 := by omega
+      rw [show (Fintype.card ι : ℝ) = ((Fintype.card ι - 1 : ℕ) : ℝ) + 1 by
+        exact_mod_cast hcard]
+      rw [Real.Gamma_nat_eq_factorial]
+      simp
 
+/-- Simultaneously permuting the parameters and coordinates leaves the Dirichlet density
+unchanged. -/
 private lemma dirichletPdf_perm (b : ι → ℝ) (σ : Equiv.Perm ι) (u : ι → ℝ) :
     dirichletPdf (b ∘ σ) (u ∘ σ) = dirichletPdf b u := by
   unfold dirichletPdf dirichletPdfReal
@@ -401,6 +439,8 @@ theorem integral_dirichletMeasure_power_product {b : ι → ℝ} (hb : b ∈ mvB
       rw [Finset.prod_div_distrib]
       field_simp
 
+/-- A quotient of gamma values separated by a natural number equals the corresponding rising
+factorial. -/
 private lemma gamma_add_nat_div_gamma_eq_ascPochhammer
     (x : ℝ) (hx : 0 < x) (n : ℕ) :
     Gamma (x + n) / Gamma x = (ascPochhammer ℝ n).eval x := by
@@ -498,12 +538,131 @@ theorem integral_dirichletMeasure_coordinate
   rw [hpow, hsum_m, hprod_m, Gamma_add_one hsum_pos.ne']
   field_simp
 
+/-- The second raw moment of one coordinate under a Dirichlet measure. -/
+private lemma integral_dirichletMeasure_coordinate_sq
+    {b : ι → ℝ} (hb : b ∈ mvBetaDomain) (i : ι) :
+    ∫ u, (u i) ^ 2 ∂(dirichletMeasure b) =
+      b i * (b i + 1) / ((∑ j, b j) * (∑ j, b j + 1)) := by
+  let : Nonempty ι := ⟨i⟩
+  let m : ι → ℕ := fun j => if j = i then 2 else 0
+  have h := integral_dirichletMeasure_monomial hb m
+  have hprod : (fun u : ι → ℝ => ∏ j, u j ^ m j) = fun u => u i ^ 2 := by
+    funext u
+    simp [m]
+  rw [hprod] at h
+  rw [h]
+  have hnum : ∏ j, (ascPochhammer ℝ (m j)).eval (b j) = b i * (b i + 1) := by
+    calc
+      _ = ∏ j, if j = i then b i * (b i + 1) else 1 := by
+        apply Finset.prod_congr rfl
+        intro j _
+        by_cases hji : j = i
+        · subst j
+          simp [m, ascPochhammer_succ_eval]
+        · simp [m, hji]
+      _ = _ := by simp
+  have hsum : ∑ j, m j = 2 := by simp [m]
+  rw [hnum, hsum]
+  simp [ascPochhammer_succ_eval]
+
+/-- The mixed raw moment of two distinct coordinates under a Dirichlet measure. -/
+private lemma integral_dirichletMeasure_two_coordinates
+    {b : ι → ℝ} (hb : b ∈ mvBetaDomain) {i j : ι} (hij : i ≠ j) :
+    ∫ u, u i * u j ∂(dirichletMeasure b) =
+      b i * b j / ((∑ k, b k) * (∑ k, b k + 1)) := by
+  let : Nonempty ι := ⟨i⟩
+  let m : ι → ℕ := fun k => if k = i then 1 else if k = j then 1 else 0
+  have h := integral_dirichletMeasure_monomial hb m
+  have hprod : (fun u : ι → ℝ => ∏ k, u k ^ m k) = fun u => u i * u j := by
+    funext u
+    simp only [m, pow_ite, pow_one, pow_zero]
+    rw [show (∏ k, if k = i then u k else if k = j then u k else 1) =
+        ∏ k, (if k = i then u i else 1) * (if k = j then u j else 1) by
+      apply Finset.prod_congr rfl
+      intro k _
+      by_cases hki : k = i <;> by_cases hkj : k = j <;>
+        simp [hki, hkj, hij, hij.symm]]
+    rw [Finset.prod_mul_distrib]
+    simp
+  rw [hprod] at h
+  rw [h]
+  have hnum : ∏ k, (ascPochhammer ℝ (m k)).eval (b k) = b i * b j := by
+    calc
+      _ = ∏ k, if k = i then b i else if k = j then b j else 1 := by
+        apply Finset.prod_congr rfl
+        intro k _
+        by_cases hki : k = i
+        · subst k
+          simp [m]
+        · by_cases hkj : k = j
+          · subst k
+            simp [m, hki]
+          · simp [m, hki, hkj]
+      _ = ∏ k, (if k = i then b i else 1) * (if k = j then b j else 1) := by
+        apply Finset.prod_congr rfl
+        intro k _
+        by_cases hki : k = i <;> by_cases hkj : k = j <;>
+          simp [hki, hkj, hij, hij.symm]
+      _ = _ := by rw [Finset.prod_mul_distrib]; simp
+  have hsum : ∑ k, m k = 2 := by
+    simp only [m]
+    rw [show (∑ k, if k = i then 1 else if k = j then 1 else 0) =
+        (∑ k, if k = i then 1 else 0) + ∑ k, (if k = j then 1 else 0) by
+      rw [← Finset.sum_add_distrib]
+      apply Finset.sum_congr rfl
+      intro k _
+      by_cases hki : k = i <;> by_cases hkj : k = j <;>
+        simp [hki, hkj, hij, hij.symm]]
+    simp
+  rw [hnum, hsum]
+  simp [ascPochhammer_succ_eval]
+
 /-- The variance of the coordinate `u i`. -/
 theorem variance_dirichletMeasure_coordinate
     {b : ι → ℝ} (hb : b ∈ mvBetaDomain) (i : ι) :
     ∫ u, (u i - b i / ∑ j, b j) ^ 2 ∂(dirichletMeasure b) =
       (b i) * (∑ j, b j - b i) / ((∑ j, b j) ^ 2 * (∑ j, b j + 1)) := by
-  sorry
+  let : Nonempty ι := ⟨i⟩
+  let : IsProbabilityMeasure (dirichletMeasure b) :=
+    isProbabilityMeasure_dirichletMeasure hb
+  let S := ∑ j, b j
+  have hS : 0 < S := Finset.sum_pos (fun j _ => hb j) Finset.univ_nonempty
+  have hmean := integral_dirichletMeasure_coordinate hb i
+  have hsquare := integral_dirichletMeasure_coordinate_sq hb i
+  have hmean_int : Integrable (fun u : ι → ℝ => u i) (dirichletMeasure b) := by
+    apply Integrable.of_integral_ne_zero
+    rw [hmean]
+    exact div_ne_zero (hb i).ne' hS.ne'
+  have hsquare_int : Integrable (fun u : ι → ℝ => u i ^ 2) (dirichletMeasure b) := by
+    apply Integrable.of_integral_ne_zero
+    rw [hsquare]
+    exact div_ne_zero
+      (mul_ne_zero (hb i).ne' (add_pos_of_pos_of_nonneg (hb i) zero_le_one).ne')
+      (mul_ne_zero hS.ne' (add_pos_of_pos_of_nonneg hS zero_le_one).ne')
+  have hconst : Integrable (fun _ : ι → ℝ => (b i / S) ^ 2) (dirichletMeasure b) :=
+    integrable_const _
+  calc
+    ∫ u, (u i - b i / ∑ j, b j) ^ 2 ∂(dirichletMeasure b) =
+        ∫ u, (u i ^ 2 - (2 * (b i / S)) * u i + (b i / S) ^ 2)
+          ∂(dirichletMeasure b) := by
+            apply integral_congr_ae
+            filter_upwards [] with u
+            simp only [S]
+            ring
+    _ = (∫ u, u i ^ 2 ∂(dirichletMeasure b)) -
+        (2 * (b i / S)) * (∫ u, u i ∂(dirichletMeasure b)) + (b i / S) ^ 2 := by
+      have heq : (fun u : ι → ℝ => u i ^ 2 - 2 * (b i / S) * u i + (b i / S) ^ 2) =
+          (fun u : ι → ℝ => u i ^ 2) - (fun u : ι → ℝ => 2 * (b i / S) * u i) +
+            (fun _ : ι → ℝ => (b i / S) ^ 2) := by rfl
+      rw [heq]
+      rw [integral_add' (hsquare_int.sub (hmean_int.const_mul _)) hconst,
+        integral_sub' hsquare_int (hmean_int.const_mul _), integral_const_mul, integral_const]
+      simp
+    _ = _ := by
+      rw [hsquare, hmean]
+      dsimp [S] at hS ⊢
+      field_simp
+      ring
 
 /-- The covariance of distinct coordinates `u i` and `u j`. -/
 theorem covariance_dirichletMeasure_coordinate
@@ -511,7 +670,59 @@ theorem covariance_dirichletMeasure_coordinate
     ∫ u, (u i - b i / ∑ k, b k) * (u j - b j / ∑ k, b k)
       ∂(dirichletMeasure b) =
       -(b i) * (b j) / ((∑ k, b k) ^ 2 * (∑ k, b k + 1)) := by
-  sorry
+  let : Nonempty ι := ⟨i⟩
+  let : IsProbabilityMeasure (dirichletMeasure b) :=
+    isProbabilityMeasure_dirichletMeasure hb
+  let S := ∑ k, b k
+  have hS : 0 < S := Finset.sum_pos (fun k _ => hb k) Finset.univ_nonempty
+  have hmeani := integral_dirichletMeasure_coordinate hb i
+  have hmeanj := integral_dirichletMeasure_coordinate hb j
+  have hcross := integral_dirichletMeasure_two_coordinates hb hij
+  have hi_int : Integrable (fun u : ι → ℝ => u i) (dirichletMeasure b) := by
+    apply Integrable.of_integral_ne_zero
+    rw [hmeani]
+    exact div_ne_zero (hb i).ne' hS.ne'
+  have hj_int : Integrable (fun u : ι → ℝ => u j) (dirichletMeasure b) := by
+    apply Integrable.of_integral_ne_zero
+    rw [hmeanj]
+    exact div_ne_zero (hb j).ne' hS.ne'
+  have hcross_int : Integrable (fun u : ι → ℝ => u i * u j) (dirichletMeasure b) := by
+    apply Integrable.of_integral_ne_zero
+    rw [hcross]
+    exact div_ne_zero (mul_ne_zero (hb i).ne' (hb j).ne')
+      (mul_ne_zero hS.ne' (add_pos_of_pos_of_nonneg hS zero_le_one).ne')
+  have hconst : Integrable (fun _ : ι → ℝ => (b i / S) * (b j / S))
+      (dirichletMeasure b) := integrable_const _
+  calc
+    ∫ u, (u i - b i / ∑ k, b k) * (u j - b j / ∑ k, b k)
+        ∂(dirichletMeasure b) =
+      ∫ u, u i * u j - (b j / S) * u i - (b i / S) * u j +
+        (b i / S) * (b j / S) ∂(dirichletMeasure b) := by
+          apply integral_congr_ae
+          filter_upwards [] with u
+          simp only [S]
+          ring
+    _ = (∫ u, u i * u j ∂(dirichletMeasure b)) -
+        (b j / S) * (∫ u, u i ∂(dirichletMeasure b)) -
+        (b i / S) * (∫ u, u j ∂(dirichletMeasure b)) +
+        (b i / S) * (b j / S) := by
+      have heq : (fun u : ι → ℝ => u i * u j - (b j / S) * u i -
+          (b i / S) * u j + (b i / S) * (b j / S)) =
+        (((fun u : ι → ℝ => u i * u j) - (fun u : ι → ℝ => (b j / S) * u i)) -
+          (fun u : ι → ℝ => (b i / S) * u j)) +
+          (fun _ : ι → ℝ => (b i / S) * (b j / S)) := by rfl
+      rw [heq]
+      rw [integral_add'
+          ((hcross_int.sub (hi_int.const_mul _)).sub (hj_int.const_mul _)) hconst,
+        integral_sub' (hcross_int.sub (hi_int.const_mul _)) (hj_int.const_mul _),
+        integral_sub' hcross_int (hi_int.const_mul _), integral_const_mul,
+        integral_const_mul, integral_const]
+      simp
+    _ = _ := by
+      rw [hcross, hmeani, hmeanj]
+      dsimp [S] at hS ⊢
+      field_simp
+      ring
 
 /- Specializations to the two-variable Dirichlet (Beta) density and measure that is defined
 in Mathlib `ProbabilityTheory.betaMeasure`. -/
@@ -587,5 +798,5 @@ then (X_i / ∑_j X_j)_i is Dirichlet(b)-distributed. -/
 
 end ProbabilityTheory
 
-end DirichletMeasure
+end DirichletDistribution
 -- #lint

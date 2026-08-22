@@ -1,3 +1,3 @@
-import StdSimplexMeasure.LebesgueMeasure
-import StdSimplexMeasure.DirichletMeasure
+import StdSimplexMeasure.Integral
+import StdSimplexMeasure.Dirichlet
 import Pochhammer.PochhammerTransform
