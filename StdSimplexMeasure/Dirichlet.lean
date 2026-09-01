@@ -39,26 +39,25 @@ namespace ProbabilityTheory
 
 variable {ι : Type*} [Fintype ι]
 
-/-- Allow `ι` to have noncomputable equality. -/
-local instance stdSimplexDecidableEq : DecidableEq ι := Classical.decEq ι
+open scoped Classical
 
 /-- The multivariate real Beta function. -/
-noncomputable def mvBeta (b : ι → ℝ) : ℝ :=
+noncomputable def mvRealBeta (b : ι → ℝ) : ℝ :=
   (∏ i, Gamma (b i)) / Gamma (∑ i, b i)
 
 /-- Domain for `b` where the Beta function is defined as an integral. -/
-def mvBetaDomain : Set (ι → ℝ) :=
+def mvRealBetaDomain : Set (ι → ℝ) :=
   {b | ∀ i, 0 < b i}
 
-/-- `mvBeta` is positive on `mvBetaDomain`. -/
-theorem mvBeta_pos [Nonempty ι] {b : ι → ℝ} (hb : b ∈ mvBetaDomain) :
-    0 < mvBeta b := by
-  refine div_pos (Finset.prod_pos fun i _ => Real.Gamma_pos_of_pos (hb i)) ?_
-  exact Real.Gamma_pos_of_pos (Finset.sum_pos (fun i _ => hb i) Finset.univ_nonempty)
+/-- `mvRealBeta` is positive on `mvRealBetaDomain`. -/
+theorem mvRealBeta_pos [Nonempty ι] {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain) :
+    0 < mvRealBeta b := by
+  refine div_pos (Finset.prod_pos fun i _ => Gamma_pos_of_pos (hb i)) ?_
+  exact Gamma_pos_of_pos (Finset.sum_pos (fun i _ => hb i) Finset.univ_nonempty)
 
-/-- The integral representation of `mvBeta`. -/
-theorem mvBeta_eq_integral {b : ι → ℝ} (hb : b ∈ mvBetaDomain) :
-    mvBeta b =
+/-- The integral representation of `mvRealBeta`. -/
+theorem mvRealBeta_eq_integral {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain) :
+    mvRealBeta b =
       ∫ u in stdSimplex ℝ ι, ∏ i, u i ^ (b i - 1) ∂stdSimplexMeasure := by
   sorry
 
@@ -69,7 +68,7 @@ def stdSimplexInterior : Set (ι → ℝ) :=
 /-- The real-valued Dirichlet PDF with parameters `b`. This PDF is supported on
 `stdSimplexInterior ι`. -/
 def dirichletPdfReal (b : ι → ℝ) (u : ι → ℝ) : ℝ :=
-  (1 / mvBeta b) *
+  (1 / mvRealBeta b) *
     stdSimplexInterior.indicator (fun u ↦ ∏ i, u i ^ (b i - 1)) u
 
 /-- The `ENNReal`-valued Dirichlet PDF. -/
@@ -127,7 +126,7 @@ instance :
 
 /-- The Radon-Nikodym derivative of the Dirichlet measure is almost everywhere
 equal to the Dirichlet PDF. -/
-theorem rnDeriv_dirichletMeasure {b : ι → ℝ} (_ : b ∈ mvBetaDomain) :
+theorem rnDeriv_dirichletMeasure {b : ι → ℝ} (_ : b ∈ mvRealBetaDomain) :
     (dirichletMeasure b).rnDeriv stdSimplexMeasure =ᵐ[stdSimplexMeasure]
       dirichletPdf b := by
   rw [dirichletMeasure]
@@ -135,22 +134,22 @@ theorem rnDeriv_dirichletMeasure {b : ι → ℝ} (_ : b ∈ mvBetaDomain) :
 
 /-- The real-valued Dirichlet density is nonnegative. -/
 theorem dirichletPdfReal_nonneg [Nonempty ι]
-    {b : ι → ℝ} (hb : b ∈ mvBetaDomain)
+    {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain)
     (u : ι → ℝ) :
     0 ≤ dirichletPdfReal b u := by
   unfold dirichletPdfReal
   refine mul_nonneg
-    (le_of_lt (one_div_pos.mpr (mvBeta_pos hb))) ?_
+    (le_of_lt (one_div_pos.mpr (mvRealBeta_pos hb))) ?_
   by_cases hu : u ∈ stdSimplexInterior
   · rw [Set.indicator_of_mem hu]
     exact Finset.prod_nonneg fun i _ =>
-      (Real.rpow_pos_of_pos (hu.2 i) _).le
+      (rpow_pos_of_pos (hu.2 i) _).le
   · simp [Set.indicator_of_notMem hu]
 
 /-- Unwraps an integral against the Dirichlet measure into an integral against the
 standard simplex measure, explicitly multiplying the function by the Dirichlet density. -/
 theorem integral_dirichletMeasure [Nonempty ι]
-    {b : ι → ℝ} (hb : b ∈ mvBetaDomain)
+    {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain)
     (f : (ι → ℝ) → ℝ) :
     ∫ u, f u ∂(dirichletMeasure b) =
       ∫ u in stdSimplex ℝ ι,
@@ -175,16 +174,16 @@ theorem integral_dirichletMeasure [Nonempty ι]
 
 /-- The measure of the standard simplex under the Dirichlet measure equals 1. -/
 theorem dirichletMeasure_stdSimplex
-    [Nonempty ι] {b : ι → ℝ} (hb : b ∈ mvBetaDomain) :
+    [Nonempty ι] {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain) :
     dirichletMeasure b (stdSimplex ℝ ι) = 1 := by
   let p : (ι → ℝ) → ℝ := fun u => ∏ i, u i ^ (b i - 1)
   have hp_int : IntegrableOn p (stdSimplex ℝ ι) stdSimplexMeasure := by
     apply Integrable.of_integral_ne_zero
-    rw [← mvBeta_eq_integral hb]
-    exact ne_of_gt (mvBeta_pos hb)
+    rw [← mvRealBeta_eq_integral hb]
+    exact ne_of_gt (mvRealBeta_pos hb)
   have hd_int : IntegrableOn (dirichletPdfReal b) (stdSimplex ℝ ι)
       stdSimplexMeasure := by
-    apply hp_int.const_mul (1 / mvBeta b) |>.congr
+    apply hp_int.const_mul (1 / mvRealBeta b) |>.congr
     have hae := ae_zero_lt_of_mem_stdSimplex (ι := ι)
     have hmem := self_mem_ae_restrict
       (μ := stdSimplexMeasure) (isClosed_stdSimplex ℝ ι).measurableSet
@@ -197,15 +196,15 @@ theorem dirichletMeasure_stdSimplex
       (μ := stdSimplexMeasure) (isClosed_stdSimplex ℝ ι).measurableSet
     calc
       ∫ u in stdSimplex ℝ ι, dirichletPdfReal b u ∂stdSimplexMeasure =
-          ∫ u in stdSimplex ℝ ι, (1 / mvBeta b) * p u ∂stdSimplexMeasure := by
+          ∫ u in stdSimplex ℝ ι, (1 / mvRealBeta b) * p u ∂stdSimplexMeasure := by
             apply integral_congr_ae
             filter_upwards [hmem, hae] with u hu hpos
             simp [dirichletPdfReal, stdSimplexInterior, hu, hpos, p]
-      _ = (1 / mvBeta b) * ∫ u in stdSimplex ℝ ι, p u ∂stdSimplexMeasure := by
+      _ = (1 / mvRealBeta b) * ∫ u in stdSimplex ℝ ι, p u ∂stdSimplexMeasure := by
         rw [MeasureTheory.integral_const_mul]
       _ = 1 := by
-        rw [← mvBeta_eq_integral hb]
-        field_simp [ne_of_gt (mvBeta_pos hb)]
+        rw [← mvRealBeta_eq_integral hb]
+        field_simp [ne_of_gt (mvRealBeta_pos hb)]
   unfold dirichletMeasure
   rw [withDensity_apply _ (isClosed_stdSimplex ℝ ι).measurableSet]
   unfold dirichletPdf
@@ -239,7 +238,7 @@ theorem dirichletMeasure_restrict (b : ι → ℝ) :
 
 /-- The Dirichlet measure satisfies `isProbabilityMeasure`. -/
 theorem isProbabilityMeasure_dirichletMeasure [Nonempty ι]
-    {b : ι → ℝ} (hb : b ∈ mvBetaDomain) :
+    {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain) :
     IsProbabilityMeasure (dirichletMeasure b) := by
   refine ⟨?_⟩
   rw [← dirichletMeasure_restrict b]
@@ -249,7 +248,7 @@ theorem isProbabilityMeasure_dirichletMeasure [Nonempty ι]
 /-- The total mass / integral of the constant function 1 with respect to the Dirichlet
 measure is 1. -/
 theorem integral_dirichletMeasure_one [Nonempty ι]
-    {b : ι → ℝ} (hb : b ∈ mvBetaDomain) :
+    {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain) :
     ∫ _, (1 : ℝ) ∂(dirichletMeasure b) = 1 := by
   let : IsProbabilityMeasure (dirichletMeasure b) :=
     isProbabilityMeasure_dirichletMeasure hb
@@ -276,14 +275,14 @@ theorem dirichletMeasureUniform_one :
   | inr hι =>
       let : Nonempty ι := hι
       let b : ι → ℝ := fun _ => 1
-      have hb : b ∈ mvBetaDomain := by simp [b, mvBetaDomain]
+      have hb : b ∈ mvRealBetaDomain := by simp [b, mvRealBetaDomain]
       have hs := (isClosed_stdSimplex ℝ ι).measurableSet
       rw [show dirichletMeasureUniform (ι := ι) 1 = dirichletMeasure b by rfl]
       rw [← dirichletMeasure_restrict b]
       unfold dirichletMeasure
       rw [restrict_withDensity hs]
       have hd : dirichletPdf b =ᵐ[stdSimplexMeasure.restrict (stdSimplex ℝ ι)]
-          fun _ => ENNReal.ofReal (1 / mvBeta b) := by
+          fun _ => ENNReal.ofReal (1 / mvRealBeta b) := by
         have hmem := self_mem_ae_restrict (μ := stdSimplexMeasure) hs
         have hpos := ae_zero_lt_of_mem_stdSimplex (ι := ι)
         filter_upwards [hmem, hpos] with u hu hupos
@@ -291,25 +290,25 @@ theorem dirichletMeasureUniform_one :
       rw [withDensity_congr_ae hd, withDensity_const]
       congr 1
       rw [stdSimplexMeasure_stdSimplex]
-      unfold mvBeta
+      unfold mvRealBeta
       have hcpos : 0 < Fintype.card ι := Fintype.card_pos
       have hgamma : 0 < Gamma (Fintype.card ι : ℝ) :=
-        Real.Gamma_pos_of_pos (by exact_mod_cast hcpos)
+        Gamma_pos_of_pos (by exact_mod_cast hcpos)
       simp only [b, Finset.prod_const_one, Finset.sum_const, Finset.card_univ,
         nsmul_eq_mul, mul_one, Gamma_one]
       have hcard : Fintype.card ι = (Fintype.card ι - 1) + 1 := by omega
       rw [show (Fintype.card ι : ℝ) = ((Fintype.card ι - 1 : ℕ) : ℝ) + 1 by
         exact_mod_cast hcard]
-      rw [Real.Gamma_nat_eq_factorial]
+      rw [Gamma_nat_eq_factorial]
       simp
 
 /-- Simultaneously permuting the parameters and coordinates leaves the Dirichlet density
 unchanged. -/
-private lemma dirichletPdf_perm (b : ι → ℝ) (σ : Equiv.Perm ι) (u : ι → ℝ) :
+theorem dirichletPdf_perm (b : ι → ℝ) (σ : Equiv.Perm ι) (u : ι → ℝ) :
     dirichletPdf (b ∘ σ) (u ∘ σ) = dirichletPdf b u := by
   unfold dirichletPdf dirichletPdfReal
-  have hbeta : mvBeta (b ∘ σ) = mvBeta b := by
-    unfold mvBeta
+  have hbeta : mvRealBeta (b ∘ σ) = mvRealBeta b := by
+    unfold mvRealBeta
     simp only [Function.comp_apply, Equiv.sum_comp]
     congr 1
     exact Equiv.prod_comp σ (fun i => Gamma (b i))
@@ -362,8 +361,8 @@ theorem measurePreserving_dirichletMeasure_perm (b : ι → ℝ) (σ : Equiv.Per
 `dirichletMeasure b` forward along `stdSimplexAggregate f` gives the Dirichlet
 measure for the aggregated parameter vector. -/
 theorem measurePreserving_stdSimplexAggregate_dirichletMeasure
-    {κ : Type*} [Fintype κ] [DecidableEq κ] {f : ι → κ} (hf : Function.Surjective f)
-    {b : ι → ℝ} (hb : b ∈ mvBetaDomain) :
+    {κ : Type*} [Fintype κ] {f : ι → κ} (hf : Function.Surjective f)
+    {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain) :
     MeasurePreserving (stdSimplexAggregate f)
       (dirichletMeasure b) (dirichletMeasure (stdSimplexAggregate f b)) := by
   sorry
@@ -372,8 +371,8 @@ theorem measurePreserving_stdSimplexAggregate_dirichletMeasure
 `measurePreserving_stdSimplexAggregate_dirichletMeasure` in terms of `stdSimplexMeasure` and
 `dirichletPdf` directly rather than the bundled `dirichletMeasure`. -/
 theorem stdSimplexAggregate_withDensity
-    {κ : Type*} [Fintype κ] [DecidableEq κ] {f : ι → κ} (hf : Function.Surjective f)
-    {b : ι → ℝ} (hb : b ∈ mvBetaDomain) :
+    {κ : Type*} [Fintype κ] {f : ι → κ} (hf : Function.Surjective f)
+    {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain) :
     Measure.map (stdSimplexAggregate f)
       (stdSimplexMeasure.withDensity (fun u ↦ ENNReal.ofReal (dirichletPdfReal b u))) =
       stdSimplexMeasure.withDensity
@@ -381,14 +380,14 @@ theorem stdSimplexAggregate_withDensity
   (measurePreserving_stdSimplexAggregate_dirichletMeasure hf hb).map_eq
 
 /-- Marginalization of the Dirichlet density with respect to the `i` coordinate. -/
-theorem betaMarginal [Nontrivial ι] {b : ι → ℝ} (hb : b ∈ mvBetaDomain) (i : ι) :
+theorem betaMarginal [Nontrivial ι] {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain) (i : ι) :
     Measure.map (fun u ↦ u i) (dirichletMeasure b) =
       betaMeasure (b i) (∑ j ∈ Finset.univ.erase i, b j) := by
   sorry
 
 /-- The integral of a power product (generalized monomial) against the Dirichlet measure. -/
-theorem integral_dirichletMeasure_power_product {b : ι → ℝ} (hb : b ∈ mvBetaDomain)
-    (m : ι → ℝ) (hm : b + m ∈ mvBetaDomain) :
+theorem integral_dirichletMeasure_power_product {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain)
+    (m : ι → ℝ) (hm : b + m ∈ mvRealBetaDomain) :
     ∫ u, (∏ i, u i ^ m i) ∂(dirichletMeasure b) =
       (Gamma (∑ i, b i) / Gamma (∑ i, (b i + m i))) *
         ∏ i, (Gamma (b i + m i) / Gamma (b i)) := by
@@ -405,7 +404,7 @@ theorem integral_dirichletMeasure_power_product {b : ι → ℝ} (hb : b ∈ mvB
       have hint :
           (∫ u in stdSimplex ℝ ι,
             (∏ i, u i ^ m i) * dirichletPdfReal b u ∂stdSimplexMeasure) =
-          (1 / mvBeta b) *
+          (1 / mvRealBeta b) *
             ∫ u in stdSimplex ℝ ι, ∏ i, u i ^ ((b + m) i - 1)
               ∂stdSimplexMeasure := by
         rw [← MeasureTheory.integral_const_mul]
@@ -413,21 +412,21 @@ theorem integral_dirichletMeasure_power_product {b : ι → ℝ} (hb : b ∈ mvB
         filter_upwards [hmem, hae] with u hu hpos
         have hui : u ∈ stdSimplexInterior := ⟨hu, hpos⟩
         rw [dirichletPdfReal, Set.indicator_of_mem hui]
-        rw [show (∏ i, u i ^ m i) * ((1 / mvBeta b) * ∏ i, u i ^ (b i - 1)) =
-          (1 / mvBeta b) * ((∏ i, u i ^ m i) * ∏ i, u i ^ (b i - 1)) by ring]
+        rw [show (∏ i, u i ^ m i) * ((1 / mvRealBeta b) * ∏ i, u i ^ (b i - 1)) =
+          (1 / mvRealBeta b) * ((∏ i, u i ^ m i) * ∏ i, u i ^ (b i - 1)) by ring]
         rw [← Finset.prod_mul_distrib]
         congr 1
         apply Finset.prod_congr rfl
         intro i _
         calc
           u i ^ m i * u i ^ (b i - 1) = u i ^ (m i + (b i - 1)) :=
-            (Real.rpow_add (hpos i) (m i) (b i - 1)).symm
+            (rpow_add (hpos i) (m i) (b i - 1)).symm
           _ = u i ^ ((b + m) i - 1) := by
             congr 1
             simp only [Pi.add_apply]
             ring
-      rw [hint, ← mvBeta_eq_integral hm]
-      unfold mvBeta
+      rw [hint, ← mvRealBeta_eq_integral hm]
+      unfold mvRealBeta
       simp only [Pi.add_apply]
       have hb_sum : Gamma (∑ i, b i) ≠ 0 :=
         ne_of_gt (Gamma_pos_of_pos (Finset.sum_pos (fun i _ => hb i) Finset.univ_nonempty))
@@ -441,7 +440,7 @@ theorem integral_dirichletMeasure_power_product {b : ι → ℝ} (hb : b ∈ mvB
 
 /-- A quotient of gamma values separated by a natural number equals the corresponding rising
 factorial. -/
-private lemma gamma_add_nat_div_gamma_eq_ascPochhammer
+theorem gamma_add_nat_div_gamma_eq_ascPochhammer
     (x : ℝ) (hx : 0 < x) (n : ℕ) :
     Gamma (x + n) / Gamma x = (ascPochhammer ℝ n).eval x := by
   induction n with
@@ -458,19 +457,19 @@ private lemma gamma_add_nat_div_gamma_eq_ascPochhammer
 /- The `[Nonempty ι]` hypothesis is essential.  For an empty index type the left side is
 zero, while the empty products and the degree-zero rising factorial make the right side one. -/
 theorem integral_dirichletMeasure_monomial [Nonempty ι]
-    {b : ι → ℝ} (hb : b ∈ mvBetaDomain)
+    {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain)
     (m : ι → ℕ) :
     ∫ u, (∏ i, u i ^ m i) ∂(dirichletMeasure b) =
       (∏ i, (ascPochhammer ℝ (m i)).eval (b i)) /
         (ascPochhammer ℝ (∑ i, m i)).eval (∑ i, b i) := by
   let mr : ι → ℝ := fun i => m i
-  have hm : b + mr ∈ mvBetaDomain := by
+  have hm : b + mr ∈ mvRealBetaDomain := by
     intro i
     exact add_pos_of_pos_of_nonneg (hb i) (Nat.cast_nonneg _)
   have hpow := integral_dirichletMeasure_power_product hb mr hm
   have hfun : (fun u : ι → ℝ => ∏ i, u i ^ mr i) = fun u => ∏ i, u i ^ m i := by
     funext u
-    simp [mr, Real.rpow_natCast]
+    simp [mr, rpow_natCast]
   rw [hfun] at hpow
   rw [hpow]
   have hsum_pos : 0 < ∑ i, b i :=
@@ -503,11 +502,11 @@ theorem integral_dirichletMeasure_monomial [Nonempty ι]
 
 /-- The mean of a single `u i`; a specialization of monomial integration. -/
 theorem integral_dirichletMeasure_coordinate
-    {b : ι → ℝ} (hb : b ∈ mvBetaDomain) (i : ι) :
+    {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain) (i : ι) :
     ∫ u, (u i) ∂(dirichletMeasure b) = (b i) / (∑ j, b j) := by
   let : Nonempty ι := ⟨i⟩
   let m : ι → ℝ := fun j => if j = i then 1 else 0
-  have hm : b + m ∈ mvBetaDomain := by
+  have hm : b + m ∈ mvRealBetaDomain := by
     intro j
     dsimp [m]
     split_ifs
@@ -539,8 +538,8 @@ theorem integral_dirichletMeasure_coordinate
   field_simp
 
 /-- The second raw moment of one coordinate under a Dirichlet measure. -/
-private lemma integral_dirichletMeasure_coordinate_sq
-    {b : ι → ℝ} (hb : b ∈ mvBetaDomain) (i : ι) :
+theorem integral_dirichletMeasure_coordinate_sq
+    {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain) (i : ι) :
     ∫ u, (u i) ^ 2 ∂(dirichletMeasure b) =
       b i * (b i + 1) / ((∑ j, b j) * (∑ j, b j + 1)) := by
   let : Nonempty ι := ⟨i⟩
@@ -566,8 +565,8 @@ private lemma integral_dirichletMeasure_coordinate_sq
   simp [ascPochhammer_succ_eval]
 
 /-- The mixed raw moment of two distinct coordinates under a Dirichlet measure. -/
-private lemma integral_dirichletMeasure_two_coordinates
-    {b : ι → ℝ} (hb : b ∈ mvBetaDomain) {i j : ι} (hij : i ≠ j) :
+theorem integral_dirichletMeasure_two_coordinates
+    {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain) {i j : ι} (hij : i ≠ j) :
     ∫ u, u i * u j ∂(dirichletMeasure b) =
       b i * b j / ((∑ k, b k) * (∑ k, b k + 1)) := by
   let : Nonempty ι := ⟨i⟩
@@ -619,7 +618,7 @@ private lemma integral_dirichletMeasure_two_coordinates
 
 /-- The variance of the coordinate `u i`. -/
 theorem variance_dirichletMeasure_coordinate
-    {b : ι → ℝ} (hb : b ∈ mvBetaDomain) (i : ι) :
+    {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain) (i : ι) :
     ∫ u, (u i - b i / ∑ j, b j) ^ 2 ∂(dirichletMeasure b) =
       (b i) * (∑ j, b j - b i) / ((∑ j, b j) ^ 2 * (∑ j, b j + 1)) := by
   let : Nonempty ι := ⟨i⟩
@@ -666,7 +665,7 @@ theorem variance_dirichletMeasure_coordinate
 
 /-- The covariance of distinct coordinates `u i` and `u j`. -/
 theorem covariance_dirichletMeasure_coordinate
-    {b : ι → ℝ} (hb : b ∈ mvBetaDomain) {i j : ι} (hij : i ≠ j) :
+    {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain) {i j : ι} (hij : i ≠ j) :
     ∫ u, (u i - b i / ∑ k, b k) * (u j - b j / ∑ k, b k)
       ∂(dirichletMeasure b) =
       -(b i) * (b j) / ((∑ k, b k) ^ 2 * (∑ k, b k + 1)) := by
@@ -727,16 +726,16 @@ theorem covariance_dirichletMeasure_coordinate
 /- Specializations to the two-variable Dirichlet (Beta) density and measure that is defined
 in Mathlib `ProbabilityTheory.betaMeasure`. -/
 
-/-- For two parameters, `mvBetaDomain` is just positivity of both parameters. -/
-@[simp] theorem mem_mvBetaDomain_fin_two (α β : ℝ) :
-    (![α, β] : Fin 2 → ℝ) ∈ mvBetaDomain ↔
+/-- For two parameters, `mvRealBetaDomain` is just positivity of both parameters. -/
+@[simp] theorem mem_mvRealBetaDomain_fin_two (α β : ℝ) :
+    (![α, β] : Fin 2 → ℝ) ∈ mvRealBetaDomain ↔
       0 < α ∧ 0 < β := by
-  simp [mvBetaDomain]
+  simp [mvRealBetaDomain]
 
-/-- In the two-variable case, `mvBeta` is the ordinary beta function. -/
-@[simp] theorem mvBeta_fin_two (α β : ℝ) :
-    mvBeta (![α, β] : Fin 2 → ℝ) = beta α β := by
-  simp [mvBeta, beta]
+/-- In the two-variable case, `mvRealBeta` is the ordinary beta function. -/
+@[simp] theorem mvRealBeta_fin_two (α β : ℝ) :
+    mvRealBeta (![α, β] : Fin 2 → ℝ) = beta α β := by
+  simp [mvRealBeta, beta]
 
 /-- Under `x ↦ ![x, 1 - x]`, the relative interior of the two-coordinate simplex
 corresponds to the open unit interval. -/
@@ -771,7 +770,7 @@ parametrization `x ↦ ![x, 1 - x]`. -/
 @[simp] theorem dirichletPdfReal_fin_two (α β x : ℝ) :
     dirichletPdfReal (![α, β] : Fin 2 → ℝ) ![x, 1 - x] =
       betaPDFReal α β x := by
-  rw [dirichletPdfReal, betaPDFReal, mvBeta_fin_two]
+  rw [dirichletPdfReal, betaPDFReal, mvRealBeta_fin_two]
   by_cases hx : 0 < x ∧ x < 1
   · simp [hx, mul_assoc]
   · rw [if_neg hx]
@@ -788,7 +787,7 @@ theorem map_dirichletMeasure_fin_two
     {α β : ℝ} (hα : 0 < α) (hβ : 0 < β) :
     Measure.map (fun u : Fin 2 → ℝ => u 0)
       (dirichletMeasure (![α, β])) = betaMeasure α β := by
-  have hb : (![α, β] : Fin 2 → ℝ) ∈ mvBetaDomain := by
+  have hb : (![α, β] : Fin 2 → ℝ) ∈ mvRealBetaDomain := by
     simpa using And.intro hα hβ
   simpa using
     (betaMarginal (b := (![α, β] : Fin 2 → ℝ)) hb (0 : Fin 2))

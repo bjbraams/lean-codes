@@ -11,7 +11,6 @@ coordinate sum is bounded by a nonnegative real number. The proof first treats c
 indexed by `Fin n`, by induction and slicing, and then transports the result to any finite type.
 -/
 
-open Fintype Set
 open MeasureTheory
 
 noncomputable section
@@ -48,13 +47,155 @@ lemma measurableSet_posSimplexFin (n : ℕ) (r : ℝ) :
     (measurable_const : Measurable fun _ : Fin n → ℝ => (0 : ℝ))
     (measurable_pi_apply i)).inter
       (measurableSet_le hsum (measurable_const : Measurable fun _ : Fin n → ℝ => r))
-  convert h using 1 <;> ext x <;> simp
+  convert h using 1; ext x; simp
 
 /-- The volume formula for the zero-dimensional positive simplex. -/
 lemma volume_posSimplexFin_zero (r : ℝ) (hr : 0 ≤ r) :
     volume (posSimplexFin 0 r) = ENNReal.ofReal r ^ 0 / Nat.factorial 0 := by
   rw [Measure.volume_pi_eq_dirac]
   simp [posSimplexFin, hr]
+
+/-- The product-coordinate presentation of `posSimplexFin (n + 1) r`, obtained by separating
+the zeroth coordinate. -/
+private def posSimplexFinSuccSlices (n : ℕ) (r : ℝ) :
+    Set (ℝ × (Fin n → ℝ)) :=
+  {p | 0 ≤ p.1 ∧ (∀ i, 0 ≤ p.2 i) ∧ p.1 + ∑ i, p.2 i ≤ r}
+
+/-- The product-coordinate presentation of a positive simplex is measurable. -/
+private lemma measurableSet_posSimplexFinSuccSlices (n : ℕ) (r : ℝ) :
+    MeasurableSet (posSimplexFinSuccSlices n r) := by
+  have hsum : Measurable (fun p : ℝ × (Fin n → ℝ) => ∑ i, p.2 i) := by fun_prop
+  change MeasurableSet ({p : ℝ × (Fin n → ℝ) | 0 ≤ p.1} ∩
+    ({p | ∀ i, 0 ≤ p.2 i} ∩ {p | p.1 + ∑ i, p.2 i ≤ r}))
+  have h := (measurableSet_le
+    (measurable_const : Measurable fun _ : ℝ × (Fin n → ℝ) => (0 : ℝ))
+    measurable_fst).inter
+    ((MeasurableSet.iInter fun i => measurableSet_le
+      (measurable_const : Measurable fun _ : ℝ × (Fin n → ℝ) => (0 : ℝ))
+      ((measurable_pi_apply i).comp (measurable_snd : Measurable Prod.snd))).inter
+      (measurableSet_le (measurable_fst.add hsum)
+        (measurable_const : Measurable fun _ : ℝ × (Fin n → ℝ) => r)))
+  convert h using 1
+  ext p
+  simp
+
+/-- Separating the zeroth coordinate maps a positive `(n + 1)`-simplex to its
+product-coordinate presentation. -/
+private lemma image_posSimplexFin_piFinSuccAbove (n : ℕ) (r : ℝ) :
+    let e : (Fin (n + 1) → ℝ) ≃ᵐ ℝ × (Fin n → ℝ) :=
+      MeasurableEquiv.piFinSuccAbove (fun _ : Fin (n + 1) => ℝ) 0
+    e '' posSimplexFin (n + 1) r = posSimplexFinSuccSlices n r := by
+  dsimp only
+  let e : (Fin (n + 1) → ℝ) ≃ᵐ ℝ × (Fin n → ℝ) :=
+    MeasurableEquiv.piFinSuccAbove (fun _ : Fin (n + 1) => ℝ) 0
+  ext p
+  constructor
+  · rintro ⟨x, hx, rfl⟩
+    rcases hx with ⟨hx0, hxsum⟩
+    refine ⟨?_, ?_, ?_⟩
+    · simpa [e, posSimplexFinSuccSlices] using hx0 0
+    · intro i
+      change 0 ≤ x (Fin.succ i)
+      exact hx0 (Fin.succ i)
+    · change x 0 + ∑ i, x (Fin.succ i) ≤ r
+      simpa [Fin.sum_univ_succ] using hxsum
+  · intro hp
+    refine ⟨e.symm p, ?_, e.apply_symm_apply p⟩
+    rcases hp with ⟨ht0, hp0, hsum⟩
+    refine ⟨?_, ?_⟩
+    · intro i
+      refine Fin.cases ?_ (fun j => ?_) i
+      · simpa [e] using ht0
+      · change 0 ≤ p.2 j
+        exact hp0 j
+    · have hp := e.apply_symm_apply p
+      have hp1 : (e.symm p) 0 = p.1 := congrArg Prod.fst hp
+      have hp2 : (fun i => (e.symm p) (Fin.succ i)) = p.2 := congrArg Prod.snd hp
+      rw [Fin.sum_univ_succ, hp1, hp2]
+      exact hsum
+
+/-- A slice of the product-coordinate presentation at `t ∈ [0, r]` is the positive simplex
+of radius `r - t`. -/
+private lemma preimage_posSimplexFinSuccSlices_of_mem (n : ℕ) (r t : ℝ)
+    (ht : t ∈ Set.Icc (0 : ℝ) r) :
+    Prod.mk t ⁻¹' posSimplexFinSuccSlices n r = posSimplexFin n (r - t) := by
+  ext x
+  simp only [posSimplexFinSuccSlices, posSimplexFin, Set.mem_preimage, Set.mem_ofPred_eq]
+  constructor
+  · rintro ⟨_, hx0, hs⟩
+    exact ⟨hx0, by linarith⟩
+  · rintro ⟨hx0, hs⟩
+    exact ⟨ht.1, hx0, by linarith⟩
+
+/-- Outside `[0, r]`, the slices in the product-coordinate presentation are empty. -/
+private lemma preimage_posSimplexFinSuccSlices_eq_empty_of_not_mem
+    (n : ℕ) (r t : ℝ) (ht : t ∉ Set.Icc (0 : ℝ) r) :
+    Prod.mk t ⁻¹' posSimplexFinSuccSlices n r = ∅ := by
+  ext x
+  simp only [posSimplexFinSuccSlices, Set.mem_preimage, Set.mem_ofPred_eq,
+    Set.mem_empty_iff_false, iff_false]
+  rintro ⟨ht0, hx0, hs⟩
+  apply ht
+  refine ⟨ht0, ?_⟩
+  have hs0 : 0 ≤ ∑ i, x i := Finset.sum_nonneg fun i _ => hx0 i
+  linarith
+
+/-- The one-dimensional integral used in the positive-simplex volume induction. -/
+private lemma lintegral_Icc_sub_pow_div_factorial (n : ℕ) (r : ℝ) (hr : 0 ≤ r) :
+    ∫⁻ t in Set.Icc (0 : ℝ) r,
+        ENNReal.ofReal (r - t) ^ n / Nat.factorial n =
+      ENNReal.ofReal r ^ (n + 1) / Nat.factorial (n + 1) := by
+  have hint : ∫ t in Set.Icc (0 : ℝ) r, (r - t) ^ n = r ^ (n + 1) / (n + 1) := by
+    rw [integral_Icc_eq_integral_Ioc, ← intervalIntegral.integral_of_le hr]
+    change (∫ t in (0 : ℝ)..r, (fun x : ℝ => x ^ n) (r - t)) = _
+    calc
+      _ = ∫ x in r - r..r - 0, x ^ n :=
+        intervalIntegral.integral_comp_sub_left (fun x : ℝ => x ^ n) r
+      _ = _ := by simp [integral_pow]
+  let q : ℝ := Nat.factorial n
+  have hq : 0 < q := by positivity
+  have hnonneg : ∀ t ∈ Set.Icc (0 : ℝ) r, 0 ≤ (r - t) ^ n / q := by
+    intro t ht
+    exact div_nonneg (pow_nonneg (sub_nonneg.mpr ht.2) _) hq.le
+  have hintg : IntegrableOn (fun t : ℝ => (r - t) ^ n / q) (Set.Icc 0 r) :=
+    Continuous.integrableOn_Icc (by fun_prop)
+  calc
+    (∫⁻ t in Set.Icc (0 : ℝ) r,
+        ENNReal.ofReal (r - t) ^ n / Nat.factorial n) =
+        ∫⁻ t in Set.Icc (0 : ℝ) r, ENNReal.ofReal ((r - t) ^ n / q) := by
+      apply setLIntegral_congr_fun measurableSet_Icc
+      intro t ht
+      change ENNReal.ofReal (r - t) ^ n / Nat.factorial n =
+        ENNReal.ofReal ((r - t) ^ n / q)
+      symm
+      rw [ENNReal.ofReal_div_of_pos hq, ENNReal.ofReal_pow (sub_nonneg.mpr ht.2)]
+      simp [q]
+    _ = ENNReal.ofReal (∫ t in Set.Icc (0 : ℝ) r, (r - t) ^ n / q) := by
+      rw [ofReal_integral_eq_lintegral_ofReal hintg]
+      filter_upwards [self_mem_ae_restrict (μ := volume) measurableSet_Icc] with t ht
+      exact hnonneg t ht
+    _ = ENNReal.ofReal r ^ (n + 1) / Nat.factorial (n + 1) := by
+      rw [integral_div, hint]
+      unfold q
+      rw [ENNReal.ofReal_div_of_pos (by positivity : (0 : ℝ) < Nat.factorial n)]
+      rw [ENNReal.ofReal_div_of_pos (by positivity : (0 : ℝ) < n + 1),
+        ENNReal.ofReal_pow hr]
+      have hn1 : (0 : ℝ) < n + 1 := by exact_mod_cast Nat.succ_pos n
+      have hfac : (0 : ℝ) < Nat.factorial n := by positivity
+      calc
+        ENNReal.ofReal r ^ (n + 1) / ENNReal.ofReal (n + 1) /
+            ENNReal.ofReal (Nat.factorial n : ℝ) =
+            ENNReal.ofReal (r ^ (n + 1) / (n + 1) / Nat.factorial n) := by
+          rw [ENNReal.ofReal_div_of_pos hfac, ENNReal.ofReal_div_of_pos hn1,
+            ENNReal.ofReal_pow hr]
+        _ = ENNReal.ofReal (r ^ (n + 1) / Nat.factorial (n + 1)) := by
+          congr 1
+          rw [Nat.factorial_succ]
+          push_cast
+          field_simp
+        _ = ENNReal.ofReal r ^ (n + 1) / Nat.factorial (n + 1) := by
+          rw [ENNReal.ofReal_div_of_pos (by positivity), ENNReal.ofReal_pow hr]
+          simp
 
 /-- The induction step for the volume of a positive simplex, obtained by slicing off its first
 coordinate. -/
@@ -66,47 +207,10 @@ lemma volume_posSimplexFin_succ (n : ℕ)
       ENNReal.ofReal r ^ (n + 1) / Nat.factorial (n + 1) := by
   let e : (Fin (n + 1) → ℝ) ≃ᵐ ℝ × (Fin n → ℝ) :=
     MeasurableEquiv.piFinSuccAbove (fun _ : Fin (n + 1) => ℝ) 0
-  let T : Set (ℝ × (Fin n → ℝ)) :=
-    {p | 0 ≤ p.1 ∧ (∀ i, 0 ≤ p.2 i) ∧ p.1 + ∑ i, p.2 i ≤ r}
-  have hT : MeasurableSet T := by
-    have hsum : Measurable (fun p : ℝ × (Fin n → ℝ) => ∑ i, p.2 i) := by fun_prop
-    change MeasurableSet ({p : ℝ × (Fin n → ℝ) | 0 ≤ p.1} ∩
-      ({p | ∀ i, 0 ≤ p.2 i} ∩ {p | p.1 + ∑ i, p.2 i ≤ r}))
-    have h := (measurableSet_le
-      (measurable_const : Measurable fun _ : ℝ × (Fin n → ℝ) => (0 : ℝ))
-      measurable_fst).inter
-      ((MeasurableSet.iInter fun i => measurableSet_le
-        (measurable_const : Measurable fun _ : ℝ × (Fin n → ℝ) => (0 : ℝ))
-        ((measurable_pi_apply i).comp (measurable_snd : Measurable Prod.snd))).inter
-        (measurableSet_le (measurable_fst.add hsum)
-          (measurable_const : Measurable fun _ : ℝ × (Fin n → ℝ) => r)))
-    convert h using 1 <;> ext p <;> simp
-  have he : e '' posSimplexFin (n + 1) r = T := by
-    ext p
-    constructor
-    · rintro ⟨x, hx, rfl⟩
-      rcases hx with ⟨hx0, hxsum⟩
-      refine ⟨?_, ?_, ?_⟩
-      · simpa [e] using hx0 0
-      · intro i
-        change 0 ≤ x (Fin.succ i)
-        exact hx0 (Fin.succ i)
-      · change x 0 + ∑ i, x (Fin.succ i) ≤ r
-        simpa [Fin.sum_univ_succ] using hxsum
-    · intro hp
-      refine ⟨e.symm p, ?_, by simp⟩
-      rcases hp with ⟨ht0, hp0, hsum⟩
-      refine ⟨?_, ?_⟩
-      · intro i
-        refine Fin.cases ?_ (fun j => ?_) i
-        · simpa [e] using ht0
-        · change 0 ≤ p.2 j
-          exact hp0 j
-      · have hp := e.apply_symm_apply p
-        have hp1 : (e.symm p) 0 = p.1 := congrArg Prod.fst hp
-        have hp2 : (fun i => (e.symm p) (Fin.succ i)) = p.2 := congrArg Prod.snd hp
-        rw [Fin.sum_univ_succ, hp1, hp2]
-        exact hsum
+  let T := posSimplexFinSuccSlices n r
+  have hT : MeasurableSet T := measurableSet_posSimplexFinSuccSlices n r
+  have he : e '' posSimplexFin (n + 1) r = T :=
+    image_posSimplexFin_piFinSuccAbove n r
   have hmp := volume_preserving_piFinSuccAbove
     (fun _ : Fin (n + 1) => ℝ) 0
   have hv := hmp.measure_preimage hT.nullMeasurableSet
@@ -118,91 +222,22 @@ lemma volume_posSimplexFin_succ (n : ℕ)
     _ = ENNReal.ofReal r ^ (n + 1) / Nat.factorial (n + 1) := by
       change (volume.prod volume) T = _
       rw [Measure.prod_apply hT]
-      have hsections : ∀ t : ℝ, 0 ≤ t → t ≤ r →
-          Prod.mk t ⁻¹' T = posSimplexFin n (r - t) := by
-        intro t ht htr
-        ext x
-        simp only [T, posSimplexFin, Set.mem_preimage, Set.mem_ofPred_eq]
-        constructor
-        · rintro ⟨_, hx0, hs⟩
-          exact ⟨hx0, by linarith⟩
-        · rintro ⟨hx0, hs⟩
-          exact ⟨ht, hx0, by linarith⟩
       calc
         (∫⁻ t, volume (Prod.mk t ⁻¹' T)) =
-            ∫⁻ t in Icc (0 : ℝ) r,
+            ∫⁻ t in Set.Icc (0 : ℝ) r,
               ENNReal.ofReal (r - t) ^ n / Nat.factorial n := by
           rw [← lintegral_indicator measurableSet_Icc]
           apply lintegral_congr
           intro t
           simp only [Set.indicator_apply]
           split_ifs with ht
-          · rw [hsections t ht.1 ht.2, ih (r - t) (sub_nonneg.mpr ht.2)]
-          · have hempty : Prod.mk t ⁻¹' T = ∅ := by
-              ext x
-              simp only [T, Set.mem_preimage, Set.mem_ofPred_eq, Set.mem_empty_iff_false]
-              constructor
-              · intro h
-                exfalso
-                apply ht
-                exact ⟨h.1, by
-                  have hs0 : 0 ≤ ∑ i, x i := Finset.sum_nonneg fun i _ => h.2.1 i
-                  linarith [h.2.2, hs0]⟩
-              · exact False.elim
+          · rw [preimage_posSimplexFinSuccSlices_of_mem n r t ht,
+              ih (r - t) (sub_nonneg.mpr ht.2)]
+          · have hempty : Prod.mk t ⁻¹' T = ∅ :=
+              preimage_posSimplexFinSuccSlices_eq_empty_of_not_mem n r t ht
             rw [hempty, measure_empty]
-        _ = ENNReal.ofReal r ^ (n + 1) / Nat.factorial (n + 1) := by
-          have hint : ∫ t in Icc (0 : ℝ) r, (r - t) ^ n = r ^ (n + 1) / (n + 1) := by
-            rw [integral_Icc_eq_integral_Ioc, ← intervalIntegral.integral_of_le hr]
-            change (∫ t in (0 : ℝ)..r, (fun x : ℝ => x ^ n) (r - t)) = _
-            calc
-              _ = ∫ x in r - r..r - 0, x ^ n :=
-                intervalIntegral.integral_comp_sub_left (fun x : ℝ => x ^ n) r
-              _ = _ := by simp [integral_pow]
-          let q : ℝ := Nat.factorial n
-          have hq : 0 < q := by positivity
-          have hnonneg : ∀ t ∈ Icc (0 : ℝ) r, 0 ≤ (r - t) ^ n / q := by
-            intro t ht
-            exact div_nonneg (pow_nonneg (sub_nonneg.mpr ht.2) _) hq.le
-          have hintg : IntegrableOn (fun t : ℝ => (r - t) ^ n / q) (Icc 0 r) :=
-            (Continuous.integrableOn_Icc (by fun_prop))
-          calc
-            (∫⁻ t in Icc (0 : ℝ) r,
-                ENNReal.ofReal (r - t) ^ n / Nat.factorial n) =
-                ∫⁻ t in Icc (0 : ℝ) r, ENNReal.ofReal ((r - t) ^ n / q) := by
-              apply setLIntegral_congr_fun measurableSet_Icc
-              intro t ht
-              change ENNReal.ofReal (r - t) ^ n / Nat.factorial n =
-                ENNReal.ofReal ((r - t) ^ n / q)
-              symm
-              rw [ENNReal.ofReal_div_of_pos hq,
-                ENNReal.ofReal_pow (sub_nonneg.mpr ht.2)]
-              simp [q]
-            _ = ENNReal.ofReal (∫ t in Icc (0 : ℝ) r, (r - t) ^ n / q) := by
-              rw [ofReal_integral_eq_lintegral_ofReal hintg]
-              filter_upwards [self_mem_ae_restrict (μ := volume) measurableSet_Icc] with t ht
-              exact hnonneg t ht
-            _ = ENNReal.ofReal r ^ (n + 1) / Nat.factorial (n + 1) := by
-              rw [integral_div, hint]
-              unfold q
-              rw [ENNReal.ofReal_div_of_pos (by positivity : (0 : ℝ) < Nat.factorial n)]
-              rw [ENNReal.ofReal_div_of_pos (by positivity : (0 : ℝ) < n + 1),
-                ENNReal.ofReal_pow hr]
-              have hn1 : (0 : ℝ) < n + 1 := by exact_mod_cast Nat.succ_pos n
-              have hfac : (0 : ℝ) < Nat.factorial n := by positivity
-              calc
-                ENNReal.ofReal r ^ (n + 1) / ENNReal.ofReal (n + 1) /
-                    ENNReal.ofReal (Nat.factorial n : ℝ) =
-                    ENNReal.ofReal (r ^ (n + 1) / (n + 1) / Nat.factorial n) := by
-                  rw [ENNReal.ofReal_div_of_pos hfac, ENNReal.ofReal_div_of_pos hn1,
-                    ENNReal.ofReal_pow hr]
-                _ = ENNReal.ofReal (r ^ (n + 1) / Nat.factorial (n + 1)) := by
-                  congr 1
-                  rw [Nat.factorial_succ]
-                  push_cast
-                  field_simp
-                _ = ENNReal.ofReal r ^ (n + 1) / Nat.factorial (n + 1) := by
-                  rw [ENNReal.ofReal_div_of_pos (by positivity), ENNReal.ofReal_pow hr]
-                  simp
+        _ = ENNReal.ofReal r ^ (n + 1) / Nat.factorial (n + 1) :=
+          lintegral_Icc_sub_pow_div_factorial n r hr
 
 /-- The `n`-dimensional volume of the positive simplex of radius `r` is `r ^ n / n!`. -/
 theorem volume_posSimplexFin (n : ℕ) (r : ℝ) (hr : 0 ≤ r) :

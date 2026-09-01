@@ -16,7 +16,7 @@ This file develops change-of-coordinates, slicing, permutation, monomial, and ag
 formulas for integrals with respect to `stdSimplexMeasure`.
 -/
 
-open Fintype Set
+open Fintype (card)
 
 noncomputable section StdSimplexIntegral
 
@@ -28,7 +28,7 @@ universe u
 
 variable {ι : Type u} [Fintype ι]
 
-local instance integralDecidableEq : DecidableEq ι := Classical.decEq ι
+open scoped Classical
 
 /-- Scaling the free coordinates by `c` divides the Bochner integral by
 `c ^ (card ι - 1)`. -/
@@ -37,7 +37,7 @@ theorem integral_smul_free_coords
     (i : ι) (c : ℝ) (hc : 0 < c)
     (f : ({j : ι // j ≠ i} → ℝ) → E) :
   ∫ x, f (c • x) ∂volume =
-    (c ^ (Fintype.card ι - 1))⁻¹ • ∫ x, f x ∂volume := by
+    (c ^ (card ι - 1))⁻¹ • ∫ x, f x ∂volume := by
   let e : ({j : ι // j ≠ i} → ℝ) ≃ₜ ({j : ι // j ≠ i} → ℝ) :=
     Homeomorph.smulOfNeZero c hc.ne'
   have hmap : Measure.map e volume =
@@ -103,6 +103,44 @@ theorem integral_Icc_pow_mul_one_sub_pow (a b : ℕ) :
     exact_mod_cast (Nat.ascFactorial_pos a (b + 1)).ne'
   field_simp [ha, hs]
 
+/-- Splitting one coordinate from a finite real coordinate space preserves product Lebesgue
+measure. -/
+private theorem volume_preserving_funSplitAt (i : ι) :
+    MeasurePreserving (Homeomorph.funSplitAt ℝ i) volume (volume.prod volume) := by
+  let eidx : Unit ⊕ {j : ι // j ≠ i} ≃ ι :=
+    { toFun := fun q => Sum.elim (fun _ => i) Subtype.val q
+      invFun := fun j => if h : j = i then Sum.inl () else Sum.inr ⟨j, h⟩
+      left_inv := by
+        rintro (_ | j)
+        · simp
+        · simp [j.property]
+      right_inv := by
+        intro j
+        dsimp
+        split_ifs with h
+        · exact h.symm
+        · rfl }
+  let ec := MeasurableEquiv.piCongrLeft (fun _ : ι => ℝ) eidx
+  let es := MeasurableEquiv.sumPiEquivProdPi (fun _ : Unit ⊕ {j : ι // j ≠ i} => ℝ)
+  let eu := MeasurableEquiv.prodCongr
+    (MeasurableEquiv.funUnique Unit ℝ)
+    (MeasurableEquiv.refl ({j : ι // j ≠ i} → ℝ))
+  have hc := (volume_measurePreserving_piCongrLeft (fun _ : ι => ℝ) eidx).symm
+  have hs := volume_measurePreserving_sumPiEquivProdPi
+    (fun _ : Unit ⊕ {j : ι // j ≠ i} => ℝ)
+  have hu : MeasurePreserving eu volume (volume.prod volume) := by
+    rw [Measure.volume_eq_prod]
+    exact (volume_preserving_funUnique Unit ℝ).prod (MeasurePreserving.id volume)
+  have h := hu.comp (hs.comp hc)
+  convert h using 1
+  funext x
+  apply Prod.ext
+  · change x i = x (eidx (Sum.inl ()))
+    rfl
+  · funext j
+    change x j = x (eidx (Sum.inr j))
+    rfl
+
 /-- Evaluates an integral over the standard simplex by separating out the `i`-th coordinate.
 This theorem provides the standard Fubini reduction (integration by slices) for the simplex.
 It expresses the integral of a function `f` over the $(k-1)$-simplex (where $k$ is `card ι`)
@@ -119,7 +157,7 @@ theorem integral_stdSimplex_split_at
     (hf : IntegrableOn f (stdSimplex ℝ ι) stdSimplexMeasure) :
   ∫ u in stdSimplex ℝ ι, f u ∂stdSimplexMeasure =
     ∫ t in Set.Icc (0 : ℝ) 1,
-      ((1 - t) ^ (Fintype.card ι - 2)) •
+      ((1 - t) ^ (card ι - 2)) •
       ∫ v in stdSimplex ℝ {j // j ≠ i}, f (stdSimplexCoordMap i (fun j ↦ (1 - t) * v j))
         ∂stdSimplexMeasure := by
   sorry
@@ -152,7 +190,7 @@ theorem ContinuousOn.integrableOn_stdSimplex
   apply hf.integrableOn_of_subset_isCompact
     (isCompact_stdSimplex ℝ ι)
     (isClosed_stdSimplex ℝ ι).measurableSet
-    Subset.rfl
+    Set.Subset.rfl
   rw [← Measure.restrict_apply_univ]
   exact measure_ne_top _ _
 
@@ -250,10 +288,10 @@ theorem integral_stdSimplex_explicit_monomial_succ [Nontrivial ι] (i : ι) (m :
   let A : ℝ := ∫ v in stdSimplex ℝ {j : ι // j ≠ i},
     (∏ q, v q ^ m q.val) ∂stdSimplexMeasure
   calc
-    ∫ t in Icc (0 : ℝ) 1,
+    ∫ t in Set.Icc (0 : ℝ) 1,
         (1 - t) ^ (card ι - 2) *
           ((t ^ m i * (1 - t) ^ (∑ q : {j : ι // j ≠ i}, m q.val)) * A) =
-        A * ∫ t in Icc (0 : ℝ) 1, t ^ m i * (1 - t) ^ b := by
+        A * ∫ t in Set.Icc (0 : ℝ) 1, t ^ m i * (1 - t) ^ b := by
       rw [← integral_const_mul]
       apply integral_congr_ae
       filter_upwards [] with t
@@ -283,15 +321,15 @@ theorem integral_stdSimplex_explicit_monomial (m : ι → ℕ) [Nonempty ι] :
   induction n using Nat.strong_induction_on with
   | h n ih =>
       intro α _ hα a hne
-      letI : Nonempty α := hne
+      let : Nonempty α := hne
       cases subsingleton_or_nontrivial α with
       | inl hs =>
-          letI : Unique α := ⟨⟨Classical.choice hne⟩, fun x => hs.elim x _⟩
+          let : Unique α := ⟨⟨Classical.choice hne⟩, fun x => hs.elim x _⟩
           rw [integral_stdSimplex_unique]
           simp
           field_simp
       | inr hn =>
-          letI : Nontrivial α := hn
+          let : Nontrivial α := hn
           let i : α := Classical.choice hne
           rw [integral_stdSimplex_explicit_monomial_succ i a]
           have hlt : card {j : α // j ≠ i} < n := by
@@ -305,7 +343,7 @@ theorem integral_stdSimplex_explicit_monomial (m : ι → ℕ) [Nonempty ι] :
           have hsum : ∑ j, a j = a i + ∑ q : {j : α // j ≠ i}, a q.val :=
             Fintype.sum_eq_add_sum_subtype_ne a i
           have hcardsub : card {j : α // j ≠ i} = card α - 1 := by
-            simpa using Fintype.card_subtype_compl (fun j : α => j = i)
+            simpa using card_subtype_compl (fun j : α => j = i)
           have hidx : card {j : α // j ≠ i} +
               (∑ q : {j : α // j ≠ i}, a q.val) - 1 =
               card α + (∑ j, a j) - 2 - a i := by
@@ -343,7 +381,7 @@ theorem integral_stdSimplex_MvPolynomial_monomial (m : ι →₀ ℕ) [Nonempty 
 stated for the weighted target measure, which is exactly the push-forward measure occurring in
 the change of variables. -/
 theorem integral_stdSimplex_comp_aggregate
-    {κ : Type*} [Fintype κ] [DecidableEq κ]
+    {κ : Type*} [Fintype κ]
     (f : ι → κ) (hf : Function.Surjective f)
     {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
     (g : (κ → ℝ) → E)
@@ -360,6 +398,7 @@ theorem integral_stdSimplex_comp_aggregate
               (stdSimplexAggregateFiberCard f k - 1)) •
           g v
         ∂stdSimplexMeasure := by
+  classical
   let μ := (stdSimplexMeasure (ι := ι)).restrict (stdSimplex ℝ ι)
   let ν := (stdSimplexMeasure (ι := κ)).restrict (stdSimplex ℝ κ)
   let d := stdSimplexAggregateDensity f

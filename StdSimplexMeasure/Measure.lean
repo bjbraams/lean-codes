@@ -20,25 +20,45 @@ aggregation. This coordinate measure differs by a dimension-dependent constant f
 Euclidean Hausdorff measure on the affine hull.
 -/
 
-open Fintype Set
-
 noncomputable section StdSimplexCoordinateMeasure
 
 namespace MeasureTheory.Measure
 
 variable {ι : Type*} [Fintype ι]
 
-local instance measureDecidableEq : DecidableEq ι := Classical.decEq ι
+open scoped Classical
 
 /-- Density associated with the cardinalities of the fibers of a coordinate aggregation map. -/
 def stdSimplexAggregateDensity
-    {κ : Type*} [Fintype κ] [DecidableEq κ]
-    (f : ι → κ) (v : κ → ℝ) : ENNReal :=
-  ∏ k,
-    (ENNReal.ofReal (v k)) ^
-        (stdSimplexAggregateFiberCard f k - 1) /
-      (Nat.factorial
-        (stdSimplexAggregateFiberCard f k - 1) : ENNReal)
+    {κ : Type*} [Fintype κ] (f : ι → κ) (v : κ → ℝ) : ENNReal := by
+  classical
+  exact ∏ k,
+      (ENNReal.ofReal (v k)) ^
+          (stdSimplexAggregateFiberCard f k - 1) /
+        (Nat.factorial
+          (stdSimplexAggregateFiberCard f k - 1) : ENNReal)
+
+/-- For a surjective aggregation, the total degree of the aggregation density is the difference
+between the dimensions of the source and target affine coordinate spaces. -/
+theorem sum_stdSimplexAggregateFiberCard_sub_one
+    {κ : Type*} [Fintype κ] {f : ι → κ} (hf : Function.Surjective f) :
+    ∑ k, (stdSimplexAggregateFiberCard f k - 1) =
+      Fintype.card ι - Fintype.card κ := by
+  have hpos : ∀ k, 1 ≤ stdSimplexAggregateFiberCard f k := fun k =>
+    stdSimplexAggregateFiberCard_pos hf k
+  have hsum : (∑ k, (stdSimplexAggregateFiberCard f k - 1)) + Fintype.card κ =
+      Fintype.card ι := by
+    rw [← sum_stdSimplexAggregateFiberCard f]
+    calc
+      (∑ k, (stdSimplexAggregateFiberCard f k - 1)) + Fintype.card κ =
+          (∑ k, (stdSimplexAggregateFiberCard f k - 1)) + ∑ _k : κ, 1 := by simp
+      _ = ∑ k, ((stdSimplexAggregateFiberCard f k - 1) + 1) :=
+        Finset.sum_add_distrib.symm
+      _ = ∑ k, stdSimplexAggregateFiberCard f k := by
+        apply Finset.sum_congr rfl
+        intro k _
+        exact Nat.sub_add_cancel (hpos k)
+  omega
 
 /-- The coordinate map is measurable. -/
 theorem measurable_stdSimplexCoordMap (i : ι) :
@@ -50,10 +70,10 @@ def stdSimplexMeasureAt (i : ι) : Measure (ι → ℝ) := by
   classical
   exact Measure.map (stdSimplexCoordMap (R := ℝ) i) volume
 
-/-- The Lebesgue measure is homogeneous of degree `(card ι - 1)` in the free coordinates. -/
+/-- The Lebesgue measure is homogeneous of degree `(Fintype.card ι - 1)` in the free coordinates. -/
 theorem volume_map_smul_free_coords (i : ι) (c : ℝ) (hc : 0 < c) :
     Measure.map (c • · : ({j : ι // j ≠ i} → ℝ) → ({j : ι // j ≠ i} → ℝ)) volume =
-      ENNReal.ofReal (c ^ (card ι - 1))⁻¹ • volume := by
+      ENNReal.ofReal (c ^ (Fintype.card ι - 1))⁻¹ • volume := by
   let f : ({j : ι // j ≠ i} → ℝ) →ₗ[ℝ] ({j : ι // j ≠ i} → ℝ) :=
     c • LinearMap.id
   have hf : LinearMap.det f ≠ 0 := by
@@ -77,7 +97,7 @@ theorem stdSimplexMeasureAt_eq_map_piSplitAt_symm (i : ι) :
 /-- The absolute determinant of uniform scaling on the free-coordinate space. -/
 private lemma stdSimplexScaleMap_det (t : ℝ) (i : ι) :
     abs (LinearMap.det ((1 - t) • (LinearMap.id : ({j // j ≠ i} → ℝ) →ₗ[ℝ] _)))
-      = abs (1 - t) ^ (card ι - 1) := by
+      = abs (1 - t) ^ (Fintype.card ι - 1) := by
   simp [LinearMap.det_smul, Fintype.card_subtype_compl, abs_pow]
 
 /-- Pushing `stdSimplexMeasureAt (σ i)` forward along `σ` gives `stdSimplexMeasureAt i`. -/
@@ -120,10 +140,10 @@ theorem stdSimplexMeasureAt_map_perm (i : ι) (σ : Equiv.Perm ι) :
 
 /-- Pushing `stdSimplexMeasureAt i` forward along the transposition `swap i j` gives
 `stdSimplexMeasureAt j`. -/
-theorem stdSimplexMeasureAt_swap (i j : ι) (hij : i ≠ j) :
+theorem stdSimplexMeasureAt_swap (i j : ι) :
     Measure.map (fun x => x ∘ Equiv.swap i j) (stdSimplexMeasureAt i) =
       stdSimplexMeasureAt j := by
-  simpa [Equiv.swap_apply_def, hij] using
+  simpa [Equiv.swap_apply_def] using
     (stdSimplexMeasureAt_map_perm j (Equiv.swap i j))
 
 /-- The affine free-coordinate change induced by swapping two ambient coordinates preserves
@@ -186,7 +206,7 @@ theorem stdSimplexMeasureAt_eq (i j : ι) :
           (continuous_stdSimplexFreeCoordSwap i j hij).measurable).symm
       _ = Measure.map (stdSimplexCoordMap i) volume := by
         rw [map_stdSimplexFreeCoordSwap_volume i j hij]
-  exact hswap.symm.trans (stdSimplexMeasureAt_swap i j hij)
+  exact hswap.symm.trans (stdSimplexMeasureAt_swap i j)
 
 /-- The coordinate Lebesgue measure on `stdSimplexAffineSet`. When `ι` is empty the measure
 is zero; otherwise it is the push-forward of Lebesgue measure from any set of free
@@ -308,10 +328,10 @@ theorem stdSimplexMeasure_map_perm (σ : Equiv.Perm ι) :
   (measurePreserving_stdSimplexMeasure_perm σ).map_eq
 
 /-- Extended real evaluation of the measure of the standard simplex. The value is
-$1/(k-1)!$ where `k = card ι`. -/
+$1/(k-1)!$ where `k = Fintype.card ι`. -/
 @[simp] theorem stdSimplexMeasure_stdSimplex [Nonempty ι] :
   stdSimplexMeasure (stdSimplex ℝ ι) =
-    1 / (Nat.factorial (card ι - 1) : ENNReal) := by
+    1 / (Nat.factorial (Fintype.card ι - 1) : ENNReal) := by
   let i : ι := Classical.choice (inferInstance : Nonempty ι)
   rw [← Measure.restrict_apply_univ]
   rw [stdSimplexMeasure_restrict_stdSimplex i]
@@ -324,7 +344,7 @@ $1/(k-1)!$ where `k = card ι`. -/
 /-- Real-valued form of the coordinate-volume formula for the standard simplex. -/
 theorem stdSimplexMeasure_stdSimplex_toReal [Nonempty ι] :
   (stdSimplexMeasure (stdSimplex ℝ ι)).toReal =
-    1 / (Nat.factorial (card ι - 1) : ℝ) := by
+    1 / (Nat.factorial (Fintype.card ι - 1) : ℝ) := by
   rw [stdSimplexMeasure_stdSimplex]
   simp
 
@@ -387,7 +407,7 @@ theorem ae_zero_lt_of_mem_stdSimplex [Nonempty ι] :
 /-- Pushing the restricted simplex measure forward under coordinate aggregation gives the
 restricted target simplex measure weighted by the product of the fiber-volume densities. -/
 theorem map_stdSimplexMeasure_restrict_stdSimplex_aggregate
-    {κ : Type*} [Fintype κ] [DecidableEq κ]
+    {κ : Type*} [Fintype κ]
     (f : ι → κ) (hf : Function.Surjective f) :
     Measure.map (stdSimplexAggregate f)
       ((stdSimplexMeasure (ι := ι)).restrict (stdSimplex ℝ ι))

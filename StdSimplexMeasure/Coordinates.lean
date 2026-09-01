@@ -28,9 +28,15 @@ The declarations are placed in the root namespace alongside the existing API in
 * `stdSimplexCoordEquiv`: its parametrization by `card ι - 1` free coordinates.
 * `stdSimplexFreeCoords`: the filled simplex in free coordinates.
 * `stdSimplexAggregate`: aggregation of coordinates along a finite map.
--/
 
-open Fintype Set
+## Question for review
+
+The `stdSimplexAffineSubspace` defined here duplicates `fintypeAffineCoords` from Mathlib's
+`AffineSpace.Basis` module. But `AffineSpace.Basis` would be a rather heavy import for the
+elementary code around `stdSimplexAffineSubspace`. Should the code here be left as it is,
+should `AffineSpace.Basis` be imported whole for reuse, or should perhaps some lightweight
+affine coordinates intermediate file be used?
+-/
 
 noncomputable section StdSimplexCoordinates
 
@@ -38,17 +44,7 @@ noncomputable section StdSimplexCoordinates
 variable {ι : Type*} [Fintype ι]
 variable {R : Type*}
 
-/-- Allow `ι` to have noncomputable equality. -/
-local instance coordinatesDecidableEq : DecidableEq ι := Classical.decEq ι
-
-/- DESIGN QUESTION: should we use `[DecidableEq ι]` as a `variable` hypothesis instead
-of introducing the classical `local instance`?
-Risk of the `local instance` style: instance diamond against the standard computable
-`DecidableEq` for concrete types like `Fin k`.
-In favour of the `local instance` style: may allow theorems to be applied, for example, to a
-quotient space lacking computable equality.
-Raised on Zulip: <link once posted>.
--/
+open scoped Classical
 
 section OrderedSemiring
 
@@ -82,7 +78,7 @@ def stdSimplexSumAffineMap : (ι → R) →ᵃ[R] R :=
   stdSimplexSumLinearMap.toAffineMap
 
 /-- Two ways of summing over all coordinates give the same result. -/
-private theorem sum_eq_apply_add_sum_ne (u : ι → R) (i : ι) :
+theorem sum_eq_apply_add_sum_ne (u : ι → R) (i : ι) :
     ∑ j, u j = u i + ∑ j : {j : ι // j ≠ i}, u j := by
   classical
   simpa using (Fintype.sum_eq_add_sum_subtype_ne u i)
@@ -104,9 +100,10 @@ def stdSimplexCoordProj (i : ι) (u : ι → R) :
   fun j => u j
 
 /-- Map from the free-coordinate space that omits coordinate `i` to `stdSimplexAffineSet`,
-constructed as the inverse function of `Equiv.funSplitAt i R`. -/
-def stdSimplexCoordMap (i : ι) (x : {j : ι // j ≠ i} → R) : ι → R := by
-  exact (Equiv.funSplitAt i R).symm (1 - ∑ j, x j, x)
+constructed by pairing the recovered dependent coordinate with `x`, then applying the inverse of
+`Equiv.funSplitAt i R`. -/
+def stdSimplexCoordMap (i : ι) (x : {j : ι // j ≠ i} → R) : ι → R :=
+  (Equiv.funSplitAt i R).symm (1 - ∑ j, x j, x)
 
 /-- The value of the dependent coordinate `i` is `1 - ∑ j, x j`. -/
 @[simp] theorem stdSimplexCoordMap_apply_self (i : ι) (x : {j : ι // j ≠ i} → R) :
@@ -207,7 +204,7 @@ def stdSimplexFreeCoordSwapLinear (i j : ι) (hij : i ≠ j) :
 
 /-- The sum of the coordinates after applying `stdSimplexFreeCoordSwapLinear` is the
 negative of the coordinate belonging to `j`. -/
-lemma sum_stdSimplexFreeCoordSwapLinear (i j : ι) (hij : i ≠ j)
+theorem sum_stdSimplexFreeCoordSwapLinear (i j : ι) (hij : i ≠ j)
     (x : {q : ι // q ≠ i} → R) :
     ∑ q, stdSimplexFreeCoordSwapLinear i j hij x q = -x ⟨j, Ne.symm hij⟩ := by
   let ji : {q : ι // q ≠ i} := ⟨j, Ne.symm hij⟩
@@ -233,41 +230,61 @@ def stdSimplexFreeCoordSwap (i j : ι) (hij : i ≠ j)
   let ji : {q : ι // q ≠ i} := ⟨j, Ne.symm hij⟩
   (fun q => if q = ji then 1 else 0) + stdSimplexFreeCoordSwapLinear i j hij x
 
+/-- At the free coordinate corresponding to `j`, the coordinate swap stores the dependent
+coordinate recovered from `x`. -/
+@[simp] theorem stdSimplexFreeCoordSwap_apply_ji (i j : ι) (hij : i ≠ j)
+    (x : {q : ι // q ≠ i} → R) :
+    stdSimplexFreeCoordSwap i j hij x ⟨j, Ne.symm hij⟩ = 1 - ∑ q, x q := by
+  simp [stdSimplexFreeCoordSwap, stdSimplexFreeCoordSwapLinear]
+  ring
+
+/-- A free coordinate other than the one corresponding to `j` is unchanged by the coordinate
+swap. -/
+@[simp] theorem stdSimplexFreeCoordSwap_apply_of_ne (i j : ι) (hij : i ≠ j)
+    {x : {q : ι // q ≠ i} → R} {q : {q : ι // q ≠ i}} (hq : q ≠ ⟨j, Ne.symm hij⟩) :
+    stdSimplexFreeCoordSwap i j hij x q = x q := by
+  simp [stdSimplexFreeCoordSwap, stdSimplexFreeCoordSwapLinear, hq]
+
+/-- The sum of the coordinates after applying `stdSimplexFreeCoordSwap`. -/
+@[simp] theorem sum_stdSimplexFreeCoordSwap (i j : ι) (hij : i ≠ j)
+    (x : {q : ι // q ≠ i} → R) :
+    ∑ q, stdSimplexFreeCoordSwap i j hij x q = 1 - x ⟨j, Ne.symm hij⟩ := by
+  simp_rw [stdSimplexFreeCoordSwap, Pi.add_apply]
+  rw [Finset.sum_add_distrib, sum_stdSimplexFreeCoordSwapLinear]
+  have hc : (∑ q : {q : ι // q ≠ i}, if q = (⟨j, Ne.symm hij⟩ : {q : ι // q ≠ i})
+      then (1 : R) else 0) = 1 := by
+    simpa using Finset.sum_ite_eq' Finset.univ (⟨j, Ne.symm hij⟩ : {q : ι // q ≠ i})
+      (fun _ => (1 : R))
+  rw [hc]
+  ring
+
 /-- Swapping `i` and `j` in ambient coordinates corresponds to
 `stdSimplexFreeCoordSwap` in the chart omitting `i`. -/
 theorem stdSimplexCoordMap_comp_freeCoordSwap (i j : ι) (hij : i ≠ j) :
     (fun u : ι → R => u ∘ Equiv.swap i j) ∘ stdSimplexCoordMap i =
       stdSimplexCoordMap i ∘ stdSimplexFreeCoordSwap i j hij := by
-  let α := {q : ι // q ≠ i}
-  let ji : α := ⟨j, Ne.symm hij⟩
   funext x q
   by_cases hqi : q = i
   · subst q
     simp only [Function.comp_apply, Equiv.swap_apply_left]
-    rw [stdSimplexCoordMap_apply_of_ne i j (Ne.symm hij), stdSimplexCoordMap_apply_self]
-    change x ji = 1 - ∑ q, stdSimplexFreeCoordSwap i j hij x q
-    have hc : ∑ q : α, (if q = ji then (1 : R) else 0) = 1 := by
-      simpa using Finset.sum_ite_eq' Finset.univ ji (fun _ => (1 : R))
-    simp_rw [stdSimplexFreeCoordSwap, Pi.add_apply]
-    rw [Finset.sum_add_distrib, hc, sum_stdSimplexFreeCoordSwapLinear]
+    rw [stdSimplexCoordMap_apply_of_ne i j (Ne.symm hij), stdSimplexCoordMap_apply_self,
+      sum_stdSimplexFreeCoordSwap]
     ring
   · by_cases hqj : q = j
     · subst q
       simp only [Function.comp_apply, Equiv.swap_apply_right, stdSimplexCoordMap_apply_self]
-      rw [stdSimplexCoordMap_apply_of_ne i j (Ne.symm hij)]
-      change 1 - ∑ q, x q = stdSimplexFreeCoordSwap i j hij x ji
-      simp [stdSimplexFreeCoordSwap, stdSimplexFreeCoordSwapLinear, ji]
-      ring
+      rw [stdSimplexCoordMap_apply_of_ne i j (Ne.symm hij),
+        stdSimplexFreeCoordSwap_apply_ji]
     · rw [Function.comp_apply, Function.comp_apply,
-        Equiv.swap_apply_of_ne_of_ne hqi hqj]
-      rw [stdSimplexCoordMap_apply_of_ne i q hqi]
+        Equiv.swap_apply_of_ne_of_ne hqi hqj,
+        stdSimplexCoordMap_apply_of_ne i q hqi]
       change x ⟨q, hqi⟩ =
         stdSimplexCoordMap i (stdSimplexFreeCoordSwap i j hij x) q
       rw [stdSimplexCoordMap_apply_of_ne i q hqi]
-      have hsub : (⟨q, hqi⟩ : α) ≠ ji := by
-        intro h
-        exact hqj (congrArg Subtype.val h)
-      simp [stdSimplexFreeCoordSwap, stdSimplexFreeCoordSwapLinear, ji, hsub]
+      symm
+      apply stdSimplexFreeCoordSwap_apply_of_ne
+      intro h
+      exact hqj (congrArg Subtype.val h)
 
 /-- The free coordinates obtained by omitting `i` are equivalent to
 `stdSimplexAffineSet`. -/
@@ -363,10 +380,11 @@ omit [IsOrderedRing R] in
 /-- Aggregating positive parameters along a surjective partition gives positive
 parameters. -/
 theorem stdSimplexAggregate_pos [AddLeftStrictMono R] [IsOrderedCancelAddMonoid R]
-    {κ : Type*} [Finite κ] [DecidableEq κ]
+    {κ : Type*} [Finite κ]
     {f : ι → κ} (hf : Function.Surjective f)
     {u : ι → R} (hu : ∀ i, 0 < u i) :
     ∀ k, 0 < stdSimplexAggregate f u k := by
+  classical
   intro k
   change 0 < (FunOnFinite.linearMap R R f u) k
   rw [FunOnFinite.linearMap_apply_apply]
@@ -379,17 +397,50 @@ theorem stdSimplexAggregate_pos [AddLeftStrictMono R] [IsOrderedCancelAddMonoid 
 
 /-- The aggregation map sends the standard simplex on `ι` into the standard simplex on
 `κ`. -/
-theorem stdSimplexAggregate_mem_stdSimplex {κ : Type*} [Fintype κ] [DecidableEq κ]
+theorem stdSimplexAggregate_mem_stdSimplex {κ : Type*} [Fintype κ]
     {f : ι → κ} {u : ι → R} (hu : u ∈ stdSimplex R ι) :
     stdSimplexAggregate f u ∈ stdSimplex R κ :=
   stdSimplex.image_linearMap f ⟨u, hu, rfl⟩
 
 end OrderedAggregation
 
-/-- Fiber cardinality of an aggregation map. -/
-def stdSimplexAggregateFiberCard {κ : Type*} [DecidableEq κ]
-    (f : ι → κ) (k : κ) : ℕ :=
-  Fintype.card {i : ι // f i = k}
+/-- Cardinality of a fiber of an aggregation map. The codomain need not be finite because every
+fiber is a subtype of the finite domain `ι`. -/
+def stdSimplexAggregateFiberCard {κ : Type*} (f : ι → κ) (k : κ) : ℕ := by
+  classical
+  exact Fintype.card {i : ι // f i = k}
+
+/-- Every fiber of a surjective aggregation map has positive cardinality. -/
+theorem stdSimplexAggregateFiberCard_pos {κ : Type*} {f : ι → κ}
+    (hf : Function.Surjective f) (k : κ) :
+    0 < stdSimplexAggregateFiberCard f k := by
+  unfold stdSimplexAggregateFiberCard
+  exact Fintype.card_pos_iff.mpr <| by
+    obtain ⟨i, hi⟩ := hf k
+    exact ⟨⟨i, hi⟩⟩
+
+/-- The cardinalities of all fibers of a map from a finite type sum to the cardinality of its
+domain. -/
+theorem sum_stdSimplexAggregateFiberCard {κ : Type*} [Fintype κ] (f : ι → κ) :
+    ∑ k, stdSimplexAggregateFiberCard f k = Fintype.card ι := by
+  let e : (Σ k, {i : ι // f i = k}) ≃ ι :=
+    { toFun := fun x => x.2.1
+      invFun := fun i => ⟨f i, i, rfl⟩
+      left_inv := by rintro ⟨k, i, hi⟩; subst k; rfl
+      right_inv := fun _ => rfl }
+  unfold stdSimplexAggregateFiberCard
+  rw [← Fintype.card_sigma]
+  exact Fintype.card_congr e
+
+/-- Aggregating the constant-one vector records the cardinality of each fiber. -/
+theorem stdSimplexAggregate_one {κ : Type*} [Finite κ]
+    {S : Type*} [Semiring S] (f : ι → κ) (k : κ) :
+    stdSimplexAggregate f (fun _ => (1 : S)) k =
+      (stdSimplexAggregateFiberCard f k : S) := by
+  classical
+  change (FunOnFinite.linearMap S S f (fun _ => 1)) k = _
+  rw [FunOnFinite.linearMap_apply_apply]
+  simp [stdSimplexAggregateFiberCard, ← Fintype.card_subtype]
 
 section RealTopology
 
@@ -436,14 +487,50 @@ def stdSimplexCoordHomeomorph (i : ι) :
   continuous_invFun :=
     (continuous_stdSimplexCoordProj i).comp continuous_subtype_val
 
+/-- Restricting the coordinate chart gives a homeomorphism from the filled simplex in the free
+coordinates to the standard simplex. -/
+def stdSimplexFreeCoordsHomeomorph (i : ι) :
+    stdSimplexFreeCoords (R := ℝ) i ≃ₜ stdSimplex ℝ ι where
+  toFun x :=
+    ⟨stdSimplexCoordMap i x.1,
+      (stdSimplexCoordMap_mem_stdSimplex_iff i x.1).2 x.2⟩
+  invFun u := by
+    refine ⟨stdSimplexCoordProj i u.1, ?_⟩
+    apply (stdSimplexCoordMap_mem_stdSimplex_iff i _).1
+    have huAffine : u.1 ∈ stdSimplexAffineSet (R := ℝ) := by
+      simpa [stdSimplexAffineSet] using u.2.2
+    rw [stdSimplexCoordMap_coordProj i huAffine]
+    exact u.2
+  left_inv x := by
+    apply Subtype.ext
+    exact stdSimplexCoordProj_coordMap i x.1
+  right_inv u := by
+    apply Subtype.ext
+    apply stdSimplexCoordMap_coordProj i
+    simpa [stdSimplexAffineSet] using u.2.2
+  continuous_toFun :=
+    (continuous_stdSimplexCoordMap i).comp continuous_subtype_val |>.subtype_mk _
+  continuous_invFun :=
+    (continuous_stdSimplexCoordProj i).comp continuous_subtype_val |>.subtype_mk _
+
+/-- The forward map of `stdSimplexFreeCoordsHomeomorph` is `stdSimplexCoordMap`. -/
+@[simp] theorem coe_stdSimplexFreeCoordsHomeomorph_apply
+    (i : ι) (x : stdSimplexFreeCoords (R := ℝ) i) :
+    (stdSimplexFreeCoordsHomeomorph i x : ι → ℝ) = stdSimplexCoordMap i x.1 :=
+  rfl
+
+/-- The inverse map of `stdSimplexFreeCoordsHomeomorph` is `stdSimplexCoordProj`. -/
+@[simp] theorem coe_stdSimplexFreeCoordsHomeomorph_symm_apply
+    (i : ι) (u : stdSimplex ℝ ι) :
+    ((stdSimplexFreeCoordsHomeomorph i).symm u : {j : ι // j ≠ i} → ℝ) =
+      stdSimplexCoordProj i u.1 :=
+  rfl
+
 /-- The real coordinate map gives a closed embedding. -/
 theorem isClosedEmbedding_stdSimplexCoordMap (i : ι) :
-    Topology.IsClosedEmbedding (stdSimplexCoordMap (R := ℝ) i) := by
-  have h₁ := (stdSimplexCoordHomeomorph i).isClosedEmbedding
-  have h₂ := (isClosed_stdSimplexAffineSet (ι := ι)).isClosedEmbedding_subtypeVal
-  change Topology.IsClosedEmbedding
-    (fun x => ((stdSimplexCoordHomeomorph i) x : ι → ℝ))
-  exact h₂.comp h₁
+    Topology.IsClosedEmbedding (stdSimplexCoordMap (R := ℝ) i) :=
+  (isClosed_stdSimplexAffineSet (ι := ι)).isClosedEmbedding_subtypeVal.comp
+    (stdSimplexCoordHomeomorph i).isClosedEmbedding
 
 end RealTopology
 
