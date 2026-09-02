@@ -5,53 +5,64 @@ Authors: Bastiaan J Braams.
 -/
 
 import StdSimplexMeasure.Dirichlet
-import Mathlib.Analysis.Convex.StdSimplex
-import Mathlib.Analysis.SpecialFunctions.Gamma.Beta
+import StdSimplexMeasure.MvBeta
 
 /-!
-# Complex Dirichlet measure on the standard simplex
+# Regularized complex Dirichlet integrals on the standard simplex
 
-(Implemented as a complex density.)
+This file defines regularized complex Dirichlet densities and their associated integral
+functionals. These are complex-valued densities, not measures in the sense of Mathlib's
+nonnegative `Measure` type.
 
 ## Main definitions and results
 
+* `Complex.mvBeta_eq_integral`: the simplex integral representation of the multivariate Beta
+  function.
+* `regDirichletDensity`: the pointwise entire regularized Dirichlet density.
+* `complexDirichletDensity`: the corresponding normalized complex density.
+* `regDirichletIntegral`: integration against the regularized density.
+* `regDirichletIntegral_monomial`: evaluation of the functional on monomials.
+
 ## References
-[Carl77] Carlson, Bille Chandler. "Special functions of applied mathematics." Academic Press, 1977.
+
+* [Carl77] B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Complex Fintype MeasureTheory MeasureTheory.Measure
 
 public noncomputable section ComplexDirichlet
 
-namespace ProbabilityTheory
+namespace Complex
 
-variable {ι : Type*} [Fintype ι] [Nonempty ι]
+variable {ι : Type*} [Fintype ι]
 
-/-- The product of Gamma functions. -/
-def mvGamma (b : ι → ℂ) : ℂ :=
-    ∏ i, b i
-
-/-- The multivariate Beta function. -/
-def mvBeta (b : ι → ℂ) : ℂ :=
-    mvGamma b / Gamma (∑ i, b i)
-
-/-- Domain for `b` where the Beta function is defined as an integral. -/
-def mvBetaConvergent : Set (ι → ℂ) :=
-  {b | ∀ i, 0 < (b i).re}
-
-/-- The integral representation of `mvBeta`. -/
+/-- The absolutely convergent simplex integral representation of the multivariate Beta
+function. -/
 theorem mvBeta_eq_integral {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) :
     mvBeta b = ∫ u in stdSimplex ℝ ι, ∏ i, (u i : ℂ) ^ (b i - 1) ∂stdSimplexMeasure := by
   sorry
 
-/-- The regularized Dirichlet density with parameters `b` on `stdSimplexInterior`.
-This is an entire function of `b`. -/
+end Complex
+
+namespace ProbabilityTheory
+
+variable {ι : Type*} [Fintype ι]
+
+/-- The regularized Dirichlet density with parameters `b` on `stdSimplexInterior`. For each
+fixed `u`, this is an entire function of `b`. -/
 def regDirichletDensity (b : ι → ℂ) (u : ι → ℝ) : ℂ :=
   stdSimplexInterior.indicator (fun u ↦ ∏ i, (u i : ℂ) ^ (b i - 1) / Gamma (b i)) u
 
-/-- The Dirichlet density with parameters `b` on `stdSimplexInterior`. -/
-def dirichletDensity (b : ι → ℂ) (u : ι → ℝ) : ℂ :=
+/-- The normalized complex Dirichlet density with parameters `b` on
+`stdSimplexInterior`. -/
+def complexDirichletDensity (b : ι → ℂ) (u : ι → ℝ) : ℂ :=
   Gamma (∑ i, b i) * regDirichletDensity b u
+
+/-- Simultaneously permuting the parameters and coordinates leaves the regularized Dirichlet
+density unchanged. -/
+theorem regDirichletDensity_perm (b : ι → ℂ) (σ : Equiv.Perm ι) (u : ι → ℝ) :
+    regDirichletDensity (b ∘ σ) (u ∘ σ) = regDirichletDensity b u := by
+  sorry
 
 /-- The regularized Dirichlet density is a measurable function. -/
 theorem measurable_regDirichletDensity (b : ι → ℂ) :
@@ -59,7 +70,7 @@ theorem measurable_regDirichletDensity (b : ι → ℂ) :
   sorry
 
 /-- The regularized Dirichlet density integrated over the standard simplex. -/
-theorem RegDirichletIntegral_normalization (b : ι → ℂ) (hb : b ∈ mvBetaConvergent):
+theorem regDirichletIntegral_normalization (b : ι → ℂ) (hb : b ∈ mvBetaConvergent) :
     ∫ u in stdSimplex ℝ ι, regDirichletDensity b u ∂stdSimplexMeasure =
     1 / Gamma (∑ i, b i) := by
   sorry
@@ -77,33 +88,42 @@ theorem integrableOn_regDirichletDensity_mul
 
 /-- Integration of function `f` over the standard simplex with respect to the regularized
 Dirichlet density. -/
-def RegDirichletIntegral (b : ι → ℂ) (f : (ι → ℝ) → ℂ) : ℂ :=
+def regDirichletIntegral (b : ι → ℂ) (f : (ι → ℝ) → ℂ) : ℂ :=
   ∫ u in stdSimplex ℝ ι, regDirichletDensity b u * f u
     ∂stdSimplexMeasure
 
-/-- `RegDirichletIntegral` is additive. -/
-theorem RegDirichletIntegral_add (b : ι → ℂ) {f g : (ι → ℝ) → ℂ}
+/-- `regDirichletIntegral` is additive. -/
+theorem regDirichletIntegral_add (b : ι → ℂ) {f g : (ι → ℝ) → ℂ}
     (hf : ContinuousOn f (stdSimplex ℝ ι))
     (hg : ContinuousOn g (stdSimplex ℝ ι))
     (hb : b ∈ mvBetaConvergent) :
-    RegDirichletIntegral b (fun u => f u + g u) =
-    RegDirichletIntegral b f + RegDirichletIntegral b g := by
+    regDirichletIntegral b (fun u => f u + g u) =
+    regDirichletIntegral b f + regDirichletIntegral b g := by
   sorry
 
-/-- `RegDirichletIntegral` commutes with complex scalar multiplication. -/
-theorem RegDirichletIntegral_smul (b : ι → ℂ) {f : (ι → ℝ) → ℂ} (c : ℂ)
+/-- `regDirichletIntegral` commutes with complex scalar multiplication. -/
+theorem regDirichletIntegral_smul (b : ι → ℂ) {f : (ι → ℝ) → ℂ} (c : ℂ)
     (hf : ContinuousOn f (stdSimplex ℝ ι))
     (hb : b ∈ mvBetaConvergent) :
-    RegDirichletIntegral b (fun u => c * f u) =
-    c * RegDirichletIntegral b f := by
+    regDirichletIntegral b (fun u => c * f u) =
+    c * regDirichletIntegral b f := by
   sorry
 
 /-- The integral of `f` depends only on the values of `f` on the standard Simplex. -/
-theorem RegDirichletIntegral_congr
+theorem regDirichletIntegral_congr
     (b : ι → ℂ) {f g : (ι → ℝ) → ℂ}
     (hfg : Set.EqOn f g (stdSimplex ℝ ι)) :
-    RegDirichletIntegral b f =
-      RegDirichletIntegral b g := by
+    regDirichletIntegral b f =
+      regDirichletIntegral b g := by
+  sorry
+
+/-- The `regDirichletIntegral` of a monomial. -/
+theorem regDirichletIntegral_monomial
+    {b : ι → ℂ} (hb : b ∈ mvBetaConvergent)
+    (m : ι → ℕ) :
+    regDirichletIntegral b (fun u : ι → ℝ ↦ ∏ i, (u i : ℂ) ^ (m i)) =
+      (∏ i, (ascPochhammer ℂ (m i)).eval (b i)) /
+        Gamma (∑ i, (b i + m i : ℂ)) := by
   sorry
 
 end ProbabilityTheory
