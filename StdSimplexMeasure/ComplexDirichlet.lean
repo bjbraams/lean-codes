@@ -21,7 +21,6 @@ nonnegative `Measure` type.
 * `regDirichletDensity`: the pointwise entire regularized Dirichlet density.
 * `complexDirichletDensity`: the corresponding normalized complex density.
 * `regDirichletIntegral`: integration against the regularized density.
-* `regDirichletIntegral_monomial`: evaluation of the functional on monomials.
 
 ## References
 
@@ -48,6 +47,8 @@ namespace ProbabilityTheory
 
 variable {ι : Type*} [Fintype ι]
 
+open scoped Classical
+
 /-- The regularized Dirichlet density with parameters `b` on `stdSimplexInterior`. For each
 fixed `u`, this is an entire function of `b`. -/
 def regDirichletDensity (b : ι → ℂ) (u : ι → ℝ) : ℂ :=
@@ -62,18 +63,61 @@ def complexDirichletDensity (b : ι → ℂ) (u : ι → ℝ) : ℂ :=
 density unchanged. -/
 theorem regDirichletDensity_perm (b : ι → ℂ) (σ : Equiv.Perm ι) (u : ι → ℝ) :
     regDirichletDensity (b ∘ σ) (u ∘ σ) = regDirichletDensity b u := by
-  sorry
+  unfold regDirichletDensity
+  have hinter : (u ∘ σ) ∈ stdSimplexInterior ↔ u ∈ stdSimplexInterior := by
+    have hsimp : (u ∘ σ) ∈ stdSimplex ℝ ι ↔ u ∈ stdSimplex ℝ ι := by
+      change u ∈ (fun v ↦ v ∘ σ) ⁻¹' stdSimplex ℝ ι ↔ _
+      rw [preimage_stdSimplex_perm]
+    simp only [stdSimplexInterior]
+    constructor
+    · rintro ⟨hu, hp⟩
+      exact ⟨hsimp.mp hu,
+        fun i ↦ by simpa using hp (σ.symm i)⟩
+    · rintro ⟨hu, hp⟩
+      exact ⟨hsimp.mpr hu, fun i ↦ hp (σ i)⟩
+  by_cases hu : u ∈ stdSimplexInterior
+  · rw [Set.indicator_of_mem hu, Set.indicator_of_mem (hinter.mpr hu)]
+    simpa [Function.comp_def] using
+      (Equiv.prod_comp σ
+        (fun i ↦ (u i : ℂ) ^ (b i - 1) / Gamma (b i)))
+  · rw [Set.indicator_of_notMem hu, Set.indicator_of_notMem (mt hinter.mp hu)]
 
 /-- The regularized Dirichlet density is a measurable function. -/
 theorem measurable_regDirichletDensity (b : ι → ℂ) :
     Measurable (regDirichletDensity b) := by
-  sorry
+  unfold regDirichletDensity
+  apply Measurable.indicator _ measurableSet_stdSimplexInterior
+  fun_prop
 
 /-- The regularized Dirichlet density integrated over the standard simplex. -/
 theorem regDirichletIntegral_normalization (b : ι → ℂ) (hb : b ∈ mvBetaConvergent) :
     ∫ u in stdSimplex ℝ ι, regDirichletDensity b u ∂stdSimplexMeasure =
     1 / Gamma (∑ i, b i) := by
-  sorry
+  classical
+  cases isEmpty_or_nonempty ι with
+  | inl hι =>
+      let _ := hι
+      simp [regDirichletDensity, stdSimplexMeasure_empty]
+  | inr hι =>
+      let _ := hι
+      have hbpos (i : ι) : 0 < (b i).re := by
+        simpa [mvBetaConvergent] using hb i
+      have hgamma (i : ι) : Gamma (b i) ≠ 0 := Gamma_ne_zero_of_re_pos (hbpos i)
+      have hprod_gamma : (∏ i, Gamma (b i)) ≠ 0 :=
+        Finset.prod_ne_zero_iff.mpr (fun i _ ↦ hgamma i)
+      have hae := ae_zero_lt_of_mem_stdSimplex (ι := ι)
+      have hfun :
+          regDirichletDensity b =ᵐ[stdSimplexMeasure.restrict (stdSimplex ℝ ι)]
+            fun u ↦ (∏ i, (u i : ℂ) ^ (b i - 1)) / ∏ i, Gamma (b i) := by
+        have hmem := self_mem_ae_restrict
+          (μ := stdSimplexMeasure) (isClosed_stdSimplex ℝ ι).measurableSet
+        filter_upwards [hmem, hae] with u hu hupos
+        rw [regDirichletDensity, Set.indicator_of_mem]
+        · rw [Finset.prod_div_distrib]
+        · exact ⟨hu, hupos⟩
+      rw [integral_congr_ae hfun, integral_div, ← mvBeta_eq_integral hb]
+      rw [mvBeta_eq_prod_Gamma_div]
+      field_simp
 
 /-- Continuous functions are integrable over the standard simplex with respect to the
 regularized Dirichlet density. -/
@@ -99,7 +143,13 @@ theorem regDirichletIntegral_add (b : ι → ℂ) {f g : (ι → ℝ) → ℂ}
     (hb : b ∈ mvBetaConvergent) :
     regDirichletIntegral b (fun u => f u + g u) =
     regDirichletIntegral b f + regDirichletIntegral b g := by
-  sorry
+  unfold regDirichletIntegral
+  rw [← integral_add
+    (integrableOn_regDirichletDensity_mul b hb hf)
+    (integrableOn_regDirichletDensity_mul b hb hg)]
+  apply integral_congr_ae
+  filter_upwards with u
+  ring
 
 /-- `regDirichletIntegral` commutes with complex scalar multiplication. -/
 theorem regDirichletIntegral_smul (b : ι → ℂ) {f : (ι → ℝ) → ℂ} (c : ℂ)
@@ -107,7 +157,11 @@ theorem regDirichletIntegral_smul (b : ι → ℂ) {f : (ι → ℝ) → ℂ} (c
     (hb : b ∈ mvBetaConvergent) :
     regDirichletIntegral b (fun u => c * f u) =
     c * regDirichletIntegral b f := by
-  sorry
+  unfold regDirichletIntegral
+  rw [← integral_const_mul]
+  apply integral_congr_ae
+  filter_upwards with u
+  ring
 
 /-- The integral of `f` depends only on the values of `f` on the standard Simplex. -/
 theorem regDirichletIntegral_congr
@@ -115,15 +169,17 @@ theorem regDirichletIntegral_congr
     (hfg : Set.EqOn f g (stdSimplex ℝ ι)) :
     regDirichletIntegral b f =
       regDirichletIntegral b g := by
-  sorry
+  unfold regDirichletIntegral
+  apply setIntegral_congr_fun (isClosed_stdSimplex ℝ ι).measurableSet
+  intro u hu
+  dsimp only
+  rw [hfg hu]
 
-/-- The `regDirichletIntegral` of a monomial. -/
-theorem regDirichletIntegral_monomial
-    {b : ι → ℂ} (hb : b ∈ mvBetaConvergent)
-    (m : ι → ℕ) :
-    regDirichletIntegral b (fun u : ι → ℝ ↦ ∏ i, (u i : ℂ) ^ (m i)) =
-      (∏ i, (ascPochhammer ℂ (m i)).eval (b i)) /
-        Gamma (∑ i, (b i + m i : ℂ)) := by
+/-- If `f` is continuous on the closed standard simplex, then
+`b ↦ regDirichletIntegral b f` is analytic on the domain of absolute convergence. -/
+theorem regDirichletIntegral_analyticOn {f : (ι → ℝ) → ℂ}
+    (hf : ContinuousOn f (stdSimplex ℝ ι)) :
+    AnalyticOn ℂ (fun b ↦ regDirichletIntegral b f) mvBetaConvergent := by
   sorry
 
 end ProbabilityTheory

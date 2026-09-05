@@ -8,12 +8,33 @@ import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
 
 This file evaluates the Lebesgue volume of the set of nonnegative coordinate vectors whose
 coordinate sum is bounded by a nonnegative real number. The proof first treats coordinates
-indexed by `Fin n`, by induction and slicing, and then transports the result to any finite type.
+indexed by `Fin n`, by induction and slicing, and then transports the result to any finite
+type.
+
+The code here must be revisited if and when Mathlib PR #37910 is accepted.
 -/
 
 open MeasureTheory
 
 noncomputable section
+
+/-- Tonelli's theorem for a nonnegative integral restricted to a measurable subset of a product.
+Unlike `setIntegral_prod_slices`, this result requires no integrability hypothesis. -/
+lemma setLIntegral_prod_slices
+    {α β : Type*} [MeasurableSpace α] [MeasurableSpace β]
+    {μ : Measure α} {ν : Measure β} [SFinite μ] [SFinite ν]
+    (T : Set (α × β)) (hT : MeasurableSet T)
+    (f : α × β → ENNReal) (hf : Measurable f) :
+    ∫⁻ p in T, f p ∂μ.prod ν =
+      ∫⁻ x, ∫⁻ y in Prod.mk x ⁻¹' T, f (x, y) ∂ν ∂μ := by
+  rw [← lintegral_indicator hT]
+  rw [lintegral_prod _ (hf.indicator hT).aemeasurable]
+  apply lintegral_congr
+  intro x
+  rw [← lintegral_indicator (measurable_prodMk_left hT)]
+  apply lintegral_congr
+  intro y
+  rfl
 
 /-- Fubini's theorem for an integral restricted to a measurable subset of a product. -/
 lemma setIntegral_prod_slices

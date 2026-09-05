@@ -7,6 +7,7 @@ Authors: Bastiaan J Braams.
 import Mathlib.Analysis.SpecialFunctions.Gamma.Beta
 import Mathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 import Mathlib.MeasureTheory.Integral.Bochner.Set
+import StdSimplexMeasure.EuclideanCrossSection
 import StdSimplexMeasure.Measure
 
 /-!
@@ -160,6 +161,10 @@ theorem integral_stdSimplex_split_at
       ((1 - t) ^ (card ι - 2)) •
       ∫ v in stdSimplex ℝ {j // j ≠ i}, f (stdSimplexCoordMap i (fun j ↦ (1 - t) * v j))
         ∂stdSimplexMeasure := by
+  /- TODO: The intended proof uses the perpendicular Hausdorff-measure disintegration in
+  `StdSimplexMeasure.euclideanHausdorffMeasure_eq_lintegral_of_subset_affineSubspace`, followed
+  by comparison of Euclidean Hausdorff measure with the coordinate-normalized simplex measure.
+  If mathlib PR #37910 is merged, replace the local support theorem by its upstream version. -/
   sorry
 
 /-- The integral of a function over the standard simplex is invariant under coordinate

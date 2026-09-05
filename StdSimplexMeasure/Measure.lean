@@ -414,6 +414,10 @@ theorem map_stdSimplexMeasure_restrict_stdSimplex_aggregate
       =
     ((stdSimplexMeasure (ι := κ)).restrict (stdSimplex ℝ κ)).withDensity
       (stdSimplexAggregateDensity f) := by
+  /- TODO: Prove this by iterating the simplex cross-section/slicing theorem, merging one fiber
+  at a time.  Mathlib PR #37910 contains no aggregation theorem, but its Hausdorff-measure
+  cross-section method supplies the intended geometric input once translated to the coordinate
+  normalization used here. -/
   sorry
 
 end MeasureTheory.Measure
