@@ -5,6 +5,7 @@ Authors: Bastiaan J Braams
 -/
 
 import StdSimplexMeasure.ComplexDirichlet
+import StdSimplexMeasure.CarlsonDirichletAverage.Kernel
 import Mathlib.Analysis.Convex.Combination
 import Mathlib.Analysis.Complex.Convex
 
@@ -30,16 +31,6 @@ public noncomputable section CarlsonDirichletAverage
 namespace DirichletTransform
 
 variable {ι : Type*} [Fintype ι]
-
-/-- The affine form on the standard simplex associated with the complex parameters `z`. -/
-def carlsonAffineForm (z : ι → ℂ) (u : ι → ℝ) : ℂ :=
-  ∑ i, (u i : ℂ) * z i
-
-/-- The affine form associated with `z` is continuous in the simplex variable. -/
-theorem continuous_carlsonAffineForm (z : ι → ℂ) :
-    Continuous (carlsonAffineForm z) := by
-  unfold carlsonAffineForm
-  fun_prop
 
 /-- The multivariate polynomial whose value is Carlson's affine form. -/
 def carlsonAffinePolynomial (z : ι → ℂ) : MvPolynomial ι ℂ :=

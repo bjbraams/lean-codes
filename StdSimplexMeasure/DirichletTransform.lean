@@ -6,6 +6,7 @@ Authors: Bastiaan J Braams.
 
 import StdSimplexMeasure.ComplexDirichlet
 import Mathlib.Analysis.Calculus.Deriv.Polynomial
+import Mathlib.Analysis.Analytic.Polynomial
 
 /-!
 # The Dirichlet or Simplex Mellin transform
@@ -171,6 +172,28 @@ theorem differentiable_regDirichletMonomialTransform (m : ι → ℕ) :
     fun_prop
   exact hnumerator.mul (Complex.differentiable_one_div_Gamma.comp hsum)
 
+/-- The regularized Dirichlet monomial transform is analytic in all Dirichlet parameters. -/
+theorem analyticOnNhd_regDirichletMonomialTransform (m : ι → ℕ) :
+    AnalyticOnNhd ℂ (regDirichletMonomialTransform m) Set.univ := by
+  intro b _
+  unfold regDirichletMonomialTransform mvPochhammer
+  have hp : AnalyticAt ℂ (fun b : ι → ℂ ↦
+      ∏ i, (ascPochhammer ℂ (m i)).eval (b i)) b := by
+    apply Finset.analyticAt_fun_prod
+    intro i _
+    exact ((AnalyticOnNhd.eval_polynomial (𝕜 := ℂ) (ascPochhammer ℂ (m i)))
+      (b i) (Set.mem_univ _)).comp_of_eq
+        ((ContinuousLinearMap.proj i : (ι → ℂ) →L[ℂ] ℂ).analyticAt b) rfl
+  have hs : AnalyticAt ℂ (fun b : ι → ℂ ↦ ∑ i, (b i + m i : ℂ)) b := by
+    apply Finset.analyticAt_fun_sum
+    intro i _
+    exact ((ContinuousLinearMap.proj i : (ι → ℂ) →L[ℂ] ℂ).analyticAt b).add analyticAt_const
+  have hGammaInv : AnalyticAt ℂ (fun z : ℂ ↦ (Gamma z)⁻¹)
+      (∑ i, (b i + m i : ℂ)) :=
+    (analyticOnNhd_univ_iff_differentiable.mpr
+      Complex.differentiable_one_div_Gamma) _ (Set.mem_univ _)
+  exact hp.mul (hGammaInv.comp_of_eq hs rfl)
+
 set_option backward.isDefEq.respectTransparency false in
 /-- The regularized Dirichlet polynomial transform is entire in all Dirichlet parameters. -/
 theorem differentiable_regDirichletMvPolynomialTransform (p : MvPolynomial ι ℂ) :
@@ -185,6 +208,18 @@ theorem differentiable_regDirichletMvPolynomialTransform (p : MvPolynomial ι �
   exact Differentiable.sum fun m _ ↦
     (differentiable_const _).mul
       (differentiable_regDirichletMonomialTransform (m : ι → ℕ))
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The regularized Dirichlet transform of a multivariate polynomial is analytic in all
+Dirichlet parameters. -/
+theorem analyticOnNhd_regDirichletMvPolynomialTransform (p : MvPolynomial ι ℂ) :
+    AnalyticOnNhd ℂ (regDirichletMvPolynomialTransform p) Set.univ := by
+  intro b _
+  unfold regDirichletMvPolynomialTransform
+  apply Finset.analyticAt_fun_sum
+  intro m _
+  exact analyticAt_const.mul
+    (analyticOnNhd_regDirichletMonomialTransform (m : ι → ℕ) b (Set.mem_univ b))
 
 /-! ## Finite-order analytic continuation -/
 

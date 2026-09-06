@@ -6,6 +6,8 @@ Authors: Bastiaan J Braams
 
 import StdSimplexMeasure.DirichletTransform
 import StdSimplexMeasure.CarlsonDirichletAverage.Deriv
+import StdSimplexMeasure.CarlsonDirichletAverage.Bridge
+import StdSimplexMeasure.AnalyticUniqueness
 import Mathlib.Analysis.Analytic.Uniqueness
 
 /-!
@@ -93,6 +95,46 @@ theorem IsRegCarlsonContinuation.eq {f : ℂ → ℂ} {z : ι → ℂ}
   intro b hb
   exact (hG.2 hb).trans (hH.2 hb).symm
 
+/-- Two entire candidates which agree for every strictly positive real Dirichlet parameter
+agree globally.  This is the uniqueness principle used to lift probability identities without
+first proving them on the full complex convergence region. -/
+theorem analyticOnNhd_eq_of_eqOn_realDirichletDomain
+    {G H : (ι → ℂ) → ℂ} (hG : AnalyticOnNhd ℂ G Set.univ)
+    (hH : AnalyticOnNhd ℂ H Set.univ)
+    (hEq : ∀ b : ι → ℝ, b ∈ mvRealBetaDomain →
+      G (fun i ↦ (b i : ℂ)) = H (fun i ↦ (b i : ℂ))) : G = H := by
+  apply analyticOnNhd_eq_of_eqOn_posReal_pi hG hH
+  intro b hb
+  exact hEq b hb
+
+/-- An entire candidate can be recognized as a Carlson continuation by comparison on positive
+real parameters with any already established continuation. -/
+theorem IsRegCarlsonContinuation.mk_of_eqOn_realDirichletDomain
+    {f : ℂ → ℂ} {z : ι → ℂ} {G H : (ι → ℂ) → ℂ}
+    (hG : AnalyticOnNhd ℂ G Set.univ) (hH : IsRegCarlsonContinuation f z H)
+    (hEq : ∀ b : ι → ℝ, b ∈ mvRealBetaDomain →
+      G (fun i ↦ (b i : ℂ)) = H (fun i ↦ (b i : ℂ))) :
+    IsRegCarlsonContinuation f z G := by
+  have hGH := analyticOnNhd_eq_of_eqOn_realDirichletDomain hG hH.1 hEq
+  rw [hGH]
+  exact hH
+
+/-- An entire candidate which has the probability-average values on positive real parameters
+is a Carlson continuation, provided one continuation is already known to exist.  The reference
+continuation is used only for uniqueness. -/
+theorem IsRegCarlsonContinuation.mk_of_eq_realCarlsonDirichletAverage [Nonempty ι]
+    {f : ℂ → ℂ} {z : ι → ℂ} {G H : (ι → ℂ) → ℂ}
+    (hG : AnalyticOnNhd ℂ G Set.univ) (hH : IsRegCarlsonContinuation f z H)
+    (hEq : ∀ b : ι → ℝ, b ∈ mvRealBetaDomain →
+      G (fun i ↦ (b i : ℂ)) =
+        realCarlsonDirichletAverage b z f / Gamma (∑ i, (b i : ℂ))) :
+    IsRegCarlsonContinuation f z G := by
+  apply IsRegCarlsonContinuation.mk_of_eqOn_realDirichletDomain hG hH
+  intro b hb
+  rw [hEq b hb, hH.eq_native]
+  · exact (regCarlsonDirichletAverage_ofReal hb z f).symm
+  · simpa [mvBetaConvergent, mvRealBetaDomain] using hb
+
 /-- The entire regularized Carlson average of a nonnegative integral power. -/
 def regCarlsonR (n : ℕ) (z b : ι → ℂ) : ℂ :=
   regDirichletMvPolynomialTransform (carlsonPowerPolynomial n z) b
@@ -112,6 +154,12 @@ theorem regCarlsonDirichletAverage_pow (n : ℕ) (z : ι → ℂ)
 theorem differentiable_regCarlsonR (n : ℕ) (z : ι → ℂ) :
     Differentiable ℂ (regCarlsonR n z) := by
   exact differentiable_regDirichletMvPolynomialTransform (carlsonPowerPolynomial n z)
+
+/-- For fixed `n` and `z`, the regularized Carlson power average is analytic in all Dirichlet
+parameters. -/
+theorem analyticOnNhd_regCarlsonR (n : ℕ) (z : ι → ℂ) :
+    AnalyticOnNhd ℂ (regCarlsonR n z) Set.univ :=
+  analyticOnNhd_regDirichletMvPolynomialTransform (carlsonPowerPolynomial n z)
 
 /-- The native regularized average of Carlson's integer resolvent.  Its continuation in `b`
 is the kernel used in Carlson's Cauchy-integral argument. -/
