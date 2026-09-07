@@ -3,9 +3,10 @@ Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bastiaan J Braams.
 -/
+module
 
-import Mathlib.Analysis.Convex.StdSimplex
-import Mathlib.Topology.Algebra.Module.FiniteDimension
+public import Mathlib.Analysis.Convex.StdSimplex
+public import Mathlib.Topology.Algebra.Module.FiniteDimension
 
 /-!
 # Coordinates on the standard simplex and its affine hull
@@ -38,7 +39,7 @@ should `AffineSpace.Basis` be imported whole for reuse, or should perhaps some l
 affine coordinates intermediate file be used?
 -/
 
-noncomputable section StdSimplexCoordinates
+@[expose] public noncomputable section StdSimplexCoordinates
 
 /- Defining the standard index set as a `Type*`. -/
 variable {ι : Type*} [Fintype ι]

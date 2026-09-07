@@ -1,7 +1,14 @@
-import Mathlib.Analysis.SpecialFunctions.Integrals.Basic
-import Mathlib.MeasureTheory.Integral.Bochner.Set
-import Mathlib.MeasureTheory.Integral.Prod
-import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
+module
+
+public import Mathlib.Analysis.SpecialFunctions.Integrals.Basic
+public import Mathlib.MeasureTheory.Integral.Bochner.Set
+public import Mathlib.MeasureTheory.Integral.Prod
+public import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
 
 /-!
 # Lebesgue volume of a finite-dimensional positive simplex
@@ -17,7 +24,9 @@ The code here must be revisited if and when Mathlib PR #37910 is accepted.
 open MeasureTheory
 open scoped Classical
 
-noncomputable section
+@[expose] public noncomputable section
+
+namespace MeasureTheory
 
 /-- Tonelli's theorem for a nonnegative integral restricted to a measurable subset of a product.
 Unlike `setIntegral_prod_slices`, this result requires no integrability hypothesis. -/
@@ -54,6 +63,8 @@ lemma setIntegral_prod_slices
   apply integral_congr_ae
   filter_upwards [] with y
   rfl
+
+end MeasureTheory
 
 /-- The positive simplex of radius `r` in coordinates indexed by `Fin n`: nonnegative vectors
 whose coordinate sum is at most `r`. -/

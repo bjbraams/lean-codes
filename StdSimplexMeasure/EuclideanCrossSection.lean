@@ -1,11 +1,12 @@
 /-
 Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Bastiaan J Braams, Weiyi Wang
+Authors: Weiyi Wang
 -/
+module
 
-import Mathlib.Geometry.Euclidean.Volume.Measure
-import Mathlib.Geometry.Euclidean.Projection
+public import Mathlib.Geometry.Euclidean.Projection
+public import Mathlib.Geometry.Euclidean.Volume.Measure
 
 /-!
 # Euclidean cross-sections inside an affine subspace
@@ -28,7 +29,7 @@ open scoped ENNReal NNReal
 
 public noncomputable section
 
-namespace StdSimplexMeasure
+namespace EuclideanGeometry
 
 variable {V P : Type*}
 variable [NormedAddCommGroup V] [InnerProductSpace ℝ V]
@@ -101,4 +102,4 @@ theorem euclideanHausdorffMeasure_eq_lintegral_of_subset_affineSubspace
       coe_subtypeA, Set.image_preimage_eq_of_subset (by simpa using hts), h,
       ← Set.inter_assoc, Set.inter_right_comm, Set.inter_eq_left.mpr hts]
 
-end StdSimplexMeasure
+end EuclideanGeometry

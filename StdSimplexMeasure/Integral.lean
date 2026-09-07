@@ -3,12 +3,16 @@ Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bastiaan J Braams.
 -/
+module
+
+public import Mathlib.MeasureTheory.Integral.Bochner.Set
+public import StdSimplexMeasure.Measure
 
 import Mathlib.Analysis.SpecialFunctions.Gamma.Beta
 import Mathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
-import Mathlib.MeasureTheory.Integral.Bochner.Set
 import StdSimplexMeasure.EuclideanCrossSection
-import StdSimplexMeasure.Measure
+import all StdSimplexMeasure.Measure
+import StdSimplexMeasure.PositiveSimplex
 
 /-!
 # Integrals on the standard simplex
@@ -19,7 +23,7 @@ formulas for integrals with respect to `stdSimplexMeasure`.
 
 open Fintype (card)
 
-noncomputable section StdSimplexIntegral
+public noncomputable section StdSimplexIntegral
 
 namespace MeasureTheory
 
@@ -173,7 +177,7 @@ theorem integral_stdSimplex_split_at
       ∫ v in stdSimplex ℝ {j // j ≠ i}, f (stdSimplexCoordMap i (fun j ↦ (1 - t) * v j))
         ∂stdSimplexMeasure := by
   /- TODO: The intended proof uses the perpendicular Hausdorff-measure disintegration in
-  `StdSimplexMeasure.euclideanHausdorffMeasure_eq_lintegral_of_subset_affineSubspace`, followed
+  `EuclideanGeometry.euclideanHausdorffMeasure_eq_lintegral_of_subset_affineSubspace`, followed
   by comparison of Euclidean Hausdorff measure with the coordinate-normalized simplex measure.
   If mathlib PR #37910 is merged, replace the local support theorem by its upstream version. -/
   sorry
@@ -465,4 +469,3 @@ theorem integral_stdSimplex_comp_aggregate
 end MeasureTheory
 
 end StdSimplexIntegral
--- #lint

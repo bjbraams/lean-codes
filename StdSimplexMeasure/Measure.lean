@@ -3,11 +3,14 @@ Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bastiaan J Braams.
 -/
+module
+
+public import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
+public import Mathlib.MeasureTheory.Measure.Restrict
+public import Mathlib.MeasureTheory.Measure.WithDensity
+public import StdSimplexMeasure.Coordinates
 
 import Mathlib.MeasureTheory.Function.LocallyIntegrable
-import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
-import Mathlib.MeasureTheory.Measure.Restrict
-import StdSimplexMeasure.Coordinates
 import StdSimplexMeasure.PositiveSimplex
 
 /-!
@@ -20,7 +23,7 @@ aggregation. This coordinate measure differs by a dimension-dependent constant f
 Euclidean Hausdorff measure on the affine hull.
 -/
 
-noncomputable section StdSimplexCoordinateMeasure
+public noncomputable section StdSimplexCoordinateMeasure
 
 namespace MeasureTheory.Measure
 
