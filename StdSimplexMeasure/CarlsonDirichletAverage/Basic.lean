@@ -145,6 +145,28 @@ theorem carlsonAffineForm_mem_convexHull (z : ι → ℂ) {u : ι → ℝ}
   rw [affineCombination_eq_centerMass hu.2] at h
   simpa [Finset.centerMass, hu.2, carlsonAffineForm, Complex.real_smul, mul_comm] using h
 
+/-- On the standard simplex, Carlson's affine form is bounded by the sum of the norms of
+its variables. -/
+theorem norm_carlsonAffineForm_le_sum_norm (z : ι → ℂ) {u : ι → ℝ}
+    (hu : u ∈ stdSimplex ℝ ι) :
+    ‖carlsonAffineForm z u‖ ≤ ∑ i, ‖z i‖ := by
+  unfold carlsonAffineForm
+  calc
+    ‖∑ i, (u i : ℂ) * z i‖ ≤ ∑ i, ‖(u i : ℂ) * z i‖ := norm_sum_le _ _
+    _ = ∑ i, u i * ‖z i‖ := by
+      apply Finset.sum_congr rfl
+      intro i _
+      simp [Real.norm_eq_abs, abs_of_nonneg (hu.1 i)]
+    _ ≤ ∑ i, ‖z i‖ := by
+      apply Finset.sum_le_sum
+      intro i _
+      have hui : u i ≤ 1 := by
+        calc
+          u i ≤ ∑ j, u j :=
+            Finset.single_le_sum (fun j _ ↦ hu.1 j) (Finset.mem_univ i)
+          _ = 1 := hu.2
+      exact mul_le_of_le_one_left (norm_nonneg _) hui
+
 /-- The denominator in Carlson's resolvent is nonzero off the convex hull of `z`. -/
 theorem sub_carlsonAffineForm_ne_zero {s : ℂ} {z : ι → ℂ} {u : ι → ℝ}
     (hs : s ∉ convexHull ℝ (Set.range z)) (hu : u ∈ stdSimplex ℝ ι) :

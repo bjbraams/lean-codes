@@ -49,6 +49,65 @@ variable {ι : Type*} [Fintype ι]
 
 open scoped Classical
 
+/-- The unnormalized complex Dirichlet monomial is integrable when every exponent parameter
+has positive real part. -/
+private theorem integrableOn_complexDirichletMonomial
+    (b : ι → ℂ) (hb : b ∈ mvBetaConvergent) :
+    IntegrableOn (fun u : ι → ℝ ↦ ∏ i, (u i : ℂ) ^ (b i - 1))
+      (stdSimplex ℝ ι) stdSimplexMeasure := by
+  classical
+  cases isEmpty_or_nonempty ι with
+  | inl hι =>
+      let _ := hι
+      simp [stdSimplexMeasure_empty]
+  | inr hι =>
+      let _ := hι
+      let a : ι → ℝ := fun i ↦ (b i).re
+      have ha : a ∈ mvRealBetaDomain := by
+        intro i
+        exact hb i
+      have hreal : IntegrableOn (fun u : ι → ℝ ↦ ∏ i, u i ^ (a i - 1))
+          (stdSimplex ℝ ι) stdSimplexMeasure := by
+        apply Integrable.of_integral_ne_zero
+        rw [← mvRealBeta_eq_integral ha]
+        exact ne_of_gt (mvRealBeta_pos ha)
+      let P : Set (ι → ℝ) := {u | ∀ i, 0 < u i}
+      have hPopen : IsOpen P := by
+        rw [show P = ⋂ i, {u : ι → ℝ | 0 < u i} by ext u; simp [P]]
+        exact isOpen_iInter_of_finite fun i ↦
+          isOpen_lt continuous_const (continuous_apply i)
+      have hrealP := hreal.mono_set (Set.inter_subset_left :
+        stdSimplex ℝ ι ∩ P ⊆ stdSimplex ℝ ι)
+      have hcomplexP : IntegrableOn (fun u : ι → ℝ ↦ ∏ i, (u i : ℂ) ^ (b i - 1))
+          (stdSimplex ℝ ι ∩ P) stdSimplexMeasure := by
+        apply Integrable.mono hrealP
+        · apply ContinuousOn.aestronglyMeasurable
+          · apply continuousOn_finsetProd
+            intro i _
+            exact (Complex.continuous_ofReal.comp (continuous_apply i)).continuousOn.cpow_const
+              (fun _ hu ↦ ofReal_mem_slitPlane.2 (hu.2 i))
+          · exact (isClosed_stdSimplex ℝ ι).measurableSet.inter hPopen.measurableSet
+        · filter_upwards [self_mem_ae_restrict (μ := stdSimplexMeasure)
+              ((isClosed_stdSimplex ℝ ι).measurableSet.inter hPopen.measurableSet)] with u hu
+          simp only [Set.mem_inter_iff] at hu
+          simp only [norm_prod]
+          apply le_of_eq
+          apply Finset.prod_congr rfl
+          intro i _
+          rw [norm_cpow_eq_rpow_re_of_pos (hu.2 i)]
+          simp [a, Real.norm_eq_abs, abs_of_pos (Real.rpow_pos_of_pos (hu.2 i) _)]
+      apply hcomplexP.congr_set_ae
+      have hae : ∀ᵐ u ∂stdSimplexMeasure,
+          u ∈ stdSimplex ℝ ι → ∀ i, 0 < u i :=
+        (ae_restrict_iff' (isClosed_stdSimplex ℝ ι).measurableSet).mp
+          (ae_zero_lt_of_mem_stdSimplex (ι := ι))
+      filter_upwards [hae] with u hu
+      apply propext
+      constructor
+      · intro hus
+        exact ⟨hus, hu hus⟩
+      · exact fun hus ↦ hus.1
+
 /-- The regularized Dirichlet density with parameters `b` on `stdSimplexInterior`. For each
 fixed `u`, this is an entire function of `b`. -/
 def regDirichletDensity (b : ι → ℂ) (u : ι → ℝ) : ℂ :=
@@ -128,7 +187,49 @@ theorem integrableOn_regDirichletDensity_mul
     IntegrableOn
       (fun u => regDirichletDensity b u * f u)
       (stdSimplex ℝ ι) stdSimplexMeasure := by
-  sorry
+  classical
+  cases isEmpty_or_nonempty ι with
+  | inl hι =>
+      let _ := hι
+      rw [stdSimplexMeasure_empty]
+      simpa [IntegrableOn] using
+        (integrable_zero_measure (f := fun u => regDirichletDensity b u * f u))
+  | inr hι =>
+    let _ := hι
+    let K := stdSimplex ℝ ι
+    obtain ⟨C, hC⟩ := bddAbove_def.mp
+      ((isCompact_stdSimplex ℝ ι).bddAbove_image hf.norm)
+    have hf_le : ∀ u ∈ K, ‖f u‖ ≤ max C 0 := by
+      intro u hu
+      exact (hC _ ⟨u, hu, rfl⟩).trans (le_max_left _ _)
+    have hmono := integrableOn_complexDirichletMonomial b hb
+    have hgamma : IntegrableOn
+        (fun u : ι → ℝ ↦ (max C 0 / ∏ i, ‖Gamma (b i)‖) *
+          ‖∏ i, (u i : ℂ) ^ (b i - 1)‖) K stdSimplexMeasure :=
+      hmono.norm.const_mul _
+    apply Integrable.mono hgamma
+    · exact (measurable_regDirichletDensity b).aestronglyMeasurable.mul
+        (hf.aestronglyMeasurable (isClosed_stdSimplex ℝ ι).measurableSet)
+    · filter_upwards [self_mem_ae_restrict (μ := stdSimplexMeasure)
+          (isClosed_stdSimplex ℝ ι).measurableSet,
+          ae_zero_lt_of_mem_stdSimplex (ι := ι)] with u hu hupos
+      have hinter : u ∈ stdSimplexInterior := ⟨hu, hupos⟩
+      simp only [regDirichletDensity, Set.indicator_of_mem hinter, norm_mul, norm_prod,
+        norm_div]
+      have hden_pos : 0 < ∏ i, ‖Gamma (b i)‖ := Finset.prod_pos fun i _ ↦
+        norm_pos_iff.mpr (Gamma_ne_zero_of_re_pos (hb i))
+      simp only [Real.norm_eq_abs, abs_of_nonneg (le_max_right C 0),
+        abs_of_nonneg (norm_nonneg _)]
+      calc
+        (∏ i, ‖(u i : ℂ) ^ (b i - 1)‖ / ‖Gamma (b i)‖) * ‖f u‖ =
+            ‖f u‖ / (∏ i, ‖Gamma (b i)‖) *
+              ∏ i, ‖(u i : ℂ) ^ (b i - 1)‖ := by
+          rw [Finset.prod_div_distrib]
+          field_simp
+        _ ≤ (max C 0 / ∏ i, ‖Gamma (b i)‖) *
+              ∏ i, ‖(u i : ℂ) ^ (b i - 1)‖ := by
+          gcongr
+          exact hf_le u hu
 
 /-- Integration of function `f` over the standard simplex with respect to the regularized
 Dirichlet density. -/

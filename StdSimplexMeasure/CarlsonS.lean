@@ -6,6 +6,7 @@ Authors: Bastiaan J Braams
 
 import StdSimplexMeasure.CarlsonDirichletAverage
 import Mathlib.Analysis.SpecialFunctions.ExpDeriv
+import Mathlib.MeasureTheory.Integral.DominatedConvergence
 
 /-!
 # Carlson's multivariate S-function
@@ -62,6 +63,54 @@ theorem hasDerivAt_exp_carlsonAffineForm_update
       ((u i : ℂ) * exp (carlsonAffineForm z u)) (z i) := by
   exact HasDerivAt.comp_carlsonAffineForm_update i
     (Complex.hasDerivAt_exp (carlsonAffineForm z u))
+
+/-- Coordinate differentiation of the native regularized `S` integral.  This is the
+specialization of Carlson's differentiation formula to the exponential kernel. -/
+theorem hasDerivAt_regCarlsonSIntegral_update
+    {b z : ι → ℂ} (hb : b ∈ mvBetaConvergent) (i : ι) :
+    HasDerivAt (fun w ↦ regCarlsonSIntegral b (Function.update z i w))
+      (regDirichletIntegral b
+        (fun u ↦ (u i : ℂ) * exp (carlsonAffineForm z u))) (z i) := by
+  let C : ℝ := Real.exp (∑ j, (‖z j‖ + ‖z i‖ + 1))
+  apply hasDerivAt_regCarlsonDirichletAverage_update_of_bound hb i
+    (Metric.closedBall_mem_nhds _ zero_lt_one :
+      Metric.closedBall (z i) 1 ∈ nhds (z i))
+    (fun w hw u hu ↦ Complex.hasDerivAt_exp _)
+    (fun w hw ↦ Complex.continuous_exp.continuousOn)
+  intro w hw u hu
+  rw [norm_exp]
+  apply Real.exp_le_exp.mpr
+  calc
+    (carlsonAffineForm (Function.update z i w) u).re ≤
+        ‖carlsonAffineForm (Function.update z i w) u‖ := Complex.re_le_norm _
+    _ ≤ ∑ j, ‖Function.update z i w j‖ :=
+      norm_carlsonAffineForm_le_sum_norm _ hu
+    _ ≤ ∑ j, (‖z j‖ + ‖z i‖ + 1) := by
+      apply Finset.sum_le_sum
+      intro j hj
+      by_cases hji : j = i
+      · subst j
+        rw [Function.update_self]
+        calc
+          ‖w‖ ≤ dist w (z i) + ‖z i‖ := by
+            simpa [dist_eq] using norm_le_norm_sub_add w (z i)
+          _ ≤ 1 + ‖z i‖ := by
+            gcongr
+            exact Metric.mem_closedBall.mp hw
+          _ ≤ ‖z i‖ + ‖z i‖ + 1 := by
+            nlinarith [norm_nonneg (z i)]
+      · rw [Function.update_of_ne hji]
+        nlinarith [norm_nonneg (z i)]
+
+/-- Carlson's coordinate differentiation formula for the regularized native `S` integral:
+differentiation in `z i` raises the corresponding Dirichlet parameter. -/
+theorem carlsonPartialDeriv_regCarlsonSIntegral
+    {b z : ι → ℂ} (hb : b ∈ mvBetaConvergent) (i : ι) :
+    carlsonPartialDeriv i (regCarlsonSIntegral b) z =
+      b i * regCarlsonSIntegral (addDirichletUnit b i) z := by
+  rw [carlsonPartialDeriv, (hasDerivAt_regCarlsonSIntegral_update hb i).deriv]
+  exact (mul_regDirichletIntegral_addDirichletUnit hb i
+    (fun u ↦ exp (carlsonAffineForm z u))).symm
 
 /-- Every iterated complex derivative of the exponential function is the exponential function
 itself. -/
@@ -156,28 +205,6 @@ theorem tendsto_regCarlsonSPartialSum (z b : ι → ℂ)
   rw [regCarlsonSSeries_eq_tsum_regCarlsonR]
   exact h.hasSum.tendsto_sum_nat
 
-/-- On the standard simplex, the norm of Carlson's affine form is bounded by the sum of the
-norms of its variables.  This uniform bound is used to dominate the exponential series. -/
-theorem norm_carlsonAffineForm_le_sum_norm (z : ι → ℂ) {u : ι → ℝ}
-    (hu : u ∈ stdSimplex ℝ ι) :
-    ‖carlsonAffineForm z u‖ ≤ ∑ i, ‖z i‖ := by
-  unfold carlsonAffineForm
-  calc
-    ‖∑ i, (u i : ℂ) * z i‖ ≤ ∑ i, ‖(u i : ℂ) * z i‖ := norm_sum_le _ _
-    _ = ∑ i, u i * ‖z i‖ := by
-      apply Finset.sum_congr rfl
-      intro i _
-      simp [Real.norm_eq_abs, abs_of_nonneg (hu.1 i)]
-    _ ≤ ∑ i, ‖z i‖ := by
-      apply Finset.sum_le_sum
-      intro i _
-      have hui : u i ≤ 1 := by
-        calc
-          u i ≤ ∑ j, u j :=
-            Finset.single_le_sum (fun j _ ↦ hu.1 j) (Finset.mem_univ i)
-          _ = 1 := hu.2
-      exact mul_le_of_le_one_left (norm_nonneg _) hui
-
 /-- The exponential series of the Carlson affine form converges pointwise to the exponential
 kernel. -/
 theorem hasSum_exp_carlsonAffineForm (z : ι → ℂ) (u : ι → ℝ) :
@@ -186,6 +213,92 @@ theorem hasSum_exp_carlsonAffineForm (z : ι → ℂ) (u : ι → ℝ) :
   by
     simpa [Complex.exp_eq_exp_ℂ] using
       (NormedSpace.expSeries_div_hasSum_exp (carlsonAffineForm z u))
+
+/-- On the native convergence region, Carlson's exponential series is summable and its sum
+is the regularized `S` integral.  This is the integral form of the power-series construction
+in Sections 5.7--5.8. -/
+theorem hasSum_regCarlsonR_div_factorial_eq_regCarlsonSIntegral
+    (z : ι → ℂ) {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) :
+    HasSum (fun n : ℕ ↦ (Nat.factorial n : ℂ)⁻¹ * regCarlsonR n z b)
+      (regCarlsonSIntegral b z) := by
+  let μ := (MeasureTheory.Measure.stdSimplexMeasure (ι := ι)).restrict (stdSimplex ℝ ι)
+  let C : ℝ := ∑ i, ‖z i‖
+  let M : ℕ → ℝ := fun n ↦ C ^ n / Nat.factorial n
+  let F : ℕ → (ι → ℝ) → ℂ := fun n u ↦
+    regDirichletDensity b u * (carlsonAffineForm z u ^ n / Nat.factorial n)
+  let g : (ι → ℝ) → ℂ := fun u ↦
+    regDirichletDensity b u * exp (carlsonAffineForm z u)
+  have hC : 0 ≤ C := Finset.sum_nonneg fun _ _ ↦ norm_nonneg _
+  have hM : Summable M := by
+    simpa [M] using Real.summable_pow_div_factorial C
+  have hdens : Integrable (fun u ↦ regDirichletDensity b u) μ := by
+    change IntegrableOn (fun u ↦ regDirichletDensity b u)
+      (stdSimplex ℝ ι) MeasureTheory.Measure.stdSimplexMeasure
+    simpa only [mul_one] using integrableOn_regDirichletDensity_mul b hb
+      (continuousOn_const : ContinuousOn (fun _ : ι → ℝ ↦ (1 : ℂ))
+        (stdSimplex ℝ ι))
+  have hF_meas (n : ℕ) : AEStronglyMeasurable (F n) μ := by
+    exact (integrableOn_regDirichletDensity_mul b hb
+      ((continuous_carlsonAffineForm z).continuousOn.pow n |>.div_const _)).1
+  have hbound (n : ℕ) : ∀ᵐ u ∂μ, ‖F n u‖ ≤ M n * ‖regDirichletDensity b u‖ := by
+    filter_upwards [self_mem_ae_restrict
+      (μ := MeasureTheory.Measure.stdSimplexMeasure)
+      (isClosed_stdSimplex ℝ ι).measurableSet] with u hu
+    simp only [F, M, norm_mul, norm_div, norm_natCast]
+    calc
+      ‖regDirichletDensity b u‖ * (‖carlsonAffineForm z u ^ n‖ / ↑n.factorial) ≤
+          ‖regDirichletDensity b u‖ * (C ^ n / ↑n.factorial) := by
+            apply mul_le_mul_of_nonneg_left _ (norm_nonneg _)
+            apply div_le_div_of_nonneg_right _ (Nat.cast_nonneg _)
+            rw [norm_pow]
+            exact pow_le_pow_left₀ (norm_nonneg _)
+              (norm_carlsonAffineForm_le_sum_norm z hu) n
+      _ = C ^ n / ↑n.factorial * ‖regDirichletDensity b u‖ := by ring
+  have hbound_summable : ∀ᵐ u ∂μ,
+      Summable fun n ↦ M n * ‖regDirichletDensity b u‖ := by
+    filter_upwards with u
+    exact hM.mul_right _
+  have hbound_integrable : Integrable
+      (fun u ↦ ∑' n, M n * ‖regDirichletDensity b u‖) μ := by
+    have heq : (fun u ↦ ∑' n, M n * ‖regDirichletDensity b u‖) =
+        fun u ↦ (∑' n, M n) * ‖regDirichletDensity b u‖ := by
+      funext u
+      rw [tsum_mul_right]
+    rw [heq]
+    exact hdens.norm.const_mul _
+  have hlim : ∀ᵐ u ∂μ, HasSum (fun n ↦ F n u) (g u) := by
+    filter_upwards with u
+    exact (hasSum_exp_carlsonAffineForm z u).mul_left (regDirichletDensity b u)
+  have h := hasSum_integral_of_dominated_convergence
+    (fun n u ↦ M n * ‖regDirichletDensity b u‖) hF_meas hbound
+      hbound_summable hbound_integrable hlim
+  have hterm (n : ℕ) : (∫ u, F n u ∂μ) =
+      (Nat.factorial n : ℂ)⁻¹ * regCarlsonR n z b := by
+    rw [show (fun u ↦ F n u) = fun u ↦ (Nat.factorial n : ℂ)⁻¹ *
+        (regDirichletDensity b u * carlsonAffineForm z u ^ n) by
+      funext u
+      simp [F, div_eq_mul_inv]
+      ring]
+    rw [integral_const_mul]
+    rw [← regCarlsonDirichletAverage_pow n z hb]
+    rfl
+  simpa [g, μ, regCarlsonSIntegral, regCarlsonDirichletAverage,
+    regDirichletIntegral] using h.congr_fun (fun n ↦ (hterm n).symm)
+
+/-- Carlson's exponential series is summable throughout the native Dirichlet convergence
+region. -/
+theorem summable_regCarlsonR_div_factorial
+    (z : ι → ℂ) {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) :
+    Summable fun n : ℕ ↦ (Nat.factorial n : ℂ)⁻¹ * regCarlsonR n z b :=
+  (hasSum_regCarlsonR_div_factorial_eq_regCarlsonSIntegral z hb).summable
+
+/-- On the native convergence region, the series construction of the regularized `S`
+function agrees with its defining Dirichlet integral. -/
+theorem regCarlsonSSeries_eq_regCarlsonSIntegral
+    (z : ι → ℂ) {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) :
+    regCarlsonSSeries z b = regCarlsonSIntegral b z := by
+  rw [regCarlsonSSeries_eq_tsum_regCarlsonR]
+  exact (hasSum_regCarlsonR_div_factorial_eq_regCarlsonSIntegral z hb).tsum_eq
 
 /-- Simultaneous permutation of the Dirichlet parameters and variables leaves the native
 regularized `S` integral unchanged. -/
@@ -214,15 +327,15 @@ theorem regCarlsonSIntegral_zero {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) 
   simpa [regCarlsonSIntegral] using
     (regCarlsonDirichletAverage_const exp 0 hb)
 
-/- TODO: Prove Carlson's Corollary 6.3-3 and formula (6.3-5): show that
-`regCarlsonSSeries z` is entire in `b`, agrees with `regCarlsonSIntegral · z` on
-`Complex.mvBetaConvergent`, and hence satisfies `IsRegCarlsonSContinuation z`.
+/- TODO: Complete Carlson's Corollary 6.3-3 by showing that `regCarlsonSSeries z` is entire
+in `b`; its agreement with `regCarlsonSIntegral · z` on `Complex.mvBetaConvergent` is proved
+above.  Entirety will therefore show that it satisfies `IsRegCarlsonSContinuation z`.
 
-The analytic development should also prove that `regCarlsonSIntegral b` and
-`carlsonSIntegral b` are entire in `z` for `b ∈ Complex.mvBetaConvergent`, and that
-`regCarlsonSSeries · b` is entire in `z` for every `b`.  The kernel theorem
-`analyticOnNhd_exp_carlsonAffineForm` and its coordinate derivative formula above are the
-pointwise inputs.  The integral result still needs a multivariate analytic-under-the-integral
+The analytic development should also upgrade the coordinate differentiation theorem
+`hasDerivAt_regCarlsonSIntegral_update` to joint entire dependence of
+`regCarlsonSIntegral b` and `carlsonSIntegral b` on `z` for
+`b ∈ Complex.mvBetaConvergent`, and prove that `regCarlsonSSeries · b` is entire in `z`
+for every `b`.  The integral upgrade needs a multivariate analytic-under-the-integral
 argument; the series result needs locally uniform convergence on bounded subsets of the
 `z`-space. -/
 

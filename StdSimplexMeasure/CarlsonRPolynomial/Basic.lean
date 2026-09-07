@@ -1,22 +1,46 @@
 /- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
-import StdSimplexMeasure.CarlsonDirichletAverage.Continuation
+import StdSimplexMeasure.CarlsonDirichletAverage.Basic
+import StdSimplexMeasure.DirichletTransform
 
 /-! # Carlson's R-polynomials -/
 
-open Complex
+open Complex ProbabilityTheory
 open scoped Classical
 public noncomputable section CarlsonRPolynomial
 namespace DirichletTransform
 variable {ι : Type*} [Fintype ι]
 
-/-- The entire regularized Carlson polynomial of degree `n`, with argument order adapted to
-the general Carlson `R` function. -/
+/-- The entire regularized Carlson polynomial `Rₙ(b,z) / Γ(∑ i, b i)`. -/
 def regCarlsonRPolynomial (n : ℕ) (b z : ι → ℂ) : ℂ :=
-  regCarlsonR n z b
+  regDirichletMvPolynomialTransform (carlsonPowerPolynomial n z) b
 
-/-- Compatibility with the original argument order of `regCarlsonR`. -/
-theorem regCarlsonRPolynomial_eq_regCarlsonR (n : ℕ) (b z : ι → ℂ) :
-    regCarlsonRPolynomial n b z = regCarlsonR n z b := rfl
+/-- Compatibility spelling using the argument order of the original implementation. -/
+abbrev regCarlsonR (n : ℕ) (z b : ι → ℂ) : ℂ :=
+  regCarlsonRPolynomial n b z
+
+/-- On the ordinary convergence region, the regularized Carlson polynomial agrees with the
+native Dirichlet average of the corresponding power. -/
+theorem regCarlsonDirichletAverage_pow (n : ℕ) (z : ι → ℂ)
+    {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) :
+    regCarlsonDirichletAverage b z (fun w ↦ w ^ n) = regCarlsonR n z b := by
+  unfold regCarlsonDirichletAverage
+  change regDirichletIntegral b (fun u ↦ carlsonAffineForm z u ^ n) =
+    regDirichletMvPolynomialTransform (carlsonPowerPolynomial n z) b
+  rw [← regDirichletIntegral_mvPolynomial b hb (carlsonPowerPolynomial n z)]
+  congr 1
+  funext u
+  exact (eval_carlsonPowerPolynomial n z u).symm
+
+/-- For fixed degree and Carlson variables, the regularized Carlson polynomial is entire in
+the Dirichlet parameters. -/
+theorem differentiable_regCarlsonR (n : ℕ) (z : ι → ℂ) :
+    Differentiable ℂ (regCarlsonR n z) :=
+  differentiable_regDirichletMvPolynomialTransform (carlsonPowerPolynomial n z)
+
+/-- Analytic form of entire dependence on the Dirichlet parameters. -/
+theorem analyticOnNhd_regCarlsonR (n : ℕ) (z : ι → ℂ) :
+    AnalyticOnNhd ℂ (regCarlsonR n z) Set.univ :=
+  analyticOnNhd_regDirichletMvPolynomialTransform (carlsonPowerPolynomial n z)
 
 /-- The multivariate polynomial kernel defining the Carlson polynomial is homogeneous in its
 Carlson variables. -/

@@ -8,6 +8,7 @@ import StdSimplexMeasure.DirichletTransform
 import StdSimplexMeasure.CarlsonDirichletAverage.Deriv
 import StdSimplexMeasure.CarlsonDirichletAverage.Bridge
 import StdSimplexMeasure.AnalyticUniqueness
+import StdSimplexMeasure.CarlsonRPolynomial.Basic
 import Mathlib.Analysis.Analytic.Uniqueness
 
 /-!
@@ -134,37 +135,6 @@ theorem IsRegCarlsonContinuation.mk_of_eq_realCarlsonDirichletAverage [Nonempty 
   rw [hEq b hb, hH.eq_native]
   · exact (regCarlsonDirichletAverage_ofReal hb z f).symm
   · simpa [mvBetaConvergent, mvRealBetaDomain] using hb
-
-/-- The entire regularized Carlson average of a nonnegative integral power. -/
-def regCarlsonR (n : ℕ) (z b : ι → ℂ) : ℂ :=
-  regDirichletMvPolynomialTransform (carlsonPowerPolynomial n z) b
-
-/-- On the ordinary convergence region, `regCarlsonR` agrees with the defining simplex
-integral of the corresponding power. -/
-theorem regCarlsonDirichletAverage_pow (n : ℕ) (z : ι → ℂ)
-    {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) :
-    regCarlsonDirichletAverage b z (fun w ↦ w ^ n) = regCarlsonR n z b := by
-  unfold regCarlsonDirichletAverage regCarlsonR
-  rw [← regDirichletIntegral_mvPolynomial b hb (carlsonPowerPolynomial n z)]
-  congr 1
-  funext u
-  exact (eval_carlsonPowerPolynomial n z u).symm
-
-/-- For fixed `n` and `z`, the regularized Carlson power average is entire in `b`. -/
-theorem differentiable_regCarlsonR (n : ℕ) (z : ι → ℂ) :
-    Differentiable ℂ (regCarlsonR n z) := by
-  exact differentiable_regDirichletMvPolynomialTransform (carlsonPowerPolynomial n z)
-
-/-- For fixed `n` and `z`, the regularized Carlson power average is analytic in all Dirichlet
-parameters. -/
-theorem analyticOnNhd_regCarlsonR (n : ℕ) (z : ι → ℂ) :
-    AnalyticOnNhd ℂ (regCarlsonR n z) Set.univ :=
-  analyticOnNhd_regDirichletMvPolynomialTransform (carlsonPowerPolynomial n z)
-
-/-- The native regularized average of Carlson's integer resolvent.  Its continuation in `b`
-is the kernel used in Carlson's Cauchy-integral argument. -/
-def regCarlsonResolvent (n : ℕ) (b z : ι → ℂ) (s : ℂ) : ℂ :=
-  regCarlsonDirichletAverage b z (fun w ↦ (s - w) ^ (-(n + 1 : ℤ)))
 
 /-- The formal Taylor-series candidate for Carlson's regularized Dirichlet average. -/
 def regCarlsonTaylorSeries (A : ℂ) (a : ℕ → ℂ) (z b : ι → ℂ) : ℂ :=

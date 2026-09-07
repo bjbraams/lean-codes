@@ -83,12 +83,65 @@ def carlsonPartialDeriv (i : ι)
     (G : (ι → ℂ) → ℂ) (z : ι → ℂ) : ℂ :=
   deriv (fun w ↦ G (Function.update z i w)) (z i)
 
+/-- The partial derivative of a Carlson kernel is the derivative of the univariate function
+times the corresponding simplex coordinate.  This is the pointwise form of Carlson's
+formula (5.3-2). -/
+theorem carlsonPartialDeriv_comp_carlsonAffineForm {f : ℂ → ℂ} {f' : ℂ}
+    {z : ι → ℂ} {u : ι → ℝ} (i : ι)
+    (hf : HasDerivAt f f' (carlsonAffineForm z u)) :
+    carlsonPartialDeriv i (fun z ↦ f (carlsonAffineForm z u)) z = (u i : ℂ) * f' := by
+  unfold carlsonPartialDeriv
+  exact (HasDerivAt.comp_carlsonAffineForm_update i hf).deriv
+
+/-- Mixed partial differentiation of a Carlson kernel introduces the product of the two
+corresponding simplex coordinates. -/
+theorem carlsonPartialDeriv_carlsonPartialDeriv_comp_carlsonAffineForm
+    {f f' : ℂ → ℂ} {f'' : ℂ} {z : ι → ℂ} {u : ι → ℝ} (i j : ι)
+    (hf : ∀ w, HasDerivAt f (f' w) w)
+    (hf' : HasDerivAt f' f'' (carlsonAffineForm z u)) :
+    carlsonPartialDeriv i
+        (carlsonPartialDeriv j (fun z ↦ f (carlsonAffineForm z u))) z =
+      (u i : ℂ) * (u j : ℂ) * f'' := by
+  have hinner : carlsonPartialDeriv j (fun z ↦ f (carlsonAffineForm z u)) =
+      fun z ↦ (u j : ℂ) * f' (carlsonAffineForm z u) := by
+    funext z'
+    exact carlsonPartialDeriv_comp_carlsonAffineForm j
+      (hf (carlsonAffineForm z' u))
+  rw [hinner]
+  unfold carlsonPartialDeriv
+  have hcomp := HasDerivAt.comp_carlsonAffineForm_update i hf'
+  simpa [mul_assoc, mul_left_comm] using (hcomp.const_mul (u j : ℂ)).deriv
+
 /-- Carlson's Euler--Poisson differential expression for a twice differentiable function of
 the variables `z`.  The equation in Theorem 5.4-1 asserts that this expression vanishes. -/
 def carlsonEulerPoissonOperator (i j : ι) (b z : ι → ℂ)
     (G : (ι → ℂ) → ℂ) : ℂ :=
   (z i - z j) * carlsonPartialDeriv i (carlsonPartialDeriv j G) z +
     b i * carlsonPartialDeriv j G z - b j * carlsonPartialDeriv i G z
+
+omit [Fintype ι] in
+/-- The diagonal members of the Euler--Poisson system vanish identically. -/
+@[simp] theorem carlsonEulerPoissonOperator_self (i : ι) (b z : ι → ℂ)
+    (G : (ι → ℂ) → ℂ) :
+    carlsonEulerPoissonOperator i i b z G = 0 := by
+  simp [carlsonEulerPoissonOperator]
+
+/-- Evaluation of the Euler--Poisson operator on a Carlson kernel.  The integral of this
+expression is the quantity killed by Carlson's integration-by-parts argument in the proof of
+Theorem 5.4-1. -/
+theorem carlsonEulerPoissonOperator_comp_carlsonAffineForm
+    (i j : ι) (b z : ι → ℂ) (u : ι → ℝ)
+    {f f' : ℂ → ℂ} {f'' : ℂ} (hf : ∀ w, HasDerivAt f (f' w) w)
+    (hf' : HasDerivAt f' f'' (carlsonAffineForm z u)) :
+    carlsonEulerPoissonOperator i j b z
+        (fun z ↦ f (carlsonAffineForm z u)) =
+      (z i - z j) * ((u i : ℂ) * (u j : ℂ) * f'') +
+        b i * ((u j : ℂ) * f' (carlsonAffineForm z u)) -
+        b j * ((u i : ℂ) * f' (carlsonAffineForm z u)) := by
+  rw [carlsonEulerPoissonOperator,
+    carlsonPartialDeriv_carlsonPartialDeriv_comp_carlsonAffineForm i j hf hf',
+    carlsonPartialDeriv_comp_carlsonAffineForm j (hf (carlsonAffineForm z u)),
+    carlsonPartialDeriv_comp_carlsonAffineForm i (hf (carlsonAffineForm z u))]
 
 end DirichletTransform
 

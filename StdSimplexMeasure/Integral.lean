@@ -142,6 +142,17 @@ private theorem volume_preserving_funSplitAt (i : ι) :
     change x j = x (eidx (Sum.inr j))
     rfl
 
+/-- In a free-coordinate chart omitting `j`, separating the coordinate corresponding to
+`i ≠ j` turns the chart domain into the standard product-coordinate simplex slices. -/
+private theorem image_stdSimplexFreeCoords_funSplitAt (i j : ι) (hij : i ≠ j) :
+    let ii : {q : ι // q ≠ j} := ⟨i, hij⟩
+    Homeomorph.funSplitAt ℝ ii '' stdSimplexFreeCoords j = posSimplexSlices ii 1 := by
+  dsimp only
+  let ii : {q : ι // q ≠ j} := ⟨i, hij⟩
+  change Homeomorph.funSplitAt ℝ ii '' posSimplex {q : ι // q ≠ j} 1 =
+    posSimplexSlices ii 1
+  exact image_posSimplex_funSplitAt (⟨i, hij⟩ : {q : ι // q ≠ j}) 1
+
 /-- Evaluates an integral over the standard simplex by separating out the `i`-th coordinate.
 This theorem provides the standard Fubini reduction (integration by slices) for the simplex.
 It expresses the integral of a function `f` over the $(k-1)$-simplex (where $k$ is `card ι`)

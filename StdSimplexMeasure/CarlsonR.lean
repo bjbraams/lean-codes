@@ -11,6 +11,10 @@ import StdSimplexMeasure.CarlsonR.Deriv
 import StdSimplexMeasure.CarlsonR.Relations
 import StdSimplexMeasure.CarlsonR.Confluence
 import StdSimplexMeasure.CarlsonR.Laplace
+import StdSimplexMeasure.CarlsonR.SlitPlane
+import StdSimplexMeasure.CarlsonR.SingleIntegral
+import StdSimplexMeasure.CarlsonR.Contour
+import StdSimplexMeasure.CarlsonR.EulerTransform
 
 /-!
 # Carlson's multivariate R-function

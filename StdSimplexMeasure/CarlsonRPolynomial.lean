@@ -1,5 +1,8 @@
 /- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
 import StdSimplexMeasure.CarlsonRPolynomial.Basic
+import StdSimplexMeasure.CarlsonRPolynomial.Coefficients
+import StdSimplexMeasure.CarlsonRPolynomial.Estimates
+import StdSimplexMeasure.CarlsonRPolynomial.Binomial
 import StdSimplexMeasure.CarlsonRPolynomial.Transform
 import StdSimplexMeasure.CarlsonRPolynomial.Generating
 

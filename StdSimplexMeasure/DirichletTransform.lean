@@ -55,6 +55,21 @@ This is an entire function of `b`. -/
 def regDirichletMonomialTransform (m : ι → ℕ) (b : ι → ℂ) : ℂ :=
   mvPochhammer b m * (Gamma (∑ i, (b i + m i : ℂ)))⁻¹
 
+/-- The explicit Pochhammer--Gamma formula for the regularized transform of a monomial.
+This theorem exposes the useful formula while keeping the shorthand `mvPochhammer` local to
+this file. -/
+theorem regDirichletMonomialTransform_eq (m : ι → ℕ) (b : ι → ℂ) :
+    regDirichletMonomialTransform m b =
+      (∏ i, (ascPochhammer ℂ (m i)).eval (b i)) *
+        (Gamma (∑ i, (b i + m i : ℂ)))⁻¹ := by
+  rfl
+
+/-- The regularized transform of the constant monomial is the reciprocal Gamma factor. -/
+@[simp] theorem regDirichletMonomialTransform_zero (b : ι → ℂ) :
+    regDirichletMonomialTransform (fun _ ↦ 0) b = (Gamma (∑ i, b i))⁻¹ := by
+  rw [regDirichletMonomialTransform_eq]
+  simp
+
 /-- On its domain of definition the `regDirichletIntegral` of a monomial equals the
 `regDirichletMonomialTransform`. -/
 theorem regDirichletIntegral_monomial

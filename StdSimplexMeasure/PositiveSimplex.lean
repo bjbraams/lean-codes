@@ -15,6 +15,7 @@ The code here must be revisited if and when Mathlib PR #37910 is accepted.
 -/
 
 open MeasureTheory
+open scoped Classical
 
 noncomputable section
 
@@ -274,6 +275,92 @@ theorem volume_posSimplexFin (n : ℕ) (r : ℝ) (hr : 0 ≤ r) :
 whose coordinate sum is at most `r`. -/
 def posSimplex (α : Type*) [Fintype α] (r : ℝ) : Set (α → ℝ) :=
   {x | (∀ i, 0 ≤ x i) ∧ ∑ i, x i ≤ r}
+
+/-- The product-coordinate presentation of a positive simplex obtained by separating the
+coordinate `i`. -/
+def posSimplexSlices {α : Type*} [Fintype α] (i : α) (r : ℝ) :
+    Set (ℝ × ({j : α // j ≠ i} → ℝ)) := by
+  classical
+  exact {p | 0 ≤ p.1 ∧ (∀ j, 0 ≤ p.2 j) ∧ p.1 + ∑ j, p.2 j ≤ r}
+
+/-- A positive simplex is measurable. -/
+theorem measurableSet_posSimplex (α : Type*) [Fintype α] (r : ℝ) :
+    MeasurableSet (posSimplex α r) := by
+  have hsum : Measurable (fun x : α → ℝ => ∑ i, x i) := by fun_prop
+  change MeasurableSet ({x : α → ℝ | ∀ i, 0 ≤ x i} ∩ {x | ∑ i, x i ≤ r})
+  have h := (MeasurableSet.iInter fun i => measurableSet_le
+    (measurable_const : Measurable fun _ : α → ℝ => (0 : ℝ))
+    (measurable_pi_apply i)).inter
+      (measurableSet_le hsum (measurable_const : Measurable fun _ : α → ℝ => r))
+  convert h using 1
+  ext x
+  simp
+
+/-- Separating one coordinate identifies a positive simplex with its product-coordinate
+presentation. -/
+theorem image_posSimplex_funSplitAt {α : Type*} [Fintype α] (i : α) (r : ℝ) :
+    Homeomorph.funSplitAt ℝ i '' posSimplex α r = posSimplexSlices i r := by
+  classical
+  ext p
+  constructor
+  · rintro ⟨x, ⟨hx0, hxsum⟩, rfl⟩
+    refine ⟨hx0 i, fun j => hx0 j, ?_⟩
+    rw [Fintype.sum_eq_add_sum_subtype_ne x i] at hxsum
+    exact hxsum
+  · intro hp
+    let e := Homeomorph.funSplitAt ℝ i
+    refine ⟨e.symm p, ?_, e.apply_symm_apply p⟩
+    rcases hp with ⟨hpi, hp0, hpsum⟩
+    have he := e.apply_symm_apply p
+    have he1 : e.symm p i = p.1 := congrArg Prod.fst he
+    have he2 : (fun j : {j : α // j ≠ i} => e.symm p j) = p.2 :=
+      congrArg Prod.snd he
+    refine ⟨?_, ?_⟩
+    · intro j
+      by_cases hji : j = i
+      · subst j
+        rw [he1]
+        exact hpi
+      · rw [congrFun he2 ⟨j, hji⟩]
+        exact hp0 ⟨j, hji⟩
+    · rw [Fintype.sum_eq_add_sum_subtype_ne]
+      rw [he1, he2]
+      exact hpsum
+
+/-- The product-coordinate presentation of a positive simplex is measurable. -/
+theorem measurableSet_posSimplexSlices {α : Type*} [Fintype α] (i : α) (r : ℝ) :
+    MeasurableSet (posSimplexSlices i r) := by
+  rw [← image_posSimplex_funSplitAt i r]
+  exact (Homeomorph.funSplitAt ℝ i).measurableEmbedding.measurableSet_image'
+    (measurableSet_posSimplex α r)
+
+/-- A slice of `posSimplexSlices i r` at a point of `[0, r]` is the positive simplex of
+radius `r - t` in the remaining coordinates. -/
+theorem preimage_posSimplexSlices_of_mem {α : Type*} [Fintype α]
+    (i : α) (r t : ℝ) (ht : t ∈ Set.Icc (0 : ℝ) r) :
+    Prod.mk t ⁻¹' posSimplexSlices i r = posSimplex {j : α // j ≠ i} (r - t) := by
+  classical
+  ext x
+  simp only [posSimplexSlices, posSimplex, Set.mem_preimage, Set.mem_ofPred_eq]
+  constructor
+  · rintro ⟨_, hx0, hs⟩
+    exact ⟨hx0, by linarith⟩
+  · rintro ⟨hx0, hs⟩
+    exact ⟨ht.1, hx0, by linarith⟩
+
+/-- Outside `[0, r]`, every slice of `posSimplexSlices i r` is empty. -/
+theorem preimage_posSimplexSlices_eq_empty_of_not_mem {α : Type*} [Fintype α]
+    (i : α) (r t : ℝ) (ht : t ∉ Set.Icc (0 : ℝ) r) :
+    Prod.mk t ⁻¹' posSimplexSlices i r = ∅ := by
+  classical
+  ext x
+  simp only [posSimplexSlices, Set.mem_preimage, Set.mem_ofPred_eq,
+    Set.mem_empty_iff_false, iff_false]
+  rintro ⟨ht0, hx0, hs⟩
+  apply ht
+  refine ⟨ht0, ?_⟩
+  have hs0 : 0 ≤ ∑ j, x j := Finset.sum_nonneg fun j _ => hx0 j
+  linarith
 
 /-- The volume of the positive simplex indexed by `α` is
 `r ^ Fintype.card α / (Fintype.card α)!`. -/

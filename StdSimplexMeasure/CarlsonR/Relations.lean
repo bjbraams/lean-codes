@@ -5,6 +5,7 @@ Authors: Bastiaan J Braams
 -/
 
 import StdSimplexMeasure.CarlsonR.Deriv
+import StdSimplexMeasure.CarlsonDirichletAverage.Associated
 
 /-!
 # Carlson's R-function: homogeneity and associated-function relations
@@ -17,56 +18,6 @@ open scoped Classical
 public noncomputable section CarlsonR
 namespace DirichletTransform
 variable {ι : Type*} [Fintype ι]
-
-/-- Increasing one Dirichlet parameter by one multiplies the regularized density by the
-corresponding simplex coordinate, up to the factor `b i`. -/
-theorem mul_regDirichletDensity_update_add_one {b : ι → ℂ}
-    (hb : b ∈ mvBetaConvergent) (i : ι) (u : ι → ℝ) :
-    b i * regDirichletDensity (Function.update b i (b i + 1)) u =
-      (u i : ℂ) * regDirichletDensity b u := by
-  classical
-  by_cases hu : u ∈ stdSimplexInterior
-  · rw [regDirichletDensity, Set.indicator_of_mem hu]
-    rw [regDirichletDensity, Set.indicator_of_mem hu]
-    have hbi : b i ≠ 0 := ne_zero_of_re_pos (hb i)
-    have hui : (u i : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr (hu.2 i).ne'
-    rw [Finset.prod_eq_mul_prod_sdiff_singleton_of_mem (Finset.mem_univ i)
-      (fun j ↦ (u j : ℂ) ^ (Function.update b i (b i + 1) j - 1) /
-        Gamma (Function.update b i (b i + 1) j))]
-    rw [Finset.prod_eq_mul_prod_sdiff_singleton_of_mem (Finset.mem_univ i)
-      (fun j ↦ (u j : ℂ) ^ (b j - 1) / Gamma (b j))]
-    have hoff :
-        ∏ j ∈ Finset.univ \ {i},
-            (u j : ℂ) ^ (Function.update b i (b i + 1) j - 1) /
-              Gamma (Function.update b i (b i + 1) j) =
-          ∏ j ∈ Finset.univ \ {i}, (u j : ℂ) ^ (b j - 1) / Gamma (b j) := by
-      apply Finset.prod_congr rfl
-      intro j hj
-      have hji : j ≠ i := by
-        intro h
-        subst j
-        simp at hj
-      simp [hji]
-    rw [hoff]
-    simp only [Function.update_self]
-    rw [Gamma_add_one (b i) hbi]
-    rw [show (u i : ℂ) ^ (b i + 1 - 1) = (u i : ℂ) ^ b i by ring_nf]
-    rw [cpow_sub _ _ hui, cpow_one]
-    field_simp
-  · simp [regDirichletDensity, hu]
-
-/-- Integral form of the regularized Dirichlet parameter-shift identity. -/
-theorem mul_regDirichletIntegral_update_add_one {b : ι → ℂ}
-    (hb : b ∈ mvBetaConvergent) (i : ι) (f : (ι → ℝ) → ℂ) :
-    b i * regDirichletIntegral (Function.update b i (b i + 1)) f =
-      regDirichletIntegral b (fun u ↦ (u i : ℂ) * f u) := by
-  unfold regDirichletIntegral
-  rw [← integral_const_mul]
-  apply setIntegral_congr_fun (isClosed_stdSimplex ℝ ι).measurableSet
-  intro u _
-  dsimp only
-  rw [← mul_assoc, mul_regDirichletDensity_update_add_one hb]
-  ring
 
 /-- Carlson's first associated-function relation 5.9-5, in regularized form.  Gamma
 regularization absorbs Carlson's weights and leaves the coefficients `b i`. -/
@@ -157,6 +108,29 @@ theorem regCarlsonRIntegral_add_one_eq_sum_mul_update (t : ℂ) {b z : ι → �
       (continuousOn_const.mul
         ((Complex.continuous_ofReal.comp (continuous_apply i)).continuousOn.mul hpow))
 
+/-- Carlson's Euler differential identity, Theorem 5.9-2(c), for the native regularized
+`R` integral. -/
+theorem sum_mul_carlsonPartialDeriv_regCarlsonRIntegral
+    (t : ℂ) {b z : ι → ℂ} (hb : b ∈ mvBetaConvergent)
+    (hz : z ∈ carlsonRVariableDomain) :
+    ∑ i, z i * carlsonPartialDeriv i (regCarlsonRIntegral t b) z =
+      t * regCarlsonRIntegral t b z := by
+  simp_rw [carlsonPartialDeriv_regCarlsonRIntegral t hb hz]
+  calc
+    ∑ i, z i * (t * b i *
+        regCarlsonRIntegral (t - 1) (addDirichletUnit b i) z) =
+        t * ∑ i, b i * z i *
+          regCarlsonRIntegral (t - 1) (addDirichletUnit b i) z := by
+      rw [Finset.mul_sum]
+      apply Finset.sum_congr rfl
+      intro i hi
+      ring
+    _ = t * regCarlsonRIntegral ((t - 1) + 1) b z := by
+      congr 1
+      simpa [addDirichletUnit] using
+        (regCarlsonRIntegral_add_one_eq_sum_mul_update (t - 1) hb hz).symm
+    _ = t * regCarlsonRIntegral t b z := by ring_nf
+
 /-- Positive-real scaling commutes with the principal complex power. -/
 theorem ofReal_pos_mul_cpow (t w : ℂ) {a : ℝ} (ha : 0 < a) (hw : w ≠ 0) :
     ((a : ℂ) * w) ^ t = (a : ℂ) ^ t * w ^ t := by
@@ -208,9 +182,8 @@ theorem carlsonRIntegral_smul_of_pos (t : ℂ) {b z : ι → ℂ}
   rw [regCarlsonRIntegral_smul_of_pos t hz ha]
   ring
 
-/- Carlson's third relation 5.9-5 and the differential relations 5.9-6 will follow after the
-integral differentiation theorem recorded as the next step in `CarlsonR.Deriv`.  The density
-shift lemma and the first two associated-function relations above provide their algebraic input. -/
+/- Carlson's third relation 5.9-5 and the remaining relations 5.9-6 can now be developed from
+the integral differentiation theorem and the first two associated-function relations above. -/
 
 end DirichletTransform
 end CarlsonR

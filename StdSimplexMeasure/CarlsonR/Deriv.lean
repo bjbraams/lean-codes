@@ -5,7 +5,7 @@ Authors: Bastiaan J Braams
 -/
 
 import StdSimplexMeasure.CarlsonR.Continuation
-import StdSimplexMeasure.CarlsonDirichletAverage.Deriv
+import StdSimplexMeasure.CarlsonDirichletAverage.Associated
 
 /-!
 # Carlson's R-function: analyticity and differentiation
@@ -15,7 +15,7 @@ Carlson's Theorem 5.9-2.  Their integral counterparts require differentiation un
 Dirichlet integral and are developed from these statements.
 -/
 
-open Complex
+open Complex ProbabilityTheory
 open scoped Classical
 public noncomputable section CarlsonR
 namespace DirichletTransform
@@ -52,6 +52,99 @@ theorem hasDerivAt_cpow_carlsonAffineForm_update (t : ℂ) {z : ι → ℂ}
     (Complex.hasStrictDerivAt_cpow_const
       (carlsonAffineForm_mem_slitPlane hz hu)).hasDerivAt
 
+omit [Fintype ι] in
+/-- A sufficiently small closed ball around one coordinate of a point in the Carlson
+right-half-plane domain remains in that domain after updating that coordinate. -/
+theorem update_mem_carlsonRVariableDomain_of_mem_closedBall
+    {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain) (i : ι)
+    {w : ℂ} (hw : w ∈ Metric.closedBall (z i) ((z i).re / 2)) :
+    Function.update z i w ∈ carlsonRVariableDomain := by
+  intro j
+  by_cases hji : j = i
+  · subst j
+    rw [Function.update_self]
+    have hd : ‖w - z i‖ ≤ (z i).re / 2 := by
+      simpa [dist_eq] using Metric.mem_closedBall.mp hw
+    have hre : |w.re - (z i).re| ≤ ‖w - z i‖ := by
+      simpa using Complex.abs_re_le_norm (w - z i)
+    have hzi : 0 < (z i).re := hz i
+    dsimp only [carlsonRightHalfPlane, Set.mem_ofPred_eq]
+    have hlower : (z i).re / 2 ≤ w.re := by
+      nlinarith [neg_le_abs (w.re - (z i).re)]
+    exact lt_of_lt_of_le (half_pos hzi) hlower
+  · rw [Function.update_of_ne hji]
+    exact hz j
+
+set_option maxHeartbeats 800000 in
+/-- Carlson's first differentiation formula, Theorem 5.9-2(b), for the native regularized
+`R` integral. -/
+theorem hasDerivAt_regCarlsonRIntegral_update
+    (t : ℂ) {b z : ι → ℂ} (hb : b ∈ mvBetaConvergent)
+    (hz : z ∈ carlsonRVariableDomain) (i : ι) :
+    HasDerivAt (fun w ↦ regCarlsonRIntegral t b (Function.update z i w))
+      (t * b i * regCarlsonRIntegral (t - 1)
+        (addDirichletUnit b i) z) (z i) := by
+  let r : ℝ := (z i).re / 2
+  have hr : 0 < r := by
+    dsimp [r]
+    exact half_pos (hz i)
+  let K : Set (ℂ × (ι → ℝ)) :=
+    Metric.closedBall (z i) r ×ˢ stdSimplex ℝ ι
+  let g : ℂ × (ι → ℝ) → ℂ := fun p ↦
+    t * carlsonAffineForm (Function.update z i p.1) p.2 ^ (t - 1)
+  have hdomain {w : ℂ} (hw : w ∈ Metric.closedBall (z i) r) :
+      Function.update z i w ∈ carlsonRVariableDomain := by
+    exact update_mem_carlsonRVariableDomain_of_mem_closedBall hz i hw
+  have hg_cont : ContinuousOn g K := by
+    intro p hp
+    have hslit := carlsonAffineForm_mem_slitPlane (hdomain hp.1) hp.2
+    have haffine : Continuous (fun p : ℂ × (ι → ℝ) ↦
+        carlsonAffineForm (Function.update z i p.1) p.2) := by
+      unfold carlsonAffineForm
+      fun_prop
+    apply ContinuousAt.continuousWithinAt
+    exact continuousAt_const.mul
+      ((continuousAt_cpow_const hslit).comp_of_eq haffine.continuousAt rfl)
+  obtain ⟨C, hC⟩ :=
+    (IsCompact.prod (isCompact_closedBall _ _) (isCompact_stdSimplex ℝ ι)).bddAbove_image
+      hg_cont.norm
+  have hderiv := hasDerivAt_regCarlsonDirichletAverage_update_of_bound
+    (f := fun w : ℂ ↦ w ^ t) (f' := fun w ↦ t * w ^ (t - 1)) hb i
+    (Metric.closedBall_mem_nhds _ hr)
+    (fun w hw u hu ↦
+      (Complex.hasStrictDerivAt_cpow_const
+        (carlsonAffineForm_mem_slitPlane (hdomain hw) hu)).hasDerivAt)
+    (fun w hw ↦ by
+      intro y hy
+      obtain ⟨u, hu, rfl⟩ := hy
+      exact (continuousAt_const.mul
+        (continuousAt_cpow_const
+          (carlsonAffineForm_mem_slitPlane (hdomain hw) hu))).continuousWithinAt)
+    (C := C) (fun w hw u hu ↦ hC ⟨(w, u), ⟨⟨hw, hu⟩, rfl⟩⟩)
+  rw [show t * b i * regCarlsonRIntegral (t - 1) (addDirichletUnit b i) z =
+      regDirichletIntegral b (fun u ↦
+        (u i : ℂ) * (t * carlsonAffineForm z u ^ (t - 1))) by
+    rw [mul_assoc, regCarlsonRIntegral, regCarlsonDirichletAverage]
+    rw [mul_regDirichletIntegral_addDirichletUnit hb]
+    rw [← regDirichletIntegral_smul b
+      (f := fun u ↦ (u i : ℂ) * carlsonAffineForm z u ^ (t - 1)) t
+      ((Complex.continuous_ofReal.comp (continuous_apply i)).continuousOn.mul
+        ((continuous_carlsonAffineForm z).continuousOn.cpow_const
+          (fun _ hu ↦ carlsonAffineForm_mem_slitPlane hz hu))) hb]
+    congr 1
+    funext u
+    ring]
+  simpa [regCarlsonRIntegral] using hderiv
+
+/-- Coordinate form of Carlson's first differentiation formula, Theorem 5.9-2(b). -/
+theorem carlsonPartialDeriv_regCarlsonRIntegral
+    (t : ℂ) {b z : ι → ℂ} (hb : b ∈ mvBetaConvergent)
+    (hz : z ∈ carlsonRVariableDomain) (i : ι) :
+    carlsonPartialDeriv i (regCarlsonRIntegral t b) z =
+      t * b i * regCarlsonRIntegral (t - 1) (addDirichletUnit b i) z := by
+  rw [carlsonPartialDeriv]
+  exact (hasDerivAt_regCarlsonRIntegral_update t hb hz i).deriv
+
 /-- Euler's differential identity for the pointwise power kernel, corresponding to
 Theorem 5.9-2(c). -/
 theorem sum_mul_deriv_cpow_carlsonAffineForm (t : ℂ) {z : ι → ℂ}
@@ -78,9 +171,9 @@ theorem sum_mul_deriv_cpow_carlsonAffineForm (t : ℂ) {z : ι → ℂ}
       rw [cpow_add _ _ hne, cpow_one]
     _ = t * carlsonAffineForm z u ^ t := by ring_nf
 
-/- The integral forms of Theorem 5.9-2(a)--(c) require a locally uniform domination theorem for
-the `z`-derivatives of the complex-power kernel.  The three results above isolate all pointwise
-analytic inputs; the remaining work is the parametric Bochner-integral argument. -/
+/- The coordinate integral differentiation theorem is now available above.  The remaining
+part of Theorem 5.9-2(a) is to package the coordinate results as joint analyticity on
+`carlsonRVariableDomain`; Theorem 5.9-2(c) is derived in `CarlsonR.Relations`. -/
 
 end DirichletTransform
 end CarlsonR
