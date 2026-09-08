@@ -1,14 +1,36 @@
 /- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
 import StdSimplexMeasure.CarlsonDirichletAverage.Basic
 import StdSimplexMeasure.DirichletTransform
+import Mathlib.MeasureTheory.Integral.Bochner.Basic
 
 /-! # Carlson's R-polynomials -/
 
-open Complex ProbabilityTheory
+open Complex MeasureTheory ProbabilityTheory
 open scoped Classical
 public noncomputable section CarlsonRPolynomial
 namespace DirichletTransform
 variable {ι : Type*} [Fintype ι]
+
+/-- A complex scalar can be pulled through a regularized Carlson average. -/
+theorem regCarlsonDirichletAverage_const_mul (b z : ι → ℂ) (c : ℂ) (f : ℂ → ℂ) :
+    regCarlsonDirichletAverage b z (fun w => c * f w) =
+      c * regCarlsonDirichletAverage b z f := by
+  unfold regCarlsonDirichletAverage
+  exact regDirichletIntegral_smul b _ c
+
+/-- A finite sum can be passed through a regularized Carlson average on the native convergence
+domain. -/
+theorem regCarlsonDirichletAverage_finsetSum {κ : Type*} {s : Finset κ}
+    {b z : ι → ℂ} (hb : b ∈ mvBetaConvergent) (f : κ → ℂ → ℂ)
+    (hf : ∀ k ∈ s, ContinuousOn (fun u : ι → ℝ => f k (carlsonAffineForm z u))
+      (stdSimplex ℝ ι)) :
+    regCarlsonDirichletAverage b z (fun w => ∑ k ∈ s, f k w) =
+      ∑ k ∈ s, regCarlsonDirichletAverage b z (f k) := by
+  unfold regCarlsonDirichletAverage regDirichletIntegral
+  simp_rw [Finset.mul_sum]
+  rw [integral_finsetSum]
+  intro k hk
+  exact integrableOn_regDirichletDensity_mul b hb (hf k hk)
 
 /-- The entire regularized Carlson polynomial `Rₙ(b,z) / Γ(∑ i, b i)`. -/
 def regCarlsonRPolynomial (n : ℕ) (b z : ι → ℂ) : ℂ :=
@@ -63,6 +85,35 @@ theorem eval_carlsonPowerPolynomial_affine (n : ℕ) (a t : ℂ) (z : ι → ℂ
     (carlsonPowerPolynomial n (fun i ↦ a * z i + t)).eval (fun i ↦ (u i : ℂ)) =
       (a * carlsonAffineForm z u + t) ^ n := by
   rw [eval_carlsonPowerPolynomial, carlsonAffineForm_affine hu]
+
+/-- Carlson's degree-`n` regularized R-polynomial is homogeneous in its variables on the
+native convergence domain.  This is the homogeneous-polynomial observation following
+Definition 5.7-1. -/
+theorem regCarlsonR_smul_of_mem_mvBetaConvergent (n : ℕ) (a : ℂ) (z : ι → ℂ)
+    {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) :
+    regCarlsonR n (fun i => a * z i) b = a ^ n * regCarlsonR n z b := by
+  rw [← regCarlsonDirichletAverage_pow n _ hb,
+    ← regCarlsonDirichletAverage_pow n z hb]
+  unfold regCarlsonDirichletAverage
+  calc
+    regDirichletIntegral b (fun u => carlsonAffineForm (fun i => a * z i) u ^ n) =
+        regDirichletIntegral b (fun u => a ^ n * carlsonAffineForm z u ^ n) := by
+      apply regDirichletIntegral_congr
+      intro u hu
+      rw [show (fun i => a * z i) = fun i => a * z i + 0 by simp]
+      dsimp only
+      rw [carlsonAffineForm_affine hu]
+      simp [mul_pow]
+    _ = a ^ n * regDirichletIntegral b (fun u => carlsonAffineForm z u ^ n) :=
+      regDirichletIntegral_smul b _ _
+
+/-- The restriction of a regularized R-polynomial to the diagonal, corresponding to
+Carlson's equation 5.7(3). -/
+theorem regCarlsonR_const (n : ℕ) (w : ℂ) {b : ι → ℂ}
+    (hb : b ∈ mvBetaConvergent) :
+    regCarlsonR n (fun _ => w) b = w ^ n / Gamma (∑ i, b i) := by
+  rw [← regCarlsonDirichletAverage_pow n _ hb]
+  exact regCarlsonDirichletAverage_const (fun x => x ^ n) w hb
 
 end DirichletTransform
 end CarlsonRPolynomial

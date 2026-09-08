@@ -76,8 +76,8 @@ theorem regCarlsonRIntegral_add_one_eq_sum_mul_update (t : ℂ) {b z : ι → �
               funext u
               rfl
             rw [← hfun]
-            exact (regDirichletIntegral_smul b (c := z i)
-              ((Complex.continuous_ofReal.comp (continuous_apply i)).continuousOn.mul hpow) hb).symm
+            exact (regDirichletIntegral_smul b
+              (fun u ↦ (u i : ℂ) * carlsonAffineForm z u ^ t) (z i)).symm
   rw [show (∑ i, b i * z i *
       regCarlsonRIntegral t (Function.update b i (b i + 1)) z) =
       ∑ i, regDirichletIntegral b

@@ -300,6 +300,43 @@ theorem regCarlsonSSeries_eq_regCarlsonSIntegral
   rw [regCarlsonSSeries_eq_tsum_regCarlsonR]
   exact (hasSum_regCarlsonR_div_factorial_eq_regCarlsonSIntegral z hb).tsum_eq
 
+/-- Carlson's series construction is entire in all Dirichlet parameters.  This is the
+analytic assertion in Corollary 6.3-3; its proof is the locally uniform version of the
+coefficient estimate used above for pointwise summability. -/
+theorem analyticOnNhd_regCarlsonSSeries (z : ι → ℂ) :
+    AnalyticOnNhd ℂ (regCarlsonSSeries z) Set.univ := by
+  sorry
+
+/-- The exponential series realizes Carlson's entire regularized continuation of `S`. -/
+theorem isRegCarlsonSContinuation_series (z : ι → ℂ) :
+    IsRegCarlsonSContinuation z (regCarlsonSSeries z) := by
+  refine ⟨analyticOnNhd_regCarlsonSSeries z, ?_⟩
+  intro b hb
+  exact regCarlsonSSeries_eq_regCarlsonSIntegral z hb
+
+/-- For every Dirichlet parameter vector, Carlson's continued `S` function is entire in all
+variables.  The proof requires locally uniform convergence of the R-polynomial expansion on
+bounded subsets of the finite-dimensional variable space. -/
+theorem analyticOnNhd_regCarlsonSSeries_variables (b : ι → ℂ) :
+    AnalyticOnNhd ℂ (fun z : ι → ℂ => regCarlsonSSeries z b) Set.univ := by
+  sorry
+
+/-- On the native Dirichlet convergence region, the regularized integral is jointly entire
+in the Carlson variables. -/
+theorem analyticOnNhd_regCarlsonSIntegral_variables {b : ι → ℂ}
+    (hb : b ∈ mvBetaConvergent) :
+    AnalyticOnNhd ℂ (regCarlsonSIntegral b) Set.univ := by
+  rw [show regCarlsonSIntegral b = fun z => regCarlsonSSeries z b by
+    funext z
+    exact (regCarlsonSSeries_eq_regCarlsonSIntegral z hb).symm]
+  exact analyticOnNhd_regCarlsonSSeries_variables b
+
+/-- Carlson's differentiation formula for the analytically continued `S` function. -/
+theorem carlsonPartialDeriv_regCarlsonSSeries (i : ι) (z b : ι → ℂ) :
+    carlsonPartialDeriv i (fun z => regCarlsonSSeries z b) z =
+      b i * regCarlsonSSeries z (addDirichletUnit b i) := by
+  sorry
+
 /-- Simultaneous permutation of the Dirichlet parameters and variables leaves the native
 regularized `S` integral unchanged. -/
 theorem regCarlsonSIntegral_perm (b z : ι → ℂ) (σ : Equiv.Perm ι) :
@@ -320,6 +357,26 @@ theorem regCarlsonSIntegral_add_const (b z : ι → ℂ) (a : ℂ) :
   rw [one_mul, exp_add]
   ring
 
+/-- Translation of all variables for Carlson's analytically continued `S` function.  This
+global identity follows from the native integral identity and uniqueness of continuation in
+the Dirichlet parameters. -/
+theorem regCarlsonSSeries_add_const (z b : ι → ℂ) (a : ℂ) :
+    regCarlsonSSeries (fun i => z i + a) b = exp a * regCarlsonSSeries z b := by
+  let z' : ι → ℂ := fun i => z i + a
+  have hleft : IsRegCarlsonSContinuation z' (regCarlsonSSeries z') :=
+    isRegCarlsonSContinuation_series z'
+  have hright : IsRegCarlsonSContinuation z'
+      (fun b => exp a * regCarlsonSSeries z b) := by
+    refine ⟨?_, ?_⟩
+    · intro b hb
+      exact analyticAt_const.mul
+        (analyticOnNhd_regCarlsonSSeries z b (Set.mem_univ b))
+    · intro b hb
+      dsimp only
+      rw [regCarlsonSSeries_eq_regCarlsonSIntegral z hb]
+      exact (regCarlsonSIntegral_add_const b z a).symm
+  exact congrFun (hleft.eq hright) b
+
 /-- At the zero variable vector, the native regularized `S` integral is the reciprocal Gamma
 factor on the ordinary convergence domain. -/
 theorem regCarlsonSIntegral_zero {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) :
@@ -327,17 +384,9 @@ theorem regCarlsonSIntegral_zero {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) 
   simpa [regCarlsonSIntegral] using
     (regCarlsonDirichletAverage_const exp 0 hb)
 
-/- TODO: Complete Carlson's Corollary 6.3-3 by showing that `regCarlsonSSeries z` is entire
-in `b`; its agreement with `regCarlsonSIntegral · z` on `Complex.mvBetaConvergent` is proved
-above.  Entirety will therefore show that it satisfies `IsRegCarlsonSContinuation z`.
-
-The analytic development should also upgrade the coordinate differentiation theorem
-`hasDerivAt_regCarlsonSIntegral_update` to joint entire dependence of
-`regCarlsonSIntegral b` and `carlsonSIntegral b` on `z` for
-`b ∈ Complex.mvBetaConvergent`, and prove that `regCarlsonSSeries · b` is entire in `z`
-for every `b`.  The integral upgrade needs a multivariate analytic-under-the-integral
-argument; the series result needs locally uniform convergence on bounded subsets of the
-`z`-space. -/
+/- The three analytic obligations above deliberately expose the remaining locally uniform
+series argument.  All pointwise summability and integral agreement needed by that argument
+have already been proved in this file. -/
 
 end DirichletTransform
 

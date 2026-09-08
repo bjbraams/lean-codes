@@ -36,5 +36,22 @@ theorem IsRegCarlsonRContinuation.eq {t : ℂ} {z : ι → ℂ}
     (hH : IsRegCarlsonRContinuation t z H) : G = H :=
   IsRegCarlsonContinuation.eq hG hH
 
+/-- At a natural exponent, the regularized R-polynomial supplies the entire continuation in
+the Dirichlet parameters.  Thus the general R-function continuation extends, rather than
+replaces, the polynomial theory of Section 5.7. -/
+theorem isRegCarlsonRContinuation_natCast (n : ℕ) (z : ι → ℂ) :
+    IsRegCarlsonRContinuation (n : ℂ) z (regCarlsonR n z) := by
+  refine ⟨analyticOnNhd_regCarlsonR n z, ?_⟩
+  intro b hb
+  exact (regCarlsonRIntegral_natCast n z hb).symm
+
+/-- Any entire regularized continuation at a natural exponent equals the corresponding
+regularized R-polynomial. -/
+theorem IsRegCarlsonRContinuation.eq_regCarlsonR_natCast
+    {n : ℕ} {z : ι → ℂ} {G : (ι → ℂ) → ℂ}
+    (hG : IsRegCarlsonRContinuation (n : ℂ) z G) :
+    G = regCarlsonR n z :=
+  hG.eq (isRegCarlsonRContinuation_natCast n z)
+
 end DirichletTransform
 end CarlsonR

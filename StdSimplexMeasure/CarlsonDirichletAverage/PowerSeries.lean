@@ -128,8 +128,6 @@ theorem hasSum_regCarlsonR_of_powerSeries
       · congr 1
         simpa [regCarlsonDirichletAverage] using
           (regCarlsonDirichletAverage_pow n (shiftCarlsonVariables A z) hb).symm
-      · exact (continuous_carlsonAffineForm (shiftCarlsonVariables A z)).continuousOn.pow n
-      · exact hb
     _ = regCarlsonDirichletAverage b z (g n) := by
       unfold regCarlsonDirichletAverage
       exact (regDirichletIntegral_congr b hkernel).symm

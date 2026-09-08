@@ -46,15 +46,37 @@ theorem hasSum_ascPochhammer_mul_pow_div_factorial (a t : ℂ) (ht : ‖t‖ < 1
     Polynomial.ascPochhammer_smeval_eq_eval] using
       (Ring.factorial_nsmul_multichoose_eq_ascPochhammer a n)
 
-/- TODO: Generating Relation 6.6-1 is
+/-- The finite product on the left side of Carlson's generating relation 6.6-1. -/
+def carlsonRGeneratingKernel (b z : ι → ℂ) (t : ℂ) : ℂ :=
+  ∏ i, 1 / (1 - t * z i) ^ (b i)
+
+/-- Carlson's generating relation 6.6-1 in the division-free Pochhammer-numerator
+normalization.
+
+The hypothesis puts every scalar binomial series inside its disk of convergence.  The
+coefficient of `t ^ n` is the Pochhammer numerator divided by `n!`; consequently this
+statement continues to make sense at exceptional values of the total parameter. -/
+theorem hasSum_carlsonRPolynomialNumerator_div_factorial (b z : ι → ℂ) (t : ℂ)
+    (ht : ∀ i, ‖t * z i‖ < 1) :
+    HasSum (fun n : ℕ =>
+      carlsonRPolynomialNumerator n b z / (n.factorial : ℂ) * t ^ n)
+      (carlsonRGeneratingKernel b z t) := by
+  sorry
+
+/-- Within the common disk `‖t * z i‖ < 1`, the series of Carlson numerator
+coefficients is summable. -/
+theorem summable_carlsonRPolynomialNumerator_div_factorial (b z : ι → ℂ) (t : ℂ)
+    (ht : ∀ i, ‖t * z i‖ < 1) :
+    Summable (fun n : ℕ =>
+      carlsonRPolynomialNumerator n b z / (n.factorial : ℂ) * t ^ n) :=
+  (hasSum_carlsonRPolynomialNumerator_div_factorial b z t ht).summable
+
+/- Generating Relation 6.6-1 in Carlson's usual normalization is
 
   `∏ i, (1 - t * z i) ^ (-b i) =
     ∑' n, (ascPochhammer ℂ n).eval (∑ i, b i) / n! * Rₙ(b,z) * t^n`.
 
-In the present normalization, the coefficient of `t ^ n` is
-`carlsonRPolynomialNumerator n b z / n!`.  The scalar binomial series needed for each factor
-is `hasSum_ascPochhammer_mul_pow_div_factorial`; what remains is a theorem rearranging their
-finite product by total multi-index degree. -/
+The theorem above records its parameter-robust numerator form. -/
 
 end DirichletTransform
 end CarlsonRPolynomial

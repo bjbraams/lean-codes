@@ -291,6 +291,49 @@ theorem carlsonPartialDeriv_regCarlsonDirichletAverage
   exact (mul_regDirichletIntegral_addDirichletUnit hb i
     (fun u ↦ f' (carlsonAffineForm z u))).symm
 
+/-- **Carlson 5.3-2, regularized complex form.** Successive partial differentiation may be
+taken under a Carlson average when the nodes lie in a convex domain of holomorphy. -/
+theorem carlsonIteratedPartialDeriv_regCarlsonDirichletAverage
+    {Ω : Set ℂ} (hΩopen : IsOpen Ω) (hΩconv : Convex ℝ Ω)
+    {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f Ω)
+    {b z : ι → ℂ} (hb : b ∈ mvBetaConvergent) (hz : Set.range z ⊆ Ω)
+    (is : List ι) :
+    carlsonIteratedPartialDeriv is
+        (fun w => regCarlsonDirichletAverage b w f) z =
+      regDirichletIntegral b (fun u =>
+        (is.map fun i => (u i : ℂ)).prod *
+          iteratedDeriv is.length f (carlsonAffineForm z u)) := by
+  /- The pointwise formula is
+  `carlsonIteratedPartialDeriv_comp_carlsonAffineForm`.  The remaining step is a reusable
+  higher-order differentiation-under-the-integral theorem with domination on a compact
+  neighborhood of `convexHull ℝ (Set.range z)`. -/
+  sorry
+
+/-- **Carlson 5.3-3, node-variable part.** On a convex domain of holomorphy, a regularized
+Carlson average is analytic in all node variables throughout the corresponding product domain. -/
+theorem analyticOnNhd_regCarlsonDirichletAverage_nodes
+    {Ω : Set ℂ} (hΩopen : IsOpen Ω) (hΩconv : Convex ℝ Ω)
+    {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f Ω)
+    {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) :
+    AnalyticOnNhd ℂ (fun z => regCarlsonDirichletAverage b z f)
+      {z : ι → ℂ | Set.range z ⊆ Ω} := by
+  /- This follows from the same compact-local domination argument as the preceding theorem,
+  combined with finite-dimensional separate-to-joint analyticity. -/
+  sorry
+
+/-- **Carlson 5.3-3, joint form.** The regularized Carlson average is jointly analytic in
+the Dirichlet parameters and nodes on the native convergence domain and a convex node domain. -/
+theorem analyticOnNhd_regCarlsonDirichletAverage_parameters_nodes
+    {Ω : Set ℂ} (hΩopen : IsOpen Ω) (hΩconv : Convex ℝ Ω)
+    {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f Ω) :
+    AnalyticOnNhd ℂ
+      (fun p : (ι → ℂ) × (ι → ℂ) => regCarlsonDirichletAverage p.1 p.2 f)
+      {p | p.1 ∈ mvBetaConvergent ∧ Set.range p.2 ⊆ Ω} := by
+  /- The node-variable component is the preceding theorem.  The parameter-variable component
+  is `regDirichletIntegral_analyticOn`; completing that foundational theorem and applying a
+  locally dominated joint-integral theorem will finish this statement. -/
+  sorry
+
 /-- Carlson's relation 5.6-1(5) in its original normalization.  The coefficient is the
 weight `b i / ∑ j, b j`. -/
 theorem carlsonPartialDeriv_carlsonDirichletAverage [Nonempty ι]

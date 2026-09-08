@@ -97,8 +97,7 @@ theorem regCarlsonDirichletAverage_const (f : ℂ → ℂ) (w : ℂ)
   unfold regCarlsonDirichletAverage
   rw [regDirichletIntegral_congr b
     (g := fun _ ↦ f w) (fun u hu ↦ congrArg f (carlsonAffineForm_const hu w))]
-  have hsmul := regDirichletIntegral_smul b (c := f w)
-    (f := fun _ ↦ (1 : ℂ)) (by fun_prop) hb
+  have hsmul := regDirichletIntegral_smul b (fun _ ↦ (1 : ℂ)) (f w)
   simp only [mul_one] at hsmul
   rw [hsmul]
   rw [show regDirichletIntegral b (fun _ ↦ (1 : ℂ)) =

@@ -6,6 +6,7 @@ Authors: Bastiaan J Braams
 
 import StdSimplexMeasure.CarlsonDirichletAverage.Basic
 import Mathlib.Analysis.Calculus.Deriv.Basic
+import Mathlib.Analysis.Calculus.IteratedDeriv.Lemmas
 
 /-!
 # Differentiation of Carlson's Dirichlet averages
@@ -112,6 +113,72 @@ theorem carlsonPartialDeriv_carlsonPartialDeriv_comp_carlsonAffineForm
   have hcomp := HasDerivAt.comp_carlsonAffineForm_update i hf'
   simpa [mul_assoc, mul_left_comm] using (hcomp.const_mul (u j : ℂ)).deriv
 
+/-- Successive Carlson partial derivatives, in the order specified by a list of coordinate
+indices.  The head of the list is applied last. -/
+def carlsonIteratedPartialDeriv : List ι → ((ι → ℂ) → ℂ) → (ι → ℂ) → ℂ
+  | [], G, z => G z
+  | i :: is, G, z => carlsonPartialDeriv i (fun w => carlsonIteratedPartialDeriv is G w) z
+
+/-- Iterated partial differentiation of a Carlson kernel introduces the corresponding product
+of simplex coordinates.  This is the pointwise core of Carlson's formula (5.3-2). -/
+theorem carlsonIteratedPartialDeriv_comp_carlsonAffineForm
+    {f : ℂ → ℂ}
+    (hf : ∀ n w, HasDerivAt (iteratedDeriv n f) (iteratedDeriv (n + 1) f w) w)
+    (is : List ι) (z : ι → ℂ) (u : ι → ℝ) :
+    carlsonIteratedPartialDeriv is (fun z => f (carlsonAffineForm z u)) z =
+      (is.map fun i => (u i : ℂ)).prod *
+        iteratedDeriv is.length f (carlsonAffineForm z u) := by
+  induction is generalizing z with
+  | nil => simp [carlsonIteratedPartialDeriv]
+  | cons i is ih =>
+      rw [carlsonIteratedPartialDeriv]
+      have hfun : (fun w => carlsonIteratedPartialDeriv is
+          (fun z => f (carlsonAffineForm z u)) w) =
+          fun w => (is.map fun j => (u j : ℂ)).prod *
+            iteratedDeriv is.length f (carlsonAffineForm w u) := by
+        funext w
+        exact ih w
+      rw [hfun]
+      unfold carlsonPartialDeriv
+      have hcomp := HasDerivAt.comp_carlsonAffineForm_update i
+        (hf is.length (carlsonAffineForm z u))
+      rw [(hcomp.const_mul (is.map fun j => (u j : ℂ)).prod).deriv]
+      simp only [List.length_cons, List.map_cons, List.prod_cons]
+      ring
+
+/-- The sum of the coordinate partial derivatives used in Carlson's equation (5.3-3). -/
+def carlsonTotalDeriv (G : (ι → ℂ) → ℂ) (z : ι → ℂ) : ℂ :=
+  ∑ i, carlsonPartialDeriv i G z
+
+/-- The total Carlson derivative of a pointwise kernel is the ordinary derivative of the
+averaged function, because simplex coordinates sum to one. -/
+theorem carlsonTotalDeriv_comp_carlsonAffineForm
+    {f : ℂ → ℂ} {f' : ℂ} {z : ι → ℂ} {u : ι → ℝ}
+    (hu : u ∈ stdSimplex ℝ ι) (hf : HasDerivAt f f' (carlsonAffineForm z u)) :
+    carlsonTotalDeriv (fun z => f (carlsonAffineForm z u)) z = f' := by
+  simp_rw [carlsonTotalDeriv, carlsonPartialDeriv_comp_carlsonAffineForm _ hf,
+    ← Finset.sum_mul]
+  have hsum : ∑ i, (u i : ℂ) = 1 := by exact_mod_cast hu.2
+  rw [hsum, one_mul]
+
+/-- A constant-coefficient directional differential operator in Carlson's variables. -/
+def carlsonDirectionalDeriv (a : ι → ℂ) (G : (ι → ℂ) → ℂ) (z : ι → ℂ) : ℂ :=
+  ∑ i, a i * carlsonPartialDeriv i G z
+
+/-- Evaluation of a constant-coefficient directional derivative on a Carlson kernel.  This is
+the first-order pointwise identity behind Carlson's more general formula (5.3-4). -/
+theorem carlsonDirectionalDeriv_comp_carlsonAffineForm
+    (a : ι → ℂ) {f : ℂ → ℂ} {f' : ℂ} {z : ι → ℂ} {u : ι → ℝ}
+    (hf : HasDerivAt f f' (carlsonAffineForm z u)) :
+    carlsonDirectionalDeriv a (fun z => f (carlsonAffineForm z u)) z =
+      (∑ i, a i * (u i : ℂ)) * f' := by
+  unfold carlsonDirectionalDeriv
+  rw [Finset.sum_mul]
+  apply Finset.sum_congr rfl
+  intro i _
+  rw [carlsonPartialDeriv_comp_carlsonAffineForm i hf]
+  ring
+
 /-- Carlson's Euler--Poisson differential expression for a twice differentiable function of
 the variables `z`.  The equation in Theorem 5.4-1 asserts that this expression vanishes. -/
 def carlsonEulerPoissonOperator (i j : ι) (b z : ι → ℂ)
@@ -142,6 +209,36 @@ theorem carlsonEulerPoissonOperator_comp_carlsonAffineForm
     carlsonPartialDeriv_carlsonPartialDeriv_comp_carlsonAffineForm i j hf hf',
     carlsonPartialDeriv_comp_carlsonAffineForm j (hf (carlsonAffineForm z u)),
     carlsonPartialDeriv_comp_carlsonAffineForm i (hf (carlsonAffineForm z u))]
+
+/-- **Carlson 5.4-1, regularized form.** A regularized Carlson average of a function
+holomorphic on a convex domain satisfies the Euler--Poisson system on node vectors contained
+in that domain. -/
+theorem carlsonEulerPoissonOperator_regCarlsonDirichletAverage
+    {Ω : Set ℂ} (hΩopen : IsOpen Ω) (hΩconv : Convex ℝ Ω)
+    {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f Ω)
+    {b z : ι → ℂ} (hb : b ∈ mvBetaConvergent) (hz : Set.range z ⊆ Ω)
+    (i j : ι) :
+    carlsonEulerPoissonOperator i j b z
+      (fun w => regCarlsonDirichletAverage b w f) = 0 := by
+  /- Carlson's proof integrates a weighted tangential derivative in the simplex coordinate
+  `u i`.  Formalizing the vanishing boundary term for complex Dirichlet exponents is the
+  remaining analytic input.  One can first prove it for `1 < re (b i), re (b j)` and then use
+  analytic continuation in `b`. -/
+  sorry
+
+/-- **Carlson 5.4-1.** The native Carlson Dirichlet average satisfies the Euler--Poisson
+system on its convergence domain. -/
+theorem carlsonEulerPoissonOperator_carlsonDirichletAverage
+    {Ω : Set ℂ} (hΩopen : IsOpen Ω) (hΩconv : Convex ℝ Ω)
+    {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f Ω)
+    {b z : ι → ℂ} (hb : b ∈ mvBetaConvergent) (hz : Set.range z ⊆ Ω)
+    (i j : ι) :
+    carlsonEulerPoissonOperator i j b z
+      (fun w => Gamma (∑ k, b k) * regCarlsonDirichletAverage b w f) = 0 := by
+  /- This follows from the regularized equation because the Gamma factor is constant in `z`.
+  A reusable lemma that the Euler--Poisson operator commutes with multiplication by a constant,
+  under differentiability hypotheses, will provide the short proof. -/
+  sorry
 
 end DirichletTransform
 

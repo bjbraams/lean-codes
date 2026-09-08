@@ -163,6 +163,16 @@ theorem regRPolynomial_eq_numerator₂_mul_one_div_Gamma
   rw [regCarlsonRPolynomial_eq_numerator_mul_one_div_Gamma,
     carlsonRPolynomialNumerator_pair, sum_pair]
 
+/-- Simultaneously exchanging the two parameters and variables leaves the regularized
+two-variable R-polynomial unchanged. -/
+theorem regRPolynomial_swap (n : ℕ) (b₀ b₁ x y : ℂ) :
+    regRPolynomial n b₁ b₀ y x = regRPolynomial n b₀ b₁ x y := by
+  rw [regRPolynomial_eq_numerator₂_mul_one_div_Gamma,
+    regRPolynomial_eq_numerator₂_mul_one_div_Gamma,
+    carlsonRPolynomialNumerator₂_swap]
+  congr 2
+  ring_nf
+
 /-- The regularized equal-parameter Carlson polynomial of odd degree vanishes at opposite
 variables. This is the regularized form of [Carl77, Theorem 6.9-1]. -/
 theorem regRPolynomial_eq_zero_of_odd (n : ℕ) (hn : Odd n) (b x : ℂ) :

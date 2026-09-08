@@ -140,6 +140,95 @@ def newtonBasis (z : Fin n → ℂ) (x : ℂ) : ℂ :=
     newtonBasis (prependNewtonNode a z) x = (x - a) * newtonBasis z x := by
   simp [newtonBasis, prependNewtonNode, Fin.prod_univ_succ]
 
+/-- The nodes preceding the coefficient indexed by `n` in a finite Newton expansion. -/
+def newtonPrecedingNodes {p : ℕ} (z : Fin p → ℂ) (n : Fin p) : Fin n → ℂ :=
+  fun i => z ⟨i, lt_trans i.isLt n.isLt⟩
+
+/-- The nodes through the coefficient indexed by `n` in a finite Newton expansion. -/
+def newtonPrefix {p : ℕ} (z : Fin p → ℂ) (n : Fin p) : Fin (n + 1) → ℂ :=
+  fun i => z ⟨i, lt_of_lt_of_le i.isLt (Nat.succ_le_iff.mpr n.isLt)⟩
+
+/-- **Carlson 5.5-1.** Divided differences defined by unweighted Dirichlet averages satisfy
+the usual first-order recurrence, including at coincident nodes. -/
+theorem carlsonDividedDifference_sub
+    {Ω : Set ℂ} (hΩopen : IsOpen Ω) (hΩconv : Convex ℝ Ω)
+    {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f Ω)
+    (z : Fin n → ℂ) (hz : Set.range z ⊆ Ω) {x y : ℂ} (hx : x ∈ Ω) (hy : y ∈ Ω) :
+    carlsonDividedDifference n f (Fin.snoc z x) -
+        carlsonDividedDifference n f (Fin.snoc z y) =
+      (x - y) * carlsonDividedDifference (n + 1) f (Fin.snoc (Fin.snoc z x) y) := by
+  /- Carlson proves this by writing the unweighted average as a simplex integral, changing one
+  coordinate to the affine variable on the segment from `y` to `x`, and applying Fubini and the
+  fundamental theorem of calculus. -/
+  sorry
+
+/-- **Carlson 5.5-2.** The finite Newton expansion with its Dirichlet-average remainder. -/
+theorem newtonTaylor_sum_add_remainder
+    {Ω : Set ℂ} (hΩopen : IsOpen Ω) (hΩconv : Convex ℝ Ω)
+    {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f Ω)
+    (z : Fin p → ℂ) (hz : Set.range z ⊆ Ω) {x : ℂ} (hx : x ∈ Ω) :
+    f x =
+      (∑ n : Fin p, carlsonDividedDifference n f (newtonPrefix z n) *
+        newtonBasis (newtonPrecedingNodes z n) x) +
+      carlsonDividedDifference p f (Fin.snoc z x) * newtonBasis z x := by
+  /- Once `carlsonDividedDifference_sub` is available, this is Carlson's elementary induction
+  on `p`. -/
+  sorry
+
+/-- Taylor's formula with Carlson's unweighted-average remainder, obtained from the
+Newton--Taylor formula by coalescing all interpolation nodes. -/
+theorem taylor_sum_add_carlsonRemainder
+    {Ω : Set ℂ} (hΩopen : IsOpen Ω) (hΩconv : Convex ℝ Ω)
+    {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f Ω)
+    {a x : ℂ} (ha : a ∈ Ω) (hx : x ∈ Ω) (p : ℕ) :
+    f x =
+      (∑ n : Fin p, iteratedDeriv n.val f a / (n.val.factorial : ℂ) * (x - a) ^ n.val) +
+      carlsonDividedDifference p f (Fin.snoc (fun _ : Fin p => a) x) * (x - a) ^ p := by
+  have hz : Set.range (fun _ : Fin p => a) ⊆ Ω := by
+    rintro y ⟨i, rfl⟩
+    exact ha
+  have h := newtonTaylor_sum_add_remainder hΩopen hΩconv hf
+    (fun _ : Fin p => a) hz hx
+  have hprefix (n : Fin p) : newtonPrefix (fun _ : Fin p => a) n = fun _ => a := by
+    funext i
+    rfl
+  simp_rw [hprefix, carlsonDividedDifference_const] at h
+  simpa [newtonPrecedingNodes, newtonBasis] using h
+
+/-! ## Repeated integrals -/
+
+/-- Integration of a complex-valued function along the oriented segment from `a` to `x`. -/
+def carlsonSegmentIntegral (a x : ℂ) (f : ℂ → ℂ) : ℂ :=
+  (x - a) * ∫ t in (0 : ℝ)..1, f (a + (t : ℂ) * (x - a))
+
+/-- Carlson's repeated integration operator based at `a`, defined recursively by segment
+integration.  This is the operator in equations 5.5(9) and 5.5(12). -/
+def carlsonRepeatedIntegral : ℕ → ℂ → (ℂ → ℂ) → ℂ → ℂ
+  | 0, _, f, x => f x
+  | n + 1, a, f, x => carlsonSegmentIntegral a x (carlsonRepeatedIntegral n a f)
+
+/-- The zeroth repeated integral is the original function. -/
+@[simp] theorem carlsonRepeatedIntegral_zero (a : ℂ) (f : ℂ → ℂ) (x : ℂ) :
+    carlsonRepeatedIntegral 0 a f x = f x := rfl
+
+/-- The successor step for Carlson's repeated integration operator. -/
+@[simp] theorem carlsonRepeatedIntegral_succ (n : ℕ) (a : ℂ) (f : ℂ → ℂ) (x : ℂ) :
+    carlsonRepeatedIntegral (n + 1) a f x =
+      carlsonSegmentIntegral a x (carlsonRepeatedIntegral n a f) := rfl
+
+/-- Carlson's equation 5.5(10): an `n`-fold repeated integral is an unweighted Dirichlet
+average with `n` nodes coalesced at the base point and one node at the endpoint. -/
+theorem carlsonRepeatedIntegral_eq_unweightedAverage
+    {Ω : Set ℂ} (hΩopen : IsOpen Ω) (hΩconv : Convex ℝ Ω)
+    {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f Ω)
+    {a x : ℂ} (ha : a ∈ Ω) (hx : x ∈ Ω) (n : ℕ) :
+    carlsonRepeatedIntegral n a f x =
+      (x - a) ^ n / (n.factorial : ℂ) *
+        carlsonUnweightedAverage (Fin.snoc (fun _ : Fin n => a) x) f := by
+  /- The proof is an induction using Fubini on the triangular parameter region.  It is the
+  repeated-integral counterpart of `carlsonDividedDifference_sub`. -/
+  sorry
+
 end DirichletTransform
 
 end CarlsonNewtonTaylor

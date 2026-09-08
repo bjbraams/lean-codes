@@ -71,6 +71,64 @@ def carlsonRPolynomialNumerator (n : ℕ) (b z : ι → ℂ) : ℂ :=
     (m.multinomial : ℂ) * m.prod (fun i e ↦ z i ^ e) *
       ∏ i, (ascPochhammer ℂ (m i)).eval (b i)
 
+/-- The Pochhammer numerator of the degree-zero R-polynomial is one. -/
+@[simp] theorem carlsonRPolynomialNumerator_zero (b z : ι → ℂ) :
+    carlsonRPolynomialNumerator 0 b z = 1 := by
+  simp [carlsonRPolynomialNumerator, carlsonPowerPolynomial, Finsupp.multinomial]
+
+/-- The Pochhammer numerator in degree one is the weighted linear form
+`∑ i, b i * z i`, as in Carlson's formula 5.7(2). -/
+theorem carlsonRPolynomialNumerator_one (b z : ι → ℂ) :
+    carlsonRPolynomialNumerator 1 b z = ∑ i, b i * z i := by
+  rw [carlsonRPolynomialNumerator]
+  calc
+    (∑ m ∈ (carlsonPowerPolynomial 1 z).support,
+        (m.multinomial : ℂ) * m.prod (fun i e ↦ z i ^ e) *
+          ∏ i, (ascPochhammer ℂ (m i)).eval (b i)) =
+      Finsupp.sum (AddMonoidAlgebra.coeff (carlsonPowerPolynomial 1 z)) fun m c =>
+        c * ∏ i, (ascPochhammer ℂ (m i)).eval (b i) := by
+          rw [MvPolynomial.sum_def]
+          apply Finset.sum_congr rfl
+          intro m hm
+          have hmdeg : m.sum (fun _ e ↦ e) = 1 := by
+            by_contra hne
+            exact (MvPolynomial.mem_support_iff.mp hm)
+              (coeff_carlsonPowerPolynomial_eq_zero_of_sum_ne 1 z m hne)
+          rw [coeff_carlsonPowerPolynomial]
+          simp [hmdeg]
+    _ = ∑ i, b i * z i := by
+      rw [show carlsonPowerPolynomial 1 z =
+          ∑ i, MvPolynomial.C (z i) * MvPolynomial.X i by
+        simp [carlsonPowerPolynomial, carlsonAffinePolynomial]]
+      have hcoeff : AddMonoidAlgebra.coeff
+          (∑ i, MvPolynomial.C (z i) * MvPolynomial.X i) =
+          ∑ i, AddMonoidAlgebra.coeff
+            (MvPolynomial.C (z i) * MvPolynomial.X i) := by
+        simp
+      rw [hcoeff]
+      rw [← Finsupp.sum_finsetSum_index (s := Finset.univ)
+        (g := fun i => AddMonoidAlgebra.coeff
+          (MvPolynomial.C (z i) * MvPolynomial.X i))]
+      · apply Finset.sum_congr rfl
+        intro i hi
+        rw [MvPolynomial.C_mul_X_eq_monomial]
+        change (Finsupp.single (Finsupp.single i 1) (z i)).sum
+          (fun m c => c * ∏ j, (ascPochhammer ℂ (m j)).eval (b j)) = b i * z i
+        rw [Finsupp.sum_single_index]
+        have hp : (∏ j, (ascPochhammer ℂ ((Finsupp.single i 1) j)).eval (b j)) = b i := by
+          rw [Finset.prod_eq_single i]
+          · simp
+          · intro j _ hji
+            simp [hji.symm]
+          · simp
+        rw [hp]
+        ring
+        simp
+      · intro m
+        simp
+      · intro m c d
+        ring
+
 /-- The regularized Carlson polynomial is its Pochhammer numerator times the reciprocal
 Gamma factor at the translated total parameter. -/
 theorem regCarlsonRPolynomial_eq_numerator_mul_one_div_Gamma

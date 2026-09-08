@@ -68,16 +68,28 @@ theorem integral_carlsonLaplaceKernel_ofReal {a : ℂ} {r : ℝ}
       (1 / r : ℂ) ^ a * Gamma a :=
   integral_cpow_mul_exp_neg_mul_Ioi ha hr
 
-/- TODO: Carlson's Theorem 5.10-2 states, for `0 < a.re`, convergent `b`, and variables
-in the open right half-plane,
+/-- The complex-rate Gamma integral needed in Carlson's inverse confluence theorem. -/
+theorem integral_carlsonLaplaceKernel {a w : ℂ}
+    (ha : 0 < a.re) (hw : 0 < w.re) :
+    ∫ y : ℝ in Set.Ioi 0, (y : ℂ) ^ (a - 1) * exp (-(y : ℂ) * w) =
+      w ^ (-a) * Gamma a := by
+  sorry
 
-  `regCarlsonRIntegral (-a) b z = regCarlsonRLaplaceIntegral a b z`.
+/-- Carlson's inverse confluence formula, Theorem 5.10-2, in regularized form. -/
+theorem regCarlsonRIntegral_eq_regCarlsonRLaplaceIntegral
+    {a : ℂ} (ha : 0 < a.re) {b z : ι → ℂ}
+    (hb : b ∈ mvBetaConvergent) (hz : z ∈ carlsonRVariableDomain) :
+    regCarlsonRIntegral (-a) b z = regCarlsonRLaplaceIntegral a b z := by
+  sorry
 
-Its proof requires the extension of `integral_carlsonLaplaceKernel_ofReal` from a positive real
-rate to a complex rate with positive real part, followed by an absolute-integrability estimate
-on the product of `(0,∞)` and the simplex and Fubini's theorem.  Mathlib currently provides the
-Gamma integral above only for a real rate; this missing complex-rate lemma is the next local
-foundation for this file. -/
+/-- Carlson's inverse confluence formula in the native unregularized normalization. -/
+theorem carlsonRIntegral_eq_carlsonRLaplaceIntegral
+    {a : ℂ} (ha : 0 < a.re) {b z : ι → ℂ}
+    (hb : b ∈ mvBetaConvergent) (hz : z ∈ carlsonRVariableDomain) :
+    carlsonRIntegral (-a) b z = carlsonRLaplaceIntegral a b z := by
+  rw [carlsonRIntegral_eq_Gamma_mul_reg,
+    carlsonRLaplaceIntegral_eq_Gamma_mul_reg,
+    regCarlsonRIntegral_eq_regCarlsonRLaplaceIntegral ha hb hz]
 
 end DirichletTransform
 end CarlsonR

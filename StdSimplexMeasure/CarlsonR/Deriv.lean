@@ -127,10 +127,7 @@ theorem hasDerivAt_regCarlsonRIntegral_update
     rw [mul_assoc, regCarlsonRIntegral, regCarlsonDirichletAverage]
     rw [mul_regDirichletIntegral_addDirichletUnit hb]
     rw [← regDirichletIntegral_smul b
-      (f := fun u ↦ (u i : ℂ) * carlsonAffineForm z u ^ (t - 1)) t
-      ((Complex.continuous_ofReal.comp (continuous_apply i)).continuousOn.mul
-        ((continuous_carlsonAffineForm z).continuousOn.cpow_const
-          (fun _ hu ↦ carlsonAffineForm_mem_slitPlane hz hu))) hb]
+      (f := fun u ↦ (u i : ℂ) * carlsonAffineForm z u ^ (t - 1)) t]
     congr 1
     funext u
     ring]
@@ -144,6 +141,24 @@ theorem carlsonPartialDeriv_regCarlsonRIntegral
       t * b i * regCarlsonRIntegral (t - 1) (addDirichletUnit b i) z := by
   rw [carlsonPartialDeriv]
   exact (hasDerivAt_regCarlsonRIntegral_update t hb hz i).deriv
+
+/-- Carlson's joint analyticity assertion, Theorem 5.9-2(a), for the native regularized
+integral on the right-half-plane variable domain.
+
+The coordinate differentiation theorem above supplies the derivatives.  The remaining
+analytic-under-the-integral argument is stated jointly because this is the form needed for
+the identity principle and for the differential equations. -/
+theorem analyticOnNhd_regCarlsonRIntegral (t : ℂ) {b : ι → ℂ}
+    (hb : b ∈ mvBetaConvergent) :
+    AnalyticOnNhd ℂ (regCarlsonRIntegral t b) carlsonRVariableDomain := by
+  sorry
+
+/-- The native unregularized R-integral is jointly analytic on the same variable domain. -/
+theorem analyticOnNhd_carlsonRIntegral (t : ℂ) {b : ι → ℂ}
+    (hb : b ∈ mvBetaConvergent) :
+    AnalyticOnNhd ℂ (carlsonRIntegral t b) carlsonRVariableDomain := by
+  intro z hz
+  exact analyticAt_const.mul (analyticOnNhd_regCarlsonRIntegral t hb z hz)
 
 /-- Euler's differential identity for the pointwise power kernel, corresponding to
 Theorem 5.9-2(c). -/
@@ -171,9 +186,7 @@ theorem sum_mul_deriv_cpow_carlsonAffineForm (t : ℂ) {z : ι → ℂ}
       rw [cpow_add _ _ hne, cpow_one]
     _ = t * carlsonAffineForm z u ^ t := by ring_nf
 
-/- The coordinate integral differentiation theorem is now available above.  The remaining
-part of Theorem 5.9-2(a) is to package the coordinate results as joint analyticity on
-`carlsonRVariableDomain`; Theorem 5.9-2(c) is derived in `CarlsonR.Relations`. -/
+/- Theorem 5.9-2(c) is derived in `CarlsonR.Relations`. -/
 
 end DirichletTransform
 end CarlsonR

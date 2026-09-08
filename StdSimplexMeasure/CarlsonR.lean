@@ -15,6 +15,10 @@ import StdSimplexMeasure.CarlsonR.SlitPlane
 import StdSimplexMeasure.CarlsonR.SingleIntegral
 import StdSimplexMeasure.CarlsonR.Contour
 import StdSimplexMeasure.CarlsonR.EulerTransform
+import StdSimplexMeasure.CarlsonR.IntegralEvaluation
+import StdSimplexMeasure.CarlsonR.SmallVariable
+import StdSimplexMeasure.CarlsonR.AssociatedRecurrence
+import StdSimplexMeasure.CarlsonR.AssociatedDependence
 
 /-!
 # Carlson's multivariate R-function
