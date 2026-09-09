@@ -11,6 +11,7 @@ public import Mathlib.MeasureTheory.Measure.WithDensity
 public import StdSimplexMeasure.Coordinates
 
 import Mathlib.MeasureTheory.Function.LocallyIntegrable
+import Mathlib.MeasureTheory.Measure.Dirac
 import StdSimplexMeasure.PositiveSimplex
 
 /-!
@@ -287,7 +288,7 @@ theorem stdSimplexMeasure_restrict_stdSimplexAffineSet :
           stdSimplexAffineSet (R := ℝ) = Set.univ := by
         ext x
         simp only [Set.mem_preimage, Set.mem_univ, iff_true]
-        exact sum_stdSimplexCoordMap i x
+        exact mem_fintypeAffineCoords_iff_sum.mpr (sum_stdSimplexCoordMap i x)
       rw [hp, Measure.restrict_univ]
 
 /-- The coordinate Lebesgue measure is finite on the standard simplex. -/
@@ -406,6 +407,59 @@ theorem ae_zero_lt_of_mem_stdSimplex [Nonempty ι] :
       (μ := stdSimplexMeasure)
       (isClosed_stdSimplex ℝ ι).measurableSet, hne] with u hu hne
   exact lt_of_le_of_ne (hu.1 i) (Ne.symm hne)
+
+/-- The aggregation formula when the target has one coordinate. This is the base case for
+fiberwise induction on a general surjective aggregation map. -/
+theorem map_stdSimplexMeasure_restrict_stdSimplex_aggregate_of_unique
+    {κ : Type*} [Fintype κ] [Unique κ] [Nonempty ι]
+    (f : ι → κ) :
+    Measure.map (stdSimplexAggregate f)
+      ((stdSimplexMeasure (ι := ι)).restrict (stdSimplex ℝ ι)) =
+    ((stdSimplexMeasure (ι := κ)).restrict (stdSimplex ℝ κ)).withDensity
+      (stdSimplexAggregateDensity f) := by
+  ext s hs
+  rw [Measure.map_apply (by fun_prop) hs]
+  rw [withDensity_apply _ hs]
+  rw [stdSimplexMeasure_unique (ι := κ)]
+  have hconst_mem : (fun _ : κ => (1 : ℝ)) ∈ stdSimplex ℝ κ := by
+    simp [stdSimplex]
+  rw [MeasureTheory.restrict_dirac' (isClosed_stdSimplex ℝ κ).measurableSet,
+    if_pos hconst_mem]
+  have hd : Measurable (stdSimplexAggregateDensity f) := by
+    unfold stdSimplexAggregateDensity
+    fun_prop
+  rw [MeasureTheory.setLIntegral_dirac' hd hs]
+  by_cases hmem : (fun _ : κ => (1 : ℝ)) ∈ s
+  · rw [if_pos hmem]
+    have hpre : stdSimplexAggregate f ⁻¹' s ∩ stdSimplex ℝ ι = stdSimplex ℝ ι := by
+      ext u
+      simp only [Set.mem_inter_iff]
+      constructor
+      · exact fun h => h.2
+      · intro hu
+        refine ⟨?_, hu⟩
+        have ha := stdSimplexAggregate_mem_stdSimplex (f := f) hu
+        have heq : stdSimplexAggregate f u = fun _ : κ => (1 : ℝ) := by
+          funext k
+          simpa [stdSimplex, Subsingleton.elim k default] using ha.2
+        simpa [heq] using hmem
+    rw [Measure.restrict_apply (hs.preimage (by fun_prop)), hpre,
+      stdSimplexMeasure_stdSimplex]
+    simp [stdSimplexAggregateDensity, stdSimplexAggregateFiberCard,
+      Subsingleton.elim (f _) default]
+  · rw [if_neg hmem]
+    have hpre : stdSimplexAggregate f ⁻¹' s ∩ stdSimplex ℝ ι = ∅ := by
+      ext u
+      simp only [Set.mem_inter_iff, Set.mem_preimage, Set.mem_empty_iff_false]
+      constructor
+      · rintro ⟨huS, hu⟩
+        have ha := stdSimplexAggregate_mem_stdSimplex (f := f) hu
+        have heq : stdSimplexAggregate f u = fun _ : κ => (1 : ℝ) := by
+          funext k
+          simpa [stdSimplex, Subsingleton.elim k default] using ha.2
+        exact (hmem (heq ▸ huS)).elim
+      · exact False.elim
+    rw [Measure.restrict_apply (hs.preimage (by fun_prop)), hpre, measure_empty]
 
 /-- Pushing the restricted simplex measure forward under coordinate aggregation gives the
 restricted target simplex measure weighted by the product of the fiber-volume densities. -/

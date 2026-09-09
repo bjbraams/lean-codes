@@ -151,7 +151,18 @@ the identity principle and for the differential equations. -/
 theorem analyticOnNhd_regCarlsonRIntegral (t : ℂ) {b : ι → ℂ}
     (hb : b ∈ mvBetaConvergent) :
     AnalyticOnNhd ℂ (regCarlsonRIntegral t b) carlsonRVariableDomain := by
-  sorry
+  unfold regCarlsonRIntegral
+  rw [show carlsonRVariableDomain (ι := ι) =
+      {z : ι → ℂ | Set.range z ⊆ carlsonRightHalfPlane} by
+    ext z
+    simp only [carlsonRVariableDomain, Set.mem_ofPred_eq, Set.range_subset_iff]]
+  apply analyticOnNhd_regCarlsonDirichletAverage_nodes
+    isOpen_carlsonRightHalfPlane convex_carlsonRightHalfPlane (f := fun w => w ^ t) _ hb
+  intro w hw
+  rw [analyticAt_iff_eventually_differentiableAt]
+  filter_upwards [isOpen_slitPlane.eventually_mem
+    (carlsonRightHalfPlane_subset_slitPlane hw)] with v hv
+  exact differentiableAt_id.cpow_const hv
 
 /-- The native unregularized R-integral is jointly analytic on the same variable domain. -/
 theorem analyticOnNhd_carlsonRIntegral (t : ℂ) {b : ι → ℂ}

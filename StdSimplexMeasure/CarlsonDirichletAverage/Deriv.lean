@@ -187,6 +187,17 @@ def carlsonEulerPoissonOperator (i j : ι) (b z : ι → ℂ)
     b i * carlsonPartialDeriv j G z - b j * carlsonPartialDeriv i G z
 
 omit [Fintype ι] in
+/-- The Euler--Poisson operator commutes with multiplication of the dependent function by
+a constant. -/
+theorem carlsonEulerPoissonOperator_const_mul (c : ℂ) (i j : ι) (b z : ι → ℂ)
+    (G : (ι → ℂ) → ℂ) :
+    carlsonEulerPoissonOperator i j b z (fun w => c * G w) =
+      c * carlsonEulerPoissonOperator i j b z G := by
+  simp only [carlsonEulerPoissonOperator, carlsonPartialDeriv,
+    deriv_const_mul_field]
+  ring
+
+omit [Fintype ι] in
 /-- The diagonal members of the Euler--Poisson system vanish identically. -/
 @[simp] theorem carlsonEulerPoissonOperator_self (i : ι) (b z : ι → ℂ)
     (G : (ι → ℂ) → ℂ) :
@@ -235,10 +246,9 @@ theorem carlsonEulerPoissonOperator_carlsonDirichletAverage
     (i j : ι) :
     carlsonEulerPoissonOperator i j b z
       (fun w => Gamma (∑ k, b k) * regCarlsonDirichletAverage b w f) = 0 := by
-  /- This follows from the regularized equation because the Gamma factor is constant in `z`.
-  A reusable lemma that the Euler--Poisson operator commutes with multiplication by a constant,
-  under differentiability hypotheses, will provide the short proof. -/
-  sorry
+  rw [carlsonEulerPoissonOperator_const_mul,
+    carlsonEulerPoissonOperator_regCarlsonDirichletAverage hΩopen hΩconv hf hb hz,
+    mul_zero]
 
 end DirichletTransform
 

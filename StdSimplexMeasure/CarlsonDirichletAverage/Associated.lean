@@ -5,6 +5,7 @@ Authors: Bastiaan J Braams
 -/
 
 import StdSimplexMeasure.CarlsonDirichletAverage.Deriv
+import StdSimplexMeasure.SeveralComplexVariables.ParametricIntegral
 
 /-!
 # Associated Carlson Dirichlet averages
@@ -306,7 +307,9 @@ theorem carlsonIteratedPartialDeriv_regCarlsonDirichletAverage
   /- The pointwise formula is
   `carlsonIteratedPartialDeriv_comp_carlsonAffineForm`.  The remaining step is a reusable
   higher-order differentiation-under-the-integral theorem with domination on a compact
-  neighborhood of `convexHull ℝ (Set.range z)`. -/
+  neighborhood of `convexHull ℝ (Set.range z)`.  The first-order analytic infrastructure is
+  `analyticOnNhd_integral_of_dominated_of_fderiv_le`; the missing input here is the corresponding
+  uniform higher-derivative estimate. -/
   sorry
 
 /-- **Carlson 5.3-3, node-variable part.** On a convex domain of holomorphy, a regularized
@@ -317,8 +320,9 @@ theorem analyticOnNhd_regCarlsonDirichletAverage_nodes
     {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) :
     AnalyticOnNhd ℂ (fun z => regCarlsonDirichletAverage b z f)
       {z : ι → ℂ | Set.range z ⊆ Ω} := by
-  /- This follows from the same compact-local domination argument as the preceding theorem,
-  combined with finite-dimensional separate-to-joint analyticity. -/
+  /- This follows from the same compact-local domination argument as the preceding theorem.
+  Joint analyticity is then supplied by
+  `SeveralComplexVariables.analyticOnNhd_pi_of_analyticOnNhd_update`. -/
   sorry
 
 /-- **Carlson 5.3-3, joint form.** The regularized Carlson average is jointly analytic in

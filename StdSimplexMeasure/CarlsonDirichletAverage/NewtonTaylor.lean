@@ -110,6 +110,31 @@ theorem carlsonDividedDifference_perm (n : ℕ) (f : ℂ → ℂ)
   rw [carlsonDividedDifference, carlsonDividedDifference,
     carlsonUnweightedAverage_perm]
 
+/-- Exchanging the final two nodes does not change a divided difference. -/
+theorem carlsonDividedDifference_snoc_snoc_comm (n : ℕ) (f : ℂ → ℂ)
+    (z : Fin n → ℂ) (x y : ℂ) :
+    carlsonDividedDifference (n + 1) f (Fin.snoc (Fin.snoc z x) y) =
+      carlsonDividedDifference (n + 1) f (Fin.snoc (Fin.snoc z y) x) := by
+  let i : Fin (n + 2) := Fin.castSucc (Fin.last n)
+  let j : Fin (n + 2) := Fin.last (n + 1)
+  let σ : Equiv.Perm (Fin (n + 2)) := Equiv.swap i j
+  rw [← carlsonDividedDifference_perm (n + 1) f
+    (Fin.snoc (Fin.snoc z x) y) σ]
+  congr 1
+  funext k
+  by_cases hki : k = i
+  · subst k
+    simp [σ, i, j]
+  · by_cases hkj : k = j
+    · subst k
+      simp [σ, i, j]
+    · have hklt : k.val < n := by
+        simp only [i, j, Fin.ext_iff, Fin.val_castSucc, Fin.val_last] at hki hkj
+        omega
+      have hkle : k.val ≤ n := Nat.le_of_lt hklt
+      simp [Function.comp_apply, σ, Equiv.swap_apply_of_ne_of_ne hki hkj,
+        Fin.snoc, hklt, hkle]
+
 /-- A divided difference of order zero is evaluation at its unique node. -/
 @[simp] theorem carlsonDividedDifference_zero (f : ℂ → ℂ) (z : Fin 1 → ℂ) :
     carlsonDividedDifference 0 f z = f (z 0) := by
@@ -140,6 +165,11 @@ def newtonBasis (z : Fin n → ℂ) (x : ℂ) : ℂ :=
     newtonBasis (prependNewtonNode a z) x = (x - a) * newtonBasis z x := by
   simp [newtonBasis, prependNewtonNode, Fin.prod_univ_succ]
 
+/-- Appending a node adds its linear factor to the Newton basis. -/
+@[simp] theorem newtonBasis_snoc (z : Fin n → ℂ) (a x : ℂ) :
+    newtonBasis (Fin.snoc z a) x = newtonBasis z x * (x - a) := by
+  simp [newtonBasis, Fin.prod_univ_castSucc]
+
 /-- The nodes preceding the coefficient indexed by `n` in a finite Newton expansion. -/
 def newtonPrecedingNodes {p : ℕ} (z : Fin p → ℂ) (n : Fin p) : Fin n → ℂ :=
   fun i => z ⟨i, lt_trans i.isLt n.isLt⟩
@@ -147,6 +177,26 @@ def newtonPrecedingNodes {p : ℕ} (z : Fin p → ℂ) (n : Fin p) : Fin n → �
 /-- The nodes through the coefficient indexed by `n` in a finite Newton expansion. -/
 def newtonPrefix {p : ℕ} (z : Fin p → ℂ) (n : Fin p) : Fin (n + 1) → ℂ :=
   fun i => z ⟨i, lt_of_lt_of_le i.isLt (Nat.succ_le_iff.mpr n.isLt)⟩
+
+@[simp] theorem newtonPrecedingNodes_init_castSucc (z : Fin (p + 1) → ℂ)
+    (n : Fin p) :
+    newtonPrecedingNodes z n.castSucc =
+      newtonPrecedingNodes (Fin.init z) n := by
+  rfl
+
+@[simp] theorem newtonPrefix_init_castSucc (z : Fin (p + 1) → ℂ)
+    (n : Fin p) :
+    newtonPrefix z n.castSucc = newtonPrefix (Fin.init z) n := by
+  rfl
+
+@[simp] theorem newtonPrecedingNodes_last (z : Fin (p + 1) → ℂ) :
+    newtonPrecedingNodes z (Fin.last p) = Fin.init z := by
+  rfl
+
+@[simp] theorem newtonPrefix_last (z : Fin (p + 1) → ℂ) :
+    newtonPrefix z (Fin.last p) = z := by
+  funext i
+  rfl
 
 /-- **Carlson 5.5-1.** Divided differences defined by unweighted Dirichlet averages satisfy
 the usual first-order recurrence, including at coincident nodes. -/
@@ -171,9 +221,29 @@ theorem newtonTaylor_sum_add_remainder
       (∑ n : Fin p, carlsonDividedDifference n f (newtonPrefix z n) *
         newtonBasis (newtonPrecedingNodes z n) x) +
       carlsonDividedDifference p f (Fin.snoc z x) * newtonBasis z x := by
-  /- Once `carlsonDividedDifference_sub` is available, this is Carlson's elementary induction
-  on `p`. -/
-  sorry
+  induction p with
+  | zero =>
+      simpa [newtonBasis, carlsonDividedDifference_zero, Fin.snoc]
+  | succ p ih =>
+      let z₀ : Fin p → ℂ := Fin.init z
+      let a : ℂ := z (Fin.last p)
+      have hza : z = Fin.snoc z₀ a := by
+        simpa [z₀, a] using (Fin.snoc_init_self z).symm
+      have hz₀ : Set.range z₀ ⊆ Ω := by
+        rintro w ⟨i, rfl⟩
+        exact hz ⟨Fin.castSucc i, rfl⟩
+      have ha : a ∈ Ω := hz ⟨Fin.last p, rfl⟩
+      have hih := ih z₀ hz₀
+      rw [hza]
+      rw [hih]
+      rw [Fin.sum_univ_castSucc]
+      simp only [newtonPrefix_init_castSucc, newtonPrecedingNodes_init_castSucc,
+        newtonPrefix_last, newtonPrecedingNodes_last, Fin.init_snoc,
+        Fin.val_castSucc, Fin.val_last]
+      rw [newtonBasis_snoc]
+      have hrec := carlsonDividedDifference_sub hΩopen hΩconv hf z₀ hz₀ hx ha
+      rw [carlsonDividedDifference_snoc_snoc_comm] at hrec
+      linear_combination newtonBasis z₀ x * hrec
 
 /-- Taylor's formula with Carlson's unweighted-average remainder, obtained from the
 Newton--Taylor formula by coalescing all interpolation nodes. -/

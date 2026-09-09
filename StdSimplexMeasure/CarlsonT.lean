@@ -5,6 +5,7 @@ Authors: Bastiaan J Braams
 -/
 
 import StdSimplexMeasure.CarlsonDirichletAverage.Continuation
+import Mathlib.Topology.Maps.Proper.Basic
 
 /-!
 # Carlson's multivariate T-function
@@ -143,10 +144,83 @@ theorem exists_isRegCarlsonTContinuation {z : ι → ℂ}
     ∃ G : (ι → ℂ) → ℂ, IsRegCarlsonTContinuation z G := by
   sorry
 
+/-- Zero lies in the convex hull of the Carlson variables if and only if it is realized as
+Carlson's affine form at some point of the standard simplex. -/
+theorem zero_mem_convexHull_range_iff (z : ι → ℂ) :
+    (0 : ℂ) ∈ convexHull ℝ (Set.range z) ↔
+      ∃ u ∈ stdSimplex ℝ ι, carlsonAffineForm z u = 0 := by
+  constructor
+  · intro hz
+    obtain ⟨κ, _, w, y, hw₀, hw₁, hy, hsum⟩ :=
+      (mem_convexHull_iff_exists_fintype (R := ℝ) (E := ℂ)).1 hz
+    choose i hi using fun k : κ => (hy k)
+    let u : ι → ℝ := fun j => ∑ k, if i k = j then w k else 0
+    refine ⟨u, ⟨?_, ?_⟩, ?_⟩
+    · intro j
+      exact Finset.sum_nonneg fun k _ => by split_ifs <;> simp [hw₀]
+    · have hsumu : ∑ j, u j = ∑ k, w k := by
+        simp only [u]
+        rw [Finset.sum_comm]
+        refine Finset.sum_congr rfl fun k _ => ?_
+        simp [Finset.sum_ite_eq]
+      simpa [hsumu] using hw₁
+    · change (∑ j, (u j : ℂ) * z j) = 0
+      have hswap :
+          ∑ j, (∑ k, (if i k = j then w k else 0 : ℂ)) * z j =
+            ∑ k, (w k : ℂ) * z (i k) := by
+        simp only [Finset.sum_mul]
+        rw [Finset.sum_comm]
+        refine Finset.sum_congr rfl fun k _ => ?_
+        simp [Finset.sum_ite_eq]
+      calc
+        ∑ j, (u j : ℂ) * z j = ∑ j, (∑ k, (if i k = j then w k else 0 : ℂ)) * z j := by
+          apply Finset.sum_congr rfl
+          intro j _
+          congr 1
+          simp only [u, Complex.ofReal_sum, apply_ite Complex.ofReal, ofReal_zero]
+        _ = ∑ k, (w k : ℂ) * z (i k) := hswap
+        _ = ∑ k, (w k : ℂ) * y k := by
+          apply Finset.sum_congr rfl
+          intro k _
+          rw [hi k]
+        _ = ∑ k, w k • y k := by
+          apply Finset.sum_congr rfl
+          intro k _
+          simp [Complex.real_smul]
+        _ = 0 := hsum
+  · rintro ⟨u, hu, hzero⟩
+    rw [← hzero]
+    exact carlsonAffineForm_mem_convexHull z hu
+
 /-- The intrinsic T-variable domain is open. -/
 theorem isOpen_carlsonTVariableDomain :
     IsOpen (carlsonTVariableDomain : Set (ι → ℂ)) := by
-  sorry
+  rw [← isClosed_compl_iff]
+  let π : (ι → ℂ) × stdSimplex ℝ ι → ι → ℂ := Prod.fst
+  have hcont : Continuous (fun p : (ι → ℂ) × stdSimplex ℝ ι =>
+      carlsonAffineForm p.1 p.2.val) := by
+    unfold carlsonAffineForm
+    refine continuous_finset_sum _ fun i _ => ?_
+    exact (Complex.continuous_ofReal.comp
+        ((continuous_apply i).comp (continuous_subtype_val.comp continuous_snd))).mul
+      ((continuous_apply i).comp continuous_fst)
+  have hZ : IsClosed {p : (ι → ℂ) × stdSimplex ℝ ι |
+      carlsonAffineForm p.1 p.2.val = 0} :=
+    isClosed_singleton.preimage hcont
+  have himage : (carlsonTVariableDomain : Set (ι → ℂ))ᶜ =
+      π '' {p | carlsonAffineForm p.1 p.2.val = 0} := by
+    ext z
+    constructor
+    · intro hz
+      have hz' : (0 : ℂ) ∈ convexHull ℝ (Set.range z) := by
+        simpa [carlsonTVariableDomain] using hz
+      obtain ⟨u, hu, hzero⟩ := (zero_mem_convexHull_range_iff z).1 hz'
+      exact ⟨⟨z, ⟨u, hu⟩⟩, hzero, rfl⟩
+    · rintro ⟨⟨z', u⟩, hp, rfl⟩
+      simpa [carlsonTVariableDomain] using
+        (zero_mem_convexHull_range_iff z').2 ⟨u.val, u.property, hp⟩
+  rw [himage]
+  exact (isClosedMap_fst_of_compactSpace (X := ι → ℂ) (Y := stdSimplex ℝ ι)) _ hZ
 
 end DirichletTransform
 

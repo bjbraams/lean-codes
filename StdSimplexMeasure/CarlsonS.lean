@@ -5,6 +5,8 @@ Authors: Bastiaan J Braams
 -/
 
 import StdSimplexMeasure.CarlsonDirichletAverage
+import StdSimplexMeasure.CarlsonRPolynomial.Estimates
+import StdSimplexMeasure.SeveralComplexVariables.LocallyUniform
 import Mathlib.Analysis.SpecialFunctions.ExpDeriv
 import Mathlib.MeasureTheory.Integral.DominatedConvergence
 
@@ -305,7 +307,15 @@ analytic assertion in Corollary 6.3-3; its proof is the locally uniform version 
 coefficient estimate used above for pointwise summability. -/
 theorem analyticOnNhd_regCarlsonSSeries (z : ι → ℂ) :
     AnalyticOnNhd ℂ (regCarlsonSSeries z) Set.univ := by
-  sorry
+  rw [show regCarlsonSSeries z = fun b ↦ ∑' n : ℕ,
+      (Nat.factorial n : ℂ)⁻¹ * regCarlsonR n z b by
+    funext b
+    exact regCarlsonSSeries_eq_tsum_regCarlsonR z b]
+  apply analyticOnNhd_tsum_of_summable_norm_on_compacts isOpen_univ
+  · intro n
+    exact analyticOnNhd_const.mul (analyticOnNhd_regCarlsonR n z)
+  · intro K hKuniv hK
+    exact exists_summable_norm_regCarlsonR_div_factorial_on_compact_parameters z hK
 
 /-- The exponential series realizes Carlson's entire regularized continuation of `S`. -/
 theorem isRegCarlsonSContinuation_series (z : ι → ℂ) :

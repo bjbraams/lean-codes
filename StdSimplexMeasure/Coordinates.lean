@@ -26,17 +26,15 @@ The declarations are placed in the root namespace alongside the existing API in
 ## Main definitions and results
 
 * `stdSimplexAffineSet`: the affine hyperplane `∑ j, u j = 1`.
+* `stdSimplexAffineBasis`: the standard vertices as an affine basis of that hyperplane.
 * `stdSimplexCoordEquiv`: its parametrization by `card ι - 1` free coordinates.
 * `stdSimplexFreeCoords`: the filled simplex in free coordinates.
 * `stdSimplexAggregate`: aggregation of coordinates along a finite map.
 
-## Question for review
-
-The `stdSimplexAffineSubspace` defined here duplicates `fintypeAffineCoords` from Mathlib's
-`AffineSpace.Basis` module. But `AffineSpace.Basis` would be a rather heavy import for the
-elementary code around `stdSimplexAffineSubspace`. Should the code here be left as it is,
-should `AffineSpace.Basis` be imported whole for reuse, or should perhaps some lightweight
-affine coordinates intermediate file be used?
+The affine hyperplane is identified with Mathlib's `fintypeAffineCoords`.  The standard
+vertices form an affine basis of this hyperplane, and its barycentric coordinates are the
+ordinary ambient coordinates.  We nevertheless retain the explicit omitted-coordinate chart:
+its computational formulas are used by the measure and integral theory.
 -/
 
 @[expose] public noncomputable section StdSimplexCoordinates
@@ -66,17 +64,10 @@ section Ring
 
 variable [CommRing R]
 
-/-- The affine hyperplane `{x | ∑ j, x j = 1}` (affine hull of the standard simplex)
-defined as a plain set. -/
-def stdSimplexAffineSet : Set (ι → R) := {x | ∑ j, x j = 1}
-
-/-- The linear functional summing all coordinates. -/
-def stdSimplexSumLinearMap : (ι → R) →ₗ[R] R :=
-  ∑ j, LinearMap.proj j
-
-/-- `stdSimplexSumLinearMap`, viewed as an affine map. -/
-def stdSimplexSumAffineMap : (ι → R) →ᵃ[R] R :=
-  stdSimplexSumLinearMap.toAffineMap
+/-- The affine hyperplane `{x | ∑ j, x j = 1}` (the affine hull of the standard simplex),
+viewed as a plain set.  This is the carrier of Mathlib's `fintypeAffineCoords`. -/
+abbrev stdSimplexAffineSet : Set (ι → R) :=
+  fintypeAffineCoords ι R
 
 /-- Two ways of summing over all coordinates give the same result. -/
 theorem sum_eq_apply_add_sum_ne (u : ι → R) (i : ι) :
@@ -84,16 +75,110 @@ theorem sum_eq_apply_add_sum_ne (u : ι → R) (i : ι) :
   classical
   simpa using (Fintype.sum_eq_add_sum_subtype_ne u i)
 
-/-- The affine hyperplane `{x | ∑ j, x j = 1}` as an `AffineSubspace`: the preimage of the
-point `1` under `stdSimplexSumAffineMap`. -/
-def stdSimplexAffineSubspace : AffineSubspace R (ι → R) :=
-  AffineSubspace.comap stdSimplexSumAffineMap (AffineSubspace.mk' (1 : R) ⊥)
+/-- The affine hyperplane `{x | ∑ j, x j = 1}` as an `AffineSubspace`. -/
+abbrev stdSimplexAffineSubspace : AffineSubspace R (ι → R) :=
+  fintypeAffineCoords ι R
 
 /-- The elements of the affine subspace are exactly the elements of the affine set. -/
 @[simp] theorem mem_stdSimplexAffineSubspace_iff (x : ι → R) :
     x ∈ stdSimplexAffineSubspace (R := R) ↔ x ∈ stdSimplexAffineSet := by
-  simp [stdSimplexAffineSubspace, stdSimplexAffineSet,
-    stdSimplexSumAffineMap, stdSimplexSumLinearMap, sub_eq_zero]
+  rfl
+
+section StandardAffineBasis
+
+variable [Nonempty ι]
+
+/-- The standard vertex indexed by `i`, regarded as a point of the affine coordinate
+hyperplane. -/
+def stdSimplexAffineVertex (i : ι) : fintypeAffineCoords ι R :=
+  ⟨Pi.single i 1, mem_fintypeAffineCoords_iff_sum.mpr (by simp)⟩
+
+omit [Nonempty ι] in
+/-- The ambient coordinate of a standard affine vertex is a Kronecker delta. -/
+@[simp] theorem stdSimplexAffineVertex_apply (i j : ι) :
+    (stdSimplexAffineVertex (R := R) i : ι → R) j = if i = j then 1 else 0 := by
+  change Pi.single i 1 j = _
+  simp [Pi.single_apply, eq_comm]
+
+local instance : Nonempty (fintypeAffineCoords ι R) :=
+  ⟨stdSimplexAffineVertex (Classical.choice ‹Nonempty ι›)⟩
+
+/-- Applying the inclusion of the affine coordinate hyperplane to a standard vertex gives
+the corresponding Kronecker-delta function. -/
+@[simp] theorem stdSimplexAffineVertex_subtype_apply (i j : ι) :
+    (fintypeAffineCoords ι R).subtype (stdSimplexAffineVertex (R := R) i) j =
+      if i = j then 1 else 0 :=
+  stdSimplexAffineVertex_apply i j
+
+/-- The standard vertices are affinely independent in the affine coordinate hyperplane. -/
+theorem affineIndependent_stdSimplexAffineVertex :
+    AffineIndependent R (V := (fintypeAffineCoords ι R).direction)
+      (stdSimplexAffineVertex (ι := ι) (R := R)) := by
+  rw [affineIndependent_iff_eq_of_fintype_affineCombination_eq]
+  intro w₁ w₂ hw₁ hw₂ h
+  apply funext
+  intro j
+  have hmap := congrArg (fintypeAffineCoords ι R).subtype h
+  rw [Finset.univ.map_affineCombination _ _ hw₁,
+    Finset.univ.map_affineCombination _ _ hw₂] at hmap
+  rw [Finset.affineCombination_eq_linear_combination _ _ _ (by simpa using hw₁),
+    Finset.affineCombination_eq_linear_combination _ _ _ (by simpa using hw₂)] at hmap
+  have hj := congrFun hmap j
+  simpa only [Finset.sum_apply, Pi.smul_apply, smul_eq_mul, Function.comp_apply,
+    stdSimplexAffineVertex_subtype_apply, mul_ite, mul_one, mul_zero,
+    Finset.sum_ite_eq', Finset.mem_univ, ↓reduceIte] using hj
+
+/-- Every point of the affine coordinate hyperplane is the affine combination of the standard
+vertices with weights given by its ambient coordinates. -/
+theorem affineCombination_stdSimplexAffineVertex (u : fintypeAffineCoords ι R) :
+    Finset.univ.affineCombination R (stdSimplexAffineVertex (ι := ι) (R := R)) u.1 = u := by
+  have hu : ∑ i, u.1 i = 1 := mem_fintypeAffineCoords_iff_sum.mp u.2
+  apply Subtype.ext
+  change (fintypeAffineCoords ι R).subtype
+    (Finset.univ.affineCombination R stdSimplexAffineVertex u.1) = u.1
+  rw [Finset.univ.map_affineCombination _ _ hu]
+  rw [Finset.affineCombination_eq_linear_combination _ _ _ (by simpa using hu)]
+  ext j
+  simp only [Finset.sum_apply, Pi.smul_apply, smul_eq_mul, Function.comp_apply,
+    stdSimplexAffineVertex_subtype_apply, mul_ite, mul_one, mul_zero,
+    Finset.sum_ite_eq', Finset.mem_univ, ↓reduceIte]
+
+/-- The standard vertices affinely span the affine coordinate hyperplane. -/
+theorem affineSpan_stdSimplexAffineVertex :
+    affineSpan R (V := (fintypeAffineCoords ι R).direction)
+      (Set.range (stdSimplexAffineVertex (ι := ι) (R := R))) = ⊤ := by
+  apply le_antisymm le_top
+  intro u _
+  have hu : ∑ i, u.1 i = 1 := mem_fintypeAffineCoords_iff_sum.mp u.2
+  rw [← affineCombination_stdSimplexAffineVertex u]
+  exact affineCombination_mem_affineSpan_of_nonempty hu _
+
+/-- The standard vertices form an affine basis of Mathlib's affine coordinate hyperplane. -/
+def stdSimplexAffineBasis : AffineBasis ι R (fintypeAffineCoords ι R) :=
+  ⟨stdSimplexAffineVertex, affineIndependent_stdSimplexAffineVertex,
+    affineSpan_stdSimplexAffineVertex⟩
+
+/-- The points of `stdSimplexAffineBasis` are the standard affine vertices. -/
+@[simp] theorem stdSimplexAffineBasis_apply (i : ι) :
+    stdSimplexAffineBasis (R := R) i = stdSimplexAffineVertex i :=
+  rfl
+
+/-- Barycentric coordinates for the standard affine basis are the ordinary ambient
+coordinates. -/
+@[simp] theorem stdSimplexAffineBasis_coord (i : ι) (u : fintypeAffineCoords ι R) :
+    (stdSimplexAffineBasis (R := R)).coord i u = u.1 i := by
+  calc
+    (stdSimplexAffineBasis (R := R)).coord i u =
+        (stdSimplexAffineBasis (R := R)).coord i
+          (Finset.univ.affineCombination R stdSimplexAffineBasis u.1) := by
+      rw [show Finset.univ.affineCombination R stdSimplexAffineBasis u.1 = u by
+        change Finset.univ.affineCombination R stdSimplexAffineVertex u.1 = u
+        exact affineCombination_stdSimplexAffineVertex u]
+    _ = u.1 i := by
+      exact (stdSimplexAffineBasis (R := R)).coord_apply_combination_of_mem
+        (Finset.mem_univ i) (mem_fintypeAffineCoords_iff_sum.mp u.2)
+
+end StandardAffineBasis
 
 /-- The coordinate projection that eliminates coordinate `i`. -/
 def stdSimplexCoordProj (i : ι) (u : ι → R) :
@@ -119,8 +204,8 @@ def stdSimplexCoordMap (i : ι) (x : {j : ι // j ≠ i} → R) : ι → R :=
 
 /-- The coordinate map maps to `stdSimplexAffineSet`. -/
 @[simp] theorem sum_stdSimplexCoordMap (i : ι) (x : {j : ι // j ≠ i} → R) :
-    stdSimplexCoordMap i x ∈ stdSimplexAffineSet := by
-  rw [stdSimplexAffineSet, Set.mem_ofPred_eq, sum_eq_apply_add_sum_ne _ i,
+    ∑ j, stdSimplexCoordMap i x j = 1 := by
+  rw [sum_eq_apply_add_sum_ne _ i,
     stdSimplexCoordMap_apply_self]
   have h : (∑ j : {j : ι // j ≠ i}, stdSimplexCoordMap i x j) = ∑ j, x j := by
     apply Finset.sum_congr rfl
@@ -142,13 +227,14 @@ theorem stdSimplexCoordMap_coordProj
     (i : ι) {u : ι → R}
     (hu : u ∈ stdSimplexAffineSet) :
     stdSimplexCoordMap i (stdSimplexCoordProj i u) = u := by
+  change u ∈ fintypeAffineCoords ι R at hu
   funext j
   by_cases hji : j = i
   · subst j
     rw [stdSimplexCoordMap_apply_self]
     change 1 - ∑ j : {j : ι // j ≠ i}, u j = u i
     have hsum := sum_eq_apply_add_sum_ne u i
-    change ∑ j, u j = 1 at hu
+    rw [mem_fintypeAffineCoords_iff_sum] at hu
     rw [hu] at hsum
     rw [hsum]
     ring
@@ -161,7 +247,7 @@ theorem range_stdSimplexCoordMap (i : ι) :
   ext u
   constructor
   · rintro ⟨x, rfl⟩
-    exact sum_stdSimplexCoordMap i x
+    exact mem_fintypeAffineCoords_iff_sum.mpr (sum_stdSimplexCoordMap i x)
   · intro hu
     refine ⟨stdSimplexCoordProj i u, ?_⟩
     exact stdSimplexCoordMap_coordProj i hu
@@ -174,8 +260,12 @@ theorem stdSimplexCoordMap_comp_perm (i : ι) (σ : Equiv.Perm ι)
     stdSimplexCoordMap i (fun ⟨j, hj⟩ ↦
       x ⟨σ j, fun h ↦ hj (σ.injective h)⟩) := by
   have hu : stdSimplexCoordMap (σ i) x ∘ σ ∈ stdSimplexAffineSet := by
-    simpa [stdSimplexAffineSet, Equiv.sum_comp] using
+    change stdSimplexCoordMap (σ i) x ∘ σ ∈ fintypeAffineCoords ι R
+    rw [mem_fintypeAffineCoords_iff_sum]
+    have hsum : ∑ q, stdSimplexCoordMap (σ i) x q = 1 :=
       sum_stdSimplexCoordMap (σ i) x
+    rw [← hsum]
+    exact Equiv.sum_comp σ (stdSimplexCoordMap (σ i) x)
   symm
   rw [← stdSimplexCoordMap_coordProj i hu]
   congr 1
@@ -292,7 +382,8 @@ theorem stdSimplexCoordMap_comp_freeCoordSwap (i j : ι) (hij : i ≠ j) :
 def stdSimplexCoordEquiv (i : ι) :
     ({j : ι // j ≠ i} → R) ≃ stdSimplexAffineSet (R := R) (ι := ι) where
   toFun x :=
-    ⟨stdSimplexCoordMap i x, sum_stdSimplexCoordMap i x⟩
+    ⟨stdSimplexCoordMap i x,
+      mem_fintypeAffineCoords_iff_sum.mpr (sum_stdSimplexCoordMap i x)⟩
   invFun u :=
     stdSimplexCoordProj i u.1
   left_inv x := by
@@ -347,8 +438,7 @@ def stdSimplexFreeCoords (i : ι) :
         exact sub_nonneg.mpr hsum
       · simpa [stdSimplexCoordMap_apply_of_ne, hji]
           using hpos ⟨j, hji⟩
-    · simpa [stdSimplexAffineSet] using
-        (sum_stdSimplexCoordMap i x)
+    · exact sum_stdSimplexCoordMap i x
 
 /-- The pointwise preimage of the coordinate map: `stdSimplexCoordMap i x ∈ stdSimplex R ι`
 iff `x ∈ stdSimplexFreeCoords i`. -/
@@ -449,12 +539,13 @@ section RealTopology
 theorem isClosed_stdSimplexAffineSet :
     IsClosed (stdSimplexAffineSet (R := ℝ) (ι := ι)) := by
   have heq : stdSimplexAffineSet (R := ℝ) (ι := ι) =
-      stdSimplexSumLinearMap (R := ℝ) ⁻¹' {1} := by
+      (fun x : ι → ℝ ↦ ∑ i, x i) ⁻¹' {1} := by
     ext x
-    simp [stdSimplexAffineSet, stdSimplexSumLinearMap]
+    change x ∈ fintypeAffineCoords ι ℝ ↔ _
+    simp only [Set.mem_preimage, Set.mem_singleton_iff, mem_fintypeAffineCoords_iff_sum]
   rw [heq]
   exact isClosed_singleton.preimage
-    (stdSimplexSumLinearMap (R := ℝ)).continuous_of_finiteDimensional
+    (continuous_finsetSum _ (fun i _ ↦ continuous_apply i))
 
 /-- The free-coordinate swap is continuous over the reals. -/
 theorem continuous_stdSimplexFreeCoordSwap (i j : ι) (hij : i ≠ j) :
@@ -499,7 +590,7 @@ def stdSimplexFreeCoordsHomeomorph (i : ι) :
     refine ⟨stdSimplexCoordProj i u.1, ?_⟩
     apply (stdSimplexCoordMap_mem_stdSimplex_iff i _).1
     have huAffine : u.1 ∈ stdSimplexAffineSet (R := ℝ) := by
-      simpa [stdSimplexAffineSet] using u.2.2
+      exact mem_fintypeAffineCoords_iff_sum.mpr u.2.2
     rw [stdSimplexCoordMap_coordProj i huAffine]
     exact u.2
   left_inv x := by
@@ -508,7 +599,7 @@ def stdSimplexFreeCoordsHomeomorph (i : ι) :
   right_inv u := by
     apply Subtype.ext
     apply stdSimplexCoordMap_coordProj i
-    simpa [stdSimplexAffineSet] using u.2.2
+    exact mem_fintypeAffineCoords_iff_sum.mpr u.2.2
   continuous_toFun :=
     (continuous_stdSimplexCoordMap i).comp continuous_subtype_val |>.subtype_mk _
   continuous_invFun :=

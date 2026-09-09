@@ -1084,8 +1084,7 @@ private theorem map_dirichletMeasure_fin_two_direct (a b : ℝ) :
   · simp only [Set.mem_preimage] at hus
     simp [hus]
     have hu1 : u 1 = 1 - u 0 := by
-      have hsum := hu
-      simp only [stdSimplexAffineSet, Set.mem_ofPred_eq] at hsum
+      have hsum : ∑ i, u i = 1 := mem_fintypeAffineCoords_iff_sum.mp hu
       simpa [Fin.sum_univ_two] using congrArg (fun x => x - u 0) hsum
     have huv : u = ![u 0, 1 - u 0] := by
       funext j
