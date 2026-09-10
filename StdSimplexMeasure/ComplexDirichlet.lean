@@ -6,6 +6,7 @@ Authors: Bastiaan J Braams.
 
 import StdSimplexMeasure.Dirichlet
 import StdSimplexMeasure.MvBeta
+import StdSimplexMeasure.SeveralComplexVariables.Basic
 
 /-!
 # Regularized complex Dirichlet integrals on the standard simplex
@@ -93,6 +94,89 @@ theorem integrableOn_mvBetaMonomial
       · intro hus
         exact ⟨hus, hu hus⟩
       · exact fun hus ↦ hus.1
+
+/-- Multiplying one factor of a convergent Dirichlet monomial by the logarithm of its
+coordinate preserves integrability.  This is the basic domination estimate needed when
+differentiating a simplex Mellin integral with respect to a parameter. -/
+theorem integrableOn_mvBetaMonomial_mul_log
+    (b : ι → ℂ) (hb : b ∈ mvBetaConvergent) (i : ι) :
+    IntegrableOn
+      (fun u : ι → ℝ ↦
+        (∏ j, (u j : ℂ) ^ (b j - 1)) * Complex.log (u i : ℂ))
+      (stdSimplex ℝ ι) stdSimplexMeasure := by
+  let _ : Nonempty ι := ⟨i⟩
+  let δ : ℝ := (b i).re / 2
+  have hδ : 0 < δ := half_pos (hb i)
+  let b' : ι → ℂ := fun j ↦ b j - if j = i then δ else 0
+  have hb' : b' ∈ mvBetaConvergent := by
+    intro j
+    by_cases hji : j = i
+    · subst j
+      simp [b', δ]
+      linarith [hb i]
+    · simpa [b', hji] using hb j
+  have hdom := (integrableOn_mvBetaMonomial b' hb').norm.const_mul (1 / δ)
+  apply Integrable.mono hdom
+  · have hmono := (integrableOn_mvBetaMonomial b hb).aestronglyMeasurable
+    have hlog : AEStronglyMeasurable
+        (fun u : ι → ℝ ↦ Complex.log (u i : ℂ))
+        (stdSimplexMeasure.restrict (stdSimplex ℝ ι)) := by
+      exact (Complex.measurable_log.comp
+        (Complex.measurable_ofReal.comp (measurable_pi_apply i))).aestronglyMeasurable
+    exact hmono.mul hlog
+  · have hpos := ae_zero_lt_of_mem_stdSimplex (ι := ι)
+    filter_upwards [self_mem_ae_restrict (s := stdSimplex ℝ ι)
+        (isClosed_stdSimplex ℝ ι).measurableSet, hpos] with u hu hupos
+    have hui : 0 < u i := hupos i
+    have hui1 : u i ≤ 1 := (hu.2.symm ▸ Finset.single_le_sum (fun j _ ↦ hu.1 j) (Finset.mem_univ i))
+    simp only [norm_mul, norm_prod]
+    rw [Fintype.prod_eq_mul_prod_subtype_ne _ i,
+      Fintype.prod_eq_mul_prod_subtype_ne _ i]
+    have hnorm (j : ι) :
+        ‖(u j : ℂ) ^ (b j - 1)‖ = u j ^ ((b j).re - 1) := by
+      rw [norm_cpow_eq_rpow_re_of_pos (hupos j)]
+      simp
+    have hnorm' (j : ι) :
+        ‖(u j : ℂ) ^ (b' j - 1)‖ = u j ^ ((b' j).re - 1) := by
+      rw [norm_cpow_eq_rpow_re_of_pos (hupos j)]
+      simp
+    rw [hnorm i, hnorm' i]
+    simp_rw [hnorm, hnorm']
+    have hrest :
+        (∏ j : {j : ι // j ≠ i}, u j ^ ((b j).re - 1)) =
+          ∏ j : {j : ι // j ≠ i}, u j ^ ((b' j).re - 1) := by
+      apply Finset.prod_congr rfl
+      intro j _
+      simp [b', j.property]
+    rw [hrest]
+    rw [← Complex.ofReal_log hui.le]
+    simp only [Complex.norm_real, Real.norm_eq_abs]
+    have hlog := Real.abs_log_mul_self_rpow_lt (u i) δ hui hui1 hδ
+    have hpow : u i ^ ((b i).re - 1) =
+        u i ^ (((b i).re - δ - 1) + δ) := by
+      congr 1
+      ring
+    rw [hpow, Real.rpow_add hui]
+    have hbi' : (b' i).re - 1 = (b i).re - δ - 1 := by simp [b']
+    rw [hbi']
+    rw [abs_of_pos (one_div_pos.mpr hδ)]
+    simp_rw [abs_of_pos (Real.rpow_pos_of_pos (hupos _) _)]
+    have hnonneg : 0 ≤ u i ^ ((b i).re - δ - 1) *
+        ∏ j : {j : ι // j ≠ i}, u j ^ ((b' j).re - 1) :=
+      mul_nonneg (Real.rpow_nonneg (hu.1 i) _)
+        (Finset.prod_nonneg fun j _ ↦ Real.rpow_nonneg (hu.1 j) _)
+    calc
+      (u i ^ ((b i).re - δ - 1) * u i ^ δ) *
+          (∏ j : {j : ι // j ≠ i}, u j ^ ((b' j).re - 1)) * |Real.log (u i)| =
+          (u i ^ δ * |Real.log (u i)|) *
+            (u i ^ ((b i).re - δ - 1) *
+              ∏ j : {j : ι // j ≠ i}, u j ^ ((b' j).re - 1)) := by ring
+      _ ≤ (1 / δ) *
+            (u i ^ ((b i).re - δ - 1) *
+              ∏ j : {j : ι // j ≠ i}, u j ^ ((b' j).re - 1)) := by
+        gcongr
+        simpa [abs_mul, mul_comm,
+          abs_of_pos (Real.rpow_pos_of_pos hui _)] using hlog.le
 
 /-- A simplex slice separates a complex Dirichlet monomial into its distinguished-coordinate,
 radial, and lower-dimensional factors. -/
@@ -289,6 +373,25 @@ def regDirichletDensity (b : ι → ℂ) (u : ι → ℝ) : ℂ :=
 def complexDirichletDensity (b : ι → ℂ) (u : ι → ℝ) : ℂ :=
   Gamma (∑ i, b i) * regDirichletDensity b u
 
+/-- The product of reciprocal Gamma factors used to regularize a Dirichlet integral is entire
+in the parameter vector. -/
+theorem analyticOnNhd_prod_invGamma :
+    AnalyticOnNhd ℂ (fun b : ι → ℂ ↦ ∏ i, (Gamma (b i))⁻¹) Set.univ := by
+  apply DifferentiableOn.analyticOnNhd_pi _ isOpen_univ
+  intro b _
+  apply DifferentiableAt.differentiableWithinAt
+  induction (Finset.univ : Finset ι) using Finset.induction_on with
+  | empty => simp
+  | @insert i s his ih =>
+      have hi := Complex.differentiable_one_div_Gamma.differentiableAt.comp b
+        (ContinuousLinearMap.proj i).differentiableAt
+      change DifferentiableAt ℂ (fun b : ι → ℂ ↦ (Gamma (b i))⁻¹) b at hi
+      rw [show (fun b : ι → ℂ ↦ ∏ j ∈ insert i s, (Gamma (b j))⁻¹) =
+          (fun b ↦ (Gamma (b i))⁻¹) * (fun b ↦ ∏ j ∈ s, (Gamma (b j))⁻¹) by
+        funext x
+        exact Finset.prod_insert his]
+      exact hi.mul ih
+
 /-- Simultaneously permuting the parameters and coordinates leaves the regularized Dirichlet
 density unchanged. -/
 theorem regDirichletDensity_perm (b : ι → ℂ) (σ : Equiv.Perm ι) (u : ι → ℝ) :
@@ -407,6 +510,34 @@ Dirichlet density. -/
 def regDirichletIntegral (b : ι → ℂ) (f : (ι → ℝ) → ℂ) : ℂ :=
   ∫ u in stdSimplex ℝ ι, regDirichletDensity b u * f u
     ∂stdSimplexMeasure
+
+/-- On the convergence region, regularization amounts to multiplying the unregularized
+simplex Mellin integral by the product of reciprocal Gamma factors. -/
+theorem regDirichletIntegral_eq_prod_invGamma_mul
+    (b : ι → ℂ) (f : (ι → ℝ) → ℂ) :
+    regDirichletIntegral b f =
+      (∏ i, (Gamma (b i))⁻¹) *
+        ∫ u in stdSimplex ℝ ι, (∏ i, (u i : ℂ) ^ (b i - 1)) * f u
+          ∂stdSimplexMeasure := by
+  classical
+  unfold regDirichletIntegral
+  rw [← integral_const_mul]
+  apply integral_congr_ae
+  have hmem := self_mem_ae_restrict
+    (μ := stdSimplexMeasure) (isClosed_stdSimplex ℝ ι).measurableSet
+  have hpos : ∀ᵐ u ∂stdSimplexMeasure.restrict (stdSimplex ℝ ι), ∀ i, 0 < u i := by
+    cases isEmpty_or_nonempty ι with
+    | inl hι =>
+        let _ := hι
+        simp
+    | inr hι =>
+        let _ := hι
+        exact ae_zero_lt_of_mem_stdSimplex (ι := ι)
+  filter_upwards [hmem, hpos] with u hu hupos
+  have hinter : u ∈ stdSimplexInterior := ⟨hu, hupos⟩
+  rw [regDirichletDensity, Set.indicator_of_mem hinter]
+  rw [Finset.prod_div_distrib, div_eq_mul_inv, ← Finset.prod_inv_distrib]
+  ring
 
 /-- `regDirichletIntegral` is additive. -/
 theorem regDirichletIntegral_add (b : ι → ℂ) {f g : (ι → ℝ) → ℂ}

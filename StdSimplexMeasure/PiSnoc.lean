@@ -13,9 +13,7 @@ public import Mathlib.MeasureTheory.Measure.Prod
 
 This file records the measurable equivalence
 `(Fin n → α) × α ≃ᵐ (Fin (n + 1) → α)` given by `Fin.snoc`, together with the fact that it
-preserves product Lebesgue measure. It is a temporary home for results intended for
-`Mathlib.MeasureTheory.MeasurableSpace.Embedding` and
-`Mathlib.MeasureTheory.Constructions.Pi`.
+preserves finite products of a sigma-finite measure.
 
 This is `Fin.snocEquiv` with the product factors swapped, so that the last coordinate is the
 `Prod.snd` factor. Equivalently, it is `MeasurableEquiv.prodComm` followed by
@@ -43,12 +41,20 @@ end MeasurableEquiv
 
 namespace MeasureTheory
 
+/-- Last-coordinate splitting preserves a finite product of a sigma-finite measure. -/
+theorem measurePreserving_piFinSnoc (n : ℕ) {α : Type*} [MeasurableSpace α]
+    (μ : Measure α) [SigmaFinite μ] :
+    MeasurePreserving (MeasurableEquiv.piFinSnoc n α)
+      ((Measure.pi fun _ : Fin n => μ).prod μ) (Measure.pi fun _ : Fin (n + 1) => μ) := by
+  unfold MeasurableEquiv.piFinSnoc
+  exact ((measurePreserving_piFinSuccAbove (fun _ : Fin (n + 1) => μ) (Fin.last n)).symm).comp
+    measurePreserving_swap
+
 /-- Last-coordinate splitting preserves product volume. -/
-theorem measurePreserving_piFinSnoc (n : ℕ) (α : Type*) [MeasureSpace α]
+theorem volume_preserving_piFinSnoc (n : ℕ) (α : Type*) [MeasureSpace α]
     [SigmaFinite (volume : Measure α)] :
     MeasurePreserving (MeasurableEquiv.piFinSnoc n α) volume volume := by
-  unfold MeasurableEquiv.piFinSnoc
-  exact ((volume_preserving_piFinSuccAbove (fun _ : Fin (n + 1) ↦ α) (Fin.last n)).symm).comp
-    measurePreserving_swap
+  rw [Measure.volume_eq_prod, volume_pi, volume_pi]
+  exact measurePreserving_piFinSnoc n (volume : Measure α)
 
 end MeasureTheory

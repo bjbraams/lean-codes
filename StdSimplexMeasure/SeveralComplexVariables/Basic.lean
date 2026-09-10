@@ -51,7 +51,7 @@ variable {ι F : Type*} [Fintype ι]
 space is analytic there. -/
 theorem DifferentiableOn.analyticOnNhd_pi {U : Set (ι → ℂ)} {f : (ι → ℂ) → F}
     (hf : DifferentiableOn ℂ f U) (hU : IsOpen U) : AnalyticOnNhd ℂ f U := by
-  apply SeveralComplexVariables.analyticOnNhd_pi_of_analyticOnNhd_update hU
+  apply SeveralComplexVariables.analyticOnNhd_pi_of_analyticOnNhd_update hU hf.continuousOn
   intro z hz i
   let V : Set ℂ := {w | Function.update z i w ∈ U}
   have hupdate : Continuous (fun w : ℂ ↦ Function.update z i w) := by fun_prop

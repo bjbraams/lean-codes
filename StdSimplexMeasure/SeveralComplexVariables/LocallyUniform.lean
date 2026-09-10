@@ -54,7 +54,9 @@ theorem TendstoLocallyUniformlyOn.analyticOnNhd_pi
     (hlim : TendstoLocallyUniformlyOn f g l U)
     (hf : ∀ᶠ n in l, AnalyticOnNhd ℂ (f n) U) (hU : IsOpen U) :
     AnalyticOnNhd ℂ g U := by
-  apply SeveralComplexVariables.analyticOnNhd_pi_of_analyticOnNhd_update hU
+  have hg : ContinuousOn g U :=
+    hlim.continuousOn (hf.frequently.mono fun _ hn => hn.continuousOn)
+  apply SeveralComplexVariables.analyticOnNhd_pi_of_analyticOnNhd_update hU hg
   intro z hz i
   let update : ℂ → (ι → ℂ) := fun w ↦ Function.update z i w
   let V : Set ℂ := update ⁻¹' U

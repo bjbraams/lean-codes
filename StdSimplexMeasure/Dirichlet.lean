@@ -133,6 +133,50 @@ private theorem integral_Icc_rpow_mul_one_sub_rpow
   rw [hbeta, Complex.betaIntegral_eq_Gamma_mul_div (a : ℂ) (c : ℂ) (by simpa) (by simpa)]
   simp [beta, ← Complex.Gamma_ofReal]
 
+/-- The scaled real Euler beta integral in set-integral form. -/
+private theorem integral_Icc_rpow_mul_sub_rpow
+    {a c s : ℝ} (ha : 0 < a) (hc : 0 < c) (hs : 0 < s) :
+    ∫ t in Set.Icc (0 : ℝ) s, t ^ (a - 1) * (s - t) ^ (c - 1) = s ^ (a + c - 1) * beta a c := by
+  rw [integral_Icc_eq_integral_Ioc, ← intervalIntegral.integral_of_le hs.le]
+  have hchange := intervalIntegral.smul_integral_comp_mul_left
+    (f := fun t : ℝ => t ^ (a - 1) * (s - t) ^ (c - 1)) (a := 0) (b := 1) s
+  simp only [smul_eq_mul, mul_zero, mul_one] at hchange
+  rw [← hchange]
+  have hs0 : 0 ≤ s := hs.le
+  have hfactor : ∀ t ∈ Set.Icc (0 : ℝ) 1,
+      (s * t) ^ (a - 1) * (s - s * t) ^ (c - 1) =
+        s ^ (a + c - 2) * (t ^ (a - 1) * (1 - t) ^ (c - 1)) := by
+    intro t ht
+    rw [show s - s * t = s * (1 - t) by ring,
+      Real.mul_rpow hs0 ht.1, Real.mul_rpow hs0 (sub_nonneg.mpr ht.2)]
+    calc
+      s ^ (a - 1) * t ^ (a - 1) * (s ^ (c - 1) * (1 - t) ^ (c - 1)) =
+          (s ^ (a - 1) * s ^ (c - 1)) *
+            (t ^ (a - 1) * (1 - t) ^ (c - 1)) := by ring
+      _ = s ^ ((a - 1) + (c - 1)) *
+            (t ^ (a - 1) * (1 - t) ^ (c - 1)) := by rw [Real.rpow_add hs]
+      _ = s ^ (a + c - 2) * (t ^ (a - 1) * (1 - t) ^ (c - 1)) := by ring_nf
+  have hintegral :
+      ∫ t in (0 : ℝ)..1, (s * t) ^ (a - 1) * (s - s * t) ^ (c - 1) =
+        ∫ t in (0 : ℝ)..1,
+          s ^ (a + c - 2) * (t ^ (a - 1) * (1 - t) ^ (c - 1)) := by
+    apply intervalIntegral.integral_congr
+    intro t ht
+    exact hfactor t (by simpa [Set.uIcc_of_le zero_le_one] using ht)
+  rw [hintegral,
+    intervalIntegral.integral_const_mul,
+    intervalIntegral.integral_of_le zero_le_one,
+    ← integral_Icc_eq_integral_Ioc,
+    integral_Icc_rpow_mul_one_sub_rpow ha hc]
+  have hpow : s * s ^ (a + c - 2) = s ^ (a + c - 1) := by
+    calc
+      s * s ^ (a + c - 2) = s ^ (1 : ℝ) * s ^ (a + c - 2) := by
+        rw [Real.rpow_one]
+      _ = s ^ ((1 : ℝ) + (a + c - 2)) :=
+        (Real.rpow_add hs (1 : ℝ) (a + c - 2)).symm
+      _ = s ^ (a + c - 1) := by ring_nf
+  rw [← mul_assoc, hpow]
+
 /-- The nonnegative Dirichlet monomial integral, used to establish integrability before passing
 to the Bochner integral. -/
 private theorem lintegral_dirichletMonomial_eq_mvRealBeta {b : ι → ℝ}

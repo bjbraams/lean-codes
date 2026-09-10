@@ -11,9 +11,8 @@ public import Mathlib.MeasureTheory.Integral.Prod
 # Product integrals over measurable sets by slices
 
 This file provides Tonelli and Fubini formulas for integration over an arbitrary measurable
-subset of a product, together with the specialization to a region between two graphs of real
-functions. It is a temporary home for results intended respectively for
-`Mathlib.MeasureTheory.Measure.Prod` and `Mathlib.MeasureTheory.Integral.Prod`.
+subset of a product, together with their specialization to a region between two measurable
+real-valued graphs.
 -/
 
 open MeasureTheory Set
@@ -25,8 +24,9 @@ namespace MeasureTheory
 
 /-! ## Nonnegative integrals -/
 
-/-- Tonelli's theorem for a nonnegative integral restricted to a measurable subset of a product.
-Unlike `setIntegral_prod_slices`, this result requires no integrability hypothesis. -/
+/-- Tonelli's theorem for a nonnegative integral restricted to a measurable subset `T` of a
+product. The inner integral is over the section `{y | (x, y) ∈ T}`. Unlike
+`setIntegral_prod_slices`, this result requires no integrability hypothesis. -/
 lemma setLIntegral_prod_slices
     {α β : Type*} [MeasurableSpace α] [MeasurableSpace β]
     {μ : Measure α} {ν : Measure β} [SFinite μ] [SFinite ν]
@@ -45,7 +45,8 @@ lemma setLIntegral_prod_slices
 
 /-! ## Bochner integrals -/
 
-/-- Fubini's theorem for an integral restricted to a measurable subset of a product. -/
+/-- Fubini's theorem for an integrable function restricted to a measurable subset `T` of a
+product. The inner integral is over the section `{y | (x, y) ∈ T}`. -/
 lemma setIntegral_prod_slices
     {α β E : Type*} [MeasurableSpace α] [MeasurableSpace β]
     [NormedAddCommGroup E] [NormedSpace ℝ E]
@@ -76,6 +77,7 @@ lemma measurableSet_prod_Icc_slice {s : Set α} (hs : MeasurableSet s)
     (measurableSet_le measurable_snd (hhi.comp measurable_fst))
 
 omit [MeasurableSpace α] in
+/-- The section at `x` of the region between the graphs of `lo` and `hi`. -/
 lemma prod_Icc_slice_preimage (s : Set α) (lo hi : α → ℝ) (x : α) :
     Prod.mk x ⁻¹' {p : α × ℝ | p.1 ∈ s ∧ p.2 ∈ Icc (lo p.1) (hi p.1)} =
       {t | x ∈ s ∧ t ∈ Icc (lo x) (hi x)} := by
