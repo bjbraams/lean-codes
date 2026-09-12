@@ -1,9 +1,14 @@
 /- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
-import StdSimplexMeasure.CarlsonRPolynomial.Coefficients
-import Mathlib.Analysis.SpecialFunctions.Gamma.Beta
+module
+
+public import StdSimplexMeasure.CarlsonRPolynomial.Coefficients
+public import Mathlib.Analysis.SpecialFunctions.Gamma.Beta
+public import Mathlib.Data.Nat.Choose.Multinomial
+
 import Mathlib.Analysis.SpecificLimits.Normed
-import Mathlib.Data.Nat.Choose.Multinomial
 import Mathlib.Topology.Algebra.InfiniteSum.TsumUniformlyOn
+import Pochhammer.Estimates
+
 /-! # Estimates for Carlson's R-polynomials
 
 Home for the Section 6.2 bounds used in normally convergent series.
@@ -11,7 +16,7 @@ Home for the Section 6.2 bounds used in normally convergent series.
 
 open Complex Finset ProbabilityTheory Set
 open scoped Classical
-public noncomputable section CarlsonRPolynomial
+@[expose] public noncomputable section CarlsonRPolynomial
 namespace DirichletTransform
 variable {ι : Type*} [Fintype ι]
 
@@ -23,50 +28,6 @@ theorem norm_eval_carlsonPowerPolynomial_le (n : ℕ) (z : ι → ℂ) {u : ι �
       (∑ i, ‖z i‖) ^ n := by
   rw [eval_carlsonPowerPolynomial, norm_pow]
   exact pow_le_pow_left₀ (norm_nonneg _) (norm_carlsonAffineForm_le_sum_norm z hu) n
-
-lemma norm_ascPochhammer_eval_le (a : ℂ) (k : ℕ) {B : ℝ} (hB : 0 ≤ B)
-    (ha : ‖a‖ ≤ B) :
-    ‖(ascPochhammer ℂ k).eval a‖ ≤ (B + k) ^ k := by
-  induction k with
-  | zero => simp
-  | succ k ih =>
-    rw [ascPochhammer_succ_eval, norm_mul]
-    have h1 : ‖(ascPochhammer ℂ k).eval a‖ ≤ (B + k + 1) ^ k :=
-      ih.trans <| pow_le_pow_left₀ (by positivity) (by linarith) k
-    have h2 : ‖a + (k : ℂ)‖ ≤ B + k + 1 := by
-      calc
-        ‖a + (k : ℂ)‖ ≤ ‖a‖ + ‖(k : ℂ)‖ := norm_add_le _ _
-        _ = ‖a‖ + k := by simp
-        _ ≤ B + k := by gcongr
-        _ ≤ B + k + 1 := by linarith
-    calc
-      ‖(ascPochhammer ℂ k).eval a‖ * ‖a + k‖ ≤ (B + k + 1) ^ k * (B + k + 1) :=
-        mul_le_mul h1 h2 (norm_nonneg _) (by positivity)
-      _ = (B + k + 1) ^ (k + 1) := (pow_succ _ _).symm
-      _ = (B + (k + 1 : ℕ)) ^ (k + 1) := by simp [Nat.cast_succ, add_assoc]
-
-lemma inv_Gamma_add_nat_of_ne_zero {s : ℂ} {n : ℕ}
-    (h : ∀ k < n, s + k ≠ 0) :
-    (Gamma (s + n))⁻¹ = (Gamma s)⁻¹ * ∏ k ∈ range n, (s + k)⁻¹ := by
-  induction n with
-  | zero => simp
-  | succ n ih =>
-    have hn : s + n ≠ 0 := h n n.lt_succ_self
-    have ih' := ih fun k hk => h k (lt_trans hk n.lt_succ_self)
-    have hrec : (Gamma (s + n + 1))⁻¹ = (s + n)⁻¹ * (Gamma (s + n))⁻¹ := by
-      have hz := one_div_Gamma_eq_self_mul_one_div_Gamma_add_one (s + n)
-      calc
-        (Gamma (s + n + 1))⁻¹ =
-            (s + n)⁻¹ * ((s + n) * (Gamma (s + n + 1))⁻¹) := by
-          rw [← mul_assoc, inv_mul_cancel₀ hn, one_mul]
-        _ = (s + n)⁻¹ * (Gamma (s + n))⁻¹ := by rw [← hz]
-    calc
-      (Gamma (s + (n + 1 : ℕ)))⁻¹ = (Gamma (s + n + 1))⁻¹ := by
-        rw [Nat.cast_succ, add_assoc]
-      _ = (s + n)⁻¹ * (Gamma (s + n))⁻¹ := hrec
-      _ = (s + n)⁻¹ * ((Gamma s)⁻¹ * ∏ k ∈ range n, (s + k)⁻¹) := by rw [ih']
-      _ = (Gamma s)⁻¹ * ((∏ k ∈ range n, (s + k)⁻¹) * (s + n)⁻¹) := by ring
-      _ = (Gamma s)⁻¹ * ∏ k ∈ range (n + 1), (s + k)⁻¹ := by rw [prod_range_succ]
 
 lemma norm_carlsonRPolynomialNumerator_le (n : ℕ) (b z : ι → ℂ) {B : ℝ}
     (hB : 0 ≤ B) (hb : ∀ i, ‖b i‖ ≤ B) :

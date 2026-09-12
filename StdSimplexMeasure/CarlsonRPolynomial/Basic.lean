@@ -1,13 +1,15 @@
 /- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
-import StdSimplexMeasure.CarlsonDirichletAverage.Basic
-import StdSimplexMeasure.DirichletTransform
-import Mathlib.MeasureTheory.Integral.Bochner.Basic
+module
+
+public import StdSimplexMeasure.CarlsonDirichletAverage.Basic
+public import StdSimplexMeasure.DirichletTransform
+public import Mathlib.MeasureTheory.Integral.Bochner.Basic
 
 /-! # Carlson's R-polynomials -/
 
 open Complex MeasureTheory ProbabilityTheory
 open scoped Classical
-public noncomputable section CarlsonRPolynomial
+@[expose] public noncomputable section CarlsonRPolynomial
 namespace DirichletTransform
 variable {ι : Type*} [Fintype ι]
 

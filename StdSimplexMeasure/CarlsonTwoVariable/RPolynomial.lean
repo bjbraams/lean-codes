@@ -1,14 +1,16 @@
 /- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
-import StdSimplexMeasure.CarlsonTwoVariable.Basic
-import StdSimplexMeasure.CarlsonRPolynomial.Transform
-import Mathlib.Algebra.BigOperators.NatAntidiagonal
-import Mathlib.LinearAlgebra.Finsupp.LSum
+module
+
+public import StdSimplexMeasure.CarlsonTwoVariable.Basic
+public import StdSimplexMeasure.CarlsonRPolynomial.Transform
+public import Mathlib.Algebra.BigOperators.NatAntidiagonal
+public import Mathlib.LinearAlgebra.Finsupp.LSum
 
 /-! # Two-variable Carlson R-polynomials -/
 
 open Complex
 open scoped Classical
-public noncomputable section CarlsonTwoVariable
+@[expose] public noncomputable section CarlsonTwoVariable
 namespace DirichletTransform.TwoVariable
 
 /-- The explicit Pochhammer numerator of a two-variable Carlson R-polynomial. This form is

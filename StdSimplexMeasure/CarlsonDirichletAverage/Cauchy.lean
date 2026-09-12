@@ -3,9 +3,10 @@ Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bastiaan J Braams
 -/
+module
 
-import StdSimplexMeasure.CarlsonDirichletAverage.Basic
-import Mathlib.Analysis.Complex.CauchyIntegral
+public import StdSimplexMeasure.CarlsonDirichletAverage.Basic
+public import Mathlib.Analysis.Complex.CauchyIntegral
 
 /-!
 # Averages of Cauchy's integral formula
@@ -29,7 +30,7 @@ estimate and Fubini theorem.
 open Complex MeasureTheory ProbabilityTheory Metric
 open scoped Classical
 
-public noncomputable section CarlsonCauchyAverage
+@[expose] public noncomputable section CarlsonCauchyAverage
 
 namespace DirichletTransform
 

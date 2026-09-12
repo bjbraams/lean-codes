@@ -3,16 +3,17 @@ Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bastiaan J Braams
 -/
+module
 
-import StdSimplexMeasure.CarlsonR.Basic
-import StdSimplexMeasure.CarlsonRPolynomial.Basic
-import StdSimplexMeasure.CarlsonDirichletAverage.Continuation
+public import StdSimplexMeasure.CarlsonR.Basic
+public import StdSimplexMeasure.CarlsonRPolynomial.Basic
+public import StdSimplexMeasure.CarlsonDirichletAverage.Continuation
 
 /-! # Carlson's R-function: native integral representation -/
 
 open Complex ProbabilityTheory
 open scoped Classical
-public noncomputable section CarlsonR
+@[expose] public noncomputable section CarlsonR
 namespace DirichletTransform
 variable {ι : Type*} [Fintype ι]
 

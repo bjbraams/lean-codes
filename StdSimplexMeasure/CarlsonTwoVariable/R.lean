@@ -1,12 +1,14 @@
 /- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
-import StdSimplexMeasure.CarlsonTwoVariable.Basic
-import StdSimplexMeasure.CarlsonR
+module
+
+public import StdSimplexMeasure.CarlsonTwoVariable.Basic
+public import StdSimplexMeasure.CarlsonR
 
 /-! # The two-variable Carlson R-function -/
 
 open Complex Filter
 open scoped Classical Topology
-public noncomputable section CarlsonTwoVariable
+@[expose] public noncomputable section CarlsonTwoVariable
 namespace DirichletTransform.TwoVariable
 
 /-- The two-variable integral at a natural exponent agrees with the Carlson polynomial. -/

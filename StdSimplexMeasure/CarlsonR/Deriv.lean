@@ -3,9 +3,10 @@ Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bastiaan J Braams
 -/
+module
 
-import StdSimplexMeasure.CarlsonR.Continuation
-import StdSimplexMeasure.CarlsonDirichletAverage.Associated
+public import StdSimplexMeasure.CarlsonR.Continuation
+public import StdSimplexMeasure.CarlsonDirichletAverage.Associated
 
 /-!
 # Carlson's R-function: analyticity and differentiation
@@ -17,7 +18,7 @@ Dirichlet integral and are developed from these statements.
 
 open Complex ProbabilityTheory
 open scoped Classical
-public noncomputable section CarlsonR
+@[expose] public noncomputable section CarlsonR
 namespace DirichletTransform
 variable {ι : Type*} [Fintype ι]
 

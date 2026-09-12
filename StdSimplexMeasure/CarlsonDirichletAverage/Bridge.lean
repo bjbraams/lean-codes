@@ -3,9 +3,10 @@ Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bastiaan J Braams
 -/
+module
 
-import StdSimplexMeasure.CarlsonDirichletAverage.Real
-import StdSimplexMeasure.CarlsonDirichletAverage.Basic
+public import StdSimplexMeasure.CarlsonDirichletAverage.Real
+public import StdSimplexMeasure.CarlsonDirichletAverage.Basic
 
 /-!
 # Bridge between real and complex Carlson averages
@@ -17,7 +18,7 @@ complex Carlson integral.
 open Complex MeasureTheory ProbabilityTheory
 open scoped Classical
 
-public noncomputable section CarlsonDirichletBridge
+@[expose] public noncomputable section CarlsonDirichletBridge
 
 namespace DirichletTransform
 

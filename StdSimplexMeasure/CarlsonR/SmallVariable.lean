@@ -1,6 +1,8 @@
 /- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
-import StdSimplexMeasure.CarlsonR.IntegralEvaluation
-import StdSimplexMeasure.CarlsonR.Relations
+module
+
+public import StdSimplexMeasure.CarlsonR.IntegralEvaluation
+public import StdSimplexMeasure.CarlsonR.Relations
 
 /-!
 # Dependence of Carlson's R-function on a small variable
@@ -11,7 +13,7 @@ one variable tends to zero with deletion of that variable and a beta-factor corr
 
 open Complex Filter ProbabilityTheory
 open scoped Classical Topology
-public noncomputable section CarlsonR
+@[expose] public noncomputable section CarlsonR
 namespace DirichletTransform
 variable {ι : Type*} [Fintype ι]
 

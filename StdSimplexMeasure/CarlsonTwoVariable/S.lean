@@ -1,12 +1,14 @@
 /- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
-import StdSimplexMeasure.CarlsonTwoVariable.Basic
-import StdSimplexMeasure.CarlsonR.Confluence
+module
+
+public import StdSimplexMeasure.CarlsonTwoVariable.Basic
+public import StdSimplexMeasure.CarlsonR.Confluence
 
 /-! # The two-variable Carlson S-function -/
 
 open Complex Filter
 open scoped Classical Topology
-public noncomputable section CarlsonTwoVariable
+@[expose] public noncomputable section CarlsonTwoVariable
 namespace DirichletTransform.TwoVariable
 
 /-- On the native convergence region, the two-variable S-series agrees with its Dirichlet

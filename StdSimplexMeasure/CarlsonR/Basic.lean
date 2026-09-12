@@ -3,15 +3,16 @@ Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bastiaan J Braams
 -/
+module
 
-import StdSimplexMeasure.CarlsonDirichletAverage.Basic
-import Mathlib.Analysis.SpecialFunctions.Pow.Deriv
+public import StdSimplexMeasure.CarlsonDirichletAverage.Basic
+public import Mathlib.Analysis.SpecialFunctions.Pow.Deriv
 
 /-! # Carlson's R-function: basic definitions -/
 
 open Complex MeasureTheory ProbabilityTheory
 open scoped Classical
-public noncomputable section CarlsonR
+@[expose] public noncomputable section CarlsonR
 namespace DirichletTransform
 variable {ι : Type*} [Fintype ι]
 

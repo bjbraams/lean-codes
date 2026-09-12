@@ -1,14 +1,20 @@
 /- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
-import StdSimplexMeasure.CarlsonRPolynomial.Basic
-import Mathlib.Algebra.MvPolynomial.Coeff
+module
+
+public import StdSimplexMeasure.CarlsonRPolynomial.Basic
+public import Mathlib.Algebra.MvPolynomial.Coeff
+public import Mathlib.Algebra.Order.Antidiag.Finsupp
+public import Mathlib.Algebra.Order.Antidiag.Pi
+public import Mathlib.Data.Nat.Choose.Multinomial
+
 /-! # Coefficients of Carlson's R-polynomials
 
 Home for Carlson's Section 6.2: multi-index coefficients, zero specializations, and termination.
 -/
 
-open Complex
+open Complex Finset
 open scoped Classical
-public noncomputable section CarlsonRPolynomial
+@[expose] public noncomputable section CarlsonRPolynomial
 namespace DirichletTransform
 variable {ι : Type*} [Fintype ι]
 
@@ -179,6 +185,80 @@ theorem regCarlsonRPolynomial_eq_numerator_mul_one_div_Gamma
     simp [carlsonPowerPolynomial, carlsonAffinePolynomial, hn]
   rw [hp]
   simp [regDirichletMvPolynomialTransform]
+
+/-- Reindexing the degree-`n` Finsupp antidiagonal along `Finsupp.equivFunOnFinite`. -/
+theorem map_equivFunOnFinite_piAntidiag_univ (n : ℕ) :
+    (piAntidiag (univ : Finset ι) n).map
+      ⟨Finsupp.equivFunOnFinite.symm, Equiv.injective _⟩ =
+      finsuppAntidiag (univ : Finset ι) n := by
+  apply Finset.ext
+  intro m
+  simp only [Finset.mem_map, Function.Embedding.coeFn_mk, Finset.mem_piAntidiag,
+    mem_finsuppAntidiag]
+  constructor
+  · rintro ⟨f, ⟨hfsum, _⟩, rfl⟩
+    refine ⟨?_, subset_univ _⟩
+    simpa [Finsupp.equivFunOnFinite] using hfsum
+  · intro ⟨hsum, _⟩
+    refine ⟨(m : ι → ℕ), ⟨hsum, fun _ _ => mem_univ _⟩, ?_⟩
+    exact Finsupp.equivFunOnFinite.symm_apply_apply m
+
+/-- The Pochhammer numerator is the complete degree-`n` multinomial expansion. -/
+theorem carlsonRPolynomialNumerator_eq_multinomial_sum (n : ℕ) (b z : ι → ℂ) :
+    carlsonRPolynomialNumerator n b z =
+      ∑ m ∈ piAntidiag (univ : Finset ι) n,
+        (Nat.multinomial univ m : ℂ) * (∏ i, z i ^ m i) *
+          ∏ i, (ascPochhammer ℂ (m i)).eval (b i) := by
+  unfold carlsonRPolynomialNumerator
+  have hsub : (carlsonPowerPolynomial n z).support ⊆
+      finsuppAntidiag (univ : Finset ι) n := by
+    intro m hm
+    have hdeg : m.sum (fun _ e ↦ e) = n := by
+      by_contra hne
+      exact (MvPolynomial.mem_support_iff.mp hm)
+        (coeff_carlsonPowerPolynomial_eq_zero_of_sum_ne n z m hne)
+    refine (mem_finsuppAntidiag (s := univ) (n := n) (f := m)).2 ⟨?_, subset_univ _⟩
+    have : univ.sum (m : ι → ℕ) = m.sum (fun _ e ↦ e) := by
+      simpa using
+        (Finsupp.sum_of_support_subset m (subset_univ m.support)
+          (fun _ e ↦ e) (fun _ _ ↦ rfl)).symm
+    exact this.trans hdeg
+  have hsum :
+      ∑ m ∈ (carlsonPowerPolynomial n z).support,
+          (m.multinomial : ℂ) * m.prod (fun i e ↦ z i ^ e) *
+            ∏ i, (ascPochhammer ℂ (m i)).eval (b i) =
+        ∑ m ∈ finsuppAntidiag (univ : Finset ι) n,
+          (m.multinomial : ℂ) * m.prod (fun i e ↦ z i ^ e) *
+            ∏ i, (ascPochhammer ℂ (m i)).eval (b i) := by
+    apply Finset.sum_subset hsub
+    intro m hm hn
+    have hdeg : univ.sum (m : ι → ℕ) = n :=
+      (mem_finsuppAntidiag.mp hm).1
+    have hcoeff := coeff_carlsonPowerPolynomial n z m
+    have hz : (carlsonPowerPolynomial n z).coeff m = 0 :=
+      MvPolynomial.notMem_support_iff.mp hn
+    have hsum' : m.sum (fun _ e ↦ e) = n := by
+      have : univ.sum (m : ι → ℕ) = m.sum (fun _ e ↦ e) := by
+        simpa using
+          (Finsupp.sum_of_support_subset m (subset_univ m.support)
+            (fun _ e ↦ e) (fun _ _ ↦ rfl)).symm
+      exact this.symm.trans hdeg
+    simp only [hsum', ↓reduceIte] at hcoeff
+    have : (m.multinomial : ℂ) * m.prod (fun i e ↦ z i ^ e) = 0 :=
+      hcoeff ▸ hz
+    rw [this, zero_mul]
+  rw [hsum, ← map_equivFunOnFinite_piAntidiag_univ, sum_map]
+  apply sum_congr rfl
+  intro f hf
+  simp only [Function.Embedding.coeFn_mk]
+  have hsupp : (Finsupp.equivFunOnFinite.symm f).support ⊆ univ := subset_univ _
+  rw [Finsupp.multinomial_eq_of_support_subset hsupp]
+  have hprod :
+      (Finsupp.equivFunOnFinite.symm f).prod (fun i e ↦ z i ^ e) =
+        ∏ i, z i ^ f i := by
+    rw [Finsupp.prod_of_support_subset _ hsupp (fun i e ↦ z i ^ e) (by simp)]
+    simp
+  simp [hprod]
 
 end DirichletTransform
 end CarlsonRPolynomial

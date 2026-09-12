@@ -1,6 +1,8 @@
 /- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
-import StdSimplexMeasure.CarlsonTwoVariable.Basic
-import StdSimplexMeasure.CarlsonT
+module
+
+public import StdSimplexMeasure.CarlsonTwoVariable.Basic
+public import StdSimplexMeasure.CarlsonT
 
 /-!
 # The two-variable Carlson T-function
@@ -12,7 +14,7 @@ zero; special-function identifications do not belong here.
 
 open Complex MeasureTheory ProbabilityTheory
 open scoped Classical
-public noncomputable section CarlsonTwoVariable
+@[expose] public noncomputable section CarlsonTwoVariable
 
 namespace DirichletTransform.TwoVariable
 

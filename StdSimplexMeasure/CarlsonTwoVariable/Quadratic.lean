@@ -1,7 +1,9 @@
 /- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
-import StdSimplexMeasure.CarlsonTwoVariable.RPolynomial
-import StdSimplexMeasure.CarlsonTwoVariable.R
-import StdSimplexMeasure.CarlsonTwoVariable.S
+module
+
+public import StdSimplexMeasure.CarlsonTwoVariable.RPolynomial
+public import StdSimplexMeasure.CarlsonTwoVariable.R
+public import StdSimplexMeasure.CarlsonTwoVariable.S
 
 /-!
 # Quadratic transformations of two-variable Carlson functions
@@ -14,7 +16,7 @@ than suppressed by notation.
 
 open Complex
 open scoped Classical
-public noncomputable section CarlsonTwoVariable
+@[expose] public noncomputable section CarlsonTwoVariable
 namespace DirichletTransform.TwoVariable
 
 /-- The squared arithmetic mean occurring in Carlson's first quadratic transformation. -/

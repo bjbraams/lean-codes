@@ -1,9 +1,11 @@
 /- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
-import StdSimplexMeasure.CarlsonTwoVariable.Basic
-import StdSimplexMeasure.CarlsonTwoVariable.RPolynomial
-import StdSimplexMeasure.CarlsonTwoVariable.R
-import StdSimplexMeasure.CarlsonTwoVariable.S
-import StdSimplexMeasure.CarlsonTwoVariable.T
-import StdSimplexMeasure.CarlsonTwoVariable.Quadratic
+module
+
+public import StdSimplexMeasure.CarlsonTwoVariable.Basic
+public import StdSimplexMeasure.CarlsonTwoVariable.RPolynomial
+public import StdSimplexMeasure.CarlsonTwoVariable.R
+public import StdSimplexMeasure.CarlsonTwoVariable.S
+public import StdSimplexMeasure.CarlsonTwoVariable.T
+public import StdSimplexMeasure.CarlsonTwoVariable.Quadratic
 
 /-! # Two-variable Carlson functions and polynomials -/

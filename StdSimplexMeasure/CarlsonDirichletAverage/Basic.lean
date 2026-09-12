@@ -3,11 +3,12 @@ Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bastiaan J Braams
 -/
+module
 
-import StdSimplexMeasure.ComplexDirichlet
-import StdSimplexMeasure.CarlsonDirichletAverage.Kernel
-import Mathlib.Analysis.Convex.Combination
-import Mathlib.Analysis.Complex.Convex
+public import StdSimplexMeasure.ComplexDirichlet
+public import StdSimplexMeasure.CarlsonDirichletAverage.Kernel
+public import Mathlib.Analysis.Convex.Combination
+public import Mathlib.Analysis.Complex.Convex
 
 /-!
 # Carlson's Dirichlet averages: basic definitions
@@ -26,7 +27,7 @@ in Chapter 6.
 open Complex MeasureTheory MeasureTheory.Measure ProbabilityTheory
 open scoped Classical
 
-public noncomputable section CarlsonDirichletAverage
+@[expose] public noncomputable section CarlsonDirichletAverage
 
 namespace DirichletTransform
 

@@ -3,9 +3,11 @@ Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bastiaan J Braams
 -/
+module
 
-import StdSimplexMeasure.CarlsonDirichletAverage.Basic
-import Mathlib.Analysis.Calculus.Deriv.Basic
+public import StdSimplexMeasure.CarlsonDirichletAverage.Basic
+public import Mathlib.Analysis.Calculus.Deriv.Basic
+
 import Mathlib.Analysis.Calculus.IteratedDeriv.Lemmas
 
 /-!
@@ -22,7 +24,7 @@ without importing the analytic-continuation machinery.
   Academic Press, 1977.
 -/
 
-public noncomputable section CarlsonDirichletAverage
+@[expose] public noncomputable section CarlsonDirichletAverage
 
 namespace DirichletTransform
 

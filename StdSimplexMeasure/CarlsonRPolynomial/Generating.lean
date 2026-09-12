@@ -1,85 +1,27 @@
 /- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
-import StdSimplexMeasure.CarlsonRPolynomial.Estimates
-import Mathlib.Algebra.Order.Antidiag.Finsupp
-import Mathlib.Algebra.Order.Antidiag.Pi
-import Mathlib.Analysis.Analytic.Binomial
-import Mathlib.Analysis.Normed.Ring.InfiniteSum
-import Mathlib.Analysis.SpecialFunctions.Complex.LogBounds
-import Mathlib.Data.Nat.Choose.Multinomial
+module
+
+public import StdSimplexMeasure.CarlsonRPolynomial.Estimates
+public import Mathlib.Algebra.Order.Antidiag.Finsupp
+public import Mathlib.Algebra.Order.Antidiag.Pi
+public import Mathlib.Analysis.Normed.Ring.InfiniteSum
+public import Mathlib.Data.Nat.Choose.Multinomial
+
+import Pochhammer.BinomialSeries
 
 /-!
 # Generating functions of Carlson's R-polynomials
 
-This file develops [Carl77, Section 6.6].  The scalar geometric kernel is recorded separately
-from the subsequent coefficient and convergence argument.
+This file develops [Carl77, Section 6.6].  The scalar binomial series
+`∑ (a)_n t^n / n! = (1-t)^{-a}` is `Complex.hasSum_ascPochhammer_mul_pow_div_factorial`
+in `Pochhammer.BinomialSeries`.
 -/
 
 open Complex Filter Finset
 open scoped Classical Topology Nat
-public noncomputable section CarlsonRPolynomial
+@[expose] public noncomputable section CarlsonRPolynomial
 namespace DirichletTransform
 variable {ι : Type*} [Fintype ι]
-
-/-- The scalar kernels used in Carlson's generating relation converge to the exponential
-kernel under confluence. -/
-theorem tendsto_carlsonGeneratingKernel (w : ℂ) :
-    Tendsto (fun n : ℕ ↦ (1 + w / n) ^ n) atTop (𝓝 (exp w)) :=
-  Complex.tendsto_one_add_div_pow_exp w
-
-/-- The scalar binomial series used in each factor of Carlson's generating relation 6.6-1,
-written with ascending Pochhammer coefficients. -/
-theorem hasSum_ascPochhammer_mul_pow_div_factorial (a t : ℂ) (ht : ‖t‖ < 1) :
-    HasSum (fun n : ℕ ↦
-      (ascPochhammer ℂ n).eval a / (n.factorial : ℂ) * t ^ n)
-      (1 / (1 - t) ^ a) := by
-  have h := (Complex.one_div_one_sub_cpow_hasFPowerSeriesOnBall_zero a).hasSum
-    (show t ∈ Metric.eball (0 : ℂ) 1 by
-      simp only [Metric.mem_eball, edist_zero_right]
-      rw [enorm_eq_nnnorm]
-      exact_mod_cast ht)
-  have hmulti : HasSum (fun n : ℕ ↦ Ring.multichoose a n * t ^ n)
-      (1 / (1 - t) ^ a) := by
-    simpa [FormalMultilinearSeries.ofScalars, Ring.multichoose_eq] using h
-  convert hmulti using 1 with n
-  funext n
-  congr 1
-  symm
-  apply (eq_div_iff (by exact_mod_cast Nat.factorial_ne_zero n)).2
-  rw [mul_comm]
-  simpa [Polynomial.ascPochhammer_smeval_cast,
-    Polynomial.ascPochhammer_smeval_eq_eval] using
-      (Ring.factorial_nsmul_multichoose_eq_ascPochhammer a n)
-
-/-- Ascending Pochhammer symbols divided by factorials are the binomial-ring multichoose
-coefficients. -/
-theorem ascPochhammer_eval_div_factorial (a : ℂ) (n : ℕ) :
-    (ascPochhammer ℂ n).eval a / (n.factorial : ℂ) = Ring.multichoose a n := by
-  refine Eq.symm ?_
-  apply (eq_div_iff (by exact_mod_cast Nat.factorial_ne_zero n)).2
-  rw [mul_comm]
-  simpa [Polynomial.ascPochhammer_smeval_cast,
-    Polynomial.ascPochhammer_smeval_eq_eval] using
-      (Ring.factorial_nsmul_multichoose_eq_ascPochhammer a n)
-
-/-- The scalar binomial series of Carlson's generating relation is absolutely summable
-inside the unit disk. -/
-theorem summable_norm_ascPochhammer_mul_pow_div_factorial (a t : ℂ) (ht : ‖t‖ < 1) :
-    Summable fun n : ℕ =>
-      ‖(ascPochhammer ℂ n).eval a / (n.factorial : ℂ) * t ^ n‖ := by
-  have hp := Complex.one_div_one_sub_cpow_hasFPowerSeriesOnBall_zero a
-  have htball : t ∈ Metric.eball (0 : ℂ) 1 := by
-    simp only [Metric.mem_eball, edist_zero_right, enorm_eq_nnnorm]
-    exact_mod_cast ht
-  have hx : t ∈ Metric.eball (0 : ℂ)
-      (FormalMultilinearSeries.ofScalars ℂ
-        fun n ↦ Ring.choose (a + n - 1) n).radius :=
-    (Metric.eball_subset_eball hp.r_le) htball
-  have hnorm :=
-    (FormalMultilinearSeries.ofScalars ℂ
-      fun n ↦ Ring.choose (a + n - 1) n).summable_norm_apply hx
-  refine hnorm.congr fun n => ?_
-  rw [FormalMultilinearSeries.ofScalars_apply_eq, smul_eq_mul]
-  rw [← Ring.multichoose_eq, ← ascPochhammer_eval_div_factorial]
 
 /-- The Pochhammer-weighted multinomial coefficient of total degree `n` on a finite
 index set. -/
@@ -89,77 +31,12 @@ def carlsonGeneratingCoeff (s : Finset ι) (b z : ι → ℂ) (n : ℕ) : ℂ :=
       (∏ i ∈ s, z i ^ m i) *
       (∏ i ∈ s, (ascPochhammer ℂ (m i)).eval (b i))
 
-/-- Reindexing the degree-`n` Finsupp antidiagonal along `Finsupp.equivFunOnFinite`. -/
-theorem map_equivFunOnFinite_piAntidiag_univ (n : ℕ) :
-    (piAntidiag (univ : Finset ι) n).map
-      ⟨Finsupp.equivFunOnFinite.symm, Equiv.injective _⟩ =
-      finsuppAntidiag (univ : Finset ι) n := by
-  apply Finset.ext
-  intro m
-  simp only [Finset.mem_map, Function.Embedding.coeFn_mk, Finset.mem_piAntidiag,
-    mem_finsuppAntidiag]
-  constructor
-  · rintro ⟨f, ⟨hfsum, _⟩, rfl⟩
-    refine ⟨?_, subset_univ _⟩
-    simpa [Finsupp.equivFunOnFinite] using hfsum
-  · intro ⟨hsum, _⟩
-    refine ⟨(m : ι → ℕ), ⟨hsum, fun _ _ => mem_univ _⟩, ?_⟩
-    exact Finsupp.equivFunOnFinite.symm_apply_apply m
-
 /-- The Pochhammer numerator is the complete degree-`n` multinomial expansion. -/
 theorem carlsonRPolynomialNumerator_eq_sum_piAntidiag (n : ℕ) (b z : ι → ℂ) :
     carlsonRPolynomialNumerator n b z =
       carlsonGeneratingCoeff (univ : Finset ι) b z n := by
-  unfold carlsonRPolynomialNumerator carlsonGeneratingCoeff
-  have hsub : (carlsonPowerPolynomial n z).support ⊆
-      finsuppAntidiag (univ : Finset ι) n := by
-    intro m hm
-    have hdeg : m.sum (fun _ e ↦ e) = n := by
-      by_contra hne
-      exact (MvPolynomial.mem_support_iff.mp hm)
-        (coeff_carlsonPowerPolynomial_eq_zero_of_sum_ne n z m hne)
-    refine (mem_finsuppAntidiag (s := univ) (n := n) (f := m)).2 ⟨?_, subset_univ _⟩
-    have : univ.sum (m : ι → ℕ) = m.sum (fun _ e ↦ e) := by
-      simpa using
-        (Finsupp.sum_of_support_subset m (subset_univ m.support)
-          (fun _ e ↦ e) (fun _ _ ↦ rfl)).symm
-    exact this.trans hdeg
-  have hsum :
-      ∑ m ∈ (carlsonPowerPolynomial n z).support,
-          (m.multinomial : ℂ) * m.prod (fun i e ↦ z i ^ e) *
-            ∏ i, (ascPochhammer ℂ (m i)).eval (b i) =
-        ∑ m ∈ finsuppAntidiag (univ : Finset ι) n,
-          (m.multinomial : ℂ) * m.prod (fun i e ↦ z i ^ e) *
-            ∏ i, (ascPochhammer ℂ (m i)).eval (b i) := by
-    apply Finset.sum_subset hsub
-    intro m hm hn
-    have hdeg : univ.sum (m : ι → ℕ) = n :=
-      (mem_finsuppAntidiag.mp hm).1
-    have hcoeff := coeff_carlsonPowerPolynomial n z m
-    have hz : (carlsonPowerPolynomial n z).coeff m = 0 :=
-      MvPolynomial.notMem_support_iff.mp hn
-    have hsum' : m.sum (fun _ e ↦ e) = n := by
-      have : univ.sum (m : ι → ℕ) = m.sum (fun _ e ↦ e) := by
-        simpa using
-          (Finsupp.sum_of_support_subset m (subset_univ m.support)
-            (fun _ e ↦ e) (fun _ _ ↦ rfl)).symm
-      exact this.symm.trans hdeg
-    simp only [hsum', ↓reduceIte] at hcoeff
-    have : (m.multinomial : ℂ) * m.prod (fun i e ↦ z i ^ e) = 0 :=
-      hcoeff ▸ hz
-    rw [this, zero_mul]
-  rw [hsum, ← map_equivFunOnFinite_piAntidiag_univ, sum_map]
-  apply sum_congr rfl
-  intro f hf
-  simp only [Function.Embedding.coeFn_mk]
-  have hsupp : (Finsupp.equivFunOnFinite.symm f).support ⊆ univ := subset_univ _
-  rw [Finsupp.multinomial_eq_of_support_subset hsupp]
-  have hprod :
-      (Finsupp.equivFunOnFinite.symm f).prod (fun i e ↦ z i ^ e) =
-        ∏ i, z i ^ f i := by
-    rw [Finsupp.prod_of_support_subset _ hsupp (fun i e ↦ z i ^ e) (by simp)]
-    simp
-  simp [hprod]
+  rw [carlsonRPolynomialNumerator_eq_multinomial_sum]
+  rfl
 
 /-- The finite product on the left side of Carlson's generating relation 6.6-1. -/
 def carlsonRGeneratingKernel (b z : ι → ℂ) (t : ℂ) : ℂ :=

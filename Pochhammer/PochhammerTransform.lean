@@ -3,11 +3,12 @@ Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bastiaan J Braams.
 -/
+module
 
-import Mathlib.RingTheory.Polynomial.Pochhammer
-import Mathlib.Combinatorics.Enumerative.Stirling
-import Mathlib.Algebra.Polynomial.Degree.Support
-import Mathlib.Algebra.Polynomial.Eval.SMul
+public import Mathlib.RingTheory.Polynomial.Pochhammer
+public import Mathlib.Combinatorics.Enumerative.Stirling
+public import Mathlib.Algebra.Polynomial.Degree.Support
+public import Mathlib.Algebra.Polynomial.Eval.SMul
 
 /-!
 # The ascending Pochhammer polynomial transform
@@ -72,6 +73,8 @@ multiplication by `X`.
 2026-06-15. F. W. J. Olver, A. B. Olde Daalhuis, D. W. Lozier, B. I. Schneider, R. F. Boisvert,
 C. W. Clark, B. R. Miller, B. V. Saunders, H. S. Cohl, and M. A. McClain, eds.
 -/
+
+@[expose] public noncomputable section
 
 variable (R : Type*) [CommRing R]
 
@@ -423,3 +426,5 @@ theorem ascPochhammerTransform_X_mul (p : Polynomial R) :
     rw [ascPochhammer_succ_left]
     rw [Polynomial.smul_comp]
     rw [mul_smul_comm]
+
+end

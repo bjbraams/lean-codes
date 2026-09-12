@@ -1,13 +1,15 @@
 /- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
-import StdSimplexMeasure.CarlsonRPolynomial.Basic
-import StdSimplexMeasure.CarlsonR.Basic
-import StdSimplexMeasure.CarlsonS
+module
+
+public import StdSimplexMeasure.CarlsonRPolynomial.Basic
+public import StdSimplexMeasure.CarlsonR.Basic
+public import StdSimplexMeasure.CarlsonS
 
 /-! # Two-variable Carlson functions -/
 
 open Complex
 open scoped Classical Matrix
-public noncomputable section CarlsonTwoVariable
+@[expose] public noncomputable section CarlsonTwoVariable
 namespace DirichletTransform.TwoVariable
 
 /-- A pair, represented as a function on the canonical two-element index type. -/

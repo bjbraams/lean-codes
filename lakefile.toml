@@ -4,8 +4,12 @@ defaultTargets = ["Main"]
 
 [[lean_lib]]
 name = "Main"
-roots = ["StdSimplexMeasure", "Pochhammer"]
-globs = ["StdSimplexMeasure.+", "Pochhammer.+"]
+roots = ["StdSimplexMeasure", "Pochhammer", "SeveralComplexVariables"]
+globs = [
+  "StdSimplexMeasure", "StdSimplexMeasure.+",
+  "Pochhammer", "Pochhammer.+",
+  "SeveralComplexVariables", "SeveralComplexVariables.+",
+]
 
 [[lean_exe]]
 name = "main"

@@ -1,43 +1,24 @@
 /- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
-import StdSimplexMeasure.CarlsonRPolynomial.Binomial
+module
+
+public import StdSimplexMeasure.CarlsonRPolynomial.Binomial
+
+import Pochhammer.Gamma
+import Pochhammer.Vandermonde
 
 /-!
 # Linear transformations of Carlson's R-polynomials
 
 This file contains the algebraic infrastructure for [Carl77, Section 6.5].
+The Pochhammer reflection identity used in the book's proof is
+`Complex.ascPochhammer_eval_split_reflection` in `Pochhammer.Gamma`.
 -/
 
-open Complex
+open Complex Finset
 open scoped Classical
-public noncomputable section CarlsonRPolynomial
+@[expose] public noncomputable section CarlsonRPolynomial
 namespace DirichletTransform
 variable {ι : Type*} [Fintype ι]
-
-/-- Splitting an ascending Pochhammer symbol and reflecting the remaining factors.
-
-This is the cancellation identity used in Carlson's proof of the linear transformation
-6.5-1.  Its multiplicative formulation remains valid when one of the Pochhammer factors
-vanishes, unlike the corresponding quotient identity. -/
-theorem ascPochhammer_eval_split_reflection (c : ℂ) {m n : ℕ} (hmn : m ≤ n) :
-    (ascPochhammer ℂ n).eval c =
-      (-1 : ℂ) ^ (n - m) * (ascPochhammer ℂ m).eval c *
-        (ascPochhammer ℂ (n - m)).eval (1 - c - n) := by
-  obtain ⟨d, rfl⟩ := Nat.exists_eq_add_of_le hmn
-  simp only [Nat.add_sub_cancel_left]
-  have hmul := congrArg (Polynomial.eval c) (ascPochhammer_mul ℂ m d)
-  simp only [Polynomial.eval_mul, Polynomial.eval_comp, Polynomial.eval_add,
-    Polynomial.eval_X, Polynomial.eval_natCast] at hmul
-  rw [← hmul]
-  have href := ascPochhammer_eval_neg_eq_descPochhammer ℂ (c + m + d - 1) d
-  rw [descPochhammer_eval_eq_ascPochhammer] at href
-  have harg : -(c + (m : ℂ) + d - 1) = 1 - c - (m + d : ℕ) := by
-    rw [Nat.cast_add]
-    ring
-  have harg' : c + (m : ℂ) + d - 1 - d + 1 = c + m := by ring
-  rw [harg, harg'] at href
-  rw [href]
-  ring_nf
-  simp
 
 /-- Scaling all Carlson variables scales their degree-`n` polynomial kernel by `a ^ n`. -/
 theorem eval_carlsonPowerPolynomial_smul (n : ℕ) (a : ℂ) (z x : ι → ℂ) :
@@ -68,6 +49,21 @@ theorem sum_carlsonRTransformParameters (n : ℕ) (i : ι) (b : ι → ℂ) :
   rw [← hs]
   ring
 
+/-- The Pochhammer numerator of a constant vector of variables is a single Pochhammer
+symbol, by the multinomial Chu–Vandermonde identity. -/
+theorem carlsonRPolynomialNumerator_const (n : ℕ) (b : ι → ℂ) (w : ℂ) :
+    carlsonRPolynomialNumerator n b (fun _ => w) =
+      (ascPochhammer ℂ n).eval (∑ i, b i) * w ^ n := by
+  rw [carlsonRPolynomialNumerator_eq_multinomial_sum, ascPochhammer_eval_sum univ b n]
+  rw [sum_mul]
+  refine sum_congr rfl fun m hm => ?_
+  have hpow : (∏ i, (w : ℂ) ^ m i) = w ^ n := by
+    rw [prod_pow_eq_pow_sum]
+    have : ∑ i, m i = n := (mem_piAntidiag.mp hm).1
+    simp [this]
+  rw [hpow]
+  ring
+
 /-- Division-free form of Carlson's multivariate linear transformation 6.5-3.
 
 Using the Pochhammer numerator avoids hypotheses excluding exceptional parameters.  Carlson's
@@ -76,6 +72,12 @@ theorem carlsonRPolynomialNumerator_transform (n : ℕ) (i : ι) (b z : ι → �
     carlsonRPolynomialNumerator n b z =
       (-1 : ℂ) ^ n * carlsonRPolynomialNumerator n
         (carlsonRTransformParameters n i b) (carlsonRTransformVariables i z) := by
+  -- Both sides are polynomials of degree `n`.  The constant-variable case is
+  -- `carlsonRPolynomialNumerator_const` together with Pochhammer reflection
+  -- `Complex.ascPochhammer_eval_split_reflection`.  The general case follows by
+  -- differentiating in the non-distinguished variables and evaluating on the
+  -- line concentrated at `i`, but the coordinatewise derivative identification
+  -- has not yet been completed.
   sorry
 
 /- The two-variable transformations 6.5-1 are specializations of

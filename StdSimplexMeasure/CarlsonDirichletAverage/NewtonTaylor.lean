@@ -3,9 +3,11 @@ Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bastiaan J Braams
 -/
+module
 
-import StdSimplexMeasure.CarlsonDirichletAverage.Deriv
-import StdSimplexMeasure.CarlsonDirichletAverage.Real
+public import StdSimplexMeasure.CarlsonDirichletAverage.Deriv
+public import StdSimplexMeasure.CarlsonDirichletAverage.Real
+
 import Mathlib.Analysis.Calculus.IteratedDeriv.Lemmas
 
 /-!
@@ -29,7 +31,7 @@ normalization lemmas below isolate that input from the finite Newton interpolati
 open Complex MeasureTheory ProbabilityTheory
 open scoped Classical
 
-public noncomputable section CarlsonNewtonTaylor
+@[expose] public noncomputable section CarlsonNewtonTaylor
 
 namespace DirichletTransform
 

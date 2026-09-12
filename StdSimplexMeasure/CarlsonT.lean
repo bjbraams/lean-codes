@@ -3,8 +3,10 @@ Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bastiaan J Braams
 -/
+module
 
-import StdSimplexMeasure.CarlsonDirichletAverage.Continuation
+public import StdSimplexMeasure.CarlsonDirichletAverage.Continuation
+
 import Mathlib.Topology.Maps.Proper.Basic
 
 /-!
@@ -26,7 +28,7 @@ zero implies this condition.
 
 open Complex MeasureTheory ProbabilityTheory
 open scoped Classical
-public noncomputable section CarlsonT
+@[expose] public noncomputable section CarlsonT
 
 namespace DirichletTransform
 
@@ -142,7 +144,28 @@ whenever the convex hull of the variables avoids zero. -/
 theorem exists_isRegCarlsonTContinuation {z : ι → ℂ}
     (hz : z ∈ carlsonTVariableDomain) :
     ∃ G : (ι → ℂ) → ℂ, IsRegCarlsonTContinuation z G := by
-  sorry
+  have hsmooth : ∀ N, ContDiffNearStdSimplex N
+      (fun u : ι → ℝ ↦ carlsonTKernel (carlsonAffineForm z u)) := by
+    intro N
+    let U : Set (ι → ℝ) := {u | carlsonAffineForm z u ≠ 0}
+    have hU : IsOpen U := by
+      have hclosed : IsClosed {u : ι → ℝ | carlsonAffineForm z u = 0} :=
+        isClosed_eq (continuous_carlsonAffineForm z) continuous_const
+      simpa [U, Set.compl_ofPred] using hclosed.isOpen_compl
+    refine ⟨U, hU, fun u hu ↦
+      carlsonAffineForm_ne_zero_of_mem_carlsonTVariableDomain hz hu, ?_⟩
+    have haffine : ContDiff ℝ N (fun u : ι → ℝ ↦ carlsonAffineForm z u) := by
+      unfold carlsonAffineForm
+      exact ContDiff.sum fun i _ ↦
+        (Complex.ofRealCLM.contDiff.comp
+          (ContinuousLinearMap.proj i : (ι → ℝ) →L[ℝ] ℝ).contDiff).mul contDiff_const
+    unfold carlsonTKernel
+    exact (haffine.contDiffOn.inv (fun u hu ↦ hu)).cexp
+  obtain ⟨G, hG, hEq⟩ :=
+    exists_entire_regDirichletContinuation_of_contDiffNear hsmooth
+  refine ⟨G, hG, ?_⟩
+  intro b hb
+  exact hEq hb
 
 /-- Zero lies in the convex hull of the Carlson variables if and only if it is realized as
 Carlson's affine form at some point of the standard simplex. -/

@@ -3,12 +3,14 @@ Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bastiaan J Braams
 -/
+module
 
-import StdSimplexMeasure.DirichletTransform
-import StdSimplexMeasure.CarlsonDirichletAverage.Deriv
-import StdSimplexMeasure.CarlsonDirichletAverage.Bridge
-import StdSimplexMeasure.AnalyticUniqueness
-import StdSimplexMeasure.CarlsonRPolynomial.Basic
+public import StdSimplexMeasure.DirichletTransform
+public import StdSimplexMeasure.CarlsonDirichletAverage.Deriv
+public import StdSimplexMeasure.CarlsonDirichletAverage.Bridge
+public import StdSimplexMeasure.AnalyticUniqueness
+public import StdSimplexMeasure.CarlsonRPolynomial.Basic
+
 import Mathlib.Analysis.Analytic.Uniqueness
 
 /-!
@@ -27,7 +29,7 @@ construction, and the initial definitions for Carlson's Taylor-series and resolv
 open Complex MeasureTheory ProbabilityTheory
 open scoped Classical
 
-public noncomputable section CarlsonDirichletAverage
+@[expose] public noncomputable section CarlsonDirichletAverage
 
 namespace DirichletTransform
 
@@ -62,16 +64,6 @@ theorem IsRegCarlsonContinuation.eq_native {f : ℂ → ℂ} {z : ι → ℂ}
     {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) :
     G b = regCarlsonDirichletAverage b z f :=
   hG.2 hb
-
-/-- The ordinary convergence region for the Dirichlet parameters is open. -/
-theorem isOpen_mvBetaConvergent : IsOpen (mvBetaConvergent : Set (ι → ℂ)) := by
-  rw [show (mvBetaConvergent : Set (ι → ℂ)) =
-      ⋂ i, {b : ι → ℂ | 0 < (b i).re} by
-    ext b
-    simp [mvBetaConvergent]]
-  exact isOpen_iInter_of_finite fun i ↦
-    isOpen_lt continuous_const
-      (Complex.continuous_re.comp (continuous_apply i))
 
 /-- Two entire functions of the Dirichlet parameters that agree throughout the ordinary
 convergence region agree everywhere.  This is the common continuation step for the identities

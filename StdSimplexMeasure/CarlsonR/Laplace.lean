@@ -3,15 +3,17 @@ Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bastiaan J Braams
 -/
+module
 
-import StdSimplexMeasure.CarlsonR.Basic
-import StdSimplexMeasure.CarlsonS
+public import StdSimplexMeasure.CarlsonR.Basic
+public import StdSimplexMeasure.CarlsonS
+public import Mathlib.Analysis.Calculus.ParametricIntegral
+public import Mathlib.Analysis.SpecialFunctions.Complex.Analytic
+public import Mathlib.Analysis.SpecialFunctions.Gamma.Basic
+public import Mathlib.MeasureTheory.Integral.Prod
+
 import Mathlib.Analysis.Analytic.IsolatedZeros
-import Mathlib.Analysis.Calculus.ParametricIntegral
 import Mathlib.Analysis.Convex.PathConnected
-import Mathlib.Analysis.SpecialFunctions.Complex.Analytic
-import Mathlib.Analysis.SpecialFunctions.Gamma.Basic
-import Mathlib.MeasureTheory.Integral.Prod
 
 /-!
 # The Laplace representation of Carlson's R-function
@@ -27,7 +29,7 @@ This file develops the inverse confluence formula of [Carl77, Theorem 5.10-2], w
 
 open Complex MeasureTheory ProbabilityTheory Set Filter
 open scoped Classical Topology
-public noncomputable section CarlsonR
+@[expose] public noncomputable section CarlsonR
 namespace DirichletTransform
 variable {ι : Type*} [Fintype ι]
 
@@ -267,7 +269,186 @@ theorem regCarlsonRIntegral_eq_regCarlsonRLaplaceIntegral
     {a : ℂ} (ha : 0 < a.re) {b z : ι → ℂ}
     (hb : b ∈ mvBetaConvergent) (hz : z ∈ carlsonRVariableDomain) :
     regCarlsonRIntegral (-a) b z = regCarlsonRLaplaceIntegral a b z := by
-  sorry
+  classical
+  cases isEmpty_or_nonempty ι with
+  | inl hι =>
+      let _ := hι
+      simp [regCarlsonRIntegral, regCarlsonDirichletAverage, regDirichletIntegral,
+        regCarlsonRLaplaceIntegral, regCarlsonSIntegral,
+        MeasureTheory.Measure.stdSimplexMeasure_empty]
+  | inr hι =>
+    let _ := hι
+    let μu := MeasureTheory.Measure.stdSimplexMeasure.restrict (stdSimplex ℝ ι)
+    let μy := volume.restrict (Set.Ioi (0 : ℝ))
+    let s : Finset ℝ := Finset.univ.image (fun i => (z i).re)
+    have hs : s.Nonempty := Finset.image_nonempty.mpr Finset.univ_nonempty
+    let r : ℝ := s.min' hs
+    have hr : 0 < r := by
+      have hrmem : r ∈ s := Finset.min'_mem s hs
+      rcases Finset.mem_image.mp hrmem with ⟨i, -, hi⟩
+      rw [← hi]
+      exact hz i
+    have hr_le (i : ι) : r ≤ (z i).re := by
+      exact Finset.min'_le s _ (Finset.mem_image.mpr ⟨i, Finset.mem_univ i, rfl⟩)
+    have hWlower {u : ι → ℝ} (hu : u ∈ stdSimplex ℝ ι) :
+        r ≤ (carlsonAffineForm z u).re := by
+      have hre : (carlsonAffineForm z u).re = ∑ i, u i * (z i).re := by
+        simp [carlsonAffineForm, mul_re]
+      rw [hre]
+      calc
+        r = ∑ i, u i * r := by rw [← Finset.sum_mul, hu.2, one_mul]
+        _ ≤ ∑ i, u i * (z i).re := Finset.sum_le_sum fun i _ =>
+          mul_le_mul_of_nonneg_left (hr_le i) (hu.1 i)
+    let F : ℝ × (ι → ℝ) → ℂ := fun p =>
+      (p.1 : ℂ) ^ (a - 1) *
+        (regDirichletDensity b p.2 * exp (-(p.1 : ℂ) * carlsonAffineForm z p.2))
+    let G : ℝ × (ι → ℝ) → ℂ := fun p =>
+      ((p.1 : ℂ) ^ (a - 1) * exp (-(r * p.1))) * regDirichletDensity b p.2
+    have hG : Integrable G (μy.prod μu) := by
+      have hy := integrableOn_carlsonLaplaceKernel_ofReal (a := a) (r := r) ha hr
+      have hu : Integrable (regDirichletDensity b) μu := by
+        change IntegrableOn (regDirichletDensity b) (stdSimplex ℝ ι)
+          MeasureTheory.Measure.stdSimplexMeasure
+        simpa only [mul_one] using integrableOn_regDirichletDensity_mul b hb
+          (continuousOn_const : ContinuousOn (fun _ : ι → ℝ => (1 : ℂ)) (stdSimplex ℝ ι))
+      simpa [G, μy] using hy.mul_prod hu
+    have hFmeas : AEStronglyMeasurable F (μy.prod μu) := by
+      have hk : ContinuousOn (fun p : ℝ × (ι → ℝ) =>
+          (p.1 : ℂ) ^ (a - 1) * exp (-(p.1 : ℂ) * carlsonAffineForm z p.2))
+          (Set.Ioi (0 : ℝ) ×ˢ stdSimplex ℝ ι) := by
+        intro p hp
+        apply ContinuousAt.continuousWithinAt
+        apply ContinuousAt.mul
+        · have hy : ContinuousAt (fun q : ℝ × (ι → ℝ) => (q.1 : ℂ)) p := by
+            simpa only [Function.comp_def] using
+              (continuous_ofReal.comp continuous_fst).continuousAt
+          exact (continuousAt_cpow_const (ofReal_mem_slitPlane.2 hp.1)).comp_of_eq hy rfl
+        · have hy : ContinuousAt (fun q : ℝ × (ι → ℝ) => (q.1 : ℂ)) p := by
+            simpa only [Function.comp_def] using
+              (continuous_ofReal.comp continuous_fst).continuousAt
+          have hW : ContinuousAt (fun q : ℝ × (ι → ℝ) =>
+              carlsonAffineForm z q.2) p := by
+            simpa only [Function.comp_def] using
+              ((continuous_carlsonAffineForm z).comp continuous_snd).continuousAt
+          exact continuous_exp.continuousAt.comp (hy.neg.mul hW)
+      unfold F μy μu
+      rw [Measure.prod_restrict]
+      have hk' : AEStronglyMeasurable
+          (fun p : ℝ × (ι → ℝ) => (p.1 : ℂ) ^ (a - 1) *
+            exp (-(p.1 : ℂ) * carlsonAffineForm z p.2))
+          ((volume.prod MeasureTheory.Measure.stdSimplexMeasure).restrict
+            (Set.Ioi (0 : ℝ) ×ˢ stdSimplex ℝ ι)) :=
+        hk.aestronglyMeasurable
+          (measurableSet_Ioi.prod (isClosed_stdSimplex ℝ ι).measurableSet)
+      have hd : AEStronglyMeasurable (fun p : ℝ × (ι → ℝ) =>
+          regDirichletDensity b p.2)
+          ((volume.prod MeasureTheory.Measure.stdSimplexMeasure).restrict
+            (Set.Ioi (0 : ℝ) ×ˢ stdSimplex ℝ ι)) :=
+        ((measurable_regDirichletDensity b).comp measurable_snd).aestronglyMeasurable
+      have hm := hk'.mul hd
+      convert hm using 1
+      ext p
+      change (p.1 : ℂ) ^ (a - 1) *
+          (regDirichletDensity b p.2 * exp (-(p.1 : ℂ) * carlsonAffineForm z p.2)) =
+        ((p.1 : ℂ) ^ (a - 1) * exp (-(p.1 : ℂ) * carlsonAffineForm z p.2)) *
+          regDirichletDensity b p.2
+      ring
+    have hFle : ∀ᵐ p ∂μy.prod μu, ‖F p‖ ≤ ‖G p‖ := by
+      have hp_mem : ∀ᵐ p ∂μy.prod μu,
+          p.1 ∈ Set.Ioi (0 : ℝ) ∧ p.2 ∈ stdSimplex ℝ ι := by
+        unfold μy μu
+        rw [Measure.prod_restrict]
+        exact ae_restrict_mem
+          (measurableSet_Ioi.prod (isClosed_stdSimplex ℝ ι).measurableSet)
+      filter_upwards [hp_mem] with p hp
+      rw [show ‖F p‖ = ‖regDirichletDensity b p.2‖ *
+          (Real.exp (-(carlsonAffineForm z p.2).re * p.1) *
+            p.1 ^ (a.re - 1)) by
+        rw [show F p = regDirichletDensity b p.2 *
+            ((p.1 : ℂ) ^ (a - 1) *
+              exp (-(p.1 : ℂ) * carlsonAffineForm z p.2)) by unfold F; ring,
+          norm_mul, norm_carlsonLaplaceKernel hp.1]]
+      rw [show ‖G p‖ = ‖regDirichletDensity b p.2‖ *
+          (Real.exp (-r * p.1) * p.1 ^ (a.re - 1)) by
+        rw [show G p = regDirichletDensity b p.2 *
+            ((p.1 : ℂ) ^ (a - 1) * exp (-(p.1 : ℂ) * (r : ℂ))) by
+              have he : (-(r * p.1) : ℂ) = -(p.1 : ℂ) * (r : ℂ) := by
+                simp [mul_comm]
+              unfold G
+              rw [he]
+              ring,
+          norm_mul, norm_carlsonLaplaceKernel hp.1]
+        simp [mul_comm]]
+      apply mul_le_mul_of_nonneg_left _ (norm_nonneg _)
+      apply mul_le_mul_of_nonneg_right _ (Real.rpow_nonneg _ _)
+      have hyp : 0 < p.1 := hp.1
+      exact Real.exp_le_exp.mpr (by nlinarith [hWlower hp.2])
+      all_goals exact hp.1.le
+    have hF : Integrable F (μy.prod μu) := Integrable.mono' hG.norm hFmeas hFle
+    have houter_eq_F :
+        (∫ y : ℝ in Set.Ioi 0,
+          (y : ℂ) ^ (a - 1) * regCarlsonSIntegral b (fun i ↦ -(y : ℂ) * z i)) =
+          ∫ y, ∫ u, F (y, u) ∂μu ∂μy := by
+      apply setIntegral_congr_fun measurableSet_Ioi
+      intro y hy
+      have hS : regCarlsonSIntegral b (fun i ↦ -(y : ℂ) * z i) =
+          ∫ u, regDirichletDensity b u *
+            exp (-(y : ℂ) * carlsonAffineForm z u) ∂μu := by
+        unfold regCarlsonSIntegral regCarlsonDirichletAverage regDirichletIntegral μu
+        apply setIntegral_congr_fun (isClosed_stdSimplex ℝ ι).measurableSet
+        intro u hu
+        have haff : carlsonAffineForm (fun i ↦ -(y : ℂ) * z i) u =
+            -(y : ℂ) * carlsonAffineForm z u := by
+          simpa using carlsonAffineForm_affine hu (-(y : ℂ)) 0 z
+        change regDirichletDensity b u *
+          exp (carlsonAffineForm (fun i ↦ -(y : ℂ) * z i) u) =
+            regDirichletDensity b u * exp (-(y : ℂ) * carlsonAffineForm z u)
+        rw [haff]
+      change (y : ℂ) ^ (a - 1) * regCarlsonSIntegral b (fun i ↦ -(y : ℂ) * z i) =
+        ∫ u, F (y, u) ∂μu
+      rw [hS]
+      rw [← integral_const_mul]
+    have hswap :
+        (∫ y, ∫ u, F (y, u) ∂μu ∂μy) =
+          ∫ u, ∫ y, F (y, u) ∂μy ∂μu :=
+      integral_integral_swap hF
+    have hinner : ∀ᵐ u ∂μu,
+        (∫ y, F (y, u) ∂μy) =
+          regDirichletDensity b u *
+            (carlsonAffineForm z u ^ (-a) * Gamma a) := by
+      have hu_mem : ∀ᵐ u ∂μu, u ∈ stdSimplex ℝ ι := by
+        unfold μu
+        exact ae_restrict_mem (isClosed_stdSimplex ℝ ι).measurableSet
+      filter_upwards [hu_mem] with u hu
+      calc
+        (∫ y, F (y, u) ∂μy) = regDirichletDensity b u *
+            ∫ y : ℝ in Set.Ioi 0,
+              (y : ℂ) ^ (a - 1) * exp (-(y : ℂ) * carlsonAffineForm z u) := by
+          rw [← integral_const_mul]
+          apply integral_congr_ae
+          filter_upwards with y
+          unfold F
+          ring
+        _ = regDirichletDensity b u *
+            (carlsonAffineForm z u ^ (-a) * Gamma a) := by
+          rw [integral_carlsonLaplaceKernel ha
+            (carlsonAffineForm_mem_rightHalfPlane hz hu)]
+    have hF_eq_R :
+        (∫ u, ∫ y, F (y, u) ∂μy ∂μu) =
+          Gamma a * regCarlsonRIntegral (-a) b z := by
+      rw [integral_congr_ae hinner]
+      unfold regCarlsonRIntegral regCarlsonDirichletAverage regDirichletIntegral μu
+      rw [← integral_const_mul]
+      apply setIntegral_congr_fun (isClosed_stdSimplex ℝ ι).measurableSet
+      intro u hu
+      ring
+    have hout :
+        (∫ y : ℝ in Set.Ioi 0,
+          (y : ℂ) ^ (a - 1) * regCarlsonSIntegral b (fun i ↦ -(y : ℂ) * z i)) =
+          Gamma a * regCarlsonRIntegral (-a) b z :=
+      houter_eq_F.trans (hswap.trans hF_eq_R)
+    rw [regCarlsonRLaplaceIntegral, hout]
+    field_simp [Gamma_ne_zero_of_re_pos ha]
 
 /-- Carlson's inverse confluence formula in the native unregularized normalization. -/
 theorem carlsonRIntegral_eq_carlsonRLaplaceIntegral

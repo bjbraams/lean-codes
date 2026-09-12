@@ -3,11 +3,13 @@ Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bastiaan J Braams
 -/
+module
 
-import StdSimplexMeasure.CarlsonDirichletAverage
-import StdSimplexMeasure.CarlsonRPolynomial.Estimates
-import StdSimplexMeasure.SeveralComplexVariables.LocallyUniform
-import Mathlib.Analysis.SpecialFunctions.ExpDeriv
+public import StdSimplexMeasure.CarlsonDirichletAverage
+public import StdSimplexMeasure.CarlsonRPolynomial.Estimates
+public import SeveralComplexVariables.LocallyUniform
+public import Mathlib.Analysis.SpecialFunctions.ExpDeriv
+
 import Mathlib.MeasureTheory.Integral.DominatedConvergence
 
 /-!
@@ -36,7 +38,7 @@ those claims.
 open Complex MeasureTheory ProbabilityTheory
 open scoped Classical
 
-public noncomputable section CarlsonS
+@[expose] public noncomputable section CarlsonS
 
 namespace DirichletTransform
 
@@ -336,10 +338,11 @@ in the Carlson variables. -/
 theorem analyticOnNhd_regCarlsonSIntegral_variables {b : ι → ℂ}
     (hb : b ∈ mvBetaConvergent) :
     AnalyticOnNhd ℂ (regCarlsonSIntegral b) Set.univ := by
-  rw [show regCarlsonSIntegral b = fun z => regCarlsonSSeries z b by
-    funext z
-    exact (regCarlsonSSeries_eq_regCarlsonSIntegral z hb).symm]
-  exact analyticOnNhd_regCarlsonSSeries_variables b
+  change AnalyticOnNhd ℂ (fun z => regCarlsonDirichletAverage b z exp) Set.univ
+  simpa using
+    (analyticOnNhd_regCarlsonDirichletAverage_nodes
+      (Ω := Set.univ) isOpen_univ (convex_univ : Convex ℝ (Set.univ : Set ℂ))
+      analyticOnNhd_cexp hb)
 
 /-- Carlson's differentiation formula for the analytically continued `S` function. -/
 theorem carlsonPartialDeriv_regCarlsonSSeries (i : ι) (z b : ι → ℂ) :

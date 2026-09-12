@@ -3,22 +3,23 @@ Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bastiaan J Braams
 -/
+module
 
-import StdSimplexMeasure.CarlsonR.Basic
-import StdSimplexMeasure.CarlsonR.Integral
-import StdSimplexMeasure.CarlsonR.Continuation
-import StdSimplexMeasure.CarlsonR.Deriv
-import StdSimplexMeasure.CarlsonR.Relations
-import StdSimplexMeasure.CarlsonR.Confluence
-import StdSimplexMeasure.CarlsonR.Laplace
-import StdSimplexMeasure.CarlsonR.SlitPlane
-import StdSimplexMeasure.CarlsonR.SingleIntegral
-import StdSimplexMeasure.CarlsonR.Contour
-import StdSimplexMeasure.CarlsonR.EulerTransform
-import StdSimplexMeasure.CarlsonR.IntegralEvaluation
-import StdSimplexMeasure.CarlsonR.SmallVariable
-import StdSimplexMeasure.CarlsonR.AssociatedRecurrence
-import StdSimplexMeasure.CarlsonR.AssociatedDependence
+public import StdSimplexMeasure.CarlsonR.Basic
+public import StdSimplexMeasure.CarlsonR.Integral
+public import StdSimplexMeasure.CarlsonR.Continuation
+public import StdSimplexMeasure.CarlsonR.Deriv
+public import StdSimplexMeasure.CarlsonR.Relations
+public import StdSimplexMeasure.CarlsonR.Confluence
+public import StdSimplexMeasure.CarlsonR.Laplace
+public import StdSimplexMeasure.CarlsonR.SlitPlane
+public import StdSimplexMeasure.CarlsonR.SingleIntegral
+public import StdSimplexMeasure.CarlsonR.Contour
+public import StdSimplexMeasure.CarlsonR.EulerTransform
+public import StdSimplexMeasure.CarlsonR.IntegralEvaluation
+public import StdSimplexMeasure.CarlsonR.SmallVariable
+public import StdSimplexMeasure.CarlsonR.AssociatedRecurrence
+public import StdSimplexMeasure.CarlsonR.AssociatedDependence
 
 /-!
 # Carlson's multivariate R-function

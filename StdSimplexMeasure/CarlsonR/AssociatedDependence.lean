@@ -1,5 +1,7 @@
 /- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
-import StdSimplexMeasure.CarlsonR.AssociatedRecurrence
+module
+
+public import StdSimplexMeasure.CarlsonR.AssociatedRecurrence
 
 /-!
 # Polynomial dependence of associated Carlson R-functions
@@ -9,7 +11,7 @@ This file formalizes the interface of [Carl77, Lemma 8.4-2 and Theorem 8.4-3].
 
 open Complex ProbabilityTheory
 open scoped Classical
-public noncomputable section CarlsonR
+@[expose] public noncomputable section CarlsonR
 namespace DirichletTransform
 variable {ι : Type*} [Fintype ι]
 

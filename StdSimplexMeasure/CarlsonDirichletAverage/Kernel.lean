@@ -3,8 +3,9 @@ Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bastiaan J Braams
 -/
+module
 
-import Mathlib.Analysis.Complex.Basic
+public import Mathlib.Analysis.Complex.Basic
 
 /-!
 # The affine kernel for Carlson's Dirichlet averages
@@ -16,7 +17,7 @@ the complex regularized integral.
 open Complex
 open scoped Classical
 
-public noncomputable section CarlsonDirichletKernel
+@[expose] public noncomputable section CarlsonDirichletKernel
 
 namespace DirichletTransform
 

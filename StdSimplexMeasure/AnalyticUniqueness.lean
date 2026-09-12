@@ -3,9 +3,11 @@ Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bastiaan J Braams
 -/
+module
 
-import Mathlib.Analysis.Analytic.IsolatedZeros
-import Mathlib.Analysis.Complex.CauchyIntegral
+public import Mathlib.Analysis.Analytic.IsolatedZeros
+public import Mathlib.Analysis.Complex.CauchyIntegral
+
 import Mathlib.Analysis.SpecificLimits.Basic
 
 /-!
@@ -19,7 +21,7 @@ Dirichlet probability measures to their complex analytic continuations.
 open Complex Set Filter
 open scoped Topology
 
-public noncomputable section AnalyticUniqueness
+@[expose] public noncomputable section AnalyticUniqueness
 
 /-- Two entire functions of one complex variable which agree at every positive real number agree
 everywhere. -/

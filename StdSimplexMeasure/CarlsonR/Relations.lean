@@ -3,9 +3,10 @@ Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bastiaan J Braams
 -/
+module
 
-import StdSimplexMeasure.CarlsonR.Deriv
-import StdSimplexMeasure.CarlsonDirichletAverage.Associated
+public import StdSimplexMeasure.CarlsonR.Deriv
+public import StdSimplexMeasure.CarlsonDirichletAverage.Associated
 
 /-!
 # Carlson's R-function: homogeneity and associated-function relations
@@ -15,7 +16,7 @@ This file begins the regularized forms of Carlson's formulas 5.9-3, 5.9-5, and 5
 
 open Complex MeasureTheory ProbabilityTheory
 open scoped Classical
-public noncomputable section CarlsonR
+@[expose] public noncomputable section CarlsonR
 namespace DirichletTransform
 variable {ι : Type*} [Fintype ι]
 

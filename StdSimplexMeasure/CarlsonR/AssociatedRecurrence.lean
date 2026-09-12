@@ -1,7 +1,9 @@
 /- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
-import StdSimplexMeasure.CarlsonR.Relations
-import Mathlib.RingTheory.MvPolynomial.Symmetric.Defs
-import Mathlib.Algebra.MvPolynomial.PDeriv
+module
+
+public import StdSimplexMeasure.CarlsonR.Relations
+public import Mathlib.RingTheory.MvPolynomial.Symmetric.Defs
+public import Mathlib.Algebra.MvPolynomial.PDeriv
 
 /-!
 # Fixed-parameter recurrence for associated Carlson R-functions
@@ -11,7 +13,7 @@ This file contains the coefficient polynomials and recurrence of [Carl77, Relati
 
 open Complex ProbabilityTheory
 open scoped Classical
-public noncomputable section CarlsonR
+@[expose] public noncomputable section CarlsonR
 namespace DirichletTransform
 variable {ι : Type*} [Fintype ι]
 

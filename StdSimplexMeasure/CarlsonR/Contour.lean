@@ -1,5 +1,8 @@
 /- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
-import StdSimplexMeasure.CarlsonR.SingleIntegral
+module
+
+public import StdSimplexMeasure.CarlsonR.SingleIntegral
+
 /-! # Contour continuation of Carlson's R-function
 
 Home for Carlson's Theorem 6.8-2.

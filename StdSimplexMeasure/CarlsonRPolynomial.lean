@@ -1,10 +1,12 @@
 /- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
-import StdSimplexMeasure.CarlsonRPolynomial.Basic
-import StdSimplexMeasure.CarlsonRPolynomial.Coefficients
-import StdSimplexMeasure.CarlsonRPolynomial.Estimates
-import StdSimplexMeasure.CarlsonRPolynomial.Binomial
-import StdSimplexMeasure.CarlsonRPolynomial.Transform
-import StdSimplexMeasure.CarlsonRPolynomial.Generating
+module
+
+public import StdSimplexMeasure.CarlsonRPolynomial.Basic
+public import StdSimplexMeasure.CarlsonRPolynomial.Coefficients
+public import StdSimplexMeasure.CarlsonRPolynomial.Estimates
+public import StdSimplexMeasure.CarlsonRPolynomial.Binomial
+public import StdSimplexMeasure.CarlsonRPolynomial.Transform
+public import StdSimplexMeasure.CarlsonRPolynomial.Generating
 
 /-! # Carlson's R-polynomials
 

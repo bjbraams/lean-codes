@@ -3,9 +3,11 @@ Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bastiaan J Braams
 -/
+module
 
-import StdSimplexMeasure.CarlsonDirichletAverage.Basic
-import StdSimplexMeasure.CarlsonRPolynomial.Basic
+public import StdSimplexMeasure.CarlsonDirichletAverage.Basic
+public import StdSimplexMeasure.CarlsonRPolynomial.Basic
+
 import Mathlib.MeasureTheory.Integral.DominatedConvergence
 
 /-!
@@ -24,7 +26,7 @@ the regularized Carlson Dirichlet average.
 open Complex MeasureTheory ProbabilityTheory
 open scoped Classical
 
-public noncomputable section CarlsonPowerSeries
+@[expose] public noncomputable section CarlsonPowerSeries
 
 namespace DirichletTransform
 

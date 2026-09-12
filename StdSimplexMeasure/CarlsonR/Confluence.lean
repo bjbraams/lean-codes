@@ -3,9 +3,11 @@ Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bastiaan J Braams
 -/
+module
 
-import StdSimplexMeasure.CarlsonR.Integral
-import StdSimplexMeasure.CarlsonS
+public import StdSimplexMeasure.CarlsonR.Integral
+public import StdSimplexMeasure.CarlsonS
+
 import Mathlib.Analysis.SpecialFunctions.Complex.LogBounds
 import Mathlib.MeasureTheory.Integral.DominatedConvergence
 
@@ -24,7 +26,7 @@ Mathlib's theorem `Complex.tendsto_one_add_div_pow_exp`.
 
 open Complex MeasureTheory MeasureTheory.Measure ProbabilityTheory Filter
 open scoped Classical Topology
-public noncomputable section CarlsonR
+@[expose] public noncomputable section CarlsonR
 namespace DirichletTransform
 variable {ι : Type*} [Fintype ι]
 

@@ -3,9 +3,12 @@ Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bastiaan J Braams
 -/
+module
 
-import StdSimplexMeasure.CarlsonDirichletAverage.Deriv
-import StdSimplexMeasure.SeveralComplexVariables.ParametricIntegral
+public import StdSimplexMeasure.CarlsonDirichletAverage.Deriv
+public import SeveralComplexVariables.ParametricIntegral
+
+import Mathlib.Topology.MetricSpace.Thickening
 
 /-!
 # Associated Carlson Dirichlet averages
@@ -23,11 +26,54 @@ relations first for the Gamma-regularized average.  In this normalization Carlso
 open Complex MeasureTheory ProbabilityTheory
 open scoped Classical
 
-public noncomputable section CarlsonAssociated
+@[expose] public noncomputable section CarlsonAssociated
 
 namespace DirichletTransform
 
 variable {ι : Type*} [Fintype ι]
+
+/-- Carlson's affine form, regarded as a continuous complex-linear map in its node variables. -/
+private noncomputable def carlsonAffineFormCLM (u : ι → ℝ) : (ι → ℂ) →L[ℂ] ℂ :=
+  ∑ i, (u i : ℂ) • (ContinuousLinearMap.proj i : (ι → ℂ) →L[ℂ] ℂ)
+
+/-- Evaluation of the continuous-linear version of Carlson's affine form. -/
+private lemma carlsonAffineFormCLM_apply (u : ι → ℝ) (z : ι → ℂ) :
+    carlsonAffineFormCLM u z = carlsonAffineForm z u := by
+  simp [carlsonAffineFormCLM, carlsonAffineForm]
+
+/-- On the standard simplex, the operator norm of Carlson's affine form is at most one. -/
+private lemma norm_carlsonAffineFormCLM_le_one {u : ι → ℝ}
+    (hu : u ∈ stdSimplex ℝ ι) : ‖carlsonAffineFormCLM u‖ ≤ 1 := by
+  refine ContinuousLinearMap.opNorm_le_bound _ zero_le_one fun z => ?_
+  rw [carlsonAffineFormCLM_apply]
+  calc
+    ‖carlsonAffineForm z u‖ ≤ ∑ i, u i * ‖z i‖ := by
+      unfold carlsonAffineForm
+      calc
+        ‖∑ i, (u i : ℂ) * z i‖ ≤ ∑ i, ‖(u i : ℂ) * z i‖ := norm_sum_le _ _
+        _ = ∑ i, u i * ‖z i‖ := by
+          apply Finset.sum_congr rfl
+          intro i _
+          simp [Real.norm_eq_abs, abs_of_nonneg (hu.1 i)]
+    _ ≤ ∑ i, u i * ‖z‖ := by
+      exact Finset.sum_le_sum fun i _ =>
+        mul_le_mul_of_nonneg_left (norm_le_pi_norm z i) (hu.1 i)
+    _ = ‖z‖ := by rw [← Finset.sum_mul, hu.2, one_mul]
+    _ = 1 * ‖z‖ := by rw [one_mul]
+
+/-- Moving the node vector moves every simplex affine combination by at most the supremum-norm
+distance between the node vectors. -/
+private lemma dist_carlsonAffineForm_le_norm_sub (z w : ι → ℂ)
+    {u : ι → ℝ} (hu : u ∈ stdSimplex ℝ ι) :
+    dist (carlsonAffineForm w u) (carlsonAffineForm z u) ≤ ‖w - z‖ := by
+  rw [← carlsonAffineFormCLM_apply u w, ← carlsonAffineFormCLM_apply u z]
+  rw [dist_eq_norm, ← map_sub]
+  calc
+    ‖carlsonAffineFormCLM u (w - z)‖ ≤ ‖carlsonAffineFormCLM u‖ * ‖w - z‖ :=
+      (carlsonAffineFormCLM u).le_opNorm _
+    _ ≤ 1 * ‖w - z‖ := mul_le_mul_of_nonneg_right
+      (norm_carlsonAffineFormCLM_le_one hu) (norm_nonneg _)
+    _ = ‖w - z‖ := one_mul _
 
 /-- The Dirichlet parameter vector obtained by increasing coordinate `i` by one. -/
 def addDirichletUnit (b : ι → ℂ) (i : ι) : ι → ℂ :=
@@ -320,10 +366,120 @@ theorem analyticOnNhd_regCarlsonDirichletAverage_nodes
     {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) :
     AnalyticOnNhd ℂ (fun z => regCarlsonDirichletAverage b z f)
       {z : ι → ℂ | Set.range z ⊆ Ω} := by
-  /- This follows from the same compact-local domination argument as the preceding theorem.
-  Joint analyticity is then supplied by
-  `SeveralComplexVariables.analyticOnNhd_pi_of_analyticOnNhd_update`. -/
-  sorry
+  classical
+  let U : Set (ι → ℂ) := {z | Set.range z ⊆ Ω}
+  have hU : IsOpen U := by
+    rw [show U = Set.pi Set.univ (fun _ => Ω) by
+      ext z
+      simp [U, Set.range_subset_iff]]
+    exact isOpen_set_pi Set.finite_univ fun _ _ => hΩopen
+  let μ := (MeasureTheory.Measure.stdSimplexMeasure (ι := ι)).restrict (stdSimplex ℝ ι)
+  let F : (ι → ℂ) → (ι → ℝ) → ℂ := fun z u =>
+    regDirichletDensity b u * f (carlsonAffineForm z u)
+  let L : (ι → ℝ) → ((ι → ℂ) →L[ℂ] ℂ) := carlsonAffineFormCLM
+  refine analyticOnNhd_integral_of_dominated_of_fderiv_le
+    (μ := μ) (U := U) (F := F) hU ?_
+  intro z hz
+  let K : Set ℂ := convexHull ℝ (Set.range z)
+  have hKcompact : IsCompact K := (Set.finite_range z).isCompact_convexHull ℝ
+  have hKΩ : K ⊆ Ω := convexHull_min hz hΩconv
+  obtain ⟨δ₁, hδ₁, hδ₁compact⟩ := hKcompact.exists_isCompact_cthickening
+  obtain ⟨δ₂, hδ₂, hδ₂Ω⟩ := hKcompact.exists_cthickening_subset_open hΩopen hKΩ
+  let δ := min δ₁ δ₂
+  have hδ : 0 < δ := lt_min hδ₁ hδ₂
+  have hδcompact : IsCompact (Metric.cthickening δ K) :=
+    hδ₁compact.of_isClosed_subset Metric.isClosed_cthickening
+      (Metric.cthickening_mono (min_le_left _ _) K)
+  have hδΩ : Metric.cthickening δ K ⊆ Ω :=
+    (Metric.cthickening_mono (min_le_right _ _) K).trans hδ₂Ω
+  have hderivCont : ContinuousOn (deriv f) Ω := hf.deriv.continuousOn
+  obtain ⟨C₀, hC₀⟩ := hδcompact.bddAbove_image (hderivCont.mono hδΩ).norm
+  let C : ℝ := max C₀ 0
+  have hC : ∀ q ∈ Metric.cthickening δ K, ‖deriv f q‖ ≤ C := fun q hq =>
+    (hC₀ (Set.mem_image_of_mem _ hq)).trans (le_max_left _ _)
+  let s : Set (ι → ℂ) := Metric.ball z δ
+  have hs : s ∈ nhds z := Metric.ball_mem_nhds z hδ
+  let bound : (ι → ℝ) → ℝ := fun u => C * ‖regDirichletDensity b u‖
+  let F' : (ι → ℂ) → (ι → ℝ) → ((ι → ℂ) →L[ℂ] ℂ) := fun y u =>
+    regDirichletDensity b u • ((deriv f (carlsonAffineForm y u)) • L u)
+  have hdens : Integrable (fun u => regDirichletDensity b u) μ := by
+    change IntegrableOn (fun u => regDirichletDensity b u)
+      (stdSimplex ℝ ι) MeasureTheory.Measure.stdSimplexMeasure
+    simpa only [mul_one] using integrableOn_regDirichletDensity_mul b hb
+      (continuousOn_const : ContinuousOn (fun _ : ι → ℝ => (1 : ℂ)) (stdSimplex ℝ ι))
+  refine ⟨s, bound, F', hs, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  · filter_upwards [hs] with y hy
+    have hyU : Set.range y ⊆ Ω := by
+      intro q hq
+      obtain ⟨i, rfl⟩ := hq
+      have hiK : z i ∈ K := by
+        apply subset_convexHull ℝ
+        exact Set.mem_range_self i
+      have hy' : dist y z < δ := by simpa [s, Metric.mem_ball, dist_comm] using hy
+      apply hδΩ
+      exact Metric.mem_cthickening_of_dist_le (y i) (z i) δ K hiK
+        ((dist_le_pi_dist y z i).trans (le_of_lt hy'))
+    have hcont : ContinuousOn (fun u => f (carlsonAffineForm y u)) (stdSimplex ℝ ι) :=
+      hf.continuousOn.comp (continuous_carlsonAffineForm y).continuousOn fun u hu =>
+        (convexHull_min hyU hΩconv) (carlsonAffineForm_mem_convexHull y hu)
+    exact (integrableOn_regDirichletDensity_mul b hb hcont).aestronglyMeasurable
+  · change IntegrableOn (fun u => regDirichletDensity b u * f (carlsonAffineForm z u))
+      (stdSimplex ℝ ι) MeasureTheory.Measure.stdSimplexMeasure
+    exact integrableOn_regDirichletDensity_mul b hb
+      (hf.continuousOn.comp (continuous_carlsonAffineForm z).continuousOn fun u hu =>
+        hKΩ (carlsonAffineForm_mem_convexHull z hu))
+  · have hcomp : ContinuousOn (fun u => deriv f (carlsonAffineForm z u))
+        (stdSimplex ℝ ι) :=
+      hderivCont.comp (continuous_carlsonAffineForm z).continuousOn fun u hu =>
+        hKΩ (carlsonAffineForm_mem_convexHull z hu)
+    have hL : Continuous (fun u : ι → ℝ => L u) := by
+      dsimp only [L, carlsonAffineFormCLM]
+      fun_prop
+    have hcont : ContinuousOn (fun u =>
+        (deriv f (carlsonAffineForm z u)) • L u) (stdSimplex ℝ ι) :=
+      hcomp.smul hL.continuousOn
+    exact hdens.aestronglyMeasurable.smul
+      (hcont.aestronglyMeasurable (isClosed_stdSimplex ℝ ι).measurableSet)
+  · filter_upwards [self_mem_ae_restrict
+      (μ := MeasureTheory.Measure.stdSimplexMeasure)
+      (isClosed_stdSimplex ℝ ι).measurableSet] with u hu
+    intro y hy
+    have hy' : dist y z < δ := by simpa [s, Metric.mem_ball, dist_comm] using hy
+    have hbase : carlsonAffineForm z u ∈ K := carlsonAffineForm_mem_convexHull z hu
+    have hnear : carlsonAffineForm y u ∈ Metric.cthickening δ K :=
+      Metric.mem_cthickening_of_dist_le _ _ δ K hbase
+        ((dist_carlsonAffineForm_le_norm_sub z y hu).trans (by
+          simpa [dist_eq_norm] using le_of_lt hy'))
+    dsimp only [F', bound]
+    rw [norm_smul, norm_smul]
+    calc
+      ‖regDirichletDensity b u‖ *
+          (‖deriv f (carlsonAffineForm y u)‖ * ‖L u‖) ≤
+          ‖regDirichletDensity b u‖ * (C * 1) := by
+            gcongr
+            · exact hC _ hnear
+            · exact norm_carlsonAffineFormCLM_le_one hu
+      _ = C * ‖regDirichletDensity b u‖ := by ring
+  · exact hdens.norm.const_mul C
+  · filter_upwards [self_mem_ae_restrict
+      (μ := MeasureTheory.Measure.stdSimplexMeasure)
+      (isClosed_stdSimplex ℝ ι).measurableSet] with u hu
+    intro y hy
+    have hy' : dist y z < δ := by simpa [s, Metric.mem_ball, dist_comm] using hy
+    have hbase : carlsonAffineForm z u ∈ K := carlsonAffineForm_mem_convexHull z hu
+    have hnear : carlsonAffineForm y u ∈ Metric.cthickening δ K :=
+      Metric.mem_cthickening_of_dist_le _ _ δ K hbase
+        ((dist_carlsonAffineForm_le_norm_sub z y hu).trans (by
+          simpa [dist_eq_norm] using le_of_lt hy'))
+    have hf' : HasDerivAt f (deriv f (carlsonAffineForm y u))
+        (carlsonAffineForm y u) :=
+      (hf _ (hδΩ hnear)).differentiableAt.hasDerivAt
+    have hfL : HasDerivAt f (deriv f (carlsonAffineForm y u)) (L u y) := by
+      simpa only [L, carlsonAffineFormCLM_apply] using hf'
+    have hcomp := hfL.comp_hasFDerivAt y (L u).hasFDerivAt
+    have hmul := hcomp.const_mul (regDirichletDensity b u)
+    simpa only [F, F', L, Function.comp_apply, carlsonAffineFormCLM_apply,
+      smul_eq_mul] using hmul
 
 /-- **Carlson 5.3-3, joint form.** The regularized Carlson average is jointly analytic in
 the Dirichlet parameters and nodes on the native convergence domain and a convex node domain. -/
@@ -333,9 +489,11 @@ theorem analyticOnNhd_regCarlsonDirichletAverage_parameters_nodes
     AnalyticOnNhd ℂ
       (fun p : (ι → ℂ) × (ι → ℂ) => regCarlsonDirichletAverage p.1 p.2 f)
       {p | p.1 ∈ mvBetaConvergent ∧ Set.range p.2 ⊆ Ω} := by
-  /- The node-variable component is the preceding theorem.  The parameter-variable component
-  is `regDirichletIntegral_analyticOn`; completing that foundational theorem and applying a
-  locally dominated joint-integral theorem will finish this statement. -/
+  /- Separate analyticity is now available: the node-variable component is the preceding
+  theorem, and the parameter-variable component is `regDirichletIntegral_analyticOn`.
+  Joint analyticity on the product domain follows by Osgood on `ι ⊕ ι` (via
+  `ContinuousLinearEquiv.sumPiEquivProdPi`) after a locally dominated joint-continuity
+  argument for the parametric integral. -/
   sorry
 
 /-- Carlson's relation 5.6-1(5) in its original normalization.  The coefficient is the
