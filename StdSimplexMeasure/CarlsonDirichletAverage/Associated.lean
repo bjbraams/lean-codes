@@ -323,6 +323,77 @@ theorem hasDerivAt_regCarlsonDirichletAverage_update
   intro w hw u hu
   exact hf'_bound _
 
+set_option maxHeartbeats 1000000 in
+/-- Differentiation under a regularized Carlson average when the averaged function is
+holomorphic on a convex neighborhood of all the nodes. -/
+theorem hasDerivAt_regCarlsonDirichletAverage_update_of_analyticOnNhd
+    {Ω : Set ℂ} (hΩopen : IsOpen Ω) (hΩconv : Convex ℝ Ω)
+    {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f Ω)
+    {b z : ι → ℂ} (hb : b ∈ mvBetaConvergent) (hz : Set.range z ⊆ Ω)
+    (i : ι) :
+    HasDerivAt
+      (fun w => regCarlsonDirichletAverage b (Function.update z i w) f)
+      (regDirichletIntegral b
+        (fun u => (u i : ℂ) * deriv f (carlsonAffineForm z u)))
+      (z i) := by
+  let K : Set ℂ := convexHull ℝ (Set.range z)
+  have hKcompact : IsCompact K := (Set.finite_range z).isCompact_convexHull ℝ
+  have hKΩ : K ⊆ Ω := convexHull_min hz hΩconv
+  obtain ⟨δ₁, hδ₁, hδ₁compact⟩ := hKcompact.exists_isCompact_cthickening
+  obtain ⟨δ₂, hδ₂, hδ₂Ω⟩ := hKcompact.exists_cthickening_subset_open hΩopen hKΩ
+  let δ := min δ₁ δ₂
+  have hδ : 0 < δ := lt_min hδ₁ hδ₂
+  have hδcompact : IsCompact (Metric.cthickening δ K) :=
+    hδ₁compact.of_isClosed_subset Metric.isClosed_cthickening
+      (Metric.cthickening_mono (min_le_left _ _) K)
+  have hδΩ : Metric.cthickening δ K ⊆ Ω :=
+    (Metric.cthickening_mono (min_le_right _ _) K).trans hδ₂Ω
+  have hderivCont : ContinuousOn (deriv f) Ω := hf.deriv.continuousOn
+  obtain ⟨C₀, hC₀⟩ := hδcompact.bddAbove_image (hderivCont.mono hδΩ).norm
+  let C : ℝ := max C₀ 0
+  have hC : ∀ q ∈ Metric.cthickening δ K, ‖deriv f q‖ ≤ C := fun q hq =>
+    (hC₀ (Set.mem_image_of_mem _ hq)).trans (le_max_left _ _)
+  let s : Set ℂ := Metric.ball (z i) δ
+  have hs : s ∈ nhds (z i) := Metric.ball_mem_nhds _ hδ
+  have hui_le_one {u : ι → ℝ} (hu : u ∈ stdSimplex ℝ ι) : u i ≤ 1 := by
+    calc
+      u i ≤ ∑ j, u j := Finset.single_le_sum (fun j _ => hu.1 j) (Finset.mem_univ i)
+      _ = 1 := hu.2
+  have hnear {w : ℂ} (hw : w ∈ s) {u : ι → ℝ} (hu : u ∈ stdSimplex ℝ ι) :
+      carlsonAffineForm (Function.update z i w) u ∈ Metric.cthickening δ K := by
+    have hbase : carlsonAffineForm z u ∈ K := carlsonAffineForm_mem_convexHull z hu
+    apply Metric.mem_cthickening_of_dist_le _ _ δ K hbase
+    have hwi : ‖w - z i‖ < δ := by
+      simpa [s, Metric.mem_ball, dist_eq_norm] using hw
+    rw [carlsonAffineForm_update, dist_eq_norm]
+    simp only [add_sub_cancel_left]
+    rw [norm_mul, norm_real, Real.norm_eq_abs, abs_of_nonneg (hu.1 i)]
+    exact (mul_le_of_le_one_left (norm_nonneg _) (hui_le_one hu)).trans hwi.le
+  apply hasDerivAt_regCarlsonDirichletAverage_update_of_bound hb i hs
+  · intro w hw u hu
+    exact (hf _ (hδΩ (hnear hw hu))).differentiableAt.hasDerivAt
+  · intro w hw
+    exact hderivCont.mono fun q hq => by
+      obtain ⟨u, hu, rfl⟩ := hq
+      exact hδΩ (hnear hw hu)
+  · intro w hw u hu
+    exact hC _ (hnear hw hu)
+
+/-- **Carlson 5.3-2, first-order form.** For a function holomorphic on a convex node domain,
+differentiation with respect to node `i` raises the corresponding Dirichlet parameter. -/
+theorem carlsonPartialDeriv_regCarlsonDirichletAverage_of_analyticOnNhd
+    {Ω : Set ℂ} (hΩopen : IsOpen Ω) (hΩconv : Convex ℝ Ω)
+    {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f Ω)
+    {b z : ι → ℂ} (hb : b ∈ mvBetaConvergent) (hz : Set.range z ⊆ Ω)
+    (i : ι) :
+    carlsonPartialDeriv i (fun w => regCarlsonDirichletAverage b w f) z =
+      b i * regCarlsonDirichletAverage (addDirichletUnit b i) z (deriv f) := by
+  rw [carlsonPartialDeriv,
+    (hasDerivAt_regCarlsonDirichletAverage_update_of_analyticOnNhd
+      hΩopen hΩconv hf hb hz i).deriv]
+  exact (mul_regDirichletIntegral_addDirichletUnit hb i
+    (fun u => deriv f (carlsonAffineForm z u))).symm
+
 /-- Regularized form of Carlson's relation 5.6-1(5): differentiating with respect to `z i`
 produces the associated average with parameter `b i` increased by one. -/
 theorem carlsonPartialDeriv_regCarlsonDirichletAverage
@@ -338,6 +409,103 @@ theorem carlsonPartialDeriv_regCarlsonDirichletAverage
   exact (mul_regDirichletIntegral_addDirichletUnit hb i
     (fun u ↦ f' (carlsonAffineForm z u))).symm
 
+/-- Iteration of `addDirichletUnit` in the order matching
+`carlsonIteratedPartialDeriv`. -/
+private def iteratedAddDirichletUnit : List ι → (ι → ℂ) → (ι → ℂ)
+  | [], b => b
+  | i :: is, b => addDirichletUnit (iteratedAddDirichletUnit is b) i
+
+/-- The product of the successive Dirichlet parameters introduced by repeated parameter
+shifts. -/
+private def iteratedDirichletShiftCoeff : List ι → (ι → ℂ) → ℂ
+  | [], _ => 1
+  | i :: is, b =>
+      iteratedDirichletShiftCoeff is b * iteratedAddDirichletUnit is b i
+
+omit [Fintype ι] in
+/-- Iterated positive unit shifts preserve the native Dirichlet convergence region. -/
+private lemma iteratedAddDirichletUnit_mem {b : ι → ℂ}
+    (hb : b ∈ mvBetaConvergent) (is : List ι) :
+    iteratedAddDirichletUnit is b ∈ mvBetaConvergent := by
+  induction is with
+  | nil => exact hb
+  | cons i is ih => exact addDirichletUnit_mem_mvBetaConvergent ih i
+
+/-- Repeated density shifts convert a product of simplex coordinates into successive
+positive unit shifts of the Dirichlet parameters. -/
+private lemma iteratedDirichletShiftCoeff_mul_regDirichletIntegral
+    (is : List ι) {b : ι → ℂ} (hb : b ∈ mvBetaConvergent)
+    (g : (ι → ℝ) → ℂ) :
+    iteratedDirichletShiftCoeff is b *
+        regDirichletIntegral (iteratedAddDirichletUnit is b) g =
+      regDirichletIntegral b (fun u =>
+        (is.map fun i => (u i : ℂ)).prod * g u) := by
+  induction is generalizing g with
+  | nil => simp [iteratedDirichletShiftCoeff, iteratedAddDirichletUnit]
+  | cons i is ih =>
+      rw [iteratedDirichletShiftCoeff, iteratedAddDirichletUnit, mul_assoc,
+        mul_regDirichletIntegral_addDirichletUnit
+          (iteratedAddDirichletUnit_mem hb is) i,
+        ih (g := fun u => (u i : ℂ) * g u)]
+      apply regDirichletIntegral_congr
+      intro u hu
+      simp only [List.map_cons, List.prod_cons]
+      ring
+
+omit [Fintype ι] in
+/-- Updating one node to another point of the node domain preserves containment of the node
+range in that domain. -/
+private lemma range_update_subset {Ω : Set ℂ} {z : ι → ℂ}
+    (hz : Set.range z ⊆ Ω) {i : ι} {w : ℂ} (hw : w ∈ Ω) :
+    Set.range (Function.update z i w) ⊆ Ω := by
+  intro q hq
+  obtain ⟨j, rfl⟩ := hq
+  by_cases hji : j = i
+  · subst j
+    simpa using hw
+  · simpa [hji] using hz (Set.mem_range_self j)
+
+set_option maxHeartbeats 1000000 in
+/-- An iterated node derivative is an average with successively shifted parameters and the
+corresponding iterated derivative of the averaged function. -/
+private lemma carlsonIteratedPartialDeriv_eq_iteratedShift
+    {Ω : Set ℂ} (hΩopen : IsOpen Ω) (hΩconv : Convex ℝ Ω)
+    {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f Ω)
+    {b z : ι → ℂ} (hb : b ∈ mvBetaConvergent) (hz : Set.range z ⊆ Ω)
+    (is : List ι) :
+    carlsonIteratedPartialDeriv is
+        (fun w => regCarlsonDirichletAverage b w f) z =
+      iteratedDirichletShiftCoeff is b *
+        regCarlsonDirichletAverage (iteratedAddDirichletUnit is b) z
+          (iteratedDeriv is.length f) := by
+  induction is generalizing z with
+  | nil => simp [carlsonIteratedPartialDeriv, iteratedDirichletShiftCoeff,
+      iteratedAddDirichletUnit]
+  | cons i is ih =>
+      rw [carlsonIteratedPartialDeriv]
+      unfold carlsonPartialDeriv
+      have hzi : z i ∈ Ω := hz (Set.mem_range_self i)
+      have heq :
+          (fun w => carlsonIteratedPartialDeriv is
+            (fun y => regCarlsonDirichletAverage b y f) (Function.update z i w)) =ᶠ[nhds (z i)]
+          (fun w => iteratedDirichletShiftCoeff is b *
+            regCarlsonDirichletAverage (iteratedAddDirichletUnit is b)
+              (Function.update z i w) (iteratedDeriv is.length f)) := by
+        filter_upwards [hΩopen.mem_nhds hzi] with w hw
+        exact ih (range_update_subset hz hw)
+      rw [heq.deriv_eq]
+      have hfiter : AnalyticOnNhd ℂ (iteratedDeriv is.length f) Ω := by
+        simpa [iteratedDeriv_eq_iterate] using hf.iterated_deriv is.length
+      have hder := hasDerivAt_regCarlsonDirichletAverage_update_of_analyticOnNhd
+        hΩopen hΩconv hfiter (iteratedAddDirichletUnit_mem hb is) hz i
+      rw [(hder.const_mul (iteratedDirichletShiftCoeff is b)).deriv]
+      rw [← mul_regDirichletIntegral_addDirichletUnit
+        (iteratedAddDirichletUnit_mem hb is) i]
+      simp only [List.length_cons, iteratedDirichletShiftCoeff,
+        iteratedAddDirichletUnit, iteratedDeriv_succ]
+      rw [regCarlsonDirichletAverage]
+      ring
+
 /-- **Carlson 5.3-2, regularized complex form.** Successive partial differentiation may be
 taken under a Carlson average when the nodes lie in a convex domain of holomorphy. -/
 theorem carlsonIteratedPartialDeriv_regCarlsonDirichletAverage
@@ -350,13 +518,9 @@ theorem carlsonIteratedPartialDeriv_regCarlsonDirichletAverage
       regDirichletIntegral b (fun u =>
         (is.map fun i => (u i : ℂ)).prod *
           iteratedDeriv is.length f (carlsonAffineForm z u)) := by
-  /- The pointwise formula is
-  `carlsonIteratedPartialDeriv_comp_carlsonAffineForm`.  The remaining step is a reusable
-  higher-order differentiation-under-the-integral theorem with domination on a compact
-  neighborhood of `convexHull ℝ (Set.range z)`.  The first-order analytic infrastructure is
-  `analyticOnNhd_integral_of_dominated_of_fderiv_le`; the missing input here is the corresponding
-  uniform higher-derivative estimate. -/
-  sorry
+  rw [carlsonIteratedPartialDeriv_eq_iteratedShift hΩopen hΩconv hf hb hz]
+  exact iteratedDirichletShiftCoeff_mul_regDirichletIntegral is hb
+    (fun u => iteratedDeriv is.length f (carlsonAffineForm z u))
 
 /-- **Carlson 5.3-3, node-variable part.** On a convex domain of holomorphy, a regularized
 Carlson average is analytic in all node variables throughout the corresponding product domain. -/
