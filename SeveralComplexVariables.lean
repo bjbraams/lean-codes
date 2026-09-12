@@ -5,6 +5,7 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import SeveralComplexVariables.AnalyticUniqueness
 public import SeveralComplexVariables.Basic
 public import SeveralComplexVariables.Osgood
 public import SeveralComplexVariables.LocallyUniform

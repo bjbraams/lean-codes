@@ -6,7 +6,7 @@ Authors: Bastiaan J Braams
 module
 
 public import Mathlib.Analysis.SpecialFunctions.Gamma.Beta
-public import Mathlib.RingTheory.Polynomial.Pochhammer
+public import Pochhammer.Identities
 
 /-!
 # Pochhammer identities for the Gamma function
@@ -66,23 +66,8 @@ corresponding quotient identity. -/
 theorem ascPochhammer_eval_split_reflection (c : ℂ) {m n : ℕ} (hmn : m ≤ n) :
     (ascPochhammer ℂ n).eval c =
       (-1 : ℂ) ^ (n - m) * (ascPochhammer ℂ m).eval c *
-        (ascPochhammer ℂ (n - m)).eval (1 - c - n) := by
-  obtain ⟨d, rfl⟩ := Nat.exists_eq_add_of_le hmn
-  simp only [Nat.add_sub_cancel_left]
-  have hmul := congrArg (Polynomial.eval c) (ascPochhammer_mul ℂ m d)
-  simp only [Polynomial.eval_mul, Polynomial.eval_comp, Polynomial.eval_add,
-    Polynomial.eval_X, Polynomial.eval_natCast] at hmul
-  rw [← hmul]
-  have href := ascPochhammer_eval_neg_eq_descPochhammer ℂ (c + m + d - 1) d
-  rw [descPochhammer_eval_eq_ascPochhammer] at href
-  have harg : -(c + (m : ℂ) + d - 1) = 1 - c - (m + d : ℕ) := by
-    rw [Nat.cast_add]
-    ring
-  have harg' : c + (m : ℂ) + d - 1 - d + 1 = c + m := by ring
-  rw [harg, harg'] at href
-  rw [href]
-  ring_nf
-  simp
+        (ascPochhammer ℂ (n - m)).eval (1 - c - n) :=
+  ascPochhammer_eval_split_reflect c hmn
 
 end Complex
 

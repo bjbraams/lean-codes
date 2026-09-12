@@ -13,7 +13,7 @@
 - After every Lean edit: `lake build` from the Lake root.
 - Without LSP/MCP: treat `lake build` output as the only proof-state.
 - Do not bump lean-toolchain or Mathlib unless asked.
-- Active work: StdSimplexMeasure/ or Pochhammer/ or SeveralComplexVariables/
+- Active work: StdSimplexMeasure/ or Dirichlet/ or Carlson/ or Pochhammer/ or SeveralComplexVariables/
 
 ## Project
 

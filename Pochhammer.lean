@@ -8,12 +8,18 @@ module
 public import Pochhammer.BinomialSeries
 public import Pochhammer.Estimates
 public import Pochhammer.Gamma
+public import Pochhammer.Identities
 public import Pochhammer.PochhammerTransform
 public import Pochhammer.Vandermonde
+public import Pochhammer.BetaIntegral
+public import Pochhammer.ComplexPowMeasurable
+public import Pochhammer.IncompleteMellin
+public import Pochhammer.PositiveCpow
 
 /-!
 # Pochhammer infrastructure
 
 This umbrella module imports the project-local results about Pochhammer symbols, their
 Gamma-function identities, estimates, binomial series, Vandermonde identities, and transforms.
+It also collects simplex-independent scalar beta integrals, complex powers, and Mellin support.
 -/

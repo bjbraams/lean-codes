@@ -8,7 +8,8 @@ module
 public import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
 public import Mathlib.MeasureTheory.Measure.Restrict
 public import Mathlib.MeasureTheory.Measure.WithDensity
-public import StdSimplexMeasure.Coordinates
+public import Mathlib.MeasureTheory.Function.LpSeminorm.Basic
+public import StdSimplexMeasure.CoordinateRealization
 
 import Mathlib.MeasureTheory.Function.LocallyIntegrable
 import Mathlib.MeasureTheory.Measure.Dirac
@@ -247,6 +248,21 @@ theorem stdSimplexMeasure_restrict_stdSimplex
     stdSimplexMeasure (ι := ι) = 0 := by
   unfold stdSimplexMeasure
   exact dif_neg (not_nonempty_iff.mpr inferInstance)
+
+/-- `stdSimplexMeasure` is a `SigmaFinite` measure. -/
+instance sigmaFinite_stdSimplexMeasure :
+    SigmaFinite (stdSimplexMeasure (ι := ι)) := by
+  cases isEmpty_or_nonempty ι with
+  | inl h =>
+      let : IsEmpty ι := h
+      rw [stdSimplexMeasure_empty]
+      infer_instance
+  | inr h =>
+      let : Nonempty ι := h
+      let i : ι := Classical.choice h
+      rw [stdSimplexMeasure_eq_at i]
+      unfold stdSimplexMeasureAt
+      exact (isClosedEmbedding_stdSimplexCoordMap i).measurableEmbedding.sigmaFinite_map
 
 /-- For a type with a unique element, the pushforward measure at that element is a Dirac mass
 at the all-ones point. -/
@@ -523,7 +539,7 @@ private theorem stdSimplexAggregate_coordMap_split
       stdSimplexAggregate f (stdSimplexCoordMap i x) k =
           1 - ∑ q : {j : κ // j ≠ k},
             stdSimplexAggregate f (stdSimplexCoordMap i x) q := by
-              rw [← hsum_left, sum_eq_apply_add_sum_ne _ k]
+              rw [← hsum_left, Fintype.sum_eq_add_sum_subtype_ne _ k]
               ring
       _ = 1 - ∑ q : {j : κ // j ≠ k},
           FunOnFinite.linearMap ℝ ℝ f' (e x).1 q := by
@@ -739,6 +755,19 @@ theorem map_stdSimplexMeasure_restrict_stdSimplex_aggregate
               rw [stdSimplexAggregateDensity_coordMap_split f k i hi z]
               unfold H D
               ac_rfl
+
+/-- Coordinates belong to every `Lᵖ` space for a finite measure supported on the simplex. -/
+theorem memLp_coordinate_of_restrict_stdSimplex
+    {μ : Measure (ι → ℝ)} [IsFiniteMeasure μ]
+    (hμ : μ.restrict (stdSimplex ℝ ι) = μ) (i : ι) (p : ENNReal) :
+    MemLp (fun u : ι → ℝ => u i) p μ := by
+  apply MemLp.of_bound (measurable_pi_apply i).aestronglyMeasurable 1
+  have hmem : ∀ᵐ u ∂μ, u ∈ stdSimplex ℝ ι := by
+    rw [← hμ]
+    exact ae_restrict_mem (isClosed_stdSimplex ℝ ι).measurableSet
+  filter_upwards [hmem] with u hu
+  rw [Real.norm_eq_abs, abs_of_nonneg (hu.1 i)]
+  exact (mem_Icc_of_mem_stdSimplex hu i).2
 
 end MeasureTheory.Measure
 

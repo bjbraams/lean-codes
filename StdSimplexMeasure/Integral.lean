@@ -7,6 +7,7 @@ module
 
 public import Mathlib.MeasureTheory.Integral.Bochner.Set
 public import StdSimplexMeasure.Measure
+public import Pochhammer.BetaIntegral
 public import StdSimplexMeasure.PositiveSimplex
 
 import Mathlib.Analysis.SpecialFunctions.Gamma.Beta
@@ -76,46 +77,6 @@ theorem lintegral_stdSimplex_eq_lintegral_freeCoords
       ∫⁻ x in stdSimplexFreeCoords i, f (stdSimplexCoordMap i x) := by
   rw [stdSimplexMeasure_restrict_stdSimplex i]
   exact (isClosedEmbedding_stdSimplexCoordMap i).measurableEmbedding.lintegral_map f
-
-/-- The beta integral at positive integer parameters, in a form convenient for simplex
-monomial integrals. -/
-theorem integral_Icc_pow_mul_one_sub_pow (a b : ℕ) :
-    ∫ t in Set.Icc (0 : ℝ) 1, t ^ a * (1 - t) ^ b =
-      (Nat.factorial a * Nat.factorial b : ℝ) / Nat.factorial (a + b + 1) := by
-  have hbeta :
-      (↑(∫ t in Set.Icc (0 : ℝ) 1, t ^ a * (1 - t) ^ b) : ℂ) =
-        Complex.betaIntegral (a + 1) (b + 1) := by
-    rw [Complex.betaIntegral, intervalIntegral.integral_of_le zero_le_one]
-    rw [integral_Icc_eq_integral_Ioc]
-    have hc : (∫ t in Set.Ioc (0 : ℝ) 1,
-        (↑(t ^ a * (1 - t) ^ b) : ℂ)) =
-        ↑(∫ t in Set.Ioc (0 : ℝ) 1, t ^ a * (1 - t) ^ b) := integral_ofReal
-    rw [← hc]
-    apply integral_congr_ae
-    filter_upwards [] with t
-    simp [Complex.ofReal_sub, Complex.ofReal_pow]
-  apply Complex.ofReal_injective
-  rw [hbeta]
-  rw [Complex.betaIntegral_eval_nat_add_one_right (by norm_num; positivity) b]
-  have hprod : (∏ j ∈ Finset.range (b + 1), ((a : ℂ) + 1 + j)) =
-      (((a + 1).ascFactorial (b + 1) : ℕ) : ℂ) := by
-    rw [Nat.ascFactorial_eq_prod_range]
-    push_cast
-    apply Finset.prod_congr rfl
-    intro j hj
-    ring
-  rw [hprod]
-  push_cast
-  have hfac : (Nat.factorial (a + b + 1) : ℂ) =
-      (Nat.factorial a : ℂ) * ((a + 1).ascFactorial (b + 1) : ℂ) := by
-    norm_cast
-    simpa [Nat.add_assoc] using (Nat.factorial_mul_ascFactorial a (b + 1)).symm
-  rw [hfac]
-  have ha : (Nat.factorial a : ℂ) ≠ 0 := by
-    exact_mod_cast (Nat.factorial_pos a).ne'
-  have hs : ((a + 1).ascFactorial (b + 1) : ℂ) ≠ 0 := by
-    exact_mod_cast (Nat.ascFactorial_pos a (b + 1)).ne'
-  field_simp [ha, hs]
 
 /-- Splitting one coordinate from a finite real coordinate space preserves product Lebesgue
 measure. -/
