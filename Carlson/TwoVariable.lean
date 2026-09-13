@@ -7,5 +7,7 @@ public import Carlson.TwoVariable.R
 public import Carlson.TwoVariable.S
 public import Carlson.TwoVariable.T
 public import Carlson.TwoVariable.Quadratic
+public import Carlson.TwoVariable.QuadraticContinuation
+public import Carlson.TwoVariable.EqualParameter
 
 /-! # Two-variable Carlson functions and polynomials -/

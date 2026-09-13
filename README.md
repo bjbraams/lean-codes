@@ -86,3 +86,24 @@ simplex calculus in `StdSimplexMeasure.Smooth`, moment determination in
 
 Run `lake build` from the repository root. The existing `.lake` symlink to the
 local-disk cache is intentional and must not be replaced or retargeted.
+
+### Local API documentation
+
+The project pins [doc-gen4](https://github.com/leanprover/doc-gen4#usage) to
+`v4.33.1`, matching its Lean version. From the repository root, run:
+
+```sh
+DOCGEN_SRC=vscode lake build Main:docs
+python3 -m http.server 8000 --bind 127.0.0.1 --directory .lake/build/doc
+```
+
+Open <http://127.0.0.1:8000/> in your browser; press Ctrl-C in the terminal to
+stop the server. Serve the files over HTTP rather than opening `index.html`
+directly, so that search and other browser features work correctly.
+
+`Main:docs` documents all five project roots and their imported dependencies.
+The first run also builds the documentation tool and dependency documentation,
+so it takes longer than subsequent runs. Generated files remain on local disk
+under the existing `.lake` symlink and are ignored by Git. `DOCGEN_SRC=vscode`
+makes source links open local files in VS Code. Rerun the build command after
+changing the Lean files; update the doc-gen4 pin when upgrading Lean.

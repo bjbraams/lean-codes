@@ -6,17 +6,18 @@ Authors: Bastiaan J Braams
 module
 
 public import Mathlib.Analysis.Analytic.Constructions
+public import Mathlib.Analysis.Calculus.Deriv.Pi
 public import Mathlib.Analysis.Complex.CauchyIntegral
 public import Mathlib.LinearAlgebra.FiniteDimensional.Basic
+public import Mathlib.Analysis.Normed.Module.FiniteDimension
 public import SeveralComplexVariables.Osgood
 
 /-!
 # Analyticity of holomorphic maps in finite dimension
 
-This file is the proposed home for the several-complex-variables theorem that a complex
+This file proves the several-complex-variables theorem that a complex
 Fréchet-differentiable map on an open subset of a finite-dimensional complex normed space is
-analytic.  Mathlib presently provides this implication when the source is `ℂ`; the intended
-result extends it to finite-dimensional complex source spaces.
+analytic. The general theorem uses coordinates only inside its proof.
 
 The file is independent of simplex measures and Carlson functions.  It is a temporary project
 home for material ultimately intended for a Mathlib location such as
@@ -24,12 +25,9 @@ home for material ultimately intended for a Mathlib location such as
 
 ## Main results
 
-`DifferentiableOn.analyticOnNhd_pi` and `differentiableOn_iff_analyticOnNhd_pi` provide the
-finite-coordinate form needed by the present applications.
-
-The proof may be obtained from finite-dimensional Osgood's theorem or directly from
-Cauchy's formula on sufficiently small polydiscs.  The theorem should not require a chosen basis
-in its final statement.
+`DifferentiableOn.analyticOnNhd_finiteDimensional` is basis-independent.
+`DifferentiableOn.analyticOnNhd_pi` and `differentiableOn_iff_analyticOnNhd_pi` retain the
+finite-coordinate interface used by the Carlson applications.
 -/
 
 public section
@@ -37,12 +35,7 @@ public section
 open Set
 open scoped Classical
 
-namespace SeveralComplexVariables
-
-/-! Auxiliary basis-dependent constructions used in a proof may live in this namespace.  The
-main user-facing implications should extend `DifferentiableOn` in the root namespace. -/
-
-end SeveralComplexVariables
+section Coordinates
 
 variable {ι F : Type*} [Fintype ι]
   [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
@@ -55,15 +48,8 @@ theorem DifferentiableOn.analyticOnNhd_pi {U : Set (ι → ℂ)} {f : (ι → �
   intro z hz i
   let V : Set ℂ := {w | Function.update z i w ∈ U}
   have hupdate : Continuous (fun w : ℂ ↦ Function.update z i w) := by fun_prop
-  have hupdate_diff : Differentiable ℂ (fun w : ℂ ↦ Function.update z i w) := by
-    rw [show (fun w : ℂ ↦ Function.update z i w) = fun w ↦
-        z + ContinuousLinearMap.single ℂ (fun _ : ι ↦ ℂ) i (w - z i) by
-      funext w j
-      by_cases hji : j = i
-      · subst j
-        simp
-      · simp [hji]]
-    fun_prop
+  have hupdate_diff : Differentiable ℂ (fun w : ℂ ↦ Function.update z i w) :=
+    fun w => (hasDerivAt_update z i w).differentiableAt
   have hV : IsOpen V := hU.preimage hupdate
   have hd : DifferentiableOn ℂ (fun w ↦ f (Function.update z i w)) V := by
     intro w hw
@@ -76,5 +62,38 @@ and analyticity are equivalent. -/
 theorem differentiableOn_iff_analyticOnNhd_pi {U : Set (ι → ℂ)} {f : (ι → ℂ) → F}
     (hU : IsOpen U) : DifferentiableOn ℂ f U ↔ AnalyticOnNhd ℂ f U :=
   ⟨fun hf ↦ hf.analyticOnNhd_pi hU, fun hf ↦ hf.differentiableOn⟩
+
+end Coordinates
+
+section FiniteDimensional
+
+variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
+  [FiniteDimensional ℂ E] [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
+
+/-- Complex differentiability on an open finite-dimensional domain implies analyticity.
+No choice of coordinates occurs in the statement. -/
+theorem DifferentiableOn.analyticOnNhd_finiteDimensional {U : Set E} {f : E → F}
+    (hf : DifferentiableOn ℂ f U) (hU : IsOpen U) : AnalyticOnNhd ℂ f U := by
+  let e := (Module.finBasis ℂ E).equivFunL
+  have hg : DifferentiableOn ℂ (f ∘ e.symm) (e.symm ⁻¹' U) :=
+    hf.comp e.symm.differentiable.differentiableOn (fun _ hx => hx)
+  have ha := hg.analyticOnNhd_pi (hU.preimage e.symm.continuous)
+  intro x hx
+  have hmem : e x ∈ e.symm ⁻¹' U := by simpa using hx
+  simpa [Function.comp_def] using
+    (ha (e x) hmem).comp_of_eq (e.toContinuousLinearMap.analyticAt x) rfl
+
+/-- On an open finite-dimensional domain, holomorphy may be expressed using either
+complex Fréchet differentiability or Mathlib's analytic predicate. -/
+theorem differentiableOn_iff_analyticOnNhd_finiteDimensional {U : Set E} {f : E → F}
+    (hU : IsOpen U) : DifferentiableOn ℂ f U ↔ AnalyticOnNhd ℂ f U :=
+  ⟨fun hf => hf.analyticOnNhd_finiteDimensional hU, fun hf => hf.differentiableOn⟩
+
+/-- An everywhere complex-differentiable map on a finite-dimensional space is entire. -/
+theorem Differentiable.analyticOnNhd_finiteDimensional {f : E → F}
+    (hf : Differentiable ℂ f) : AnalyticOnNhd ℂ f Set.univ :=
+  hf.differentiableOn.analyticOnNhd_finiteDimensional isOpen_univ
+
+end FiniteDimensional
 
 end

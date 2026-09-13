@@ -27,10 +27,21 @@ This file separates the native integral from its continuation.  `regCarlsonSInte
 `IsRegCarlsonSContinuation` specifies the global analytic object by entire dependence on `b`
 and agreement with the native integral on `Complex.mvBetaConvergent`.
 
-The series `regCarlsonSSeries` is the Taylor-series candidate corresponding to Carlson's
-formula (6.3-5).  Establishing its convergence, analyticity, and agreement with the integral is
-left to the subsequent analytic-continuation development; the definition itself makes none of
-those claims.
+The series `regCarlsonSSeries` realizes Carlson's formula (6.3-5).  The compact-uniform
+coefficient estimates in `Carlson.RPolynomial.Estimates` give absolute convergence for every
+`b,z` and entire dependence on the parameters.  On `Complex.mvBetaConvergent`, dominated
+convergence identifies its sum with the native integral.  Thus
+`isRegCarlsonSContinuation_series` proves that it is the desired entire regularized
+continuation, and `IsRegCarlsonSContinuation.eq_series` identifies any other such continuation
+with this series.  No nonemptiness assumption on the finite index type is needed.
+
+The series and its partial sums converge locally uniformly jointly in parameters and nodes.
+The SCV derivative theorems give termwise mixed differentiation and locally uniform convergence
+of all iterated Fréchet derivatives in multilinear operator norm.
+
+The stronger theorem `analyticOnNhd_regCarlsonSSeries_joint` establishes joint entireness
+in parameters and nodes.  The file also proves the continued differentiation and translation
+identities.
 
 ## References
 
@@ -149,17 +160,35 @@ theorem IsRegCarlsonSContinuation.eq {z : ι → ℂ} {G H : (ι → ℂ) → �
     (hG : IsRegCarlsonSContinuation z G) (hH : IsRegCarlsonSContinuation z H) : G = H :=
   IsRegCarlsonContinuation.eq hG hH
 
-/-- The series candidate for the entire regularized Carlson `S` function.  This is the
+/-- The series defining the entire regularized Carlson `S` function.  This is the
 exponential specialization of Carlson's regularized Taylor construction. -/
 def regCarlsonSSeries (z b : ι → ℂ) : ℂ :=
   regCarlsonTaylorSeries 0 (fun n ↦ (Nat.factorial n : ℂ)⁻¹) z b
 
-/-- Carlson's formula (6.3-5), exposing the regularized `S` candidate as the exponential
+/-- Carlson's formula (6.3-5), exposing the regularized `S` continuation as the exponential
 generating series of the regularized `R` polynomials. -/
 theorem regCarlsonSSeries_eq_tsum_regCarlsonR (z b : ι → ℂ) :
     regCarlsonSSeries z b =
       ∑' n : ℕ, (Nat.factorial n : ℂ)⁻¹ * regCarlsonR n z b := by
   simp [regCarlsonSSeries, regCarlsonTaylorSeries]
+
+/-- Carlson's exponential series is absolutely summable at every complex parameter and
+node vector, including parameters outside the native integral's convergence region. -/
+theorem summable_norm_regCarlsonR_div_factorial (z b : ι → ℂ) :
+    Summable fun n : ℕ ↦ ‖(Nat.factorial n : ℂ)⁻¹ * regCarlsonR n z b‖ := by
+  obtain ⟨M, hM, hbound⟩ :=
+    exists_summable_norm_regCarlsonR_div_factorial_on_compact_parameters z
+      (isCompact_singleton (x := b))
+  exact Summable.of_nonneg_of_le (fun _ ↦ norm_nonneg _)
+    (fun n ↦ hbound n b (Set.mem_singleton b)) hM
+
+/-- The exponential generating series sums to the continued `S` function for all complex
+parameters and nodes, without an integral-convergence hypothesis. -/
+theorem hasSum_regCarlsonSSeries (z b : ι → ℂ) :
+    HasSum (fun n : ℕ ↦ (Nat.factorial n : ℂ)⁻¹ * regCarlsonR n z b)
+      (regCarlsonSSeries z b) := by
+  rw [regCarlsonSSeries_eq_tsum_regCarlsonR]
+  exact (summable_norm_regCarlsonR_div_factorial z b).of_norm.hasSum
 
 /-- The `N`th partial sum in Carlson's exponential-series construction of the regularized
 `S` function. -/
@@ -176,15 +205,21 @@ theorem analyticOnNhd_regCarlsonSPartialSum (N : ℕ) (z : ι → ℂ) :
   exact analyticAt_const.mul
     (analyticOnNhd_regCarlsonR n z b (Set.mem_univ b))
 
-/-- Whenever Carlson's coefficient series is summable at `b`, its partial sums converge to
-`regCarlsonSSeries z b`.  This separates the formal series construction from the estimates
-needed to establish summability. -/
+/-- The partial-sum consequence of summability.  The unconditional version for all complex
+parameters and nodes is `tendsto_regCarlsonSPartialSum_all`. -/
 theorem tendsto_regCarlsonSPartialSum (z b : ι → ℂ)
     (h : Summable fun n : ℕ ↦ (Nat.factorial n : ℂ)⁻¹ * regCarlsonR n z b) :
     Filter.Tendsto (fun N ↦ regCarlsonSPartialSum N z b) Filter.atTop
       (nhds (regCarlsonSSeries z b)) := by
   rw [regCarlsonSSeries_eq_tsum_regCarlsonR]
   exact h.hasSum.tendsto_sum_nat
+
+/-- The partial sums converge to the entire regularized `S` function at every complex
+parameter and node vector. -/
+theorem tendsto_regCarlsonSPartialSum_all (z b : ι → ℂ) :
+    Filter.Tendsto (fun N ↦ regCarlsonSPartialSum N z b) Filter.atTop
+      (nhds (regCarlsonSSeries z b)) :=
+  (hasSum_regCarlsonSSeries z b).tendsto_sum_nat
 
 /-- The exponential series of the Carlson affine form converges pointwise to the exponential
 kernel. -/
@@ -303,36 +338,52 @@ theorem isRegCarlsonSContinuation_series (z : ι → ℂ) :
   intro b hb
   exact regCarlsonSSeries_eq_regCarlsonSIntegral z hb
 
-/-- The continued S-function is jointly entire in parameters and nodes, by locally uniform
-convergence of the R-polynomial expansion.  A sum index encodes the two vectors. -/
-theorem analyticOnNhd_regCarlsonSSeries_joint :
+/-- Every entire regularized continuation of Carlson's `S` is the exponential series. -/
+theorem IsRegCarlsonSContinuation.eq_series {z : ι → ℂ} {G : (ι → ℂ) → ℂ}
+    (hG : IsRegCarlsonSContinuation z G) : G = regCarlsonSSeries z :=
+  hG.eq (isRegCarlsonSContinuation_series z)
+
+/-- Each exponential-series term is jointly entire in its parameters and nodes. -/
+private theorem analyticOnNhd_regCarlsonSTerm_joint (n : ℕ) :
     AnalyticOnNhd ℂ (fun q : Sum ι ι → ℂ =>
-      regCarlsonSSeries (fun i => q (.inr i)) (fun i => q (.inl i))) Set.univ := by
-  simp_rw [regCarlsonSSeries_eq_tsum_regCarlsonR]
-  apply analyticOnNhd_tsum_of_summable_norm_on_compacts isOpen_univ
-  · intro n q _
-    apply analyticAt_const.mul
-    simp only [regCarlsonR, regCarlsonRPolynomial_eq_numerator_mul_one_div_Gamma,
-      carlsonRPolynomialNumerator_eq_multinomial_sum]
+      (Nat.factorial n : ℂ)⁻¹ * regCarlsonR n (fun i => q (.inr i)) (fun i => q (.inl i)))
+      Set.univ := by
+  intro q _
+  apply analyticAt_const.mul
+  simp only [regCarlsonR, regCarlsonRPolynomial_eq_numerator_mul_one_div_Gamma,
+    carlsonRPolynomialNumerator_eq_multinomial_sum]
+  apply AnalyticAt.mul
+  · apply Finset.analyticAt_fun_sum
+    intro m hm
     apply AnalyticAt.mul
-    · apply Finset.analyticAt_fun_sum
-      intro m hm
-      apply AnalyticAt.mul
-      · apply AnalyticAt.mul analyticAt_const
-        apply Finset.analyticAt_fun_prod
-        intro i hi
-        exact ((ContinuousLinearMap.proj (R := ℂ) (.inr i)).analyticAt q).pow _
-      · apply Finset.analyticAt_fun_prod
-        intro i hi
-        exact ((AnalyticOnNhd.eval_polynomial (ascPochhammer ℂ (m i))) _
-          (Set.mem_univ _)).comp ((ContinuousLinearMap.proj (R := ℂ) (.inl i)).analyticAt q)
-    · have H := Complex.differentiable_one_div_Gamma.analyticAt
-        (z := (∑ i, q (.inl i)) + n)
-      have ht : AnalyticAt ℂ (fun q : Sum ι ι → ℂ => (∑ i, q (.inl i)) + n) q :=
-        (Finset.analyticAt_fun_sum _ (fun i _ =>
-          (ContinuousLinearMap.proj (R := ℂ) (.inl i)).analyticAt q)).add analyticAt_const
-      simpa only [one_div] using! H.comp_of_eq ht rfl
-  · intro K hKuniv hK
+    · apply AnalyticAt.mul analyticAt_const
+      apply Finset.analyticAt_fun_prod
+      intro i hi
+      exact ((ContinuousLinearMap.proj (R := ℂ) (.inr i)).analyticAt q).pow _
+    · apply Finset.analyticAt_fun_prod
+      intro i hi
+      exact ((AnalyticOnNhd.eval_polynomial (ascPochhammer ℂ (m i))) _
+        (Set.mem_univ _)).comp ((ContinuousLinearMap.proj (R := ℂ) (.inl i)).analyticAt q)
+  · have H := Complex.differentiable_one_div_Gamma.analyticAt
+      (z := (∑ i, q (.inl i)) + n)
+    have ht : AnalyticAt ℂ (fun q : Sum ι ι → ℂ => (∑ i, q (.inl i)) + n) q :=
+      (Finset.analyticAt_fun_sum _ (fun i _ =>
+        (ContinuousLinearMap.proj (R := ℂ) (.inl i)).analyticAt q)).add analyticAt_const
+    simpa only [one_div] using! H.comp_of_eq ht rfl
+
+/-- The exponential series converges locally uniformly jointly in parameters and nodes.
+The coordinates `Sum.inl i` represent parameters and `Sum.inr i` represent nodes. -/
+theorem hasSumLocallyUniformlyOn_regCarlsonSSeries_joint :
+    HasSumLocallyUniformlyOn
+      (fun (n : ℕ) (q : Sum ι ι → ℂ) =>
+        (Nat.factorial n : ℂ)⁻¹ * regCarlsonR n (fun i => q (.inr i)) (fun i => q (.inl i)))
+      (fun q => regCarlsonSSeries (fun i => q (.inr i)) (fun i => q (.inl i))) Set.univ := by
+  have hs : SummableLocallyUniformlyOn
+      (fun (n : ℕ) (q : Sum ι ι → ℂ) =>
+        (Nat.factorial n : ℂ)⁻¹ * regCarlsonR n (fun i => q (.inr i)) (fun i => q (.inl i)))
+      Set.univ := by
+    apply SummableLocallyUniformlyOn_of_locally_bounded isOpen_univ
+    intro K hKuniv hK
     have hc : Continuous (fun q : Sum ι ι → ℂ => ∑ i, ‖q (.inr i)‖) := by fun_prop
     obtain ⟨Z₀, hZ₀⟩ := hK.bddAbove_image hc.continuousOn
     have hp : Continuous (fun q : Sum ι ι → ℂ => fun i => q (.inl i)) := by fun_prop
@@ -341,6 +392,63 @@ theorem analyticOnNhd_regCarlsonSSeries_joint :
         (hK.image hp) (le_max_right Z₀ 0)
     refine ⟨M, hM, fun n q hq => hbound n _ (Set.mem_image_of_mem _ hq) _ ?_⟩
     exact (hZ₀ (Set.mem_image_of_mem _ hq)).trans (le_max_left _ _)
+  simpa only [regCarlsonSSeries_eq_tsum_regCarlsonR] using hs.hasSumLocallyUniformlyOn
+
+/-- The continued S-function is jointly entire in parameters and nodes, by locally uniform
+convergence of the R-polynomial expansion. A sum index encodes the two vectors. -/
+theorem analyticOnNhd_regCarlsonSSeries_joint :
+    AnalyticOnNhd ℂ (fun q : Sum ι ι → ℂ =>
+      regCarlsonSSeries (fun i => q (.inr i)) (fun i => q (.inl i))) Set.univ :=
+  hasSumLocallyUniformlyOn_regCarlsonSSeries_joint.analyticOnNhd_pi
+    analyticOnNhd_regCarlsonSTerm_joint isOpen_univ
+
+/-- Carlson's finite exponential sums are jointly entire in parameters and nodes. -/
+theorem analyticOnNhd_regCarlsonSPartialSum_joint (N : ℕ) :
+    AnalyticOnNhd ℂ (fun q : Sum ι ι → ℂ =>
+      regCarlsonSPartialSum N (fun i => q (.inr i)) (fun i => q (.inl i))) Set.univ :=
+  Finset.analyticOnNhd_fun_sum _ (fun n _ => analyticOnNhd_regCarlsonSTerm_joint n)
+
+/-- Carlson's partial sums converge locally uniformly jointly in all parameters and nodes. -/
+theorem tendstoLocallyUniformlyOn_regCarlsonSPartialSum_joint :
+    TendstoLocallyUniformlyOn (fun N (q : Sum ι ι → ℂ) =>
+      regCarlsonSPartialSum N (fun i => q (.inr i)) (fun i => q (.inl i)))
+      (fun q => regCarlsonSSeries (fun i => q (.inr i)) (fun i => q (.inl i)))
+      Filter.atTop Set.univ :=
+  hasSumLocallyUniformlyOn_regCarlsonSSeries_joint.tendstoLocallyUniformlyOn_finsetRange
+
+/-- Arbitrary mixed parameter/node derivatives of the exponential series may be taken
+term by term, retaining locally uniform convergence. -/
+theorem hasSumLocallyUniformlyOn_carlsonIteratedPartialDeriv_regCarlsonSSeries_joint
+    (is : List (Sum ι ι)) :
+    HasSumLocallyUniformlyOn
+      (fun n : ℕ => carlsonIteratedPartialDeriv is (fun q : Sum ι ι → ℂ =>
+        (Nat.factorial n : ℂ)⁻¹ * regCarlsonR n (fun i => q (.inr i)) (fun i => q (.inl i))))
+      (carlsonIteratedPartialDeriv is (fun q : Sum ι ι → ℂ =>
+        regCarlsonSSeries (fun i => q (.inr i)) (fun i => q (.inl i)))) Set.univ := by
+  simp only [carlsonIteratedPartialDeriv_eq_iteratedPartialDeriv]
+  exact hasSumLocallyUniformlyOn_regCarlsonSSeries_joint.iteratedPartialDeriv
+    analyticOnNhd_regCarlsonSTerm_joint isOpen_univ is
+
+/-- All mixed parameter/node derivatives of the partial sums converge locally uniformly. -/
+theorem tendstoLocallyUniformlyOn_carlsonIteratedPartialDeriv_regCarlsonSPartialSum_joint
+    (is : List (Sum ι ι)) :
+    TendstoLocallyUniformlyOn (fun N => carlsonIteratedPartialDeriv is
+      (fun q : Sum ι ι → ℂ => regCarlsonSPartialSum N (fun i => q (.inr i)) (fun i => q (.inl i))))
+      (carlsonIteratedPartialDeriv is (fun q : Sum ι ι → ℂ =>
+        regCarlsonSSeries (fun i => q (.inr i)) (fun i => q (.inl i)))) Filter.atTop Set.univ := by
+  simp only [carlsonIteratedPartialDeriv_eq_iteratedPartialDeriv]
+  exact tendstoLocallyUniformlyOn_regCarlsonSPartialSum_joint.iteratedPartialDeriv
+    (Filter.Eventually.of_forall analyticOnNhd_regCarlsonSPartialSum_joint) isOpen_univ is
+
+/-- The iterated Fréchet derivatives of the partial sums converge in multilinear operator
+norm, locally uniformly jointly in the parameters and nodes. -/
+theorem tendstoLocallyUniformlyOn_iteratedFDeriv_regCarlsonSPartialSum_joint (k : ℕ) :
+    TendstoLocallyUniformlyOn (fun N => iteratedFDeriv ℂ k
+      (fun q : Sum ι ι → ℂ => regCarlsonSPartialSum N (fun i => q (.inr i)) (fun i => q (.inl i))))
+      (iteratedFDeriv ℂ k (fun q : Sum ι ι → ℂ =>
+        regCarlsonSSeries (fun i => q (.inr i)) (fun i => q (.inl i)))) Filter.atTop Set.univ :=
+  tendstoLocallyUniformlyOn_regCarlsonSPartialSum_joint.iteratedFDeriv_pi
+    (Filter.Eventually.of_forall analyticOnNhd_regCarlsonSPartialSum_joint) isOpen_univ k
 
 /-- The continued S-function is entire in its node vector. -/
 theorem analyticOnNhd_regCarlsonSSeries_variables (b : ι → ℂ) :
@@ -373,24 +481,16 @@ theorem carlsonPartialDeriv_regCarlsonSSeries (i : ι) (z b : ι → ℂ) :
       b i * regCarlsonSSeries z (addDirichletUnit b i) := by
   let F := fun q : Sum ι ι → ℂ =>
     regCarlsonSSeries (fun j => q (.inr j)) (fun j => q (.inl j))
-  let d : Sum ι ι → ℂ := Pi.single (.inr i) 1
   have hF : AnalyticOnNhd ℂ F Set.univ := analyticOnNhd_regCarlsonSSeries_joint
   have hpartial (b : ι → ℂ) :
       carlsonPartialDeriv i (fun z => regCarlsonSSeries z b) z =
-        fderiv ℂ F (Sum.elim b z) d := by
-    have heq : (fun w => F (Function.update (Sum.elim b z) (.inr i) w)) =
-        (fun w => regCarlsonSSeries (Function.update z i w) b) := by
-      funext w
-      dsimp only [F]
-      congr 1
-      · funext j; simp
-    have hd : HasFDerivAt F (fderiv ℂ F (Sum.elim b z))
-        (Function.update (Sum.elim b z) (.inr i) (z i)) := by
-      simpa using (hF (Sum.elim b z) (Set.mem_univ _)).differentiableAt.hasFDerivAt
-    have H := hd.comp_hasDerivAt (z i)
-      (hasDerivAt_update (Sum.elim b z) (.inr i) (z i))
-    rw [carlsonPartialDeriv, ← heq]
-    exact H.deriv
+        SeveralComplexVariables.partialDeriv (.inr i) F (Sum.elim b z) := by
+    simp only [carlsonPartialDeriv_eq_partialDeriv, SeveralComplexVariables.partialDeriv,
+      Sum.elim_inr]
+    congr 1
+    funext w
+    dsimp only [F]
+    congr 1 <;> funext j <;> simp
   have hleft : AnalyticOnNhd ℂ
       (fun b => carlsonPartialDeriv i (fun z => regCarlsonSSeries z b) z) Set.univ := by
     simp_rw [hpartial]
@@ -401,8 +501,7 @@ theorem carlsonPartialDeriv_regCarlsonSSeries (i : ι) (z b : ι → ℂ) :
       cases k with
       | inl j => exact (ContinuousLinearMap.proj (R := ℂ) j).analyticAt b
       | inr j => exact analyticAt_const
-    exact ((ContinuousLinearMap.apply ℂ ℂ d).analyticAt _).comp
-      (((hF _ (Set.mem_univ _)).fderiv).comp hmap)
+    exact ((hF.partialDeriv isOpen_univ (.inr i)) _ (Set.mem_univ _)).comp_of_eq hmap rfl
   have hright : AnalyticOnNhd ℂ
       (fun b => b i * regCarlsonSSeries z (addDirichletUnit b i)) Set.univ := by
     intro b _
@@ -471,10 +570,6 @@ theorem regCarlsonSIntegral_zero {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) 
     regCarlsonSIntegral b (fun _ ↦ 0) = 1 / Gamma (∑ i, b i) := by
   simpa [regCarlsonSIntegral] using
     (regCarlsonDirichletAverage_const exp 0 hb)
-
-/- The three analytic obligations above deliberately expose the remaining locally uniform
-series argument.  All pointwise summability and integral agreement needed by that argument
-have already been proved in this file. -/
 
 end DirichletTransform
 

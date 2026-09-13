@@ -7,6 +7,7 @@ module
 
 public import Dirichlet.Average.Basic
 public import Mathlib.Analysis.Calculus.Deriv.Basic
+public import SeveralComplexVariables.Derivatives
 
 import Mathlib.Analysis.Calculus.IteratedDeriv.Lemmas
 
@@ -14,7 +15,9 @@ import Mathlib.Analysis.Calculus.IteratedDeriv.Lemmas
 # Differential operators and pointwise Carlson kernels
 
 This file defines Carlson's partial derivatives and Euler--Poisson operators, and proves
-their action on the pointwise averaging kernels. The integral differentiation formulas in
+their action on the pointwise averaging kernels. Compatibility lemmas identify the coordinate
+and iterated derivatives with the general SCV operators, preserving Carlson's public names.
+The integral differentiation formulas in
 `Associated` and the integration-by-parts proof in `Deriv` both use this lower-level layer.
 
 ## References
@@ -85,6 +88,11 @@ def carlsonPartialDeriv (i : ι)
     (G : (ι → ℂ) → ℂ) (z : ι → ℂ) : ℂ :=
   deriv (fun w ↦ G (Function.update z i w)) (z i)
 
+omit [Fintype ι] in
+/-- Carlson's coordinate derivative is the scalar specialization of the SCV derivative. -/
+theorem carlsonPartialDeriv_eq_partialDeriv (i : ι) (G : (ι → ℂ) → ℂ) :
+    carlsonPartialDeriv i G = SeveralComplexVariables.partialDeriv i G := rfl
+
 /-- The partial derivative of a Carlson kernel is the derivative of the univariate function
 times the corresponding simplex coordinate.  This is the pointwise form of Carlson's
 formula (5.3-2). -/
@@ -119,6 +127,25 @@ indices.  The head of the list is applied last. -/
 def carlsonIteratedPartialDeriv : List ι → ((ι → ℂ) → ℂ) → (ι → ℂ) → ℂ
   | [], G, z => G z
   | i :: is, G, z => carlsonPartialDeriv i (fun w => carlsonIteratedPartialDeriv is G w) z
+
+omit [Fintype ι] in
+/-- Carlson and SCV use the same order convention for repeated coordinate differentiation. -/
+theorem carlsonIteratedPartialDeriv_eq_iteratedPartialDeriv (is : List ι)
+    (G : (ι → ℂ) → ℂ) :
+    carlsonIteratedPartialDeriv is G = SeveralComplexVariables.iteratedPartialDeriv is G := by
+  induction is with
+  | nil => rfl
+  | cons i is ih =>
+    change carlsonPartialDeriv i (carlsonIteratedPartialDeriv is G) = _
+    rw [ih, carlsonPartialDeriv_eq_partialDeriv]
+    rfl
+
+/-- Mixed Carlson derivatives of a holomorphic function are independent of their order. -/
+theorem carlsonIteratedPartialDeriv_perm {U : Set (ι → ℂ)} {G : (ι → ℂ) → ℂ}
+    (hG : AnalyticOnNhd ℂ G U) (hU : IsOpen U) {is js : List ι} (h : is.Perm js) :
+    Set.EqOn (carlsonIteratedPartialDeriv is G) (carlsonIteratedPartialDeriv js G) U := by
+  simp only [carlsonIteratedPartialDeriv_eq_iteratedPartialDeriv]
+  exact SeveralComplexVariables.iteratedPartialDeriv_perm hG hU h
 
 /-- Iterated partial differentiation of a Carlson kernel introduces the corresponding product
 of simplex coordinates.  This is the pointwise core of Carlson's formula (5.3-2). -/

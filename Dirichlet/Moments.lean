@@ -21,7 +21,9 @@ This file records monomial moments of `dirichletMeasure`, the aggregation (margi
 theorem, coordinate means/variances, and the identification of the two-variable case with
 Mathlib's `betaMeasure`.
 
-The construction of the measure itself is in `Dirichlet.Real`.
+The construction of the measure itself is in `Dirichlet.Real`. The Gamma-ratio
+characterization and independence of the Gamma total and Dirichlet ratios are in
+`Dirichlet.Gamma`.
 -/
 
 open Real MeasureTheory MeasureTheory.Measure
@@ -722,8 +724,9 @@ theorem map_dirichletMeasure_fin_two
   simpa using
     (betaMarginal (b := (![α, β] : Fin 2 → ℝ)) hb (0 : Fin 2))
 
-/- TODO: The Gamma ratio characterization. If X_i are independent Gamma(b_i, 1)-distributed
-then (X_i / ∑_j X_j)_i is Dirichlet(b)-distributed. -/
+/- The Gamma-ratio characterization is proved in `Dirichlet.Gamma` as
+`ProbabilityTheory.iIndepFun.hasLaw_dirichlet_of_gamma`, for any common positive rate.
+That file also proves the law of the total and its independence from the ratios. -/
 
 end ProbabilityTheory
 

@@ -5,5 +5,6 @@ public import Carlson.R.Contour
 
 /-! # Euler transformations of Carlson's R-function
 
-Home for Carlson's Theorems 6.8-3 and 6.8-4.
+Placeholder for Carlson's Theorems 6.8-3 and 6.8-4; this module currently adds no declarations.
+The branch-sensitive transformations are not yet formalized.
 -/

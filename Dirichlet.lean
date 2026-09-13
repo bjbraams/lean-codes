@@ -14,6 +14,7 @@ public import Dirichlet.Complex
 public import Dirichlet.Complex.Analytic
 public import Dirichlet.Bridge
 public import Dirichlet.Moments
+public import Dirichlet.Gamma
 public import Dirichlet.Polynomial
 public import Dirichlet.IntegrationByParts
 public import Dirichlet.Transform

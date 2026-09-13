@@ -5,5 +5,6 @@ public import Carlson.R.Continuation
 
 /-! # Slit-plane domains for Carlson's R-function
 
-Home for the branch and domain lemmas used in Carlson's Section 6.8.
+Placeholder for the branch and domain lemmas used in Carlson's Section 6.8; this module
+currently adds no declarations. The existing continuation uses right-half-plane nodes.
 -/

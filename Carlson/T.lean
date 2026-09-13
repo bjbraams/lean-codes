@@ -139,8 +139,9 @@ theorem IsRegCarlsonTContinuation.eq {z : ι → ℂ} {G H : (ι → ℂ) → �
     G = H :=
   IsRegCarlsonContinuation.eq hG hH
 
-/-- Carlson's contour-continuation theorem supplies an entire regularized T-continuation
-whenever the convex hull of the variables avoids zero. -/
+/-- The smooth-kernel Dirichlet continuation theorem supplies an entire regularized
+T-continuation whenever the convex hull of the variables avoids zero. This proof does not
+construct a contour representation. -/
 theorem exists_isRegCarlsonTContinuation {z : ι → ℂ}
     (hz : z ∈ carlsonTVariableDomain) :
     ∃ G : (ι → ℂ) → ℂ, IsRegCarlsonTContinuation z G := by

@@ -16,6 +16,7 @@ public import StdSimplexMeasure.PositiveSimplex
 public import StdSimplexMeasure.Measure
 public import StdSimplexMeasure.Interior
 public import StdSimplexMeasure.Integral
+public import StdSimplexMeasure.Radial
 public import StdSimplexMeasure.SimplexFTC
 public import StdSimplexMeasure.Smooth
 public import StdSimplexMeasure.MomentDetermination

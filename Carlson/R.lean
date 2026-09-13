@@ -11,10 +11,12 @@ public import Carlson.R.Continuation
 public import Carlson.R.Deriv
 public import Carlson.R.Exponent
 public import Carlson.R.Relations
+public import Carlson.R.JointParameter
 public import Carlson.R.Confluence
 public import Carlson.R.Laplace
 public import Carlson.R.SlitPlane
 public import Carlson.R.SingleIntegral
+public import Carlson.R.RayKernel
 public import Carlson.R.Contour
 public import Carlson.R.EulerTransform
 public import Carlson.R.IntegralEvaluation

@@ -8,6 +8,7 @@ module
 public import Dirichlet.Average.DifferentialOperators
 public import Dirichlet.Complex.Analytic
 public import SeveralComplexVariables.ParametricIntegral
+public import SeveralComplexVariables.LocallyBounded
 
 import Mathlib.Topology.MetricSpace.Thickening
 
@@ -17,6 +18,10 @@ import Mathlib.Topology.MetricSpace.Thickening
 This file develops the parameter-shift relations of [Carl77, Section 5.6].  We state the
 relations first for the Gamma-regularized average.  In this normalization Carlson's weights
 `b i / ∑ j, b j` are absorbed by the Gamma factors, leaving coefficients `b i`.
+
+Joint analyticity in the parameters and nodes follows from separate analyticity and a local
+integral bound, using the SCV locally bounded Osgood theorem. The bound uses an integrable
+Dirichlet majorant and does not assume the density is continuous on the closed simplex.
 
 ## References
 
@@ -579,18 +584,19 @@ theorem analyticOnNhd_regCarlsonDirichletAverage_nodes
     simpa only [F, F', L, Function.comp_apply, carlsonAffineFormCLM_apply,
       smul_eq_mul] using hmul
 
-/-- Joint continuity follows from a common integrable Dirichlet majorant near each
-parameter and node vector. -/
-private lemma continuousAt_regCarlsonDirichletAverage_parameters_nodes
+/-- A common integrable Dirichlet majorant bounds the average near each parameter and
+node vector. No continuity of the density at the simplex boundary is required. -/
+theorem locallyBounded_regCarlsonDirichletAverage_parameters_nodes
     {Ω : Set ℂ} (hΩopen : IsOpen Ω) (hΩconv : Convex ℝ Ω)
     {f : ℂ → ℂ} (hf : ContinuousOn f Ω) {p : (ι → ℂ) × (ι → ℂ)}
     (hb : p.1 ∈ mvBetaConvergent) (hz : Set.range p.2 ⊆ Ω) :
-    ContinuousAt (fun q : (ι → ℂ) × (ι → ℂ) => regCarlsonDirichletAverage q.1 q.2 f) p := by
+    ∃ M : ℝ, ∀ᶠ q : (ι → ℂ) × (ι → ℂ) in nhds p,
+      ‖regCarlsonDirichletAverage q.1 q.2 f‖ ≤ M := by
   classical
   rcases isEmpty_or_nonempty ι with hι | hι
   · let := hι
-    simpa [regCarlsonDirichletAverage, regDirichletIntegral, stdSimplexMeasure_empty] using
-      (continuousAt_const : ContinuousAt (fun _ : (ι → ℂ) × (ι → ℂ) => (0 : ℂ)) p)
+    exact ⟨0, Filter.Eventually.of_forall (fun q => by
+      simp [regCarlsonDirichletAverage, regDirichletIntegral, stdSimplexMeasure_empty])⟩
   let := hι
   let μ := (MeasureTheory.Measure.stdSimplexMeasure (ι := ι)).restrict (stdSimplex ℝ ι)
   let K := convexHull ℝ (Set.range p.2)
@@ -624,45 +630,35 @@ private lemma continuousAt_regCarlsonDirichletAverage_parameters_nodes
       ((dist_carlsonAffineForm_le_norm_sub p.2 q.2 hu).trans (by simpa [dist_eq_norm] using hq.le))
   let F := fun (q : (ι → ℂ) × (ι → ℂ)) (u : ι → ℝ) =>
     (∏ i, (u i : ℂ) ^ (q.1 i - 1)) * f (carlsonAffineForm q.2 u)
-  have hG : ContinuousAt (fun q => ∫ u, F q u ∂μ) p := by
-    apply continuousAt_of_dominated (bound := fun u => ‖∏ i, (u i : ℂ) ^ (a i - 1)‖ * max C 0)
-    · filter_upwards [hevent] with q hq
-      exact ((integrableOn_mvBetaMonomial q.1 (fun i => (ha i).trans (hq.1 i))).mul_continuousOn
-        (hf.comp (continuous_carlsonAffineForm q.2).continuousOn (fun u hu => hsub (hnear hq.2 hu)))
-        (isCompact_stdSimplex ℝ ι)).aestronglyMeasurable
-    · filter_upwards [hevent] with q hq
-      filter_upwards [self_mem_ae_restrict (μ := MeasureTheory.Measure.stdSimplexMeasure)
-        (isClosed_stdSimplex ℝ ι).measurableSet, ae_zero_lt_of_mem_stdSimplex (ι := ι)] with u hu hupos
-      have hm : ‖∏ i, (u i : ℂ) ^ (q.1 i - 1)‖ ≤ ‖∏ i, (u i : ℂ) ^ (a i - 1)‖ := by
-        simp only [norm_prod]
-        apply Finset.prod_le_prod (fun _ _ => norm_nonneg _)
-        intro i _
-        rw [norm_cpow_eq_rpow_re_of_pos (hupos i), norm_cpow_eq_rpow_re_of_pos (hupos i)]
-        apply Real.rpow_le_rpow_of_exponent_ge (hupos i)
-          ((Finset.single_le_sum (fun j _ => hu.1 j) (Finset.mem_univ i)).trans_eq hu.2)
-        simpa only [sub_re, one_re] using sub_le_sub_right (hq.1 i).le 1
-      have hfu : ‖f (carlsonAffineForm q.2 u)‖ ≤ max C 0 :=
-        (hC (Set.mem_image_of_mem _ (hnear hq.2 hu))).trans (le_max_left _ _)
-      exact (norm_mul _ _).trans_le (mul_le_mul hm hfu (norm_nonneg _) (norm_nonneg _))
-    · exact (integrableOn_mvBetaMonomial a ha).norm.mul_const _
-    · filter_upwards [self_mem_ae_restrict (μ := MeasureTheory.Measure.stdSimplexMeasure)
-        (isClosed_stdSimplex ℝ ι).measurableSet, ae_zero_lt_of_mem_stdSimplex (ι := ι)] with u hu hupos
-      have hm := (hasFDerivAt_mvBetaMonomial hupos p.1).continuousAt.comp continuous_fst.continuousAt
-      have hfu : ContinuousAt f (carlsonAffineForm p.2 u) :=
-        (hf _ (hKΩ (carlsonAffineForm_mem_convexHull p.2 hu))).continuousAt
-          (hΩopen.mem_nhds (hKΩ (carlsonAffineForm_mem_convexHull p.2 hu)))
-      have hL : ContinuousAt (fun q : (ι → ℂ) × (ι → ℂ) => carlsonAffineForm q.2 u) p := by
-        simpa only [Function.comp_def, carlsonAffineFormCLM_apply] using
-          ((carlsonAffineFormCLM u).continuous.comp continuous_snd).continuousAt (x := p)
-      exact hm.mul (hfu.comp_of_eq hL rfl)
-  have hnorm := (analyticOnNhd_prod_invGamma p.1 (Set.mem_univ _)).continuousAt.comp continuous_fst.continuousAt
-  convert hnorm.mul hG using 1
-  funext q
-  exact regDirichletIntegral_eq_prod_invGamma_mul q.1 (fun u => f (carlsonAffineForm q.2 u))
+  let D : ℝ := ∫ u, ‖∏ i, (u i : ℂ) ^ (a i - 1)‖ * max C 0 ∂μ
+  have hD : ∀ᶠ q in nhds p, ‖∫ u, F q u ∂μ‖ ≤ D := by
+    filter_upwards [hevent] with q hq
+    apply norm_integral_le_of_norm_le ((integrableOn_mvBetaMonomial a ha).norm.mul_const _)
+    filter_upwards [self_mem_ae_restrict (μ := MeasureTheory.Measure.stdSimplexMeasure)
+      (isClosed_stdSimplex ℝ ι).measurableSet, ae_zero_lt_of_mem_stdSimplex (ι := ι)] with u hu hupos
+    have hm : ‖∏ i, (u i : ℂ) ^ (q.1 i - 1)‖ ≤ ‖∏ i, (u i : ℂ) ^ (a i - 1)‖ := by
+      simp only [norm_prod]
+      apply Finset.prod_le_prod (fun _ _ => norm_nonneg _)
+      intro i _
+      rw [norm_cpow_eq_rpow_re_of_pos (hupos i), norm_cpow_eq_rpow_re_of_pos (hupos i)]
+      apply Real.rpow_le_rpow_of_exponent_ge (hupos i)
+        ((Finset.single_le_sum (fun j _ => hu.1 j) (Finset.mem_univ i)).trans_eq hu.2)
+      simpa only [sub_re, one_re] using sub_le_sub_right (hq.1 i).le 1
+    have hfu : ‖f (carlsonAffineForm q.2 u)‖ ≤ max C 0 :=
+      (hC (Set.mem_image_of_mem _ (hnear hq.2 hu))).trans (le_max_left _ _)
+    exact (norm_mul _ _).trans_le (mul_le_mul hm hfu (norm_nonneg _) (norm_nonneg _))
+  let B : ℝ := ‖∏ i, (Gamma (p.1 i))⁻¹‖ + 1
+  have hB := ((analyticOnNhd_prod_invGamma p.1 (Set.mem_univ _)).continuousAt.comp
+    (continuous_fst.continuousAt (x := p))).norm.eventually_lt_const
+      (lt_add_one ‖∏ i, (Gamma (p.1 i))⁻¹‖)
+  refine ⟨B * max D 0, ?_⟩
+  filter_upwards [hB, hD] with q hq hqD
+  rw [regCarlsonDirichletAverage, regDirichletIntegral_eq_prod_invGamma_mul, norm_mul]
+  exact mul_le_mul hq.le (hqD.trans (le_max_left _ _)) (norm_nonneg _)
+    (by dsimp [B]; positivity)
 
-set_option maxHeartbeats 800000 in
-/-- **Carlson 5.3-3, joint form.** Separate analyticity and local dominated continuity
-give joint analyticity by the finite-product Osgood theorem. -/
+/-- **Carlson 5.3-3, joint form.** Separate analyticity and a local integral bound give
+joint analyticity by the locally bounded Osgood theorem. -/
 theorem analyticOnNhd_regCarlsonDirichletAverage_parameters_nodes
     {Ω : Set ℂ} (hΩopen : IsOpen Ω) (hΩconv : Convex ℝ Ω)
     {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f Ω) :
@@ -681,41 +677,36 @@ theorem analyticOnNhd_regCarlsonDirichletAverage_parameters_nodes
     exact (isOpen_mvBetaConvergent.preimage (continuous_fst.comp L.continuous)).inter
       (hzopen.preimage (continuous_snd.comp L.continuous))
   have hG : AnalyticOnNhd ℂ G U := by
-    apply SeveralComplexVariables.analyticOnNhd_pi_of_analyticOnNhd_update hU
-    · intro q hq
-      exact ((continuousAt_regCarlsonDirichletAverage_parameters_nodes hΩopen hΩconv hf.continuousOn
-        hq.1 hq.2).comp L.continuous.continuousAt).continuousWithinAt
+    apply SeveralComplexVariables.analyticOnNhd_of_separately_analytic_locally_bounded hU
     · intro q hq k
       have hupdate (v : ι → ℂ) (i : ι) (w : ℂ) :
           Function.update v i w = fun j => if j = i then w else v j := by
         funext j
         simp only [Function.update_apply]
-      have hup (v : ι → ℂ) (i : ι) : AnalyticAt ℂ (fun w => Function.update v i w) (v i) := by
-        apply AnalyticAt.pi
-        intro j
-        by_cases hji : j = i
-        · subst j; simpa using! (analyticAt_id : AnalyticAt ℂ (fun w : ℂ => w) (v i))
-        · simpa [hji] using! (analyticAt_const : AnalyticAt ℂ (fun _ : ℂ => v j) (v i))
       cases k with
       | inl i =>
         have hcont : ContinuousOn (fun u => f (carlsonAffineForm (L q).2 u)) (stdSimplex ℝ ι) :=
           hf.continuousOn.comp (continuous_carlsonAffineForm _).continuousOn
             (fun u hu => convexHull_min hq.2 hΩconv (carlsonAffineForm_mem_convexHull _ hu))
         have H := (isOpen_mvBetaConvergent.analyticOn_iff_analyticOnNhd.mp
-          (regDirichletIntegral_analyticOn hcont) _ hq.1).comp_of_eq (hup (L q).1 i) (by simp)
+          (regDirichletIntegral_analyticOn hcont)).analyticAt_update hq.1 i
         change AnalyticAt ℂ (fun w => regCarlsonDirichletAverage
           (Function.update (fun j => q (.inl j)) i w) (fun j => q (.inr j)) f) (q (.inl i)) at H
         dsimp only [G]
         simp only [hLapply]
         simpa only [hupdate, Function.update_apply, Sum.inl.injEq, reduceCtorEq, if_false] using! H
       | inr i =>
-        have H := (analyticOnNhd_regCarlsonDirichletAverage_nodes hΩopen hΩconv hf hq.1 _ hq.2).comp_of_eq
-          (hup (L q).2 i) (by simp)
+        have H := (analyticOnNhd_regCarlsonDirichletAverage_nodes hΩopen hΩconv hf hq.1).analyticAt_update
+          hq.2 i
         change AnalyticAt ℂ (fun w => regCarlsonDirichletAverage
           (fun j => q (.inl j)) (Function.update (fun j => q (.inr j)) i w) f) (q (.inr i)) at H
         dsimp only [G]
         simp only [hLapply]
         simpa only [hupdate, Function.update_apply, Sum.inr.injEq, reduceCtorEq, if_false] using! H
+    · intro q hq
+      obtain ⟨M, hM⟩ := locallyBounded_regCarlsonDirichletAverage_parameters_nodes
+        hΩopen hΩconv hf.continuousOn hq.1 hq.2
+      exact ⟨M, L.continuous.continuousAt.tendsto.eventually hM⟩
   intro p hp
   have hmem : L.symm p ∈ U := by simpa [U] using hp
   have H := (hG _ hmem).comp_of_eq (L.symm.analyticAt p) rfl

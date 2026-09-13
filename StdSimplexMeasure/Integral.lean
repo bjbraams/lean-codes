@@ -80,7 +80,7 @@ theorem lintegral_stdSimplex_eq_lintegral_freeCoords
 
 /-- Splitting one coordinate from a finite real coordinate space preserves product Lebesgue
 measure. -/
-private theorem volume_preserving_funSplitAt (i : ι) :
+theorem volume_preserving_funSplitAt (i : ι) :
     MeasurePreserving (Homeomorph.funSplitAt ℝ i) volume (volume.prod volume) := by
   let eidx : Unit ⊕ {j : ι // j ≠ i} ≃ ι :=
     { toFun := fun q => Sum.elim (fun _ => i) Subtype.val q
@@ -373,7 +373,7 @@ private theorem integral_posSimplex_scale
   rw [hi, smul_inv_smul₀ hc_pow]
 
 /-- Scaling a positive-simplex slice in the nonnegative integral. -/
-private theorem lintegral_posSimplex_scale
+theorem lintegral_posSimplex_scale
     {α : Type*} [Fintype α] (i : α) (c : ℝ) (hc : 0 < c)
     (g : ({j : α // j ≠ i} → ℝ) → ENNReal) :
     ∫⁻ y in posSimplex {j : α // j ≠ i} c, g y =
