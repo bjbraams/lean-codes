@@ -7,8 +7,11 @@ module
 
 public import Carlson.RPolynomial
 public import Carlson.R
+public import Carlson.L
 public import Carlson.S
 public import Carlson.T
 public import Carlson.TwoVariable
+public import Carlson.Aggregation
+public import Carlson.ZeroParameter
 
 /-! # Carlson special functions -/

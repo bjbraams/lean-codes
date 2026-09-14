@@ -88,7 +88,7 @@ theorem mvBetaConvergent_subset_dirichletConvergenceRegion (N : ℕ) :
 /-- On a singleton index type the regularized Dirichlet integral is `f 1 / Gamma b`, hence
 entire in the Dirichlet parameter. -/
 theorem exists_regDirichletContinuation_of_unique [Unique ι]
-    {f : (ι → ℝ) → ℂ} (_hf : ContinuousOn f (stdSimplex ℝ ι)) :
+    {f : (ι → ℝ) → ℂ} (_hf : ContinuousOn f (Convexity.StdSimplex.coordinateSet ℝ ι)) :
     ∃ F : (ι → ℂ) → ℂ,
       AnalyticOn ℂ F Set.univ ∧
         Set.EqOn F (fun b ↦ regDirichletIntegral b f) mvBetaConvergent := by
@@ -103,10 +103,10 @@ theorem exists_regDirichletContinuation_of_unique [Unique ι]
   · intro b hb
     have hdirac : Measure.stdSimplexMeasure (ι := ι) = Measure.dirac ones :=
       Measure.stdSimplexMeasure_unique
-    have hones : ones ∈ stdSimplex ℝ ι := by
-      simp [ones, stdSimplex]
+    have hones : ones ∈ Convexity.StdSimplex.coordinateSet ℝ ι := by
+      simp [ones, Convexity.StdSimplex.coordinateSet]
     change f ones * (Gamma (b default))⁻¹ =
-      ∫ u in stdSimplex ℝ ι, regDirichletDensity b u * f u ∂Measure.stdSimplexMeasure
+      ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι, regDirichletDensity b u * f u ∂Measure.stdSimplexMeasure
     rw [hdirac]
     have hinter : ones ∈ stdSimplexInterior :=
       ⟨hones, fun _ => by simp [ones]⟩
@@ -206,7 +206,7 @@ theorem slice_jacobian_exponent (i : ι) [Nontrivial ι] (b : ι → ℂ) :
 in one coordinate of a complementary regularized Dirichlet integral on the opposite face. -/
 theorem regDirichletIntegral_split_at [Nontrivial ι] (i : ι)
     {b : ι → ℂ} (hb : b ∈ mvBetaConvergent)
-    {f : (ι → ℝ) → ℂ} (hf : ContinuousOn f (stdSimplex ℝ ι)) :
+    {f : (ι → ℝ) → ℂ} (hf : ContinuousOn f (Convexity.StdSimplex.coordinateSet ℝ ι)) :
     regDirichletIntegral b f =
       regIncompleteMellin (b i) 1 (fun t =>
         (1 - (t : ℂ)) ^ (∑ q : {j : ι // j ≠ i}, b q - 1) *
@@ -218,29 +218,29 @@ theorem regDirichletIntegral_split_at [Nontrivial ι] (i : ι)
   have hb' : b' ∈ mvBetaConvergent := fun q ↦ hb q
   have hint : IntegrableOn
       (fun u : ι → ℝ ↦ (∏ j, (u j : ℂ) ^ (b j - 1)) * f u)
-      (stdSimplex ℝ ι) stdSimplexMeasure :=
+      (Convexity.StdSimplex.coordinateSet ℝ ι) stdSimplexMeasure :=
     (Complex.integrableOn_mvBetaMonomial b hb).mul_continuousOn hf
-      (isCompact_stdSimplex ℝ ι)
+      (Convexity.StdSimplex.isCompact_coordinateSet ℝ ι)
   rw [regDirichletIntegral_eq_prod_invGamma_mul,
     integral_stdSimplex_split_at i _ hint]
   have hinner : ∀ t ∈ Set.Ico (0 : ℝ) 1,
-      (∫ v in stdSimplex ℝ {j : ι // j ≠ i},
+      (∫ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
         ((∏ k, ((stdSimplexCoordMap i (fun q ↦ (1 - t) * v q) k : ℝ) : ℂ) ^
           (b k - 1)) * f (stdSimplexCoordMap i (fun q ↦ (1 - t) * v q)))
           ∂stdSimplexMeasure) =
         ((t : ℂ) ^ (b i - 1) *
           (1 - t : ℂ) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1))) *
-          ∫ v in stdSimplex ℝ {j : ι // j ≠ i},
+          ∫ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
             (∏ q, (v q : ℂ) ^ (b q - 1)) * stdSimplexSlice i t f v
               ∂stdSimplexMeasure := by
     intro t ht
     calc
-      _ = ∫ v in stdSimplex ℝ {j : ι // j ≠ i},
+      _ = ∫ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
           ((t : ℂ) ^ (b i - 1) *
             (1 - t : ℂ) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1))) *
               ((∏ q, (v q : ℂ) ^ (b q - 1)) * stdSimplexSlice i t f v)
             ∂stdSimplexMeasure := by
-          apply setIntegral_congr_fun (isClosed_stdSimplex ℝ _).measurableSet
+          apply setIntegral_congr_fun (Convexity.StdSimplex.isClosed_coordinateSet ℝ _).measurableSet
           intro v hv
           change
             (∏ k, ((stdSimplexCoordMap i (fun q ↦ (1 - t) * v q) k : ℝ) : ℂ) ^
@@ -251,13 +251,13 @@ theorem regDirichletIntegral_split_at [Nontrivial ι] (i : ι)
       _ = _ := by rw [integral_const_mul]
   have houter : ∀ᵐ t ∂volume.restrict (Set.Icc (0 : ℝ) 1),
       ((1 - t) ^ (Fintype.card ι - 2)) •
-          (∫ v in stdSimplex ℝ {j : ι // j ≠ i},
+          (∫ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
             ((∏ k, ((stdSimplexCoordMap i
               (fun q ↦ (1 - t) * v q) k : ℝ) : ℂ) ^ (b k - 1)) *
                 f (stdSimplexCoordMap i (fun q ↦ (1 - t) * v q)))
               ∂stdSimplexMeasure) =
         (t : ℂ) ^ (b i - 1) * (1 - t : ℂ) ^ (c - 1) *
-          ∫ v in stdSimplex ℝ {j : ι // j ≠ i},
+          ∫ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
             (∏ q, (v q : ℂ) ^ (b q - 1)) * stdSimplexSlice i t f v
               ∂stdSimplexMeasure := by
     filter_upwards [ae_restrict_of_ae
@@ -275,13 +275,13 @@ theorem regDirichletIntegral_split_at [Nontrivial ι] (i : ι)
       (1 - t : ℂ) ^ ((Fintype.card ι - 2 : ℕ) : ℂ) *
           (((t : ℂ) ^ (b i - 1) *
             (1 - t : ℂ) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1))) *
-              ∫ v in stdSimplex ℝ {j : ι // j ≠ i},
+              ∫ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
                 (∏ q, (v q : ℂ) ^ (b q - 1)) * stdSimplexSlice i t f v
                   ∂stdSimplexMeasure) =
           (t : ℂ) ^ (b i - 1) *
             ((1 - t : ℂ) ^ ((Fintype.card ι - 2 : ℕ) : ℂ) *
               (1 - t : ℂ) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1))) *
-                ∫ v in stdSimplex ℝ {j : ι // j ≠ i},
+                ∫ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
                   (∏ q, (v q : ℂ) ^ (b q - 1)) * stdSimplexSlice i t f v
                     ∂stdSimplexMeasure := by ring
       _ = _ := by
@@ -386,7 +386,7 @@ private theorem shiftedDirichletIntegral_eq (i : ι) (l : List {j : ι // j ≠ 
           linarith
         · simpa [Pi.single_eq_of_ne hki] using hshift k
       rw [shiftedDirichletIntegral, ih (hf'.of_le (Nat.le_succ _)) hshift', ih hdf hshift]
-      have hdiff : ∀ u ∈ stdSimplex ℝ ι, DifferentiableAt ℝ f u := by
+      have hdiff : ∀ u ∈ Convexity.StdSimplex.coordinateSet ℝ ι, DifferentiableAt ℝ f u := by
         obtain ⟨U, hU, hsub, hfU⟩ := hf'
         intro u hu
         exact (hfU.contDiffAt (hU.mem_nhds (hsub hu))).differentiableAt (by simp)
@@ -418,26 +418,26 @@ private theorem shiftList_count (i : ι) (N : ℕ) (j : {j : ι // j ≠ i}) :
 
 private theorem regDirichletIntegral_power_partition {b : ι → ℂ}
     (hb : b ∈ mvBetaConvergent) {f : (ι → ℝ) → ℂ}
-    (hf : ContinuousOn f (stdSimplex ℝ ι)) (M : ℕ) :
+    (hf : ContinuousOn f (Convexity.StdSimplex.coordinateSet ℝ ι)) (M : ℕ) :
     regDirichletIntegral b f =
       ∑ i, (ascPochhammer ℂ M).eval (b i) *
         regDirichletIntegral (b + Pi.single i (M : ℂ))
           (fun u => f u / powerPartitionDenom M u) := by
   let g := fun u => f u / powerPartitionDenom M u
-  have hgc : ContinuousOn g (stdSimplex ℝ ι) :=
+  have hgc : ContinuousOn g (Convexity.StdSimplex.coordinateSet ℝ ι) :=
     hf.div (by unfold powerPartitionDenom; fun_prop)
       (fun u hu => powerPartitionDenom_ne_zero M hu)
   have hsplit : regDirichletIntegral b f =
       ∑ i, regDirichletIntegral b (fun u => (u i : ℂ) ^ M * g u) := by
     have hint (i : ι) : IntegrableOn
         (fun u => regDirichletDensity b u * ((u i : ℂ) ^ M * g u))
-        (stdSimplex ℝ ι) stdSimplexMeasure := by
+        (Convexity.StdSimplex.coordinateSet ℝ ι) stdSimplexMeasure := by
       exact integrableOn_regDirichletDensity_mul b hb
         ((by fun_prop : ContinuousOn (fun u : ι → ℝ => (u i : ℂ) ^ M)
-          (stdSimplex ℝ ι)).mul hgc)
+          (Convexity.StdSimplex.coordinateSet ℝ ι)).mul hgc)
     unfold regDirichletIntegral
     rw [← integral_finsetSum _ (fun i _ => hint i)]
-    apply setIntegral_congr_fun (isClosed_stdSimplex ℝ ι).measurableSet
+    apply setIntegral_congr_fun (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet
     intro u hu
     dsimp only
     rw [← Finset.mul_sum, ← Finset.sum_mul]

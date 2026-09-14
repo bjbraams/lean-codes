@@ -31,14 +31,14 @@ private theorem locallyBounded_regCarlsonRIntegral_exponent_parameters
       simp [regCarlsonRIntegral, regCarlsonDirichletAverage, regDirichletIntegral, stdSimplexMeasure_empty])⟩
   | inr hι =>
     let _ := hι
-    let K := stdSimplex ℝ ι
+    let K := Convexity.StdSimplex.coordinateSet ℝ ι
     let μ := stdSimplexMeasure.restrict K
     have hpow : ContinuousOn (fun v : ℂ × (ι → ℝ) => carlsonAffineForm z v.2 ^ v.1)
         (Metric.closedBall (p none) 1 ×ˢ K) :=
       ((continuous_carlsonAffineForm z).comp continuous_snd).continuousOn.cpow
         continuous_fst.continuousOn (fun v hv => carlsonAffineForm_mem_slitPlane hz hv.2)
     obtain ⟨C, hC⟩ := ((isCompact_closedBall (p none) 1).prod
-      (isCompact_stdSimplex ℝ ι)).bddAbove_image hpow.norm
+      (Convexity.StdSimplex.isCompact_coordinateSet ℝ ι)).bddAbove_image hpow.norm
     let a : ι → ℂ := fun i => ((p (some i)).re / 2 : ℝ)
     have ha : a ∈ mvBetaConvergent := fun i => by simpa [a] using half_pos (hp i)
     have hevent : ∀ᶠ q in 𝓝 p,
@@ -60,7 +60,7 @@ private theorem locallyBounded_regCarlsonRIntegral_exponent_parameters
       filter_upwards [hevent] with q hq
       apply norm_integral_le_of_norm_le ((integrableOn_mvBetaMonomial a ha).norm.mul_const _)
       filter_upwards [self_mem_ae_restrict (μ := stdSimplexMeasure)
-        (isClosed_stdSimplex ℝ ι).measurableSet, ae_zero_lt_of_mem_stdSimplex (ι := ι)] with u hu hupos
+        (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet, ae_zero_lt_of_mem_stdSimplex (ι := ι)] with u hu hupos
       have hm : ‖∏ i, (u i : ℂ) ^ (q (some i) - 1)‖ ≤ ‖∏ i, (u i : ℂ) ^ (a i - 1)‖ := by
         simp only [norm_prod]
         apply Finset.prod_le_prod (fun _ _ => norm_nonneg _)
@@ -71,7 +71,7 @@ private theorem locallyBounded_regCarlsonRIntegral_exponent_parameters
         simpa only [sub_re, one_re] using sub_le_sub_right (hq.1 i).le 1
       have hf : ‖carlsonAffineForm z u ^ q none‖ ≤ max C 0 :=
         (hC (mem_image_of_mem _ (show (q none, u) ∈
-          Metric.closedBall (p none) 1 ×ˢ stdSimplex ℝ ι from
+          Metric.closedBall (p none) 1 ×ˢ Convexity.StdSimplex.coordinateSet ℝ ι from
             ⟨Metric.mem_closedBall.mpr hq.2.le, hu⟩))).trans (le_max_left _ _)
       exact (norm_mul _ _).trans_le (mul_le_mul hm hf (norm_nonneg _) (norm_nonneg _))
     let B : ℝ := ‖∏ i, (Gamma (p (some i)))⁻¹‖ + 1
@@ -98,7 +98,7 @@ theorem analyticOnNhd_regCarlsonRIntegral_exponent_parameters {z : ι → ℂ}
       have H := analyticOnNhd_regCarlsonRIntegral_exponent hp hz (p none) (mem_univ _)
       simpa only [Function.update_self, Function.update_of_ne (Option.some_ne_none _)] using H
     | some i =>
-      have hcont : ContinuousOn (fun u => carlsonAffineForm z u ^ p none) (stdSimplex ℝ ι) :=
+      have hcont : ContinuousOn (fun u => carlsonAffineForm z u ^ p none) (Convexity.StdSimplex.coordinateSet ℝ ι) :=
         (continuous_carlsonAffineForm z).continuousOn.cpow_const
           (fun _ hu => carlsonAffineForm_mem_slitPlane hz hu)
       have H := (isOpen_mvBetaConvergent.analyticOn_iff_analyticOnNhd.mp

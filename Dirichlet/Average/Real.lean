@@ -32,7 +32,7 @@ def realCarlsonDirichletAverage (b : ι → ℝ) (z : ι → ℂ) (f : ℂ → �
 theorem realCarlsonDirichletAverage_eq_integral [Nonempty ι]
     {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain) (z : ι → ℂ) (f : ℂ → ℂ) :
     realCarlsonDirichletAverage b z f =
-      ∫ u in stdSimplex ℝ ι,
+      ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι,
         (dirichletPdfReal b u : ℂ) * f (carlsonAffineForm z u)
           ∂stdSimplexMeasure :=
   integral_dirichletMeasure_complex hb _

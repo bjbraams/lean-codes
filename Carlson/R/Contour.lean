@@ -6,6 +6,6 @@ public import Carlson.R.SingleIntegral
 /-! # Contour continuation of Carlson's R-function
 
 Placeholder for Carlson's contour representation, Theorem 6.8-2; this module currently adds
-no declarations. Entire continuation in the Dirichlet parameters is already obtained without
-contours in `Carlson.R.Continuation`.
+no declarations. The full joint continuation assertion of that theorem is proved without
+contours in `Carlson.R.SlitJointAnalytic`; formula (6.8-7) itself remains unformalized.
 -/

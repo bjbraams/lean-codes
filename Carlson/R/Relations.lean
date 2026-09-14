@@ -31,7 +31,7 @@ theorem regCarlsonRIntegral_eq_sum_update_add_one (t : ℂ) {b z : ι → ℂ}
     regCarlsonRIntegral t b z =
       ∑ i, b i * regCarlsonRIntegral t (Function.update b i (b i + 1)) z := by
   have hpow : ContinuousOn (fun u : ι → ℝ ↦ carlsonAffineForm z u ^ t)
-      (stdSimplex ℝ ι) :=
+      (Convexity.StdSimplex.coordinateSet ℝ ι) :=
     (continuous_carlsonAffineForm z).continuousOn.cpow_const
       (fun _ hu ↦ carlsonAffineForm_mem_slitPlane hz hu)
   simpa only [regCarlsonRIntegral, addDirichletUnit] using
@@ -43,7 +43,7 @@ theorem regCarlsonRIntegral_add_one_eq_sum_mul_update (t : ℂ) {b z : ι → �
     regCarlsonRIntegral (t + 1) b z =
       ∑ i, b i * z i * regCarlsonRIntegral t (Function.update b i (b i + 1)) z := by
   have hpow : ContinuousOn (fun u : ι → ℝ ↦ carlsonAffineForm z u ^ t)
-      (stdSimplex ℝ ι) :=
+      (Convexity.StdSimplex.coordinateSet ℝ ι) :=
     (continuous_carlsonAffineForm z).continuousOn.cpow_const
       (fun _ hu ↦ carlsonAffineForm_mem_slitPlane hz hu)
   have hterm (i : ι) :
@@ -79,7 +79,7 @@ theorem regCarlsonRIntegral_add_one_eq_sum_mul_update (t : ℂ) {b z : ι → �
     exact hterm i]
   unfold regCarlsonRIntegral regCarlsonDirichletAverage regDirichletIntegral
   rw [← integral_finsetSum]
-  · apply setIntegral_congr_fun (isClosed_stdSimplex ℝ ι).measurableSet
+  · apply setIntegral_congr_fun (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet
     intro u hu
     dsimp only
     have hne : carlsonAffineForm z u ≠ 0 :=
@@ -319,7 +319,7 @@ theorem ofReal_pos_mul_cpow (t w : ℂ) {a : ℝ} (ha : 0 < a) (hw : w ≠ 0) :
 /-- Pointwise homogeneity of Carlson's power kernel for positive real scaling. -/
 theorem cpow_carlsonAffineForm_smul (t : ℂ) {a : ℝ} (ha : 0 < a)
     {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain) {u : ι → ℝ}
-    (hu : u ∈ stdSimplex ℝ ι) :
+    (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι) :
     carlsonAffineForm (fun i ↦ (a : ℂ) * z i) u ^ t =
       (a : ℂ) ^ t * carlsonAffineForm z u ^ t := by
   rw [show carlsonAffineForm (fun i ↦ (a : ℂ) * z i) u =
@@ -341,7 +341,7 @@ theorem regCarlsonRIntegral_smul_of_pos (t : ℂ) {b z : ι → ℂ}
       (a : ℂ) ^ t * regCarlsonRIntegral t b z := by
   unfold regCarlsonRIntegral regCarlsonDirichletAverage regDirichletIntegral
   rw [← integral_const_mul]
-  apply setIntegral_congr_fun (isClosed_stdSimplex ℝ ι).measurableSet
+  apply setIntegral_congr_fun (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet
   intro u hu
   dsimp only
   rw [cpow_carlsonAffineForm_smul t ha hz hu]
@@ -377,7 +377,7 @@ theorem regCarlsonRIntegral_smul_of_re_pos (t : ℂ) {a : ℂ} (ha : 0 < a.re)
       a ^ t * regCarlsonRIntegral t b z := by
   unfold regCarlsonRIntegral regCarlsonDirichletAverage regDirichletIntegral
   rw [← integral_const_mul]
-  apply setIntegral_congr_fun (isClosed_stdSimplex ℝ ι).measurableSet
+  apply setIntegral_congr_fun (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet
   intro u hu
   dsimp only
   have hform : carlsonAffineForm (fun i => a * z i) u = a * carlsonAffineForm z u := by

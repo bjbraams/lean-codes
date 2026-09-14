@@ -182,7 +182,7 @@ def carlsonTotalDeriv (G : (ι → ℂ) → ℂ) (z : ι → ℂ) : ℂ :=
 averaged function, because simplex coordinates sum to one. -/
 theorem carlsonTotalDeriv_comp_carlsonAffineForm
     {f : ℂ → ℂ} {f' : ℂ} {z : ι → ℂ} {u : ι → ℝ}
-    (hu : u ∈ stdSimplex ℝ ι) (hf : HasDerivAt f f' (carlsonAffineForm z u)) :
+    (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι) (hf : HasDerivAt f f' (carlsonAffineForm z u)) :
     carlsonTotalDeriv (fun z => f (carlsonAffineForm z u)) z = f' := by
   simp_rw [carlsonTotalDeriv, carlsonPartialDeriv_comp_carlsonAffineForm _ hf,
     ← Finset.sum_mul]

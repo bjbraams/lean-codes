@@ -69,7 +69,7 @@ does not change that affine form. -/
     Equiv.sum_comp σ (fun i ↦ (u i : ℂ) * z i)
 
 /-- The affine form of a constant parameter vector is constant on the standard simplex. -/
-theorem carlsonAffineForm_const {u : ι → ℝ} (hu : u ∈ stdSimplex ℝ ι) (w : ℂ) :
+theorem carlsonAffineForm_const {u : ι → ℝ} (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι) (w : ℂ) :
     carlsonAffineForm (fun _ ↦ w) u = w := by
   rw [carlsonAffineForm, ← Finset.sum_mul]
   have hsum : ∑ i, (u i : ℂ) = 1 := by exact_mod_cast hu.2
@@ -102,14 +102,14 @@ theorem regCarlsonDirichletAverage_const (f : ℂ → ℂ) (w : ℂ)
   simp only [mul_one] at hsmul
   rw [hsmul]
   rw [show regDirichletIntegral b (fun _ ↦ (1 : ℂ)) =
-      ∫ u in stdSimplex ℝ ι, regDirichletDensity b u ∂stdSimplexMeasure by
+      ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι, regDirichletDensity b u ∂stdSimplexMeasure by
     simp [regDirichletIntegral]]
   rw [regDirichletIntegral_normalization b hb]
   simp [div_eq_mul_inv]
 
 /-- Affine changes in the variables commute with Carlson's affine form on the standard
 simplex. -/
-theorem carlsonAffineForm_affine {u : ι → ℝ} (hu : u ∈ stdSimplex ℝ ι)
+theorem carlsonAffineForm_affine {u : ι → ℝ} (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι)
     (a t : ℂ) (z : ι → ℂ) :
     carlsonAffineForm (fun i ↦ a * z i + t) u = a * carlsonAffineForm z u + t := by
   have hsum : ∑ i, (u i : ℂ) = 1 := by exact_mod_cast hu.2
@@ -141,7 +141,7 @@ theorem regCarlsonDirichletAverage_comp_affine (b z : ι → ℂ) (f : ℂ → �
 /-- On the standard simplex, Carlson's affine form is bounded by the sum of the norms of
 its variables. -/
 theorem norm_carlsonAffineForm_le_sum_norm (z : ι → ℂ) {u : ι → ℝ}
-    (hu : u ∈ stdSimplex ℝ ι) :
+    (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι) :
     ‖carlsonAffineForm z u‖ ≤ ∑ i, ‖z i‖ := by
   unfold carlsonAffineForm
   calc
@@ -162,7 +162,7 @@ theorem norm_carlsonAffineForm_le_sum_norm (z : ι → ℂ) {u : ι → ℝ}
 
 /-- The denominator in Carlson's resolvent is nonzero off the convex hull of `z`. -/
 theorem sub_carlsonAffineForm_ne_zero {s : ℂ} {z : ι → ℂ} {u : ι → ℝ}
-    (hs : s ∉ convexHull ℝ (Set.range z)) (hu : u ∈ stdSimplex ℝ ι) :
+    (hs : s ∉ convexHull ℝ (Set.range z)) (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι) :
     s - carlsonAffineForm z u ≠ 0 := by
   intro h
   apply hs
@@ -199,7 +199,7 @@ domain. -/
 theorem regCarlsonDirichletAverage_finsetSum {κ : Type*} {s : Finset κ}
     {b z : ι → ℂ} (hb : b ∈ mvBetaConvergent) (f : κ → ℂ → ℂ)
     (hf : ∀ k ∈ s, ContinuousOn (fun u : ι → ℝ => f k (carlsonAffineForm z u))
-      (stdSimplex ℝ ι)) :
+      (Convexity.StdSimplex.coordinateSet ℝ ι)) :
     regCarlsonDirichletAverage b z (fun w => ∑ k ∈ s, f k w) =
       ∑ k ∈ s, regCarlsonDirichletAverage b z (f k) := by
   unfold regCarlsonDirichletAverage regDirichletIntegral

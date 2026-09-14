@@ -233,14 +233,14 @@ theorem stdSimplexMeasure_eq_at [Nonempty ι] (i : ι) :
 simplex measure. -/
 theorem stdSimplexMeasure_restrict_stdSimplex
     [Nonempty ι] (i : ι) :
-    (stdSimplexMeasure (ι := ι)).restrict (stdSimplex ℝ ι) =
+    (stdSimplexMeasure (ι := ι)).restrict (Convexity.StdSimplex.coordinateSet ℝ ι) =
       Measure.map (stdSimplexCoordMap i)
         (volume.restrict (stdSimplexFreeCoords i)) := by
   rw [stdSimplexMeasure_eq_at i]
   unfold stdSimplexMeasureAt
   rw [Measure.restrict_map
     (measurable_stdSimplexCoordMap i)
-    (isClosed_stdSimplex ℝ ι).measurableSet]
+    (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet]
   rw [preimage_stdSimplexCoordMap]
 
 /-- `stdSimplexMeasure` is zero when `ι` is empty. -/
@@ -308,7 +308,7 @@ theorem stdSimplexMeasure_restrict_stdSimplexAffineSet :
       rw [hp, Measure.restrict_univ]
 
 /-- The coordinate Lebesgue measure is finite on the standard simplex. -/
-instance : IsFiniteMeasure (stdSimplexMeasure.restrict (stdSimplex ℝ ι)) := by
+instance : IsFiniteMeasure (stdSimplexMeasure.restrict (Convexity.StdSimplex.coordinateSet ℝ ι)) := by
   refine ⟨?_⟩
   cases isEmpty_or_nonempty ι with
   | inl h =>
@@ -323,7 +323,7 @@ instance : IsFiniteMeasure (stdSimplexMeasure.restrict (stdSimplex ℝ ι)) := b
       have hc : IsCompact (stdSimplexFreeCoords (R := ℝ) i) := by
         rw [← preimage_stdSimplexCoordMap i]
         exact (isClosedEmbedding_stdSimplexCoordMap i).isCompact_preimage
-          (isCompact_stdSimplex ℝ ι)
+          (Convexity.StdSimplex.isCompact_coordinateSet ℝ ι)
       exact hc.measure_lt_top
 
 /-- Permuting coordinates is a measure-preserving transformation of `stdSimplexMeasure`:
@@ -350,7 +350,7 @@ theorem stdSimplexMeasure_map_perm (σ : Equiv.Perm ι) :
 /-- Extended real evaluation of the measure of the standard simplex. The value is
 $1/(k-1)!$ where `k = Fintype.card ι`. -/
 @[simp] theorem stdSimplexMeasure_stdSimplex [Nonempty ι] :
-  stdSimplexMeasure (stdSimplex ℝ ι) =
+  stdSimplexMeasure (Convexity.StdSimplex.coordinateSet ℝ ι) =
     1 / (Nat.factorial (Fintype.card ι - 1) : ENNReal) := by
   let i : ι := Classical.choice (inferInstance : Nonempty ι)
   rw [← Measure.restrict_apply_univ]
@@ -363,14 +363,14 @@ $1/(k-1)!$ where `k = Fintype.card ι`. -/
 
 /-- Real-valued form of the coordinate-volume formula for the standard simplex. -/
 theorem stdSimplexMeasure_stdSimplex_toReal [Nonempty ι] :
-  (stdSimplexMeasure (stdSimplex ℝ ι)).toReal =
+  (stdSimplexMeasure (Convexity.StdSimplex.coordinateSet ℝ ι)).toReal =
     1 / (Nat.factorial (Fintype.card ι - 1) : ℝ) := by
   rw [stdSimplexMeasure_stdSimplex]
   simp
 
 /-- The measure of the standard simplex is finite. -/
 theorem stdSimplexMeasure_stdSimplex_ne_top [Nonempty ι] :
-    stdSimplexMeasure (stdSimplex ℝ ι) ≠ ⊤ := by
+    stdSimplexMeasure (Convexity.StdSimplex.coordinateSet ℝ ι) ≠ ⊤ := by
   rw [stdSimplexMeasure_stdSimplex]
   exact ENNReal.div_ne_top ENNReal.one_ne_top (by positivity)
 
@@ -409,19 +409,19 @@ theorem stdSimplexMeasure_coord_eq_zero [Nonempty ι] (i : ι) :
 /-- Almost every point of the simplex has every coordinate strictly positive, with respect to
 `stdSimplexMeasure` restricted to the simplex. -/
 theorem ae_zero_lt_of_mem_stdSimplex [Nonempty ι] :
-  ∀ᵐ u ∂stdSimplexMeasure.restrict (stdSimplex ℝ ι),
+  ∀ᵐ u ∂stdSimplexMeasure.restrict (Convexity.StdSimplex.coordinateSet ℝ ι),
     ∀ i, 0 < u i := by
   rw [ae_all_iff]
   intro i
   have hne_full : ∀ᵐ u ∂stdSimplexMeasure, u i ≠ 0 := by
     rw [ae_iff]
     simpa only [not_ne_iff] using stdSimplexMeasure_coord_eq_zero i
-  have hne : ∀ᵐ u ∂stdSimplexMeasure.restrict (stdSimplex ℝ ι), u i ≠ 0 :=
+  have hne : ∀ᵐ u ∂stdSimplexMeasure.restrict (Convexity.StdSimplex.coordinateSet ℝ ι), u i ≠ 0 :=
     (ae_mono Measure.restrict_le_self) hne_full
   filter_upwards
     [self_mem_ae_restrict
       (μ := stdSimplexMeasure)
-      (isClosed_stdSimplex ℝ ι).measurableSet, hne] with u hu hne
+      (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet, hne] with u hu hne
   exact lt_of_le_of_ne (hu.1 i) (Ne.symm hne)
 
 /-- The aggregation formula when the target has one coordinate. This is the base case for
@@ -430,16 +430,16 @@ theorem map_stdSimplexMeasure_restrict_stdSimplex_aggregate_of_unique
     {κ : Type*} [Fintype κ] [Unique κ] [Nonempty ι]
     (f : ι → κ) :
     Measure.map (stdSimplexAggregate f)
-      ((stdSimplexMeasure (ι := ι)).restrict (stdSimplex ℝ ι)) =
-    ((stdSimplexMeasure (ι := κ)).restrict (stdSimplex ℝ κ)).withDensity
+      ((stdSimplexMeasure (ι := ι)).restrict (Convexity.StdSimplex.coordinateSet ℝ ι)) =
+    ((stdSimplexMeasure (ι := κ)).restrict (Convexity.StdSimplex.coordinateSet ℝ κ)).withDensity
       (stdSimplexAggregateDensity f) := by
   ext s hs
   rw [Measure.map_apply (by fun_prop) hs]
   rw [withDensity_apply _ hs]
   rw [stdSimplexMeasure_unique (ι := κ)]
-  have hconst_mem : (fun _ : κ => (1 : ℝ)) ∈ stdSimplex ℝ κ := by
-    simp [stdSimplex]
-  rw [MeasureTheory.restrict_dirac' (isClosed_stdSimplex ℝ κ).measurableSet,
+  have hconst_mem : (fun _ : κ => (1 : ℝ)) ∈ Convexity.StdSimplex.coordinateSet ℝ κ := by
+    simp [Convexity.StdSimplex.coordinateSet]
+  rw [MeasureTheory.restrict_dirac' (Convexity.StdSimplex.isClosed_coordinateSet ℝ κ).measurableSet,
     if_pos hconst_mem]
   have hd : Measurable (stdSimplexAggregateDensity f) := by
     unfold stdSimplexAggregateDensity
@@ -447,7 +447,7 @@ theorem map_stdSimplexMeasure_restrict_stdSimplex_aggregate_of_unique
   rw [MeasureTheory.setLIntegral_dirac' hd hs]
   by_cases hmem : (fun _ : κ => (1 : ℝ)) ∈ s
   · rw [if_pos hmem]
-    have hpre : stdSimplexAggregate f ⁻¹' s ∩ stdSimplex ℝ ι = stdSimplex ℝ ι := by
+    have hpre : stdSimplexAggregate f ⁻¹' s ∩ Convexity.StdSimplex.coordinateSet ℝ ι = Convexity.StdSimplex.coordinateSet ℝ ι := by
       ext u
       simp only [Set.mem_inter_iff]
       constructor
@@ -457,14 +457,14 @@ theorem map_stdSimplexMeasure_restrict_stdSimplex_aggregate_of_unique
         have ha := stdSimplexAggregate_mem_stdSimplex (f := f) hu
         have heq : stdSimplexAggregate f u = fun _ : κ => (1 : ℝ) := by
           funext k
-          simpa [stdSimplex, Subsingleton.elim k default] using ha.2
+          simpa [Convexity.StdSimplex.coordinateSet, Subsingleton.elim k default] using ha.2
         simpa [heq] using hmem
     rw [Measure.restrict_apply (hs.preimage (by fun_prop)), hpre,
       stdSimplexMeasure_stdSimplex]
     simp [stdSimplexAggregateDensity, stdSimplexAggregateFiberCard,
       Subsingleton.elim (f _) default]
   · rw [if_neg hmem]
-    have hpre : stdSimplexAggregate f ⁻¹' s ∩ stdSimplex ℝ ι = ∅ := by
+    have hpre : stdSimplexAggregate f ⁻¹' s ∩ Convexity.StdSimplex.coordinateSet ℝ ι = ∅ := by
       ext u
       simp only [Set.mem_inter_iff, Set.mem_preimage, Set.mem_empty_iff_false]
       constructor
@@ -472,7 +472,7 @@ theorem map_stdSimplexMeasure_restrict_stdSimplex_aggregate_of_unique
         have ha := stdSimplexAggregate_mem_stdSimplex (f := f) hu
         have heq : stdSimplexAggregate f u = fun _ : κ => (1 : ℝ) := by
           funext k
-          simpa [stdSimplex, Subsingleton.elim k default] using ha.2
+          simpa [Convexity.StdSimplex.coordinateSet, Subsingleton.elim k default] using ha.2
         exact (hmem (heq ▸ huS)).elim
       · exact False.elim
     rw [Measure.restrict_apply (hs.preimage (by fun_prop)), hpre, measure_empty]
@@ -619,9 +619,9 @@ theorem map_stdSimplexMeasure_restrict_stdSimplex_aggregate
     {κ : Type*} [Fintype κ]
     (f : ι → κ) (hf : Function.Surjective f) :
     Measure.map (stdSimplexAggregate f)
-      ((stdSimplexMeasure (ι := ι)).restrict (stdSimplex ℝ ι))
+      ((stdSimplexMeasure (ι := ι)).restrict (Convexity.StdSimplex.coordinateSet ℝ ι))
       =
-    ((stdSimplexMeasure (ι := κ)).restrict (stdSimplex ℝ κ)).withDensity
+    ((stdSimplexMeasure (ι := κ)).restrict (Convexity.StdSimplex.coordinateSet ℝ κ)).withDensity
       (stdSimplexAggregateDensity f) := by
   classical
   cases isEmpty_or_nonempty ι with
@@ -672,7 +672,7 @@ theorem map_stdSimplexMeasure_restrict_stdSimplex_aggregate
             fun_prop
           have hleft :
               ∫⁻ u, g u ∂Measure.map (stdSimplexAggregate f)
-                ((stdSimplexMeasure (ι := ι)).restrict (stdSimplex ℝ ι)) =
+                ((stdSimplexMeasure (ι := ι)).restrict (Convexity.StdSimplex.coordinateSet ℝ ι)) =
               ∫⁻ x in posSimplex {j : ι // j ≠ i} 1,
                 g (stdSimplexAggregate f (stdSimplexCoordMap i x)) := by
             rw [lintegral_map hg (by fun_prop),
@@ -686,7 +686,7 @@ theorem map_stdSimplexMeasure_restrict_stdSimplex_aggregate
             rfl
           have hright :
               ∫⁻ u, g u ∂((stdSimplexMeasure (ι := κ)).restrict
-                  (stdSimplex ℝ κ)).withDensity (stdSimplexAggregateDensity f) =
+                  (Convexity.StdSimplex.coordinateSet ℝ κ)).withDensity (stdSimplexAggregateDensity f) =
               ∫⁻ z in posSimplex {j : κ // j ≠ k} 1,
                 stdSimplexAggregateDensity f (stdSimplexCoordMap k z) *
                   g (stdSimplexCoordMap k z) := by
@@ -759,15 +759,15 @@ theorem map_stdSimplexMeasure_restrict_stdSimplex_aggregate
 /-- Coordinates belong to every `Lᵖ` space for a finite measure supported on the simplex. -/
 theorem memLp_coordinate_of_restrict_stdSimplex
     {μ : Measure (ι → ℝ)} [IsFiniteMeasure μ]
-    (hμ : μ.restrict (stdSimplex ℝ ι) = μ) (i : ι) (p : ENNReal) :
+    (hμ : μ.restrict (Convexity.StdSimplex.coordinateSet ℝ ι) = μ) (i : ι) (p : ENNReal) :
     MemLp (fun u : ι → ℝ => u i) p μ := by
   apply MemLp.of_bound (measurable_pi_apply i).aestronglyMeasurable 1
-  have hmem : ∀ᵐ u ∂μ, u ∈ stdSimplex ℝ ι := by
+  have hmem : ∀ᵐ u ∂μ, u ∈ Convexity.StdSimplex.coordinateSet ℝ ι := by
     rw [← hμ]
-    exact ae_restrict_mem (isClosed_stdSimplex ℝ ι).measurableSet
+    exact ae_restrict_mem (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet
   filter_upwards [hmem] with u hu
   rw [Real.norm_eq_abs, abs_of_nonneg (hu.1 i)]
-  exact (mem_Icc_of_mem_stdSimplex hu i).2
+  exact (Convexity.StdSimplex.mem_Icc_of_mem_coordinateSet hu i).2
 
 end MeasureTheory.Measure
 

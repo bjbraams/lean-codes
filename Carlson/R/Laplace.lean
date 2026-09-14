@@ -278,7 +278,7 @@ theorem regCarlsonRIntegral_eq_regCarlsonRLaplaceIntegral
         MeasureTheory.Measure.stdSimplexMeasure_empty]
   | inr hι =>
     let _ := hι
-    let μu := MeasureTheory.Measure.stdSimplexMeasure.restrict (stdSimplex ℝ ι)
+    let μu := MeasureTheory.Measure.stdSimplexMeasure.restrict (Convexity.StdSimplex.coordinateSet ℝ ι)
     let μy := volume.restrict (Set.Ioi (0 : ℝ))
     let s : Finset ℝ := Finset.univ.image (fun i => (z i).re)
     have hs : s.Nonempty := Finset.image_nonempty.mpr Finset.univ_nonempty
@@ -290,7 +290,7 @@ theorem regCarlsonRIntegral_eq_regCarlsonRLaplaceIntegral
       exact hz i
     have hr_le (i : ι) : r ≤ (z i).re := by
       exact Finset.min'_le s _ (Finset.mem_image.mpr ⟨i, Finset.mem_univ i, rfl⟩)
-    have hWlower {u : ι → ℝ} (hu : u ∈ stdSimplex ℝ ι) :
+    have hWlower {u : ι → ℝ} (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι) :
         r ≤ (carlsonAffineForm z u).re := by
       have hre : (carlsonAffineForm z u).re = ∑ i, u i * (z i).re := by
         simp [carlsonAffineForm, mul_re]
@@ -307,15 +307,15 @@ theorem regCarlsonRIntegral_eq_regCarlsonRLaplaceIntegral
     have hG : Integrable G (μy.prod μu) := by
       have hy := integrableOn_carlsonLaplaceKernel_ofReal (a := a) (r := r) ha hr
       have hu : Integrable (regDirichletDensity b) μu := by
-        change IntegrableOn (regDirichletDensity b) (stdSimplex ℝ ι)
+        change IntegrableOn (regDirichletDensity b) (Convexity.StdSimplex.coordinateSet ℝ ι)
           MeasureTheory.Measure.stdSimplexMeasure
         simpa only [mul_one] using integrableOn_regDirichletDensity_mul b hb
-          (continuousOn_const : ContinuousOn (fun _ : ι → ℝ => (1 : ℂ)) (stdSimplex ℝ ι))
+          (continuousOn_const : ContinuousOn (fun _ : ι → ℝ => (1 : ℂ)) (Convexity.StdSimplex.coordinateSet ℝ ι))
       simpa [G, μy] using hy.mul_prod hu
     have hFmeas : AEStronglyMeasurable F (μy.prod μu) := by
       have hk : ContinuousOn (fun p : ℝ × (ι → ℝ) =>
           (p.1 : ℂ) ^ (a - 1) * exp (-(p.1 : ℂ) * carlsonAffineForm z p.2))
-          (Set.Ioi (0 : ℝ) ×ˢ stdSimplex ℝ ι) := by
+          (Set.Ioi (0 : ℝ) ×ˢ Convexity.StdSimplex.coordinateSet ℝ ι) := by
         intro p hp
         apply ContinuousAt.continuousWithinAt
         apply ContinuousAt.mul
@@ -337,13 +337,13 @@ theorem regCarlsonRIntegral_eq_regCarlsonRLaplaceIntegral
           (fun p : ℝ × (ι → ℝ) => (p.1 : ℂ) ^ (a - 1) *
             exp (-(p.1 : ℂ) * carlsonAffineForm z p.2))
           ((volume.prod MeasureTheory.Measure.stdSimplexMeasure).restrict
-            (Set.Ioi (0 : ℝ) ×ˢ stdSimplex ℝ ι)) :=
+            (Set.Ioi (0 : ℝ) ×ˢ Convexity.StdSimplex.coordinateSet ℝ ι)) :=
         hk.aestronglyMeasurable
-          (measurableSet_Ioi.prod (isClosed_stdSimplex ℝ ι).measurableSet)
+          (measurableSet_Ioi.prod (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet)
       have hd : AEStronglyMeasurable (fun p : ℝ × (ι → ℝ) =>
           regDirichletDensity b p.2)
           ((volume.prod MeasureTheory.Measure.stdSimplexMeasure).restrict
-            (Set.Ioi (0 : ℝ) ×ˢ stdSimplex ℝ ι)) :=
+            (Set.Ioi (0 : ℝ) ×ˢ Convexity.StdSimplex.coordinateSet ℝ ι)) :=
         ((measurable_regDirichletDensity b).comp measurable_snd).aestronglyMeasurable
       have hm := hk'.mul hd
       convert hm using 1
@@ -355,11 +355,11 @@ theorem regCarlsonRIntegral_eq_regCarlsonRLaplaceIntegral
       ring
     have hFle : ∀ᵐ p ∂μy.prod μu, ‖F p‖ ≤ ‖G p‖ := by
       have hp_mem : ∀ᵐ p ∂μy.prod μu,
-          p.1 ∈ Set.Ioi (0 : ℝ) ∧ p.2 ∈ stdSimplex ℝ ι := by
+          p.1 ∈ Set.Ioi (0 : ℝ) ∧ p.2 ∈ Convexity.StdSimplex.coordinateSet ℝ ι := by
         unfold μy μu
         rw [Measure.prod_restrict]
         exact ae_restrict_mem
-          (measurableSet_Ioi.prod (isClosed_stdSimplex ℝ ι).measurableSet)
+          (measurableSet_Ioi.prod (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet)
       filter_upwards [hp_mem] with p hp
       rw [show ‖F p‖ = ‖regDirichletDensity b p.2‖ *
           (Real.exp (-(carlsonAffineForm z p.2).re * p.1) *
@@ -395,7 +395,7 @@ theorem regCarlsonRIntegral_eq_regCarlsonRLaplaceIntegral
           ∫ u, regDirichletDensity b u *
             exp (-(y : ℂ) * carlsonAffineForm z u) ∂μu := by
         unfold regCarlsonSIntegral regCarlsonDirichletAverage regDirichletIntegral μu
-        apply setIntegral_congr_fun (isClosed_stdSimplex ℝ ι).measurableSet
+        apply setIntegral_congr_fun (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet
         intro u hu
         have haff : carlsonAffineForm (fun i ↦ -(y : ℂ) * z i) u =
             -(y : ℂ) * carlsonAffineForm z u := by
@@ -416,9 +416,9 @@ theorem regCarlsonRIntegral_eq_regCarlsonRLaplaceIntegral
         (∫ y, F (y, u) ∂μy) =
           regDirichletDensity b u *
             (carlsonAffineForm z u ^ (-a) * Gamma a) := by
-      have hu_mem : ∀ᵐ u ∂μu, u ∈ stdSimplex ℝ ι := by
+      have hu_mem : ∀ᵐ u ∂μu, u ∈ Convexity.StdSimplex.coordinateSet ℝ ι := by
         unfold μu
-        exact ae_restrict_mem (isClosed_stdSimplex ℝ ι).measurableSet
+        exact ae_restrict_mem (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet
       filter_upwards [hu_mem] with u hu
       calc
         (∫ y, F (y, u) ∂μy) = regDirichletDensity b u *
@@ -439,7 +439,7 @@ theorem regCarlsonRIntegral_eq_regCarlsonRLaplaceIntegral
       rw [integral_congr_ae hinner]
       unfold regCarlsonRIntegral regCarlsonDirichletAverage regDirichletIntegral μu
       rw [← integral_const_mul]
-      apply setIntegral_congr_fun (isClosed_stdSimplex ℝ ι).measurableSet
+      apply setIntegral_congr_fun (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet
       intro u hu
       ring
     have hout :

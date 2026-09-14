@@ -13,6 +13,7 @@ public import SeveralComplexVariables.CauchyIntegral
 public import SeveralComplexVariables.CauchyRiemann
 public import SeveralComplexVariables.CauchySeries
 public import SeveralComplexVariables.Derivatives
+public import SeveralComplexVariables.DominatedIntegral
 public import SeveralComplexVariables.FunctionSpace
 public import SeveralComplexVariables.LocallyBounded
 public import SeveralComplexVariables.LocallyUniform

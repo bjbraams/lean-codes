@@ -33,7 +33,7 @@ theorem continuous_finSimplexPoint : Continuous (finSimplexPoint (n := n)) := by
   fun_prop
 
 theorem finSimplexPoint_mem {v : Fin n → ℝ} (hv : v ∈ posSimplexFin n 1) :
-    finSimplexPoint v ∈ stdSimplex ℝ (Fin (n + 1)) := by
+    finSimplexPoint v ∈ Convexity.StdSimplex.coordinateSet ℝ (Fin (n + 1)) := by
   constructor
   · intro k
     refine Fin.lastCases ?_ (fun l => ?_) k
@@ -55,7 +55,7 @@ theorem isCompact_posSimplexFin_one (n : ℕ) : IsCompact (posSimplexFin n 1) :=
 /-- The standard-simplex integral in the chart omitting its last coordinate. -/
 theorem integral_stdSimplex_fin {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
     (g : (Fin (n + 1) → ℝ) → E) :
-    ∫ u in stdSimplex ℝ (Fin (n + 1)), g u ∂stdSimplexMeasure =
+    ∫ u in Convexity.StdSimplex.coordinateSet ℝ (Fin (n + 1)), g u ∂stdSimplexMeasure =
       ∫ v in posSimplexFin n 1, g (finSimplexPoint v) := by
   classical
   -- Match the complement's instance used internally by the simplex chart.

@@ -5,21 +5,17 @@ Authors: Bastiaan J Braams.
 -/
 module
 
-public import Mathlib.Analysis.Convex.StdSimplex
+public import StdSimplexMeasure.Intrinsic
 public import StdSimplexMeasure.Aggregation
 public import StdSimplexMeasure.Coordinates
 
 /-!
 # Coordinate realization of the standard simplex
 
-This file relates the explicit coordinate charts in `StdSimplexMeasure.Coordinates` to the
-older realization `stdSimplex R ι : Set (ι → R)`. That realization remains useful for ambient
-Lebesgue measure and integration, although Mathlib is transitioning its abstract simplex API to
-the intrinsic type `Convexity.StdSimplex R ι`.
-
-The dependence on the older lowercase `stdSimplex` API is intentionally isolated here. After
-the topology of `Convexity.StdSimplex` is available in a stable Mathlib release, the principal
-homeomorphism in this file can be replaced by one targeting the intrinsic simplex.
+This file connects ambient coordinate charts to the intrinsic
+`Convexity.StdSimplex`. The coordinate carrier is used for restricting the
+hyperplane measure and for ambient calculus. The chart homeomorphism targets
+the intrinsic simplex itself.
 -/
 
 @[expose] public noncomputable section StdSimplexCoordinateRealization
@@ -36,9 +32,9 @@ variable [Semiring R] [PartialOrder R]
 /-- The coordinate realization of the standard simplex is invariant under precomposition by a
 permutation of its coordinates. -/
 @[simp] theorem preimage_stdSimplex_perm (σ : Equiv.Perm ι) :
-    (fun u : ι → R => u ∘ σ) ⁻¹' stdSimplex R ι = stdSimplex R ι := by
+    (fun u : ι → R => u ∘ σ) ⁻¹' Convexity.StdSimplex.coordinateSet R ι = Convexity.StdSimplex.coordinateSet R ι := by
   ext u
-  simp only [Set.mem_preimage, stdSimplex, Set.mem_ofPred_eq, Function.comp_apply,
+  simp only [Set.mem_preimage, Convexity.StdSimplex.coordinateSet, Set.mem_ofPred_eq, Function.comp_apply,
     Equiv.sum_comp σ u]
   exact ⟨fun ⟨h1, h2⟩ => ⟨fun i => by simpa using h1 (σ.symm i), h2⟩,
     fun ⟨h1, h2⟩ => ⟨fun i => h1 (σ i), h2⟩⟩
@@ -52,9 +48,9 @@ variable [CommRing R] [PartialOrder R] [IsOrderedRing R]
 /-- The preimage of the coordinate realization of the standard simplex under
 `stdSimplexCoordMap i` is `stdSimplexFreeCoords i`. -/
 @[simp] theorem preimage_stdSimplexCoordMap (i : ι) :
-    stdSimplexCoordMap i ⁻¹' stdSimplex R ι = stdSimplexFreeCoords i := by
+    stdSimplexCoordMap i ⁻¹' Convexity.StdSimplex.coordinateSet R ι = stdSimplexFreeCoords i := by
   ext x
-  simp only [Set.mem_preimage, stdSimplex, stdSimplexFreeCoords, Set.mem_ofPred_eq]
+  simp only [Set.mem_preimage, Convexity.StdSimplex.coordinateSet, stdSimplexFreeCoords, Set.mem_ofPred_eq]
   constructor
   · rintro ⟨hpos, hsum⟩
     refine ⟨?_, ?_⟩
@@ -78,59 +74,71 @@ variable [CommRing R] [PartialOrder R] [IsOrderedRing R]
 /-- Pointwise form of `preimage_stdSimplexCoordMap`. -/
 @[simp] theorem stdSimplexCoordMap_mem_stdSimplex_iff
     (i : ι) (x : {j : ι // j ≠ i} → R) :
-    stdSimplexCoordMap i x ∈ stdSimplex R ι ↔ x ∈ stdSimplexFreeCoords i := by
-  change x ∈ stdSimplexCoordMap i ⁻¹' stdSimplex R ι ↔ _
+    stdSimplexCoordMap i x ∈ Convexity.StdSimplex.coordinateSet R ι ↔ x ∈ stdSimplexFreeCoords i := by
+  change x ∈ stdSimplexCoordMap i ⁻¹' Convexity.StdSimplex.coordinateSet R ι ↔ _
   rw [preimage_stdSimplexCoordMap]
 
 /-- Coordinate aggregation sends the coordinate realization of the standard simplex on `ι`
 into the coordinate realization on `κ`. -/
 theorem stdSimplexAggregate_mem_stdSimplex {κ : Type*} [Fintype κ]
-    {f : ι → κ} {u : ι → R} (hu : u ∈ stdSimplex R ι) :
-    stdSimplexAggregate f u ∈ stdSimplex R κ :=
-  stdSimplex.image_linearMap f ⟨u, hu, rfl⟩
+    {f : ι → κ} {u : ι → R} (hu : u ∈ Convexity.StdSimplex.coordinateSet R ι) :
+    stdSimplexAggregate f u ∈ Convexity.StdSimplex.coordinateSet R κ := by
+  refine ⟨?_, ?_⟩
+  · intro k
+    rw [stdSimplexAggregate, FunOnFinite.linearMap_apply_apply]
+    exact Finset.sum_nonneg (fun i _ => hu.1 i)
+  · simp only [stdSimplexAggregate, FunOnFinite.linearMap_apply_apply, ← hu.2]
+    exact Finset.sum_fiberwise Finset.univ f u
 
 end OrderedRing
 
+namespace Convexity.StdSimplex
+
+section IntrinsicAggregation
+
+variable {κ : Type*} [Fintype κ]
+variable [Semiring R] [PartialOrder R] [IsStrictOrderedRing R]
+
+/-- Intrinsic aggregation is realized by summing ambient coordinates over fibers. -/
+@[simp] theorem coordinates_map (f : ι → κ) (s : StdSimplex R ι) :
+    coordinates (s.map f) = stdSimplexAggregate f (coordinates s) :=
+  weights_map_eq_stdSimplexAggregate f s
+
+/-- Aggregation is continuous on finite intrinsic simplices. -/
+@[fun_prop] theorem continuous_map [TopologicalSpace R] [ContinuousAdd R] (f : ι → κ) :
+    Continuous (fun s : StdSimplex R ι => s.map f) := by
+  apply continuous_induced_rng.mpr
+  simpa only [Function.comp_def, coordinates_map] using
+    (continuous_stdSimplexAggregate (R := R) f).comp continuous_coordinates
+
+end IntrinsicAggregation
+
+end Convexity.StdSimplex
+
 section RealTopology
 
-/-- Restricting the omitted-coordinate chart gives a homeomorphism from the filled simplex in
-free coordinates to the coordinate realization of the standard simplex. -/
-def stdSimplexFreeCoordsHomeomorph (i : ι) :
-    stdSimplexFreeCoords (R := ℝ) i ≃ₜ stdSimplex ℝ ι where
-  toFun x :=
-    ⟨stdSimplexCoordMap i x.1,
-      (stdSimplexCoordMap_mem_stdSimplex_iff i x.1).2 x.2⟩
-  invFun u := by
-    refine ⟨stdSimplexCoordProj i u.1, ?_⟩
-    apply (stdSimplexCoordMap_mem_stdSimplex_iff i _).1
-    have huAffine : u.1 ∈ stdSimplexAffineSet (R := ℝ) := by
-      exact mem_fintypeAffineCoords_iff_sum.mpr u.2.2
-    rw [stdSimplexCoordMap_coordProj i huAffine]
-    exact u.2
-  left_inv x := by
-    apply Subtype.ext
-    exact stdSimplexCoordProj_coordMap i x.1
-  right_inv u := by
-    apply Subtype.ext
-    apply stdSimplexCoordMap_coordProj i
-    exact mem_fintypeAffineCoords_iff_sum.mpr u.2.2
-  continuous_toFun :=
-    (continuous_stdSimplexCoordMap i).comp continuous_subtype_val |>.subtype_mk _
+namespace Convexity.StdSimplex
+
+/-- The omitted-coordinate chart identifies the filled free-coordinate simplex
+with the intrinsic standard simplex. -/
+def homeomorphFreeCoords (i : ι) :
+    stdSimplexFreeCoords (R := ℝ) i ≃ₜ StdSimplex ℝ ι where
+  toEquiv := equivFreeCoords i
+  continuous_toFun := by
+    apply continuous_induced_rng.mpr
+    exact (continuous_stdSimplexCoordMap i).comp continuous_subtype_val
   continuous_invFun :=
-    (continuous_stdSimplexCoordProj i).comp continuous_subtype_val |>.subtype_mk _
+    ((continuous_stdSimplexCoordProj i).comp continuous_coordinates).subtype_mk _
 
-/-- The forward map of `stdSimplexFreeCoordsHomeomorph` is `stdSimplexCoordMap`. -/
-@[simp] theorem coe_stdSimplexFreeCoordsHomeomorph_apply
-    (i : ι) (x : stdSimplexFreeCoords (R := ℝ) i) :
-    (stdSimplexFreeCoordsHomeomorph i x : ι → ℝ) = stdSimplexCoordMap i x.1 :=
-  rfl
+@[simp] theorem coordinates_homeomorphFreeCoords (i : ι)
+    (x : stdSimplexFreeCoords (R := ℝ) i) :
+    coordinates (homeomorphFreeCoords i x) = stdSimplexCoordMap i x.1 := rfl
 
-/-- The inverse map of `stdSimplexFreeCoordsHomeomorph` is `stdSimplexCoordProj`. -/
-@[simp] theorem coe_stdSimplexFreeCoordsHomeomorph_symm_apply
-    (i : ι) (u : stdSimplex ℝ ι) :
-    ((stdSimplexFreeCoordsHomeomorph i).symm u : {j : ι // j ≠ i} → ℝ) =
-      stdSimplexCoordProj i u.1 :=
-  rfl
+@[simp] theorem coe_homeomorphFreeCoords_symm (i : ι) (s : StdSimplex ℝ ι) :
+    ((homeomorphFreeCoords i).symm s : {j : ι // j ≠ i} → ℝ) =
+      stdSimplexCoordProj i (coordinates s) := rfl
+
+end Convexity.StdSimplex
 
 end RealTopology
 

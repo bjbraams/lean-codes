@@ -1,3 +1,6 @@
 /.lake
 *.olean
 */References/
+README.md
+AGENTS.md
+*/AGENTS.md

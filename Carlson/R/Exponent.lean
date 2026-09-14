@@ -27,7 +27,7 @@ theorem hasDerivAt_regCarlsonRIntegral_exponent (t : ℂ) {b z : ι → ℂ}
     HasDerivAt (fun s ↦ regCarlsonRIntegral s b z)
       (regDirichletIntegral b
         (fun u ↦ carlsonAffineForm z u ^ t * log (carlsonAffineForm z u))) t := by
-  let K := stdSimplex ℝ ι
+  let K := Convexity.StdSimplex.coordinateSet ℝ ι
   let μ := stdSimplexMeasure.restrict K
   let g : ℂ → (ι → ℝ) → ℂ := fun s u ↦
     carlsonAffineForm z u ^ s * log (carlsonAffineForm z u)
@@ -46,7 +46,7 @@ theorem hasDerivAt_regCarlsonRIntegral_exponent (t : ℂ) {b z : ι → ℂ}
         continuous_fst.continuousOn (fun p hp ↦ carlsonAffineForm_mem_slitPlane hz hp.2)
     · exact hlog.comp continuous_snd.continuousOn (fun _ hp ↦ hp.2)
   obtain ⟨C, hC⟩ := bddAbove_def.mp
-    (((isCompact_closedBall t 1).prod (isCompact_stdSimplex ℝ ι)).bddAbove_image hjoint.norm)
+    (((isCompact_closedBall t 1).prod (Convexity.StdSimplex.isCompact_coordinateSet ℝ ι)).bddAbove_image hjoint.norm)
   have hdens : Integrable (regDirichletDensity b) μ := by
     simpa only [mul_one, IntegrableOn, μ, K] using integrableOn_regDirichletDensity_mul b hb
       (continuousOn_const : ContinuousOn (fun _ : ι → ℝ ↦ (1 : ℂ)) K)
@@ -61,7 +61,7 @@ theorem hasDerivAt_regCarlsonRIntegral_exponent (t : ℂ) {b z : ι → ℂ}
     (integrableOn_regDirichletDensity_mul b hb (hg t)).aestronglyMeasurable
     (by
       filter_upwards [self_mem_ae_restrict (μ := stdSimplexMeasure)
-        (isClosed_stdSimplex ℝ ι).measurableSet] with u hu
+        (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet] with u hu
       intro s hs
       simp only [norm_mul]
       calc
@@ -71,7 +71,7 @@ theorem hasDerivAt_regCarlsonRIntegral_exponent (t : ℂ) {b z : ι → ℂ}
     (hdens.norm.const_mul C)
     (by
       filter_upwards [self_mem_ae_restrict (μ := stdSimplexMeasure)
-        (isClosed_stdSimplex ℝ ι).measurableSet] with u hu
+        (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet] with u hu
       intro s _
       exact (Complex.hasStrictDerivAt_const_cpow
         (Or.inl (slitPlane_ne_zero (carlsonAffineForm_mem_slitPlane hz hu)))).hasDerivAt.const_mul

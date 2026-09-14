@@ -237,7 +237,7 @@ theorem hasSum_regCarlsonR_div_factorial_eq_regCarlsonSIntegral
     (z : ι → ℂ) {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) :
     HasSum (fun n : ℕ ↦ (Nat.factorial n : ℂ)⁻¹ * regCarlsonR n z b)
       (regCarlsonSIntegral b z) := by
-  let μ := (MeasureTheory.Measure.stdSimplexMeasure (ι := ι)).restrict (stdSimplex ℝ ι)
+  let μ := (MeasureTheory.Measure.stdSimplexMeasure (ι := ι)).restrict (Convexity.StdSimplex.coordinateSet ℝ ι)
   let C : ℝ := ∑ i, ‖z i‖
   let M : ℕ → ℝ := fun n ↦ C ^ n / Nat.factorial n
   let F : ℕ → (ι → ℝ) → ℂ := fun n u ↦
@@ -249,17 +249,17 @@ theorem hasSum_regCarlsonR_div_factorial_eq_regCarlsonSIntegral
     simpa [M] using Real.summable_pow_div_factorial C
   have hdens : Integrable (fun u ↦ regDirichletDensity b u) μ := by
     change IntegrableOn (fun u ↦ regDirichletDensity b u)
-      (stdSimplex ℝ ι) MeasureTheory.Measure.stdSimplexMeasure
+      (Convexity.StdSimplex.coordinateSet ℝ ι) MeasureTheory.Measure.stdSimplexMeasure
     simpa only [mul_one] using integrableOn_regDirichletDensity_mul b hb
       (continuousOn_const : ContinuousOn (fun _ : ι → ℝ ↦ (1 : ℂ))
-        (stdSimplex ℝ ι))
+        (Convexity.StdSimplex.coordinateSet ℝ ι))
   have hF_meas (n : ℕ) : AEStronglyMeasurable (F n) μ := by
     exact (integrableOn_regDirichletDensity_mul b hb
       ((continuous_carlsonAffineForm z).continuousOn.pow n |>.div_const _)).1
   have hbound (n : ℕ) : ∀ᵐ u ∂μ, ‖F n u‖ ≤ M n * ‖regDirichletDensity b u‖ := by
     filter_upwards [self_mem_ae_restrict
       (μ := MeasureTheory.Measure.stdSimplexMeasure)
-      (isClosed_stdSimplex ℝ ι).measurableSet] with u hu
+      (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet] with u hu
     simp only [F, M, norm_mul, norm_div, norm_natCast]
     calc
       ‖regDirichletDensity b u‖ * (‖carlsonAffineForm z u ^ n‖ / ↑n.factorial) ≤
@@ -349,27 +349,11 @@ private theorem analyticOnNhd_regCarlsonSTerm_joint (n : ℕ) :
       (Nat.factorial n : ℂ)⁻¹ * regCarlsonR n (fun i => q (.inr i)) (fun i => q (.inl i)))
       Set.univ := by
   intro q _
-  apply analyticAt_const.mul
-  simp only [regCarlsonR, regCarlsonRPolynomial_eq_numerator_mul_one_div_Gamma,
-    carlsonRPolynomialNumerator_eq_multinomial_sum]
-  apply AnalyticAt.mul
-  · apply Finset.analyticAt_fun_sum
-    intro m hm
-    apply AnalyticAt.mul
-    · apply AnalyticAt.mul analyticAt_const
-      apply Finset.analyticAt_fun_prod
-      intro i hi
-      exact ((ContinuousLinearMap.proj (R := ℂ) (.inr i)).analyticAt q).pow _
-    · apply Finset.analyticAt_fun_prod
-      intro i hi
-      exact ((AnalyticOnNhd.eval_polynomial (ascPochhammer ℂ (m i))) _
-        (Set.mem_univ _)).comp ((ContinuousLinearMap.proj (R := ℂ) (.inl i)).analyticAt q)
-  · have H := Complex.differentiable_one_div_Gamma.analyticAt
-      (z := (∑ i, q (.inl i)) + n)
-    have ht : AnalyticAt ℂ (fun q : Sum ι ι → ℂ => (∑ i, q (.inl i)) + n) q :=
-      (Finset.analyticAt_fun_sum _ (fun i _ =>
-        (ContinuousLinearMap.proj (R := ℂ) (.inl i)).analyticAt q)).add analyticAt_const
-    simpa only [one_div] using! H.comp_of_eq ht rfl
+  exact analyticAt_const.mul (analyticAt_regCarlsonR_comp
+    (b := fun q : Sum ι ι → ℂ => fun i => q (.inl i))
+    (z := fun q : Sum ι ι → ℂ => fun i => q (.inr i)) (x := q)
+    (fun i => (ContinuousLinearMap.proj (R := ℂ) (.inl i)).analyticAt q)
+    (fun i => (ContinuousLinearMap.proj (R := ℂ) (.inr i)).analyticAt q) n)
 
 /-- The exponential series converges locally uniformly jointly in parameters and nodes.
 The coordinates `Sum.inl i` represent parameters and `Sum.inr i` represent nodes. -/

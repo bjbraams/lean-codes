@@ -83,7 +83,7 @@ theorem lintegral_eq_radial_stdSimplex [Nonempty ι]
     (f : (ι → ℝ) → ℝ≥0∞) (hf : Measurable f)
     (hsupp : ∀ x, ¬ (∀ i, 0 ≤ x i) → f x = 0) :
     ∫⁻ x, f x = ∫⁻ t in Ioi (0 : ℝ), ENNReal.ofReal (t ^ (Fintype.card ι - 1)) *
-      ∫⁻ u in stdSimplex ℝ ι, f (t • u) ∂stdSimplexMeasure := by
+      ∫⁻ u in Convexity.StdSimplex.coordinateSet ℝ ι, f (t • u) ∂stdSimplexMeasure := by
   let i : ι := Classical.choice inferInstance
   rw [lintegral_eq_lintegral_sum_slice i f hf, ← lintegral_indicator measurableSet_Ioi]
   apply lintegral_congr_ae

@@ -114,7 +114,7 @@ theorem mul_regDirichletIntegral_addDirichletUnit {b : ι → ℂ}
       regDirichletIntegral b (fun u ↦ (u i : ℂ) * f u) := by
   unfold regDirichletIntegral
   rw [← integral_const_mul]
-  apply setIntegral_congr_fun (isClosed_stdSimplex ℝ ι).measurableSet
+  apply setIntegral_congr_fun (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet
   intro u _
   dsimp only
   rw [← mul_assoc, mul_regDirichletDensity_addDirichletUnit hb]
@@ -125,14 +125,14 @@ one-coordinate positive parameter shifts. -/
 theorem regCarlsonDirichletAverage_eq_sum_addDirichletUnit
     {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) (z : ι → ℂ) (f : ℂ → ℂ)
     (hf : ContinuousOn (fun u : ι → ℝ ↦ f (carlsonAffineForm z u))
-      (stdSimplex ℝ ι)) :
+      (Convexity.StdSimplex.coordinateSet ℝ ι)) :
     regCarlsonDirichletAverage b z f =
       ∑ i, b i * regCarlsonDirichletAverage (addDirichletUnit b i) z f := by
   simp_rw [regCarlsonDirichletAverage,
     mul_regDirichletIntegral_addDirichletUnit hb]
   unfold regDirichletIntegral
   rw [← integral_finsetSum]
-  · apply setIntegral_congr_fun (isClosed_stdSimplex ℝ ι).measurableSet
+  · apply setIntegral_congr_fun (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet
     intro u hu
     dsimp only
     rw [← Finset.mul_sum]
@@ -149,7 +149,7 @@ sum of its positive unit shifts, with weights `b i / ∑ j, b j`. -/
 theorem carlsonDirichletAverage_eq_sum_addDirichletUnit [Nonempty ι]
     {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) (z : ι → ℂ) (f : ℂ → ℂ)
     (hf : ContinuousOn (fun u : ι → ℝ ↦ f (carlsonAffineForm z u))
-      (stdSimplex ℝ ι)) :
+      (Convexity.StdSimplex.coordinateSet ℝ ι)) :
     carlsonDirichletAverage b z f =
       ∑ i, (b i / ∑ j, b j) * carlsonDirichletAverage (addDirichletUnit b i) z f := by
   let c : ℂ := ∑ i, b i
@@ -174,12 +174,12 @@ derivative on the affine combinations met by the simplex. -/
 theorem hasDerivAt_regCarlsonDirichletAverage_update_of_bound
     {b z : ι → ℂ} (hb : b ∈ mvBetaConvergent) (i : ι)
     {f f' : ℂ → ℂ} {s : Set ℂ} (hs : s ∈ nhds (z i))
-    (hf : ∀ w ∈ s, ∀ u ∈ stdSimplex ℝ ι,
+    (hf : ∀ w ∈ s, ∀ u ∈ Convexity.StdSimplex.coordinateSet ℝ ι,
       HasDerivAt f (f' (carlsonAffineForm (Function.update z i w) u))
         (carlsonAffineForm (Function.update z i w) u))
     (hf'_continuous : ∀ w ∈ s, ContinuousOn f'
-      (carlsonAffineForm (Function.update z i w) '' stdSimplex ℝ ι)) {C : ℝ}
-    (hf'_bound : ∀ w ∈ s, ∀ u ∈ stdSimplex ℝ ι,
+      (carlsonAffineForm (Function.update z i w) '' Convexity.StdSimplex.coordinateSet ℝ ι)) {C : ℝ}
+    (hf'_bound : ∀ w ∈ s, ∀ u ∈ Convexity.StdSimplex.coordinateSet ℝ ι,
       ‖f' (carlsonAffineForm (Function.update z i w) u)‖ ≤ C) :
     HasDerivAt
       (fun w ↦ regCarlsonDirichletAverage b (Function.update z i w) f)
@@ -187,7 +187,7 @@ theorem hasDerivAt_regCarlsonDirichletAverage_update_of_bound
         (fun u ↦ (u i : ℂ) * f' (carlsonAffineForm z u)))
       (z i) := by
   let μ : Measure (ι → ℝ) :=
-    (MeasureTheory.Measure.stdSimplexMeasure (ι := ι)).restrict (stdSimplex ℝ ι)
+    (MeasureTheory.Measure.stdSimplexMeasure (ι := ι)).restrict (Convexity.StdSimplex.coordinateSet ℝ ι)
   let F : ℂ → (ι → ℝ) → ℂ := fun w u ↦
     regDirichletDensity b u * f (carlsonAffineForm (Function.update z i w) u)
   let F' : ℂ → (ι → ℝ) → ℂ := fun w u ↦
@@ -197,9 +197,9 @@ theorem hasDerivAt_regCarlsonDirichletAverage_update_of_bound
   have hzi : z i ∈ s := mem_of_mem_nhds hs
   have hf_comp (w : ℂ) (hw : w ∈ s) :
       ContinuousOn (fun u : ι → ℝ ↦
-        f (carlsonAffineForm (Function.update z i w) u)) (stdSimplex ℝ ι) := by
+        f (carlsonAffineForm (Function.update z i w) u)) (Convexity.StdSimplex.coordinateSet ℝ ι) := by
     have hfon : ContinuousOn f
-        (carlsonAffineForm (Function.update z i w) '' stdSimplex ℝ ι) := by
+        (carlsonAffineForm (Function.update z i w) '' Convexity.StdSimplex.coordinateSet ℝ ι) := by
       intro y hy
       obtain ⟨u, hu, rfl⟩ := hy
       exact (hf w hw u hu).continuousAt.continuousWithinAt
@@ -213,33 +213,33 @@ theorem hasDerivAt_regCarlsonDirichletAverage_update_of_bound
     dsimp only [F, μ]
     rw [Function.update_eq_self]
     change IntegrableOn (fun u ↦ regDirichletDensity b u * f (carlsonAffineForm z u))
-      (stdSimplex ℝ ι) MeasureTheory.Measure.stdSimplexMeasure
+      (Convexity.StdSimplex.coordinateSet ℝ ι) MeasureTheory.Measure.stdSimplexMeasure
     simpa using integrableOn_regDirichletDensity_mul b hb
       (by simpa using hf_comp (z i) hzi)
   have hF'_meas : AEStronglyMeasurable (F' (z i)) μ := by
     have hf'_comp : ContinuousOn (fun u : ι → ℝ ↦
-        f' (carlsonAffineForm z u)) (stdSimplex ℝ ι) := by
-      change ContinuousOn (f' ∘ carlsonAffineForm z) (stdSimplex ℝ ι)
+        f' (carlsonAffineForm z u)) (Convexity.StdSimplex.coordinateSet ℝ ι) := by
+      change ContinuousOn (f' ∘ carlsonAffineForm z) (Convexity.StdSimplex.coordinateSet ℝ ι)
       exact (hf'_continuous (z i) hzi).comp
         (continuous_carlsonAffineForm z).continuousOn
           (fun u hu ↦ ⟨u, hu, by rw [Function.update_eq_self]⟩)
     have hcont : ContinuousOn (fun u : ι → ℝ ↦
-        (u i : ℂ) * f' (carlsonAffineForm z u)) (stdSimplex ℝ ι) :=
+        (u i : ℂ) * f' (carlsonAffineForm z u)) (Convexity.StdSimplex.coordinateSet ℝ ι) :=
       (Complex.continuous_ofReal.comp (continuous_apply i)).continuousOn.mul hf'_comp
     simpa [F', μ] using
       (integrableOn_regDirichletDensity_mul b hb hcont).1
   have hbound_int : Integrable bound μ := by
     have hdens : Integrable (fun u ↦ regDirichletDensity b u) μ := by
       change IntegrableOn (fun u ↦ regDirichletDensity b u)
-        (stdSimplex ℝ ι) MeasureTheory.Measure.stdSimplexMeasure
+        (Convexity.StdSimplex.coordinateSet ℝ ι) MeasureTheory.Measure.stdSimplexMeasure
       simpa only [mul_one] using integrableOn_regDirichletDensity_mul b hb
         (continuousOn_const : ContinuousOn (fun _ : ι → ℝ ↦ (1 : ℂ))
-          (stdSimplex ℝ ι))
+          (Convexity.StdSimplex.coordinateSet ℝ ι))
     exact hdens.norm.const_mul C
   have hbound : ∀ᵐ u ∂μ, ∀ w ∈ s, ‖F' w u‖ ≤ bound u := by
     filter_upwards [self_mem_ae_restrict
       (μ := MeasureTheory.Measure.stdSimplexMeasure)
-      (isClosed_stdSimplex ℝ ι).measurableSet] with u hu
+      (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet] with u hu
     intro w hw
     simp only [F', bound, norm_mul]
     calc
@@ -261,7 +261,7 @@ theorem hasDerivAt_regCarlsonDirichletAverage_update_of_bound
   have hdiff : ∀ᵐ u ∂μ, ∀ w ∈ s, HasDerivAt (F · u) (F' w u) w := by
     filter_upwards [self_mem_ae_restrict
       (μ := MeasureTheory.Measure.stdSimplexMeasure)
-      (isClosed_stdSimplex ℝ ι).measurableSet] with u hu w hw
+      (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet] with u hu w hw
     dsimp only [F, F']
     simpa [F, F'] using (HasDerivAt.comp_carlsonAffineForm_update i
       (hf w hw u hu)).const_mul
@@ -309,7 +309,7 @@ theorem hasDerivAt_regCarlsonDirichletAverage_update_of_analyticOnNhd
   have hderivCont : ContinuousOn (deriv f) Ω := hf.deriv.continuousOn
   let s : Set ℂ := Metric.ball (z i) δ
   have hs : s ∈ nhds (z i) := Metric.ball_mem_nhds _ hδ
-  have hnear {w : ℂ} (hw : w ∈ s) {u : ι → ℝ} (hu : u ∈ stdSimplex ℝ ι) :
+  have hnear {w : ℂ} (hw : w ∈ s) {u : ι → ℝ} (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι) :
       carlsonAffineForm (Function.update z i w) u ∈ Metric.cthickening δ K := by
     have hbase : carlsonAffineForm z u ∈ K := carlsonAffineForm_mem_convexHull z hu
     apply Metric.mem_cthickening_of_dist_le _ _ δ K hbase
@@ -318,7 +318,7 @@ theorem hasDerivAt_regCarlsonDirichletAverage_update_of_analyticOnNhd
     rw [carlsonAffineForm_update, dist_eq_norm]
     simp only [add_sub_cancel_left]
     rw [norm_mul, norm_real, Real.norm_eq_abs, abs_of_nonneg (hu.1 i)]
-    exact (mul_le_of_le_one_left (norm_nonneg _) (mem_Icc_of_mem_stdSimplex hu i).2).trans hwi.le
+    exact (mul_le_of_le_one_left (norm_nonneg _) (Convexity.StdSimplex.mem_Icc_of_mem_coordinateSet hu i).2).trans hwi.le
   apply hasDerivAt_regCarlsonDirichletAverage_update_of_bound hb i hs
   · intro w hw u hu
     exact (hf _ (hδΩ (hnear hw hu))).differentiableAt.hasDerivAt
@@ -487,7 +487,7 @@ theorem analyticOnNhd_regCarlsonDirichletAverage_nodes
       ext z
       simp [U, Set.range_subset_iff]]
     exact isOpen_set_pi Set.finite_univ fun _ _ => hΩopen
-  let μ := (MeasureTheory.Measure.stdSimplexMeasure (ι := ι)).restrict (stdSimplex ℝ ι)
+  let μ := (MeasureTheory.Measure.stdSimplexMeasure (ι := ι)).restrict (Convexity.StdSimplex.coordinateSet ℝ ι)
   let F : (ι → ℂ) → (ι → ℝ) → ℂ := fun z u =>
     regDirichletDensity b u * f (carlsonAffineForm z u)
   let L : (ι → ℝ) → ((ι → ℂ) →L[ℂ] ℂ) := carlsonAffineFormCLM
@@ -507,9 +507,9 @@ theorem analyticOnNhd_regCarlsonDirichletAverage_nodes
     regDirichletDensity b u • ((deriv f (carlsonAffineForm y u)) • L u)
   have hdens : Integrable (fun u => regDirichletDensity b u) μ := by
     change IntegrableOn (fun u => regDirichletDensity b u)
-      (stdSimplex ℝ ι) MeasureTheory.Measure.stdSimplexMeasure
+      (Convexity.StdSimplex.coordinateSet ℝ ι) MeasureTheory.Measure.stdSimplexMeasure
     simpa only [mul_one] using integrableOn_regDirichletDensity_mul b hb
-      (continuousOn_const : ContinuousOn (fun _ : ι → ℝ => (1 : ℂ)) (stdSimplex ℝ ι))
+      (continuousOn_const : ContinuousOn (fun _ : ι → ℝ => (1 : ℂ)) (Convexity.StdSimplex.coordinateSet ℝ ι))
   refine ⟨s, bound, F', hs, ?_, ?_, ?_, ?_, ?_, ?_⟩
   · filter_upwards [hs] with y hy
     have hyU : Set.range y ⊆ Ω := by
@@ -522,30 +522,30 @@ theorem analyticOnNhd_regCarlsonDirichletAverage_nodes
       apply hδΩ
       exact Metric.mem_cthickening_of_dist_le (y i) (z i) δ K hiK
         ((dist_le_pi_dist y z i).trans (le_of_lt hy'))
-    have hcont : ContinuousOn (fun u => f (carlsonAffineForm y u)) (stdSimplex ℝ ι) :=
+    have hcont : ContinuousOn (fun u => f (carlsonAffineForm y u)) (Convexity.StdSimplex.coordinateSet ℝ ι) :=
       hf.continuousOn.comp (continuous_carlsonAffineForm y).continuousOn fun u hu =>
         (convexHull_min hyU hΩconv) (carlsonAffineForm_mem_convexHull y hu)
     exact (integrableOn_regDirichletDensity_mul b hb hcont).aestronglyMeasurable
   · change IntegrableOn (fun u => regDirichletDensity b u * f (carlsonAffineForm z u))
-      (stdSimplex ℝ ι) MeasureTheory.Measure.stdSimplexMeasure
+      (Convexity.StdSimplex.coordinateSet ℝ ι) MeasureTheory.Measure.stdSimplexMeasure
     exact integrableOn_regDirichletDensity_mul b hb
       (hf.continuousOn.comp (continuous_carlsonAffineForm z).continuousOn fun u hu =>
         hKΩ (carlsonAffineForm_mem_convexHull z hu))
   · have hcomp : ContinuousOn (fun u => deriv f (carlsonAffineForm z u))
-        (stdSimplex ℝ ι) :=
+        (Convexity.StdSimplex.coordinateSet ℝ ι) :=
       hderivCont.comp (continuous_carlsonAffineForm z).continuousOn fun u hu =>
         hKΩ (carlsonAffineForm_mem_convexHull z hu)
     have hL : Continuous (fun u : ι → ℝ => L u) := by
       dsimp only [L, carlsonAffineFormCLM]
       fun_prop
     have hcont : ContinuousOn (fun u =>
-        (deriv f (carlsonAffineForm z u)) • L u) (stdSimplex ℝ ι) :=
+        (deriv f (carlsonAffineForm z u)) • L u) (Convexity.StdSimplex.coordinateSet ℝ ι) :=
       hcomp.smul hL.continuousOn
     exact hdens.aestronglyMeasurable.smul
-      (hcont.aestronglyMeasurable (isClosed_stdSimplex ℝ ι).measurableSet)
+      (hcont.aestronglyMeasurable (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet)
   · filter_upwards [self_mem_ae_restrict
       (μ := MeasureTheory.Measure.stdSimplexMeasure)
-      (isClosed_stdSimplex ℝ ι).measurableSet] with u hu
+      (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet] with u hu
     intro y hy
     have hy' : dist y z < δ := by simpa [s, Metric.mem_ball, dist_comm] using hy
     have hbase : carlsonAffineForm z u ∈ K := carlsonAffineForm_mem_convexHull z hu
@@ -566,7 +566,7 @@ theorem analyticOnNhd_regCarlsonDirichletAverage_nodes
   · exact hdens.norm.const_mul C
   · filter_upwards [self_mem_ae_restrict
       (μ := MeasureTheory.Measure.stdSimplexMeasure)
-      (isClosed_stdSimplex ℝ ι).measurableSet] with u hu
+      (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet] with u hu
     intro y hy
     have hy' : dist y z < δ := by simpa [s, Metric.mem_ball, dist_comm] using hy
     have hbase : carlsonAffineForm z u ∈ K := carlsonAffineForm_mem_convexHull z hu
@@ -598,7 +598,7 @@ theorem locallyBounded_regCarlsonDirichletAverage_parameters_nodes
     exact ⟨0, Filter.Eventually.of_forall (fun q => by
       simp [regCarlsonDirichletAverage, regDirichletIntegral, stdSimplexMeasure_empty])⟩
   let := hι
-  let μ := (MeasureTheory.Measure.stdSimplexMeasure (ι := ι)).restrict (stdSimplex ℝ ι)
+  let μ := (MeasureTheory.Measure.stdSimplexMeasure (ι := ι)).restrict (Convexity.StdSimplex.coordinateSet ℝ ι)
   let K := convexHull ℝ (Set.range p.2)
   have hK : IsCompact K := (Set.finite_range p.2).isCompact_convexHull ℝ
   have hKΩ : K ⊆ Ω := convexHull_min hz hΩconv
@@ -624,7 +624,7 @@ theorem locallyBounded_regCarlsonDirichletAverage_parameters_nodes
     · exact (continuous_snd.continuousAt.dist continuousAt_const).eventually_lt_const
         (by simpa using hδ)
   have hnear {q : (ι → ℂ) × (ι → ℂ)} (hq : dist q.2 p.2 < δ)
-      {u : ι → ℝ} (hu : u ∈ stdSimplex ℝ ι) :
+      {u : ι → ℝ} (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι) :
       carlsonAffineForm q.2 u ∈ Metric.cthickening δ K :=
     Metric.mem_cthickening_of_dist_le _ _ δ K (carlsonAffineForm_mem_convexHull p.2 hu)
       ((dist_carlsonAffineForm_le_norm_sub p.2 q.2 hu).trans (by simpa [dist_eq_norm] using hq.le))
@@ -635,7 +635,7 @@ theorem locallyBounded_regCarlsonDirichletAverage_parameters_nodes
     filter_upwards [hevent] with q hq
     apply norm_integral_le_of_norm_le ((integrableOn_mvBetaMonomial a ha).norm.mul_const _)
     filter_upwards [self_mem_ae_restrict (μ := MeasureTheory.Measure.stdSimplexMeasure)
-      (isClosed_stdSimplex ℝ ι).measurableSet, ae_zero_lt_of_mem_stdSimplex (ι := ι)] with u hu hupos
+      (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet, ae_zero_lt_of_mem_stdSimplex (ι := ι)] with u hu hupos
     have hm : ‖∏ i, (u i : ℂ) ^ (q.1 i - 1)‖ ≤ ‖∏ i, (u i : ℂ) ^ (a i - 1)‖ := by
       simp only [norm_prod]
       apply Finset.prod_le_prod (fun _ _ => norm_nonneg _)
@@ -685,7 +685,7 @@ theorem analyticOnNhd_regCarlsonDirichletAverage_parameters_nodes
         simp only [Function.update_apply]
       cases k with
       | inl i =>
-        have hcont : ContinuousOn (fun u => f (carlsonAffineForm (L q).2 u)) (stdSimplex ℝ ι) :=
+        have hcont : ContinuousOn (fun u => f (carlsonAffineForm (L q).2 u)) (Convexity.StdSimplex.coordinateSet ℝ ι) :=
           hf.continuousOn.comp (continuous_carlsonAffineForm _).continuousOn
             (fun u hu => convexHull_min hq.2 hΩconv (carlsonAffineForm_mem_convexHull _ hu))
         have H := (isOpen_mvBetaConvergent.analyticOn_iff_analyticOnNhd.mp

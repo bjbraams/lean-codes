@@ -3,6 +3,7 @@ module
 
 public import Carlson.RPolynomial.Coefficients
 public import Carlson.RPolynomial.Basic
+public import Dirichlet.Average.Continuation
 
 /-! # The binomial theorem for Carlson's R-polynomials
 
@@ -53,6 +54,20 @@ theorem regCarlsonR_add_const_of_mem_mvBetaConvergent (n : ℕ) (a : ℂ) (z : �
       intro m hm
       rw [regCarlsonDirichletAverage_const_mul,
         regCarlsonDirichletAverage_pow m z hb]
+
+/-- Carlson's binomial translation identity on the full parameter space. Gamma
+regularization removes every exclusion on the total parameter. -/
+theorem regCarlsonR_add_const (n : ℕ) (a : ℂ) (z b : ι → ℂ) :
+    regCarlsonR n (fun i => z i + a) b =
+      ∑ m ∈ Finset.range (n + 1),
+        (Nat.choose n m : ℂ) * a ^ (n - m) * regCarlsonR m z b := by
+  apply congrFun (analyticOnNhd_eq_of_eqOn_mvBetaConvergent
+    (analyticOnNhd_regCarlsonR n _) ?_ ?_) b
+  · intro c _
+    exact Finset.analyticAt_fun_sum _ fun m _ =>
+      analyticAt_const.mul (analyticOnNhd_regCarlsonR m z c (Set.mem_univ c))
+  · intro c hc
+    exact regCarlsonR_add_const_of_mem_mvBetaConvergent n a z hc
 
 end DirichletTransform
 end CarlsonRPolynomial

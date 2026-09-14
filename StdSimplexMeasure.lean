@@ -8,6 +8,7 @@ module
 public import StdSimplexMeasure.Aggregation
 public import StdSimplexMeasure.Coordinates
 public import StdSimplexMeasure.CoordinateRealization
+public import StdSimplexMeasure.IntrinsicMeasure
 public import StdSimplexMeasure.FiniteDimensionalHyperplane
 public import StdSimplexMeasure.EuclideanCrossSection
 public import StdSimplexMeasure.PiSnoc

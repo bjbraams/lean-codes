@@ -31,7 +31,7 @@ variable {ι : Type*} [Fintype ι]
 distinguished-coordinate factor, radial factor, and lower-dimensional monomial. -/
 private theorem prod_rpow_stdSimplexCoordMap_scale
     (i : ι) (b : ι → ℝ) {t : ℝ} (ht : t ∈ Set.Ico (0 : ℝ) 1)
-    {v : {j : ι // j ≠ i} → ℝ} (hv : v ∈ stdSimplex ℝ {j : ι // j ≠ i}) :
+    {v : {j : ι // j ≠ i} → ℝ} (hv : v ∈ Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i}) :
     (∏ j, (stdSimplexCoordMap i (fun q ↦ (1 - t) * v q) j) ^ (b j - 1)) =
       t ^ (b i - 1) *
         (1 - t) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1)) *
@@ -61,7 +61,7 @@ private theorem prod_rpow_stdSimplexCoordMap_scale
 to the Bochner integral. -/
 theorem lintegral_dirichletMonomial_eq_mvRealBeta {b : ι → ℝ}
     (hb : b ∈ mvRealBetaDomain) :
-    ∫⁻ u in stdSimplex ℝ ι, ENNReal.ofReal (∏ i, u i ^ (b i - 1)) ∂stdSimplexMeasure =
+    ∫⁻ u in Convexity.StdSimplex.coordinateSet ℝ ι, ENNReal.ofReal (∏ i, u i ^ (b i - 1)) ∂stdSimplexMeasure =
       ENNReal.ofReal (mvRealBeta b) := by
   classical
   induction hn : Fintype.card ι using Nat.strong_induction_on generalizing ι with
@@ -78,7 +78,7 @@ theorem lintegral_dirichletMonomial_eq_mvRealBeta {b : ι → ℝ}
                 ⟨⟨Classical.choice hι⟩, fun a => hsub.elim _ _⟩
               rw [stdSimplexMeasure_unique, MeasureTheory.setLIntegral_dirac]
               have hG : Gamma (b default) ≠ 0 := ne_of_gt (Gamma_pos_of_pos (hb default))
-              simp [mvRealBeta, hG, stdSimplex]
+              simp [mvRealBeta, hG, Convexity.StdSimplex.coordinateSet]
           | inr hnontrivial =>
               let _ := hnontrivial
               let i : ι := Classical.choice hι
@@ -90,7 +90,7 @@ theorem lintegral_dirichletMonomial_eq_mvRealBeta {b : ι → ℝ}
               have hih := ih _ hcard (ι := {j : ι // j ≠ i}) hb'
               rw [lintegral_stdSimplex_split_at i _ (by fun_prop)]
               have hinner : ∀ t ∈ Set.Ico (0 : ℝ) 1,
-                  (∫⁻ v in stdSimplex ℝ {j : ι // j ≠ i},
+                  (∫⁻ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
                     ENNReal.ofReal
                       (∏ k, stdSimplexCoordMap i (fun q ↦ (1 - t) * v q) k ^
                         (b k - 1)) ∂stdSimplexMeasure) =
@@ -100,13 +100,13 @@ theorem lintegral_dirichletMonomial_eq_mvRealBeta {b : ι → ℝ}
                       ENNReal.ofReal (mvRealBeta b') := by
                 intro t ht
                 calc
-                  _ = ∫⁻ v in stdSimplex ℝ {j : ι // j ≠ i},
+                  _ = ∫⁻ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
                       ENNReal.ofReal
                         ((t ^ (b i - 1) *
                           (1 - t) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1))) *
                             ∏ q : {j : ι // j ≠ i}, v q ^ (b q - 1))
                           ∂stdSimplexMeasure := by
-                        apply setLIntegral_congr_fun (isClosed_stdSimplex ℝ _).measurableSet
+                        apply setLIntegral_congr_fun (Convexity.StdSimplex.isClosed_coordinateSet ℝ _).measurableSet
                         intro v hv
                         change ENNReal.ofReal
                           (∏ k, stdSimplexCoordMap i (fun q ↦ (1 - t) * v q) k ^
@@ -115,7 +115,7 @@ theorem lintegral_dirichletMonomial_eq_mvRealBeta {b : ι → ℝ}
                   _ = ENNReal.ofReal
                         (t ^ (b i - 1) *
                           (1 - t) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1))) *
-                      ∫⁻ v in stdSimplex ℝ {j : ι // j ≠ i},
+                      ∫⁻ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
                         ENNReal.ofReal (∏ q, v q ^ (b q - 1))
                           ∂stdSimplexMeasure := by
                         rw [← lintegral_const_mul]
@@ -132,7 +132,7 @@ theorem lintegral_dirichletMonomial_eq_mvRealBeta {b : ι → ℝ}
               have hc : 0 < c := Finset.sum_pos (fun q _ => hb q) Finset.univ_nonempty
               have houter : ∀ᵐ t ∂volume.restrict (Set.Icc (0 : ℝ) 1),
                   ENNReal.ofReal ((1 - t) ^ (Fintype.card ι - 2)) *
-                      (∫⁻ v in stdSimplex ℝ {j : ι // j ≠ i},
+                      (∫⁻ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
                         ENNReal.ofReal
                           (∏ k, stdSimplexCoordMap i (fun q ↦ (1 - t) * v q) k ^
                             (b k - 1)) ∂stdSimplexMeasure) =
@@ -199,7 +199,7 @@ theorem lintegral_dirichletMonomial_eq_mvRealBeta {b : ι → ℝ}
 /-- The integral representation of `mvRealBeta`. -/
 theorem mvRealBeta_eq_integral {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain) :
     mvRealBeta b =
-      ∫ u in stdSimplex ℝ ι, ∏ i, u i ^ (b i - 1) ∂stdSimplexMeasure := by
+      ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι, ∏ i, u i ^ (b i - 1) ∂stdSimplexMeasure := by
   symm
   rw [integral_eq_lintegral_of_nonneg_ae]
   · rw [lintegral_dirichletMonomial_eq_mvRealBeta hb]
@@ -212,18 +212,18 @@ theorem mvRealBeta_eq_integral {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain) :
         let _ := hι
         exact (mvRealBeta_pos hb).le
   · filter_upwards [ae_restrict_mem (μ := stdSimplexMeasure)
-      (isClosed_stdSimplex ℝ ι).measurableSet] with u hu
+      (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet] with u hu
     exact Finset.prod_nonneg fun j _ => Real.rpow_nonneg (hu.1 j) _
   · let g : (ι → ℝ) → ℝ := fun u =>
       ∏ i, ((ENNReal.ofReal (u i)) ^ (b i - 1)).toReal
     have hg : AEStronglyMeasurable g
-        (stdSimplexMeasure.restrict (stdSimplex ℝ ι)) := by
+        (stdSimplexMeasure.restrict (Convexity.StdSimplex.coordinateSet ℝ ι)) := by
       apply Measurable.aestronglyMeasurable
       dsimp only [g]
       fun_prop
     refine hg.congr ?_
     filter_upwards [ae_restrict_mem (μ := stdSimplexMeasure)
-        (isClosed_stdSimplex ℝ ι).measurableSet] with u hu
+        (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet] with u hu
     apply Finset.prod_congr rfl
     intro i _
     rw [← ENNReal.toReal_rpow, ENNReal.toReal_ofReal (hu.1 i)]
@@ -232,7 +232,7 @@ theorem mvRealBeta_eq_integral {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain) :
 index type is empty. This is the shared majorant for complex Dirichlet integrals. -/
 theorem integrableOn_mvRealBetaMonomial {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain) :
     IntegrableOn (fun u : ι → ℝ ↦ ∏ i, u i ^ (b i - 1))
-      (stdSimplex ℝ ι) stdSimplexMeasure := by
+      (Convexity.StdSimplex.coordinateSet ℝ ι) stdSimplexMeasure := by
   cases isEmpty_or_nonempty ι with
   | inl hι =>
       let _ := hι

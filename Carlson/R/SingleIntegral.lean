@@ -9,14 +9,20 @@ import Pochhammer.BinomialSeries
 import SeveralComplexVariables.ParametricIntegral
 import Carlson.RPolynomial.PowerSeries
 import Carlson.R.Deriv
+import Carlson.R.Relations
 import Carlson.RPolynomial.Generating
 
 /-!
 # Single-integral representations of Carlson's R-function
 
-This file is the home for Carlson's Theorem 6.8-1.  The unit-interval and positive-ray
-forms below are branch-safe because every Carlson variable is required to lie in the open
-right half-plane.
+This file proves the unit-interval and positive-ray representations in Carlson's
+Theorem 6.8-1 on the right-half-plane node domain. Analyticity of the unit-interval integral
+is proved on the full product slit plane. `Carlson.R.SlitContinuation` uses this to prove
+the unit-interval representation on that larger domain as well.
+
+The continued unit-interval and positive-ray formulas remove all positivity
+conditions on the individual Dirichlet parameters. Only the two endpoint
+exponents have positive real parts; their sum must equal the total parameter.
 -/
 
 open Complex MeasureTheory ProbabilityTheory
@@ -194,7 +200,7 @@ theorem hasSum_regCarlsonRIntegral_near_one
   have hM : Summable M := by
     simpa [M] using summable_norm_ascPochhammer_mul_pow_div_factorial a (‖y‖ : ℂ)
       (by simpa using hynorm)
-  have hbound : ∀ n u, u ∈ stdSimplex ℝ ι →
+  have hbound : ∀ n u, u ∈ Convexity.StdSimplex.coordinateSet ℝ ι →
       ‖coeff n * (carlsonAffineForm (fun i => 1 - y i) u - 1) ^ n‖ ≤ M n := by
     intro n u hu
     have haff : carlsonAffineForm (fun i => 1 - y i) u - 1 =
@@ -207,7 +213,7 @@ theorem hasSum_regCarlsonRIntegral_near_one
     simp only [norm_real, Real.norm_eq_abs, abs_of_nonneg (norm_nonneg y)]
     gcongr
     exact norm_carlsonAffineForm_le_pi_norm y hu
-  have hpoint : ∀ u, u ∈ stdSimplex ℝ ι →
+  have hpoint : ∀ u, u ∈ Convexity.StdSimplex.coordinateSet ℝ ι →
       HasSum (fun n => coeff n *
         (carlsonAffineForm (fun i => 1 - y i) u - 1) ^ n)
         (carlsonAffineForm (fun i => 1 - y i) u ^ (-a)) := by
@@ -321,7 +327,7 @@ private def singleIntegralKernelFDeriv (b z : ι → ℂ) (u : ℝ) :
 
 /-- The displayed derivative is the derivative of the single-integral product kernel. -/
 private lemma hasFDerivAt_singleIntegralKernel
-    (b : ι → ℂ) {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain)
+    (b : ι → ℂ) {z : ι → ℂ} (hz : z ∈ carlsonRSlitDomain)
     {u : ℝ} (hu : u ∈ Set.Icc 0 1) :
     HasFDerivAt (fun y => singleIntegralKernel b y u)
       (singleIntegralKernelFDeriv b z u) z := by
@@ -335,7 +341,7 @@ private lemma hasFDerivAt_singleIntegralKernel
       ((-b i * ((1 - u : ℂ) + (u : ℂ) * z i) ^ (-b i - 1)) •
         ((u : ℂ) • p i)) z := by
     have h := (hq i).cpow (hasFDerivAt_const (x := z) (-b i))
-      (carlsonRightHalfPlane_subset_slitPlane (affineSegment_mem_rightHalfPlane hz hu i))
+      (carlsonRSegment_mem_slitPlane hz hu i)
     refine h.congr_fderiv ?_
     apply ContinuousLinearMap.ext
     intro v
@@ -374,10 +380,10 @@ private lemma continuousOn_singleIntegralKernelFDeriv
     fun_prop
   exact hout.smul (hscalar.smul hproj.continuousOn)
 
-/-- At fixed Carlson variables in the right half-plane, the product kernel is continuous on
+/-- At fixed Carlson variables in the slit plane, the product kernel is continuous on
 the closed unit interval. -/
 private lemma continuousOn_singleIntegralKernel_fixed
-    (b : ι → ℂ) {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain) :
+    (b : ι → ℂ) {z : ι → ℂ} (hz : z ∈ carlsonRSlitDomain) :
     ContinuousOn (singleIntegralKernel b z) (Set.Icc 0 1) := by
   classical
   unfold singleIntegralKernel
@@ -386,12 +392,12 @@ private lemma continuousOn_singleIntegralKernel_fixed
   have hq : Continuous
       (fun u : ℝ => (1 - u : ℂ) + (u : ℂ) * z i) := by fun_prop
   exact hq.continuousOn.cpow continuousOn_const (fun u hu =>
-    carlsonRightHalfPlane_subset_slitPlane (affineSegment_mem_rightHalfPlane hz hu i))
+    carlsonRSegment_mem_slitPlane hz hu i)
 
-/-- At fixed Carlson variables in the right half-plane, the kernel derivative is continuous
+/-- At fixed Carlson variables in the slit plane, the kernel derivative is continuous
 on the closed unit interval. -/
 private lemma continuousOn_singleIntegralKernelFDeriv_fixed
-    (b : ι → ℂ) {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain) :
+    (b : ι → ℂ) {z : ι → ℂ} (hz : z ∈ carlsonRSlitDomain) :
     ContinuousOn (singleIntegralKernelFDeriv b z) (Set.Icc 0 1) := by
   classical
   have hq (i : ι) : Continuous
@@ -399,7 +405,7 @@ private lemma continuousOn_singleIntegralKernelFDeriv_fixed
   have hpow (e : ι → ℂ) (i : ι) : ContinuousOn
       (fun u : ℝ => ((1 - u : ℂ) + (u : ℂ) * z i) ^ e i) (Set.Icc 0 1) :=
     (hq i).continuousOn.cpow continuousOn_const (fun u hu =>
-      carlsonRightHalfPlane_subset_slitPlane (affineSegment_mem_rightHalfPlane hz hu i))
+      carlsonRSegment_mem_slitPlane hz hu i)
   unfold singleIntegralKernelFDeriv
   apply continuousOn_finsetSum
   intro i hi
@@ -418,11 +424,11 @@ private lemma continuousOn_singleIntegralKernelFDeriv_fixed
 
 set_option maxHeartbeats 2000000 in
 /-- For positive beta exponents, the unit-interval integral is analytic in all Carlson
-variables throughout the right-half-plane domain. -/
-theorem analyticOnNhd_carlsonRUnitIntervalIntegral
+variables throughout the full product slit plane (Carlson's Theorem 6.8-1). -/
+theorem analyticOnNhd_carlsonRUnitIntervalIntegral_slit
     (a a' : ℂ) (b : ι → ℂ) (ha : 0 < a.re) (ha' : 0 < a'.re) :
     AnalyticOnNhd ℂ (carlsonRUnitIntervalIntegral a a' b)
-      carlsonRVariableDomain := by
+      carlsonRSlitDomain := by
   let μ : Measure ℝ := volume.restrict (Set.Ioo 0 1)
   let W : ℝ → ℂ := fun u =>
     (u : ℂ) ^ (a - 1) * (1 - u : ℂ) ^ (a' - 1)
@@ -434,9 +440,9 @@ theorem analyticOnNhd_carlsonRUnitIntervalIntegral
       (u : ℂ) ^ (a - 1) * (1 - u : ℂ) ^ (a' - 1)) (Set.Ioo 0 1) volume
     exact (intervalIntegrable_iff_integrableOn_Ioo_of_le zero_le_one).mp
       (betaIntegral_convergent ha ha')
-  have hU := isOpen_carlsonRVariableDomain (ι := ι)
+  have hU := isOpen_carlsonRSlitDomain (ι := ι)
   have hanalytic : AnalyticOnNhd ℂ (fun z => ∫ u, F z u ∂μ)
-      carlsonRVariableDomain := by
+      carlsonRSlitDomain := by
     refine analyticOnNhd_integral_of_dominated_of_fderiv_le hU ?_
     intro z hz
     obtain ⟨ε, hε, hball⟩ := Metric.isOpen_iff.mp hU z hz
@@ -444,7 +450,7 @@ theorem analyticOnNhd_carlsonRUnitIntervalIntegral
     have hr : 0 < r := half_pos hε
     let Kset : Set ((ι → ℂ) × ℝ) := Metric.closedBall z r ×ˢ Set.Icc 0 1
     have hclosed_mem : Metric.closedBall z r ∈ nhds z := Metric.closedBall_mem_nhds z hr
-    have hclosed_domain : Metric.closedBall z r ⊆ carlsonRVariableDomain := by
+    have hclosed_domain : Metric.closedBall z r ⊆ carlsonRSlitDomain := by
       intro y hy
       apply hball
       rw [Metric.mem_closedBall] at hy
@@ -452,8 +458,7 @@ theorem analyticOnNhd_carlsonRUnitIntervalIntegral
     have hslit : ∀ p ∈ Kset, ∀ i,
         (1 - p.2 : ℂ) + (p.2 : ℂ) * p.1 i ∈ slitPlane := by
       intro p hp i
-      exact carlsonRightHalfPlane_subset_slitPlane
-        (affineSegment_mem_rightHalfPlane (hclosed_domain hp.1) hp.2 i)
+      exact carlsonRSegment_mem_slitPlane (hclosed_domain hp.1) hp.2 i
     have hDcont : ContinuousOn
         (fun p => singleIntegralKernelFDeriv b p.1 p.2) Kset :=
       continuousOn_singleIntegralKernelFDeriv b hslit
@@ -494,8 +499,16 @@ theorem analyticOnNhd_carlsonRUnitIntervalIntegral
       have hder := (hasFDerivAt_singleIntegralKernel b hyDomain
         ⟨hu.1.le, hu.2.le⟩).const_mul (W u)
       simpa [F, F'] using hder
-  change AnalyticOnNhd ℂ (fun z => ∫ u, F z u ∂μ) carlsonRVariableDomain
+  change AnalyticOnNhd ℂ (fun z => ∫ u, F z u ∂μ) carlsonRSlitDomain
   exact hanalytic
+
+/-- The right-half-plane restriction of the slit-plane analyticity theorem. -/
+theorem analyticOnNhd_carlsonRUnitIntervalIntegral
+    (a a' : ℂ) (b : ι → ℂ) (ha : 0 < a.re) (ha' : 0 < a'.re) :
+    AnalyticOnNhd ℂ (carlsonRUnitIntervalIntegral a a' b)
+      carlsonRVariableDomain :=
+  (analyticOnNhd_carlsonRUnitIntervalIntegral_slit a a' b ha ha').mono
+    carlsonRVariableDomain_subset_slitDomain
 
 /-- Carlson's Theorem 6.8-1 in unit-interval form.  The homogeneity relation
 `a + a' = ∑ i, b i` supplies the exponent at the endpoint `u = 1`. -/
@@ -716,6 +729,135 @@ theorem carlsonRPositiveRayIntegral_eq
   rw [carlsonRPositiveRayIntegral_eq_unitInterval hsum hz]
   rw [carlsonRUnitIntervalIntegral_eq ha' ha (by simpa [add_comm] using hsum) hb hz]
   rw [betaIntegral_symm]
+
+/-- The unit-interval kernel obeys parameter raising even outside the simplex
+integral's convergence region. Only the two endpoint exponents must converge. -/
+private theorem carlsonRUnitIntervalIntegral_raise
+    {a a' : ℂ} (b : ι → ℂ) {z : ι → ℂ}
+    (ha : 0 < a.re) (ha' : 0 < a'.re)
+    (hz : z ∈ carlsonRVariableDomain) (i : ι) :
+    carlsonRUnitIntervalIntegral a a' b z =
+      carlsonRUnitIntervalIntegral a (a' + 1) (addDirichletUnit b i) z +
+        z i * carlsonRUnitIntervalIntegral (a + 1) a' (addDirichletUnit b i) z := by
+  let μ : Measure ℝ := volume.restrict (Set.Ioo 0 1)
+  let K := singleIntegralKernel (addDirichletUnit b i) z
+  have hint (v w : ℂ) (hv : 0 < v.re) (hw : 0 < w.re) :
+      Integrable (fun u : ℝ => (u : ℂ) ^ (v - 1) * (1 - u : ℂ) ^ (w - 1) * K u) μ :=
+    (intervalIntegrable_iff_integrableOn_Ioo_of_le zero_le_one).mp
+      ((betaIntegral_convergent hv hw).mul_continuousOn
+        (by simpa [Set.uIcc_of_le zero_le_one] using
+            continuousOn_singleIntegralKernel_fixed (addDirichletUnit b i)
+              (carlsonRVariableDomain_subset_slitDomain hz)))
+  have h₀ := hint a (a' + 1) ha (by simpa using add_pos ha' zero_lt_one)
+  have h₁ := hint (a + 1) a' (by simpa using add_pos ha zero_lt_one) ha'
+  dsimp only [K, singleIntegralKernel] at h₀ h₁
+  change (∫ u, _ ∂μ) = (∫ u, _ ∂μ) + z i * (∫ u, _ ∂μ)
+  rw [← integral_const_mul, ← integral_add h₀ (h₁.const_mul (z i))]
+  apply integral_congr_ae
+  filter_upwards [self_mem_ae_restrict measurableSet_Ioo] with u hu
+  have hu0 : (u : ℂ) ≠ 0 := ofReal_ne_zero.mpr hu.1.ne'
+  have hu1 : (1 - u : ℂ) ≠ 0 := by exact_mod_cast (sub_pos.mpr hu.2).ne'
+  let v : ℂ := (1 - u : ℂ) + (u : ℂ) * z i
+  have hv : v ≠ 0 := ne_zero_of_re_pos
+    (affineSegment_mem_rightHalfPlane hz ⟨hu.1.le, hu.2.le⟩ i)
+  have hK : singleIntegralKernel b z u = v * K u := by
+    dsimp only [singleIntegralKernel, K]
+    rw [Fintype.prod_eq_mul_prod_subtype_ne _ i,
+      Fintype.prod_eq_mul_prod_subtype_ne _ i]
+    simp only [addDirichletUnit, Function.update_self]
+    have hp : v * v ^ (-(b i + 1)) = v ^ (-b i) := by
+      calc
+        v * v ^ (-(b i + 1)) = v ^ (1 : ℂ) * v ^ (-(b i + 1)) := by rw [cpow_one]
+        _ = v ^ (1 + -(b i + 1)) := (cpow_add _ _ hv).symm
+        _ = _ := by congr 1; ring
+    change v ^ (-b i) * _ = v * (v ^ (-(b i + 1)) * _)
+    rw [← mul_assoc, hp]
+    congr 1
+    apply Finset.prod_congr rfl
+    intro j _
+    rw [Function.update_of_ne j.property]
+  have hp (w x : ℂ) (hx : x ≠ 0) : x ^ w = x ^ (w - 1) * x := by
+    calc
+      x ^ w = x ^ (w - 1 + 1) := by congr 1; ring
+      _ = x ^ (w - 1) * x := by rw [cpow_add _ _ hx, cpow_one]
+  change (u : ℂ) ^ (a - 1) * (1 - u : ℂ) ^ (a' - 1) * singleIntegralKernel b z u = _
+  rw [hK]
+  simp only [add_sub_cancel_right]
+  rw [hp a _ hu0, hp a' _ hu1]
+  dsimp only [v, K, singleIntegralKernel]
+  ring
+
+/-- Carlson's single-integral representation for arbitrary complex Dirichlet
+parameters. The restrictions concern only the convergent endpoint exponents,
+not the individual entries of `b`. -/
+theorem carlsonRUnitIntervalIntegral_eq_gamma_mul_continued
+    {a a' : ℂ} {b z : ι → ℂ}
+    (ha : 0 < a.re) (ha' : 0 < a'.re)
+    (hsum : a + a' = ∑ i, b i) (hz : z ∈ carlsonRVariableDomain) :
+    carlsonRUnitIntervalIntegral a a' b z =
+      (Gamma a * Gamma a') * regCarlsonRContinued (-a) z hz b := by
+  have hraise (n : ι → ℕ) : ∀ (a a' : ℂ) (b : ι → ℂ),
+      0 < a.re → 0 < a'.re → a + a' = ∑ i, b i →
+      (fun i => b i + n i) ∈ mvBetaConvergent →
+      carlsonRUnitIntervalIntegral a a' b z =
+        (Gamma a * Gamma a') * regCarlsonRContinued (-a) z hz b := by
+    induction n using (measure (fun n : ι → ℕ => ∑ i, n i)).wf.induction with
+    | h n ih =>
+      intro a a' b ha ha' hsum hpos
+      by_cases hn : n = 0
+      · have hb : b ∈ mvBetaConvergent := by simpa [hn] using hpos
+        rw [regCarlsonRContinued_eq_integral _ hz hb,
+          carlsonRUnitIntervalIntegral_eq ha ha' hsum hb hz,
+          betaIntegral_eq_Gamma_mul_div _ _ ha ha', carlsonRIntegral, ← hsum]
+        have hG := Gamma_ne_zero_of_re_pos (show 0 < (a + a').re by simpa using add_pos ha ha')
+        field_simp
+      obtain ⟨i, hi⟩ : ∃ i, n i ≠ 0 := by
+        simpa only [funext_iff, Pi.zero_apply, not_forall] using hn
+      let n' := Function.update n i (n i - 1)
+      have hlt : (∑ j, n' j) < ∑ j, n j := by
+        apply Finset.sum_lt_sum
+        · intro j _
+          by_cases hji : j = i <;> simp [n', hji]
+        · exact ⟨i, Finset.mem_univ _, by simp [n']; omega⟩
+      have hpos' : (fun j => addDirichletUnit b i j + n' j) ∈ mvBetaConvergent := by
+        convert hpos using 1
+        ext j
+        by_cases hji : j = i
+        · subst j
+          simp only [addDirichletUnit, n', Function.update_self]
+          rw [Nat.cast_sub (by omega : 1 ≤ n i)]
+          push_cast
+          ring
+        · simp [addDirichletUnit, n', hji]
+      have hs₀ : a + (a' + 1) = ∑ j, addDirichletUnit b i j := by
+        rw [sum_addDirichletUnit, ← hsum]; ring
+      have hs₁ : a + 1 + a' = ∑ j, addDirichletUnit b i j := by
+        rw [sum_addDirichletUnit, ← hsum]; ring
+      rw [carlsonRUnitIntervalIntegral_raise b ha ha' hz i,
+        ih n' hlt a (a' + 1) _ ha (by simpa using add_pos ha' zero_lt_one) hs₀ hpos',
+        ih n' hlt (a + 1) a' _ (by simpa using add_pos ha zero_lt_one) ha' hs₁ hpos',
+        Gamma_add_one a (ne_zero_of_re_pos ha), Gamma_add_one a' (ne_zero_of_re_pos ha'),
+        regCarlsonRContinued_eq_addDirichletUnit (-a) b hz i, ← hsum]
+      rw [show -(a + 1) = -a - 1 by ring]
+      ring
+  choose n hn using fun i => exists_nat_gt (-(b i).re)
+  exact hraise n a a' b ha ha' hsum (fun i => by
+    have := hn i
+    change 0 < (b i + (n i : ℂ)).re
+    simp only [add_re, natCast_re]
+    linarith)
+
+/-- The positive-ray representation with no individual Dirichlet-parameter
+restrictions; only the two endpoint convergence conditions remain. -/
+theorem carlsonRPositiveRayIntegral_eq_gamma_mul_continued
+    {a a' : ℂ} {b z : ι → ℂ}
+    (ha : 0 < a.re) (ha' : 0 < a'.re)
+    (hsum : a + a' = ∑ i, b i) (hz : z ∈ carlsonRVariableDomain) :
+    carlsonRPositiveRayIntegral a b z =
+      (Gamma a * Gamma a') * regCarlsonRContinued (-a') z hz b := by
+  rw [carlsonRPositiveRayIntegral_eq_unitInterval hsum hz,
+    carlsonRUnitIntervalIntegral_eq_gamma_mul_continued ha' ha
+      (by simpa [add_comm] using hsum) hz, mul_comm (Gamma a')]
 
 end DirichletTransform
 

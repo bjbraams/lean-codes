@@ -37,7 +37,7 @@ def carlsonConfluentVariables (n : ℕ) (z : ι → ℂ) : ι → ℂ :=
 /-- Carlson's affine form turns confluent variables into the corresponding scalar confluent
 variable. -/
 theorem carlsonAffineForm_confluentVariables {u : ι → ℝ}
-    (hu : u ∈ stdSimplex ℝ ι) (n : ℕ) (z : ι → ℂ) :
+    (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι) (n : ℕ) (z : ι → ℂ) :
     carlsonAffineForm (carlsonConfluentVariables n z) u =
       1 + carlsonAffineForm z u / n := by
   simp only [carlsonAffineForm, carlsonConfluentVariables, mul_add, Finset.sum_add_distrib]
@@ -50,7 +50,7 @@ theorem carlsonAffineForm_confluentVariables {u : ι → ℝ}
 
 /-- Pointwise confluence of the natural-power Carlson kernel to the exponential kernel. -/
 theorem tendsto_carlsonAffineForm_confluentVariables_pow (z : ι → ℂ)
-    {u : ι → ℝ} (hu : u ∈ stdSimplex ℝ ι) :
+    {u : ι → ℝ} (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι) :
     Tendsto (fun n : ℕ ↦ carlsonAffineForm (carlsonConfluentVariables n z) u ^ n)
       atTop (𝓝 (exp (carlsonAffineForm z u))) := by
   apply (Complex.tendsto_one_add_div_pow_exp (carlsonAffineForm z u)).congr'
@@ -59,7 +59,7 @@ theorem tendsto_carlsonAffineForm_confluentVariables_pow (z : ι → ℂ)
 
 /-- A uniform bound for the natural-power kernels occurring in Carlson's confluence limit. -/
 theorem norm_carlsonAffineForm_confluentVariables_pow_le (n : ℕ) (z : ι → ℂ)
-    {u : ι → ℝ} (hu : u ∈ stdSimplex ℝ ι) :
+    {u : ι → ℝ} (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι) :
     ‖carlsonAffineForm (carlsonConfluentVariables n z) u ^ n‖ ≤
       Real.exp (∑ i, ‖z i‖) := by
   let C : ℝ := ∑ i, ‖z i‖
@@ -100,16 +100,16 @@ theorem tendsto_regCarlsonRIntegral_confluent (b z : ι → ℂ)
     Tendsto (fun n : ℕ ↦ regCarlsonRIntegral (n : ℂ) b
         (carlsonConfluentVariables n z)) atTop
       (𝓝 (regCarlsonSIntegral b z)) := by
-  let μ := (stdSimplexMeasure (ι := ι)).restrict (stdSimplex ℝ ι)
+  let μ := (stdSimplexMeasure (ι := ι)).restrict (Convexity.StdSimplex.coordinateSet ℝ ι)
   let C : ℝ := Real.exp (∑ i, ‖z i‖)
   let F : ℕ → (ι → ℝ) → ℂ := fun n u ↦
     regDirichletDensity b u * carlsonAffineForm (carlsonConfluentVariables n z) u ^ n
   let f : (ι → ℝ) → ℂ := fun u ↦
     regDirichletDensity b u * exp (carlsonAffineForm z u)
   have hdens : IntegrableOn (fun u ↦ regDirichletDensity b u)
-      (stdSimplex ℝ ι) stdSimplexMeasure := by
+      (Convexity.StdSimplex.coordinateSet ℝ ι) stdSimplexMeasure := by
     simpa using integrableOn_regDirichletDensity_mul b hb (continuousOn_const :
-      ContinuousOn (fun _ : ι → ℝ ↦ (1 : ℂ)) (stdSimplex ℝ ι))
+      ContinuousOn (fun _ : ι → ℝ ↦ (1 : ℂ)) (Convexity.StdSimplex.coordinateSet ℝ ι))
   have hbound : Integrable (fun u ↦ C * ‖regDirichletDensity b u‖) μ :=
     hdens.norm.const_mul C
   have hmeas : ∀ n, AEStronglyMeasurable (F n) μ := by
@@ -119,14 +119,14 @@ theorem tendsto_regCarlsonRIntegral_confluent (b z : ι → ℂ)
   have hdom : ∀ n, ∀ᵐ u ∂μ, ‖F n u‖ ≤ C * ‖regDirichletDensity b u‖ := by
     intro n
     filter_upwards [self_mem_ae_restrict (μ := stdSimplexMeasure)
-      (isClosed_stdSimplex ℝ ι).measurableSet] with u hu
+      (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet] with u hu
     simp only [F, norm_mul]
     rw [mul_comm]
     exact mul_le_mul_of_nonneg_right
       (norm_carlsonAffineForm_confluentVariables_pow_le n z hu) (norm_nonneg _)
   have hlim : ∀ᵐ u ∂μ, Tendsto (fun n ↦ F n u) atTop (𝓝 (f u)) := by
     filter_upwards [self_mem_ae_restrict (μ := stdSimplexMeasure)
-      (isClosed_stdSimplex ℝ ι).measurableSet] with u hu
+      (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet] with u hu
     exact tendsto_const_nhds.mul (tendsto_carlsonAffineForm_confluentVariables_pow z hu)
   have h := tendsto_integral_of_dominated_convergence
     (fun u ↦ C * ‖regDirichletDensity b u‖) hmeas hbound hdom hlim

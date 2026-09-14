@@ -11,6 +11,13 @@ import Mathlib.MeasureTheory.Integral.DominatedConvergence
 
 This file develops [Carl77, Section 8.3].  Its core result identifies the sectorial limit as
 one variable tends to zero with deletion of that variable and a beta-factor correction.
+
+`tendsto_regCarlsonRContinued_update_zero_of_pos` allows arbitrary individual
+Dirichlet parameters and any approach through the right half-plane. It still
+assumes positive real parts for both endpoint exponents. The double-shift
+recurrence 8.3(5) is available for removing those restrictions; the corresponding
+induction on the limit, and continuation to larger slit-plane sectors, remain to
+be proved.
 -/
 
 open Complex Filter ProbabilityTheory MeasureTheory
@@ -51,8 +58,8 @@ private lemma unitIntervalIntegral_eq_gamma_mul_reg
 
 private lemma tendsto_unitIntervalIntegral_update_zero
     (i : ι) {a a' : ℂ} {b z : ι → ℂ}
-    (ha : 0 < a.re) (ha'i : 0 < (a' - b i).re)
-    (hb : b ∈ mvBetaConvergent) (hz : z ∈ carlsonRVariableDomain) :
+    (ha : 0 < a.re) (ha' : 0 < a'.re) (ha'i : 0 < (a' - b i).re)
+    (hz : z ∈ carlsonRVariableDomain) :
     Tendsto (fun w => carlsonRUnitIntervalIntegral a a' b (Function.update z i w))
       (𝓝[ {w : ℂ | 0 ≤ w.re}] 0)
       (𝓝 (carlsonRUnitIntervalIntegral a (a' - b i)
@@ -78,6 +85,8 @@ private lemma tendsto_unitIntervalIntegral_update_zero
   obtain ⟨C, hC⟩ := isCompact_Icc.exists_bound_of_continuousOn hP
   let E := Real.exp (Real.pi * |(b i).im|)
   let B := fun u : ℝ => ‖(u : ℂ) ^ (a - 1) * (1 - u : ℂ) ^ (a' - b i - 1)‖
+  let W := fun u : ℝ => ‖(u : ℂ) ^ (a - 1) * (1 - u : ℂ) ^ (a' - 1)‖
+  let D : ℝ := 2 ^ (-(b i).re)
   let F := fun w : ℂ => fun u : ℝ =>
     (u : ℂ) ^ (a - 1) * (1 - u : ℂ) ^ (a' - 1) *
       (((1 - u : ℂ) + (u : ℂ) * w) ^ (-b i) * P u)
@@ -87,8 +96,13 @@ private lemma tendsto_unitIntervalIntegral_update_zero
     dsimp [F, P]
     fun_prop
   have hbound : ∀ᶠ w in 𝓝[{w : ℂ | 0 ≤ w.re}] 0,
-      ∀ᵐ u ∂μ, ‖F w u‖ ≤ B u * (E * max C 0) := by
-    filter_upwards [self_mem_nhdsWithin] with w hw
+      ∀ᵐ u ∂μ, ‖F w u‖ ≤ (B u + W u * D) * (E * max C 0) := by
+    have hwsmall : ∀ᶠ w : ℂ in 𝓝[{w : ℂ | 0 ≤ w.re}] 0, ‖w‖ < 1 := by
+      have hm : ∀ᶠ w : ℂ in 𝓝 0, w ∈ Metric.ball 0 1 :=
+        Metric.ball_mem_nhds (0 : ℂ) zero_lt_one
+      simpa using hm.filter_mono
+        (show 𝓝[{w : ℂ | 0 ≤ w.re}] 0 ≤ 𝓝 0 from inf_le_left)
+    filter_upwards [self_mem_nhdsWithin, hwsmall] with w hw hsmall
     filter_upwards [self_mem_ae_restrict measurableSet_Ioo] with u hu
     have hu0 := hu.1
     have hu1 : 0 < 1 - u := sub_pos.mpr hu.2
@@ -99,10 +113,22 @@ private lemma tendsto_unitIntervalIntegral_update_zero
       exact le_add_of_nonneg_right (mul_nonneg hu0.le hw)
     have hvnorm : 1 - u ≤ ‖v‖ := hvre.trans (re_le_norm v)
     have hv : v ≠ 0 := ne_zero_of_re_pos (hu1.trans_le hvre)
-    have hp : ‖v ^ (-b i)‖ ≤ (1 - u) ^ (-(b i).re) * E := by
+    have hp : ‖v ^ (-b i)‖ ≤ ((1 - u) ^ (-(b i).re) + D) * E := by
       rw [norm_cpow_of_ne_zero hv, neg_re, neg_im, mul_neg, Real.exp_neg, div_inv_eq_mul]
       apply mul_le_mul
-      · exact Real.rpow_le_rpow_of_nonpos hu1 hvnorm (neg_nonpos.mpr (hb i).le)
+      · by_cases hbi : 0 ≤ (b i).re
+        · exact (Real.rpow_le_rpow_of_nonpos hu1 hvnorm (neg_nonpos.mpr hbi)).trans
+            (le_add_of_nonneg_right (Real.rpow_nonneg (by norm_num) _))
+        · have hvle : ‖v‖ ≤ 2 := by
+            calc
+              ‖v‖ ≤ ‖(1 - u : ℂ)‖ + ‖(u : ℂ) * w‖ := norm_add_le _ _
+              _ = (1 - u) + u * ‖w‖ := by
+                rw [norm_mul, show (1 - u : ℂ) = ((1 - u : ℝ) : ℂ) by simp,
+                  norm_real, norm_real, Real.norm_eq_abs, Real.norm_eq_abs,
+                  abs_of_pos hu1, abs_of_pos hu0]
+              _ ≤ 2 := by nlinarith [hu.1, hu.2]
+          exact (Real.rpow_le_rpow (norm_nonneg _) hvle (by linarith)).trans
+            (le_add_of_nonneg_left (Real.rpow_nonneg hu1.le _))
       · apply Real.exp_le_exp.mpr
         exact (le_abs_self (arg v * (b i).im)).trans (by
           rw [abs_mul]
@@ -122,13 +148,19 @@ private lemma tendsto_unitIntervalIntegral_update_zero
       ‖F w u‖ = ‖(u : ℂ) ^ (a - 1) * (1 - u : ℂ) ^ (a' - 1)‖ *
           (‖v ^ (-b i)‖ * ‖P u‖) := by simp only [F, v, norm_mul]
       _ ≤ ‖(u : ℂ) ^ (a - 1) * (1 - u : ℂ) ^ (a' - 1)‖ *
-          (((1 - u) ^ (-(b i).re) * E) * max C 0) := by
+          ((((1 - u) ^ (-(b i).re) + D) * E) * max C 0) := by
         gcongr
         exact (hC u ⟨hu.1.le, hu.2.le⟩).trans (le_max_left _ _)
-      _ = _ := by rw [← mul_assoc, ← mul_assoc, hbeta]; ring
-  have hBint : Integrable (fun u => B u * (E * max C 0)) μ := by
-    exact ((intervalIntegrable_iff_integrableOn_Ioo_of_le zero_le_one).mp
-      (betaIntegral_convergent ha ha'i).norm).mul_const _
+      _ = _ := by
+        change W u * ((((1 - u) ^ (-(b i).re) + D) * E) * max C 0) = _
+        have hb' : W u * (1 - u) ^ (-(b i).re) = B u := hbeta
+        rw [← mul_assoc, ← mul_assoc, mul_add, hb']
+        ring
+  have hBint : Integrable (fun u => (B u + W u * D) * (E * max C 0)) μ := by
+    exact (((intervalIntegrable_iff_integrableOn_Ioo_of_le zero_le_one).mp
+      (betaIntegral_convergent ha ha'i).norm).add
+      (((intervalIntegrable_iff_integrableOn_Ioo_of_le zero_le_one).mp
+        (betaIntegral_convergent ha ha').norm).mul_const D)).mul_const _
   have hlim : ∀ᵐ u ∂μ, Tendsto (fun w => F w u) (𝓝[{w : ℂ | 0 ≤ w.re}] 0) (𝓝 (F 0 u)) := by
     filter_upwards [self_mem_ae_restrict measurableSet_Ioo] with u hu
     have hslit : (1 - u : ℂ) + (u : ℂ) * 0 ∈ slitPlane := by
@@ -192,7 +224,7 @@ theorem tendsto_regCarlsonRIntegral_update_zero
     apply le_inf
     · exact inf_le_left.trans inf_le_left
     · exact le_principal_iff.mpr (hwpos.mono fun _ h => h.le)
-  have H := (tendsto_unitIntervalIntegral_update_zero i ha ha'i hb hz).mono_left hl
+  have H := (tendsto_unitIntervalIntegral_update_zero i ha ha' ha'i hz).mono_left hl
   have hs : a + (a' - b i) = ∑ j : {j // j ≠ i}, eraseCarlsonParameter i b j := by
     have H := Fintype.sum_eq_add_sum_subtype_ne b i
     rw [← hsum] at H
@@ -222,6 +254,75 @@ theorem tendsto_regCarlsonRIntegral_update_zero
         (eraseCarlsonParameter i b) (eraseCarlsonVariable i z) := by field_simp
   rw [heqval] at H'
   exact H'.congr' heq
+
+omit [Fintype ι] in
+/-- Updating one node preserves the domain when the replacement has positive real part. -/
+theorem carlsonRVariableDomain_update {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain)
+    (i : ι) {w : ℂ} (hw : 0 < w.re) :
+    Function.update z i w ∈ carlsonRVariableDomain := by
+  intro j
+  by_cases hji : j = i
+  · subst j; simpa [carlsonRightHalfPlane] using hw
+  · simpa [Function.update_of_ne hji] using hz j
+
+/-- Carlson's recurrence 8.3(5), used to move both endpoint exponents into
+their convergence half-planes. This regularized form has no denominators. -/
+theorem regCarlsonRContinued_eq_sum_double_shift (t : ℂ) (b : ι → ℂ)
+    {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain) (i : ι) :
+    regCarlsonRContinued t z hz b =
+      ∑ j, addDirichletUnit b i j * (((∑ k, b k) + t) * z j - t * z i) *
+        regCarlsonRContinued (t - 1) z hz (addDirichletUnit (addDirichletUnit b i) j) := by
+  have h := regCarlsonRContinued_add_one_eq_sum_mul_addDirichletUnit
+    (t - 1) (addDirichletUnit b i) hz
+  rw [sub_add_cancel] at h
+  rw [regCarlsonRContinued_eq_addDirichletUnit t b hz i, h,
+    regCarlsonRContinued_eq_sum_addDirichletUnit (t - 1) (addDirichletUnit b i) hz,
+    Finset.mul_sum, Finset.mul_sum, ← Finset.sum_sub_distrib]
+  apply Finset.sum_congr rfl
+  intro j _
+  ring
+
+/-- The small-variable limit for the continued R-function with unrestricted
+individual Dirichlet parameters. The approach can be any filter in the right
+half-plane; no narrower angular sector is needed. The positive endpoint-exponent
+hypotheses are still required here. -/
+theorem tendsto_regCarlsonRContinued_update_zero_of_pos
+    (i : ι) {a a' : ℂ} {b z : ι → ℂ}
+    (ha : 0 < a.re) (ha' : 0 < a'.re)
+    (ha'i : 0 < (a' - b i).re) (hsum : a + a' = ∑ j, b j)
+    (hz : z ∈ carlsonRVariableDomain)
+    {E : Type*} {l : Filter E} {w : E → ℂ}
+    (hw : ∀ x, 0 < (w x).re) (hlim : Tendsto w l (𝓝 0)) :
+    Tendsto (fun x => regCarlsonRContinued (-a) (Function.update z i (w x))
+      (carlsonRVariableDomain_update hz i (hw x)) b) l
+      (𝓝 (Gamma (a' - b i) / Gamma a' *
+        regCarlsonRContinued (-a) (eraseCarlsonVariable i z)
+          (fun j => hz j) (eraseCarlsonParameter i b))) := by
+  have hwithin : Tendsto w l (𝓝[{v : ℂ | 0 ≤ v.re}] 0) :=
+    tendsto_nhdsWithin_iff.mpr ⟨hlim, Eventually.of_forall (fun x => (hw x).le)⟩
+  have H := (tendsto_unitIntervalIntegral_update_zero i ha ha' ha'i hz).comp hwithin
+  have hs : a + (a' - b i) = ∑ j : {j // j ≠ i}, eraseCarlsonParameter i b j := by
+    have h := Fintype.sum_eq_add_sum_subtype_ne b i
+    rw [← hsum] at h
+    dsimp only [eraseCarlsonParameter]
+    linear_combination h
+  have hz' : eraseCarlsonVariable i z ∈ carlsonRVariableDomain := fun j => hz j
+  rw [carlsonRUnitIntervalIntegral_eq_gamma_mul_continued ha ha'i hs hz'] at H
+  have hGa := Gamma_ne_zero_of_re_pos ha
+  have hGa' := Gamma_ne_zero_of_re_pos ha'
+  have H' := H.const_mul ((Gamma a * Gamma a')⁻¹)
+  have hval : (Gamma a * Gamma a')⁻¹ *
+      ((Gamma a * Gamma (a' - b i)) * regCarlsonRContinued (-a)
+        (eraseCarlsonVariable i z) (fun j => hz j) (eraseCarlsonParameter i b)) =
+      Gamma (a' - b i) / Gamma a' * regCarlsonRContinued (-a)
+        (eraseCarlsonVariable i z) (fun j => hz j) (eraseCarlsonParameter i b) := by field_simp
+  rw [hval] at H'
+  apply H'.congr'
+  filter_upwards with x
+  dsimp only [Function.comp_def]
+  rw [carlsonRUnitIntervalIntegral_eq_gamma_mul_continued ha ha' hsum
+    (carlsonRVariableDomain_update hz i (hw x))]
+  field_simp
 
 /- Gauss's summation formula is a two-variable hypergeometric specialization of the theorem
 above and is intentionally not included in the core R-function API. -/

@@ -55,8 +55,8 @@ theorem dirichletChartDensity_eq (i : ι) (b : ι → ℂ)
 
 theorem tsupport_dirichletChartDensity_subset (i : ι) (b : ι → ℂ) :
     tsupport (dirichletChartDensity i b) ⊆
-      stdSimplexCoordMap i ⁻¹' stdSimplex ℝ ι := by
-  apply closure_minimal ?_ ((isClosed_stdSimplex ℝ ι).preimage
+      stdSimplexCoordMap i ⁻¹' Convexity.StdSimplex.coordinateSet ℝ ι := by
+  apply closure_minimal ?_ ((Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).preimage
     (continuous_stdSimplexCoordMap i))
   intro x hx
   by_contra hn
@@ -89,7 +89,7 @@ theorem integral_dirichletChartDensity_mul (i : ι) (b : ι → ℂ)
 
 theorem integrable_dirichletChartDensity_mul (i : ι) (b : ι → ℂ)
     (hb : b ∈ mvBetaConvergent) {f : (ι → ℝ) → ℂ}
-    (hf : ContinuousOn f (stdSimplex ℝ ι)) :
+    (hf : ContinuousOn f (Convexity.StdSimplex.coordinateSet ℝ ι)) :
     Integrable (fun x => dirichletChartDensity i b x * f (stdSimplexCoordMap i x)) := by
   let : Nonempty ι := ⟨i⟩
   have h := integrableOn_regDirichletDensity_mul b hb hf
@@ -147,13 +147,13 @@ theorem hasLineDerivAt_dirichletChartDensity (i : ι) (j : {j : ι // j ≠ i})
 at every boundary face. The Gamma normalization removes the usual exponent coefficients. -/
 theorem regDirichletIntegral_tangent_ibp (i : ι) (j : {j : ι // j ≠ i})
     (b : ι → ℂ) (hb : ∀ k, 2 < (b k).re) {f : (ι → ℝ) → ℂ}
-    (hf : ∀ u ∈ stdSimplex ℝ ι, DifferentiableAt ℝ f u)
+    (hf : ∀ u ∈ Convexity.StdSimplex.coordinateSet ℝ ι, DifferentiableAt ℝ f u)
     (hdf : ContinuousOn (fun u => fderiv ℝ f u (Pi.single (j : ι) 1 - Pi.single i 1))
-      (stdSimplex ℝ ι)) :
+      (Convexity.StdSimplex.coordinateSet ℝ ι)) :
     regDirichletIntegral b (fun u => fderiv ℝ f u (Pi.single (j : ι) 1 - Pi.single i 1)) =
       regDirichletIntegral (b - Pi.single i 1) f -
         regDirichletIntegral (b - Pi.single (j : ι) 1) f := by
-  have hfc : ContinuousOn f (stdSimplex ℝ ι) :=
+  have hfc : ContinuousOn f (Convexity.StdSimplex.coordinateSet ℝ ι) :=
     fun u hu => (hf u hu).continuousAt.continuousWithinAt
   have hb0 : b ∈ mvBetaConvergent := fun k => lt_trans (by norm_num) (hb k)
   have hblower (k : ι) : b - Pi.single k 1 ∈ mvBetaConvergent := by

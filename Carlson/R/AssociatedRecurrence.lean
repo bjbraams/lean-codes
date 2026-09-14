@@ -299,7 +299,7 @@ theorem analyticOnNhd_carlsonAssociatedRecurrenceResidual_parameters (a : ℂ)
   refine (analyticAt_carlsonAssociatedRecurrencePolynomial_eval analyticAt_const
     (hsum.sub analyticAt_const)
     (fun i ↦ (ContinuousLinearMap.proj i : (ι → ℂ) →L[ℂ] ℂ).analyticAt b) n z).mul ?_
-  have hpow : ContinuousOn (fun u ↦ carlsonAffineForm z u ^ (-a - n)) (stdSimplex ℝ ι) :=
+  have hpow : ContinuousOn (fun u ↦ carlsonAffineForm z u ^ (-a - n)) (Convexity.StdSimplex.coordinateSet ℝ ι) :=
     (continuous_carlsonAffineForm z).continuousOn.cpow_const
       (fun _ hu ↦ carlsonAffineForm_mem_slitPlane hz hu)
   exact (isOpen_mvBetaConvergent.analyticOn_iff_analyticOnNhd.mp

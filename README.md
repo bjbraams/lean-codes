@@ -22,6 +22,35 @@ never import the simplex or application layers.
 Each directory has a matching umbrella module. `Main.lean` imports all five.
 Carlson's reference chapters are in `Carlson/References/`.
 
+The initial development of Carlson's 1987 L-function is in `Carlson/L/`, with
+two-variable values in `Carlson/TwoVariable/L.lean`. See
+[the L-function coverage notes](Carlson/L/Coverage.md) for the correspondence with
+Sections 2–8 of the paper and the remaining work.
+
+### Simplex representations
+
+`Convexity.StdSimplex ℝ ι` is the intrinsic simplex. For finite index types,
+`StdSimplexMeasure.Intrinsic` provides its coordinate embedding, compact topology,
+and homeomorphism with `Convexity.StdSimplex.coordinateSet ℝ ι`. This coordinate
+carrier is used for ambient integration and calculus, not as a second simplex
+type. `Convexity.StdSimplex.homeomorphFreeCoords` is the omitted-coordinate chart
+with intrinsic target, replacing `stdSimplexFreeCoordsHomeomorph`.
+
+The ambient `MeasureTheory.Measure.stdSimplexMeasure` remains a measure on the
+whole sum-one affine hyperplane. `StdSimplexMeasure.IntrinsicMeasure` defines
+`Convexity.StdSimplex.coordinateMeasure` and proves that its coordinate
+pushforward is exactly the ambient measure restricted to the coordinate carrier.
+The normalization is unchanged: the intrinsic mass is `1 / (card ι - 1)!` for
+nonempty index types, and zero for the empty type. The module also transports
+Bochner integrals between these representations. Ambient smooth neighborhoods
+and derivatives remain in the coordinate vector space.
+
+Project sources no longer import or use the deprecated
+`Mathlib.Analysis.Convex.StdSimplex` API. The pinned Mathlib still imports that
+module internally. Its version lacks the newer intrinsic topology modules, so
+our finite-coordinate topology is a local bridge to be replaced by the upstream
+topology when Mathlib is upgraded; no infinite-index topology is defined here.
+
 ### Dirichlet layers
 
 The real probability distribution and complex integral interface share analytic

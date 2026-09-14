@@ -30,7 +30,7 @@ has positive real part. -/
 theorem integrableOn_mvBetaMonomial
     (b : ι → ℂ) (hb : b ∈ mvBetaConvergent) :
     IntegrableOn (fun u : ι → ℝ ↦ ∏ i, (u i : ℂ) ^ (b i - 1))
-      (stdSimplex ℝ ι) stdSimplexMeasure := by
+      (Convexity.StdSimplex.coordinateSet ℝ ι) stdSimplexMeasure := by
   classical
   cases isEmpty_or_nonempty ι with
   | inl hι =>
@@ -41,7 +41,7 @@ theorem integrableOn_mvBetaMonomial
       let a : ι → ℝ := fun i ↦ (b i).re
       have ha : a ∈ ProbabilityTheory.mvRealBetaDomain := fun i => hb i
       have hreal : IntegrableOn (fun u : ι → ℝ ↦ ∏ i, u i ^ (a i - 1))
-          (stdSimplex ℝ ι) stdSimplexMeasure :=
+          (Convexity.StdSimplex.coordinateSet ℝ ι) stdSimplexMeasure :=
         ProbabilityTheory.integrableOn_mvRealBetaMonomial ha
       let P : Set (ι → ℝ) := {u | ∀ i, 0 < u i}
       have hPopen : IsOpen P := by
@@ -49,18 +49,18 @@ theorem integrableOn_mvBetaMonomial
         exact isOpen_iInter_of_finite fun i ↦
           isOpen_lt continuous_const (continuous_apply i)
       have hrealP := hreal.mono_set (Set.inter_subset_left :
-        stdSimplex ℝ ι ∩ P ⊆ stdSimplex ℝ ι)
+        Convexity.StdSimplex.coordinateSet ℝ ι ∩ P ⊆ Convexity.StdSimplex.coordinateSet ℝ ι)
       have hcomplexP : IntegrableOn (fun u : ι → ℝ ↦ ∏ i, (u i : ℂ) ^ (b i - 1))
-          (stdSimplex ℝ ι ∩ P) stdSimplexMeasure := by
+          (Convexity.StdSimplex.coordinateSet ℝ ι ∩ P) stdSimplexMeasure := by
         apply Integrable.mono hrealP
         · apply ContinuousOn.aestronglyMeasurable
           · apply continuousOn_finsetProd
             intro i _
             exact (Complex.continuous_ofReal.comp (continuous_apply i)).continuousOn.cpow_const
               (fun _ hu ↦ ofReal_mem_slitPlane.2 (hu.2 i))
-          · exact (isClosed_stdSimplex ℝ ι).measurableSet.inter hPopen.measurableSet
+          · exact (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet.inter hPopen.measurableSet
         · filter_upwards [self_mem_ae_restrict (μ := stdSimplexMeasure)
-              ((isClosed_stdSimplex ℝ ι).measurableSet.inter hPopen.measurableSet)] with u hu
+              ((Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet.inter hPopen.measurableSet)] with u hu
           simp only [Set.mem_inter_iff] at hu
           simp only [norm_prod]
           apply le_of_eq
@@ -70,8 +70,8 @@ theorem integrableOn_mvBetaMonomial
           simp [a, Real.norm_eq_abs, abs_of_pos (Real.rpow_pos_of_pos (hu.2 i) _)]
       apply hcomplexP.congr_set_ae
       have hae : ∀ᵐ u ∂stdSimplexMeasure,
-          u ∈ stdSimplex ℝ ι → ∀ i, 0 < u i :=
-        (ae_restrict_iff' (isClosed_stdSimplex ℝ ι).measurableSet).mp
+          u ∈ Convexity.StdSimplex.coordinateSet ℝ ι → ∀ i, 0 < u i :=
+        (ae_restrict_iff' (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet).mp
           (ae_zero_lt_of_mem_stdSimplex (ι := ι))
       filter_upwards [hae] with u hu
       apply propext
@@ -88,7 +88,7 @@ theorem integrableOn_mvBetaMonomial_mul_log
     IntegrableOn
       (fun u : ι → ℝ ↦
         (∏ j, (u j : ℂ) ^ (b j - 1)) * Complex.log (u i : ℂ))
-      (stdSimplex ℝ ι) stdSimplexMeasure := by
+      (Convexity.StdSimplex.coordinateSet ℝ ι) stdSimplexMeasure := by
   let _ : Nonempty ι := ⟨i⟩
   let δ : ℝ := (b i).re / 2
   have hδ : 0 < δ := half_pos (hb i)
@@ -105,13 +105,13 @@ theorem integrableOn_mvBetaMonomial_mul_log
   · have hmono := (integrableOn_mvBetaMonomial b hb).aestronglyMeasurable
     have hlog : AEStronglyMeasurable
         (fun u : ι → ℝ ↦ Complex.log (u i : ℂ))
-        (stdSimplexMeasure.restrict (stdSimplex ℝ ι)) := by
+        (stdSimplexMeasure.restrict (Convexity.StdSimplex.coordinateSet ℝ ι)) := by
       exact (Complex.measurable_log.comp
         (Complex.measurable_ofReal.comp (measurable_pi_apply i))).aestronglyMeasurable
     exact hmono.mul hlog
   · have hpos := ae_zero_lt_of_mem_stdSimplex (ι := ι)
-    filter_upwards [self_mem_ae_restrict (s := stdSimplex ℝ ι)
-        (isClosed_stdSimplex ℝ ι).measurableSet, hpos] with u hu hupos
+    filter_upwards [self_mem_ae_restrict (s := Convexity.StdSimplex.coordinateSet ℝ ι)
+        (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet, hpos] with u hu hupos
     have hui : 0 < u i := hupos i
     have hui1 : u i ≤ 1 := (hu.2.symm ▸ Finset.single_le_sum (fun j _ ↦ hu.1 j) (Finset.mem_univ i))
     simp only [norm_mul, norm_prod]
@@ -167,7 +167,7 @@ theorem integrableOn_mvBetaMonomial_mul_log
 radial, and lower-dimensional factors. -/
 theorem prod_cpow_stdSimplexCoordMap_scale
     (i : ι) (b : ι → ℂ) {t : ℝ} (ht : t ∈ Set.Ico (0 : ℝ) 1)
-    {v : {j : ι // j ≠ i} → ℝ} (hv : v ∈ stdSimplex ℝ {j : ι // j ≠ i}) :
+    {v : {j : ι // j ≠ i} → ℝ} (hv : v ∈ Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i}) :
     (∏ j, ((stdSimplexCoordMap i (fun q ↦ (1 - t) * v q) j : ℝ) : ℂ) ^ (b j - 1)) =
       (t : ℂ) ^ (b i - 1) *
         (1 - t : ℂ) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1)) *
@@ -206,7 +206,7 @@ theorem prod_cpow_stdSimplexCoordMap_scale
 /-- The absolutely convergent simplex integral representation of the multivariate Beta
 function. -/
 theorem mvBeta_eq_integral {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) :
-    mvBeta b = ∫ u in stdSimplex ℝ ι, ∏ i, (u i : ℂ) ^ (b i - 1) ∂stdSimplexMeasure := by
+    mvBeta b = ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι, ∏ i, (u i : ℂ) ^ (b i - 1) ∂stdSimplexMeasure := by
   classical
   induction hn : Fintype.card ι using Nat.strong_induction_on generalizing ι with
   | h n ih =>
@@ -222,7 +222,7 @@ theorem mvBeta_eq_integral {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) :
                 ⟨⟨Classical.choice hι⟩, fun a => hsub.elim _ _⟩
               rw [mvBeta, stdSimplexMeasure_unique, MeasureTheory.setIntegral_dirac]
               have hG : Gamma (b default) ≠ 0 := Gamma_ne_zero_of_re_pos (hb default)
-              simp [hG, stdSimplex]
+              simp [hG, Convexity.StdSimplex.coordinateSet]
           | inr hnontrivial =>
               let _ := hnontrivial
               let i : ι := Classical.choice hι
@@ -243,23 +243,23 @@ theorem mvBeta_eq_integral {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) :
                 rw [map_sum Complex.reCLM b' Finset.univ]
                 exact Finset.sum_pos (fun q _ => hb q) Finset.univ_nonempty
               have hinner : ∀ t ∈ Set.Ico (0 : ℝ) 1,
-                  (∫ v in stdSimplex ℝ {j : ι // j ≠ i},
+                  (∫ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
                     ∏ k, ((stdSimplexCoordMap i (fun q ↦ (1 - t) * v q) k : ℝ) : ℂ) ^
                       (b k - 1) ∂stdSimplexMeasure) =
                     (t : ℂ) ^ (b i - 1) *
                       (1 - t : ℂ) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1)) * mvBeta b' := by
                 intro t ht
                 calc
-                  _ = ∫ v in stdSimplex ℝ {j : ι // j ≠ i},
+                  _ = ∫ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
                       ((t : ℂ) ^ (b i - 1) *
                         (1 - t : ℂ) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1))) *
                         ∏ q, (v q : ℂ) ^ (b q - 1) ∂stdSimplexMeasure := by
-                          apply setIntegral_congr_fun (isClosed_stdSimplex ℝ _).measurableSet
+                          apply setIntegral_congr_fun (Convexity.StdSimplex.isClosed_coordinateSet ℝ _).measurableSet
                           intro v hv
                           exact prod_cpow_stdSimplexCoordMap_scale i b ht hv
                   _ = ((t : ℂ) ^ (b i - 1) *
                         (1 - t : ℂ) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1))) *
-                      ∫ v in stdSimplex ℝ {j : ι // j ≠ i},
+                      ∫ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
                         ∏ q, (v q : ℂ) ^ (b q - 1) ∂stdSimplexMeasure := by
                           rw [MeasureTheory.integral_const_mul]
                   _ = _ := by rw [← hih rfl]
@@ -282,7 +282,7 @@ theorem mvBeta_eq_integral {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) :
                 ring
               have houter : ∀ᵐ t ∂volume.restrict (Set.Icc (0 : ℝ) 1),
                   ((1 - t) ^ (Fintype.card ι - 2)) •
-                      (∫ v in stdSimplex ℝ {j : ι // j ≠ i},
+                      (∫ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
                         ∏ k, ((stdSimplexCoordMap i
                           (fun q ↦ (1 - t) * v q) k : ℝ) : ℂ) ^ (b k - 1)
                           ∂stdSimplexMeasure) =

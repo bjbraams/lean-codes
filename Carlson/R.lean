@@ -16,12 +16,18 @@ public import Carlson.R.Confluence
 public import Carlson.R.Laplace
 public import Carlson.R.SlitPlane
 public import Carlson.R.SingleIntegral
+public import Carlson.R.SingleIntegralAnalytic
+public import Carlson.R.SlitContinuation
+public import Carlson.R.SlitJointAnalytic
 public import Carlson.R.RayKernel
 public import Carlson.R.Contour
 public import Carlson.R.EulerTransform
 public import Carlson.R.IntegralEvaluation
 public import Carlson.R.SmallVariable
 public import Carlson.R.AssociatedRecurrence
+public import Carlson.R.ContinuedRecurrence
+public import Carlson.R.ZeroParameter
+public import Carlson.R.IntegerParameters
 public import Carlson.R.AssociatedDependence
 
 /-!
@@ -29,4 +35,6 @@ public import Carlson.R.AssociatedDependence
 
 Umbrella import for the native integral, continuation interface, differentiation kernel,
 associated-function theory, confluence, and Laplace representation of Carlson's `R_t`.
+The regularized slit-plane function is jointly entire in the exponent and Dirichlet
+parameters and holomorphic in all nodes off the nonpositive real axis.
 -/

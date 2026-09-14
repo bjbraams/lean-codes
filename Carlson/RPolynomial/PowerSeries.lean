@@ -10,6 +10,10 @@ public import Dirichlet.Average.PowerSeries
 
 /-!
 # Power-series representations using Carlson R-polynomials
+
+This file provides the native integral representation and the Taylor-series
+definition. `Carlson.RPolynomial.TaylorContinuation` proves convergence on the
+full disk of holomorphy and joint analyticity in parameters and nodes.
 -/
 
 open Complex MeasureTheory ProbabilityTheory
@@ -31,16 +35,16 @@ the supplied variables. -/
 theorem hasSum_regCarlsonR_of_powerSeries
     {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) (A : ℂ) (a : ℕ → ℂ)
     (z : ι → ℂ) (f : ℂ → ℂ) (M : ℕ → ℝ) (hM : Summable M)
-    (hbound : ∀ n u, u ∈ stdSimplex ℝ ι →
+    (hbound : ∀ n u, u ∈ Convexity.StdSimplex.coordinateSet ℝ ι →
       ‖a n * (carlsonAffineForm z u - A) ^ n‖ ≤ M n)
-    (hsum : ∀ u, u ∈ stdSimplex ℝ ι →
+    (hsum : ∀ u, u ∈ Convexity.StdSimplex.coordinateSet ℝ ι →
       HasSum (fun n ↦ a n * (carlsonAffineForm z u - A) ^ n)
         (f (carlsonAffineForm z u))) :
     HasSum (fun n ↦ a n * regCarlsonR n (shiftCarlsonVariables A z) b)
       (regCarlsonDirichletAverage b z f) := by
   let g : ℕ → ℂ → ℂ := fun n w ↦ a n * (w - A) ^ n
   have hg (n : ℕ) : ContinuousOn (fun u : ι → ℝ ↦ g n (carlsonAffineForm z u))
-      (stdSimplex ℝ ι) := by
+      (Convexity.StdSimplex.coordinateSet ℝ ι) := by
     exact (continuous_const.mul
       (((continuous_carlsonAffineForm z).sub continuous_const).pow n)).continuousOn
   have h := hasSum_regCarlsonDirichletAverage hb z g f M hg hM hbound hsum
@@ -49,7 +53,7 @@ theorem hasSum_regCarlsonR_of_powerSeries
   have hkernel : Set.EqOn
       (fun u : ι → ℝ ↦ g n (carlsonAffineForm z u))
       (fun u ↦ a n * carlsonAffineForm (shiftCarlsonVariables A z) u ^ n)
-      (stdSimplex ℝ ι) := by
+      (Convexity.StdSimplex.coordinateSet ℝ ι) := by
     intro u hu
     dsimp only [g]
     rw [show shiftCarlsonVariables A z = fun i ↦ 1 * z i + (-A) by
@@ -69,7 +73,9 @@ theorem hasSum_regCarlsonR_of_powerSeries
       unfold regCarlsonDirichletAverage
       exact (regDirichletIntegral_congr b hkernel).symm
 
-/-- The formal Taylor-series candidate for Carlson's regularized Dirichlet average. -/
+/-- The R-polynomial Taylor series for Carlson's regularized Dirichlet average.
+Its convergence and continuation properties are proved in
+`Carlson.RPolynomial.TaylorContinuation`. -/
 def regCarlsonTaylorSeries (A : ℂ) (a : ℕ → ℂ) (z b : ι → ℂ) : ℂ :=
   ∑' n, a n * regCarlsonR n (fun i ↦ z i - A) b
 

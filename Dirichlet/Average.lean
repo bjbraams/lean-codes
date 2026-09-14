@@ -12,6 +12,8 @@ public import Dirichlet.Average.PowerSeries
 public import Dirichlet.Average.Cauchy
 public import Dirichlet.Average.NewtonTaylor
 public import Dirichlet.Average.Continuation
+public import Dirichlet.Average.Aggregation
+public import Dirichlet.Average.ContinuedRelations
 
 /-!
 # Carlson's Dirichlet averages

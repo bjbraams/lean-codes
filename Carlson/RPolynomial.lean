@@ -4,10 +4,12 @@ module
 public import Carlson.RPolynomial.Basic
 public import Carlson.RPolynomial.Coefficients
 public import Carlson.RPolynomial.Estimates
+public import Carlson.RPolynomial.SharpEstimates
 public import Carlson.RPolynomial.Binomial
 public import Carlson.RPolynomial.Transform
 public import Carlson.RPolynomial.Generating
 public import Carlson.RPolynomial.PowerSeries
+public import Carlson.RPolynomial.TaylorContinuation
 public import Carlson.RPolynomial.Differential
 
 /-! # Carlson's R-polynomials

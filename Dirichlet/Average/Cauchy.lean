@@ -56,7 +56,7 @@ theorem regCarlsonResolvent_eq_regDirichletIntegral
 /-- The denominator of Carlson's Cauchy kernel does not vanish when `s` lies outside the
 convex hull of the Carlson variables. -/
 theorem sub_carlsonAffineForm_ne_zero_of_mem_compl_convexHull
-    (z : ι → ℂ) {u : ι → ℝ} (hu : u ∈ stdSimplex ℝ ι)
+    (z : ι → ℂ) {u : ι → ℝ} (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι)
     {s : ℂ} (hs : s ∈ (convexHull ℝ (Set.range z))ᶜ) :
     s - carlsonAffineForm z u ≠ 0 :=
   sub_carlsonAffineForm_ne_zero hs hu
@@ -64,7 +64,7 @@ theorem sub_carlsonAffineForm_ne_zero_of_mem_compl_convexHull
 /-- For a fixed simplex point, Carlson's integer Cauchy kernel is analytic in `s` outside
 the convex hull of the variables.  Integer powers make this statement branch-independent. -/
 theorem analyticOnNhd_carlsonCauchyKernel (n : ℕ) (z : ι → ℂ)
-    {u : ι → ℝ} (hu : u ∈ stdSimplex ℝ ι) :
+    {u : ι → ℝ} (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι) :
     AnalyticOnNhd ℂ (carlsonCauchyKernel n z u)
       ((convexHull ℝ (Set.range z))ᶜ) := by
   intro s hs
@@ -92,13 +92,13 @@ formula over the simplex, before applying Fubini to interchange the two integral
 theorem regCarlsonDirichletAverage_eq_average_circleIntegral
     {b : ι → ℂ} (z : ι → ℂ) {c : ℂ} {R : ℝ} {f : ℂ → ℂ}
     (hf : DiffContOnCl ℂ f (ball c R))
-    (hz : ∀ u, u ∈ stdSimplex ℝ ι → carlsonAffineForm z u ∈ ball c R) :
+    (hz : ∀ u, u ∈ Convexity.StdSimplex.coordinateSet ℝ ι → carlsonAffineForm z u ∈ ball c R) :
     regCarlsonDirichletAverage b z f =
       (2 * (Real.pi : ℂ) * I)⁻¹ * regDirichletIntegral b
         (fun u ↦ ∮ s in C(c, R), carlsonCauchyKernel 0 z u s * f s) := by
   unfold regCarlsonDirichletAverage regDirichletIntegral
   rw [← integral_const_mul]
-  apply setIntegral_congr_fun (isClosed_stdSimplex ℝ ι).measurableSet
+  apply setIntegral_congr_fun (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet
   intro u hu
   dsimp only
   have hcauchy := two_pi_I_inv_mul_circleIntegral_carlsonCauchyKernel_zero

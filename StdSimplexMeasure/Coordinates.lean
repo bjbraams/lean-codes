@@ -395,7 +395,7 @@ section OrderedRing
 variable [CommRing R] [PartialOrder R] [IsOrderedRing R]
 
 /-- The filled `(card ι - 1)`-dimensional simplex of free coordinates corresponding to
-points of `stdSimplex R ι`. (Not to be confused with `stdSimplex R {j // j ≠ i}`.) -/
+points of `Convexity.StdSimplex.coordinateSet R ι`. (Not to be confused with `Convexity.StdSimplex.coordinateSet R {j // j ≠ i}`.) -/
 def stdSimplexFreeCoords (i : ι) :
     Set ({j : ι // j ≠ i} → R) :=
   {x | (∀ j, 0 ≤ x j) ∧ ∑ j, x j ≤ 1}

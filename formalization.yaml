@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/main/schema/formalization.schema.json
+version: "v0.4"
+
+project:
+  name: Carlson special functions
+  description: >-
+    Lean formalization of Carlson's special functions through Dirichlet averages,
+    with supporting simplex integration and several complex variables theory.
+  authors:
+    - Bastiaan J Braams
+  license: Apache-2.0
+
+sources:
+  - title: Special Functions of Applied Mathematics
+    authors: [B. C. Carlson]
+    type: book
+    id: Academic Press, 1977
+  - title: Dirichlet averages of x^t log x
+    authors: [B. C. Carlson]
+    type: article
+    id: SIAM Journal on Mathematical Analysis 18 (1987), 550–565
+
+automation:
+  methods:
+    - method: agent
+      framework: Codex
+  notes: Human-directed, agent-assisted development with Lean validation.
+
+review:
+  status: agent-reviewed

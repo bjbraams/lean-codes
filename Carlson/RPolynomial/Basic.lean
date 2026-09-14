@@ -62,7 +62,7 @@ theorem carlsonPowerPolynomial_smul (n : ℕ) (a : ℂ) (z : ι → ℂ) :
 /-- Evaluation of a translated and scaled Carlson power kernel gives the corresponding
 binomial power. -/
 theorem eval_carlsonPowerPolynomial_affine (n : ℕ) (a t : ℂ) (z : ι → ℂ)
-    {u : ι → ℝ} (hu : u ∈ stdSimplex ℝ ι) :
+    {u : ι → ℝ} (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι) :
     (carlsonPowerPolynomial n (fun i ↦ a * z i + t)).eval (fun i ↦ (u i : ℂ)) =
       (a * carlsonAffineForm z u + t) ^ n := by
   rw [eval_carlsonPowerPolynomial, carlsonAffineForm_affine hu]

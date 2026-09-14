@@ -260,5 +260,26 @@ theorem carlsonRPolynomialNumerator_eq_multinomial_sum (n : ℕ) (b z : ι → �
     simp
   simp [hprod]
 
+/-- Regularized Carlson polynomials preserve analytic dependence jointly in
+their nodes and Dirichlet parameters. -/
+theorem analyticAt_regCarlsonR_comp
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
+    {x : E} {b z : E → ι → ℂ}
+    (hb : ∀ i, AnalyticAt ℂ (fun y => b y i) x)
+    (hz : ∀ i, AnalyticAt ℂ (fun y => z y i) x) (n : ℕ) :
+    AnalyticAt ℂ (fun y => regCarlsonR n (z y) (b y)) x := by
+  simp only [regCarlsonR, regCarlsonRPolynomial_eq_numerator_mul_one_div_Gamma,
+    carlsonRPolynomialNumerator_eq_multinomial_sum]
+  apply AnalyticAt.mul
+  · apply Finset.analyticAt_fun_sum
+    intro m _
+    refine (analyticAt_const.mul (Finset.analyticAt_fun_prod _ (fun i _ => (hz i).pow _))).mul ?_
+    exact Finset.analyticAt_fun_prod _ (fun i _ =>
+      ((AnalyticOnNhd.eval_polynomial (ascPochhammer ℂ (m i))) _
+        (Set.mem_univ _)).comp (hb i))
+  · have hsum : AnalyticAt ℂ (fun y => (∑ i, b y i) + n) x :=
+      (Finset.analyticAt_fun_sum _ (fun i _ => hb i)).add analyticAt_const
+    exact (Complex.differentiable_one_div_Gamma.analyticAt (z := (∑ i, b x i) + n)).comp_of_eq hsum rfl
+
 end DirichletTransform
 end CarlsonRPolynomial

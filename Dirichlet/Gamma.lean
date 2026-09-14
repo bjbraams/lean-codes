@@ -127,7 +127,7 @@ def simplexNormalize (x : ι → ℝ) : ι → ℝ := fun i => x i / ∑ j, x j
 
 /-- Radial coordinates recover a simplex point and its positive scale. -/
 theorem sum_simplexNormalize_smul {t : ℝ} (ht : 0 < t) {u : ι → ℝ}
-    (hu : u ∈ stdSimplex ℝ ι) :
+    (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι) :
     (∑ i, (t • u) i, simplexNormalize (t • u)) = (t, u) := by
   have hs : ∑ i, (t • u) i = t := by
     simp only [Pi.smul_apply, smul_eq_mul, ← Finset.mul_sum, hu.2, mul_one]
@@ -197,7 +197,7 @@ theorem map_sum_simplexNormalize_pi_gammaMeasure [Nonempty ι] {b : ι → ℝ}
   rw [← dirichletMeasure_restrict b, dirichletMeasure,
     setLIntegral_withDensity_eq_setLIntegral_mul _ (measurable_dirichletPdf b)
       (show Measurable (fun u => g (t, u)) from hg.comp (measurable_const.prodMk measurable_id))
-      (isClosed_stdSimplex ℝ ι).measurableSet]
+      (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet]
   rw [← lintegral_const_mul _ (by fun_prop), ← lintegral_const_mul _ (by fun_prop)]
   apply lintegral_congr_ae
   filter_upwards [ae_mem_stdSimplexInterior (ι := ι)] with u hu

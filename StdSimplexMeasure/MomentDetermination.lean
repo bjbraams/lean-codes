@@ -26,10 +26,10 @@ open scoped ENNReal
 /-- A continuous real function is integrable against a finite measure supported on the simplex. -/
 theorem integrable_of_continuous_of_restrict_stdSimplex
     {α : Type*} [Fintype α] {μ : Measure (α → ℝ)} [IsFiniteMeasure μ]
-    (hμ : μ.restrict (stdSimplex ℝ α) = μ) {g : (α → ℝ) → ℝ}
+    (hμ : μ.restrict (Convexity.StdSimplex.coordinateSet ℝ α) = μ) {g : (α → ℝ) → ℝ}
     (hg : Continuous g) : Integrable g μ := by
-  have hint : IntegrableOn g (stdSimplex ℝ α) μ :=
-    hg.continuousOn.integrableOn_compact (isCompact_stdSimplex ℝ α)
+  have hint : IntegrableOn g (Convexity.StdSimplex.coordinateSet ℝ α) μ :=
+    hg.continuousOn.integrableOn_compact (Convexity.StdSimplex.isCompact_coordinateSet ℝ α)
   rwa [IntegrableOn, hμ] at hint
 
 /-- Finite Borel measures supported on the standard simplex are determined by their
@@ -37,8 +37,8 @@ monomial moments. -/
 theorem eq_of_forall_monomial_integral_eq_of_restrict_stdSimplex
     {α : Type*} [Fintype α]
     {μ ν : Measure (α → ℝ)} [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (hμ : μ.restrict (stdSimplex ℝ α) = μ)
-    (hν : ν.restrict (stdSimplex ℝ α) = ν)
+    (hμ : μ.restrict (Convexity.StdSimplex.coordinateSet ℝ α) = μ)
+    (hν : ν.restrict (Convexity.StdSimplex.coordinateSet ℝ α) = ν)
     (h : ∀ m : α → ℕ, ∫ x, (∏ i, x i ^ m i) ∂μ = ∫ x, (∏ i, x i ^ m i) ∂ν) :
     μ = ν := by
   classical
@@ -50,19 +50,19 @@ theorem eq_of_forall_monomial_integral_eq_of_restrict_stdSimplex
     obtain ⟨k, hk⟩ := not_forall.mp (mt funext hxy)
     refine ⟨(coord k : (α → ℝ) → ℝ), ?_, hk⟩
     exact ⟨coord k, ⟨MvPolynomial.X k, MvPolynomial.aeval_X coord k⟩, rfl⟩
-  have hK : IsCompact (stdSimplex ℝ α) := isCompact_stdSimplex ℝ α
-  have hae_μ : ∀ᵐ x ∂μ, x ∈ stdSimplex ℝ α := by
+  have hK : IsCompact (Convexity.StdSimplex.coordinateSet ℝ α) := Convexity.StdSimplex.isCompact_coordinateSet ℝ α
+  have hae_μ : ∀ᵐ x ∂μ, x ∈ Convexity.StdSimplex.coordinateSet ℝ α := by
     rw [ae_iff]
-    change μ (stdSimplex ℝ α)ᶜ = 0
-    have hs := (isClosed_stdSimplex ℝ α).measurableSet
-    have h' := congrArg (fun η : Measure (α → ℝ) => η (stdSimplex ℝ α)ᶜ) hμ
+    change μ (Convexity.StdSimplex.coordinateSet ℝ α)ᶜ = 0
+    have hs := (Convexity.StdSimplex.isClosed_coordinateSet ℝ α).measurableSet
+    have h' := congrArg (fun η : Measure (α → ℝ) => η (Convexity.StdSimplex.coordinateSet ℝ α)ᶜ) hμ
     rw [Measure.restrict_apply hs.compl] at h'
     simpa [Set.inter_compl_self] using h'.symm
-  have hae_ν : ∀ᵐ x ∂ν, x ∈ stdSimplex ℝ α := by
+  have hae_ν : ∀ᵐ x ∂ν, x ∈ Convexity.StdSimplex.coordinateSet ℝ α := by
     rw [ae_iff]
-    change ν (stdSimplex ℝ α)ᶜ = 0
-    have hs := (isClosed_stdSimplex ℝ α).measurableSet
-    have h' := congrArg (fun η : Measure (α → ℝ) => η (stdSimplex ℝ α)ᶜ) hν
+    change ν (Convexity.StdSimplex.coordinateSet ℝ α)ᶜ = 0
+    have hs := (Convexity.StdSimplex.isClosed_coordinateSet ℝ α).measurableSet
+    have h' := congrArg (fun η : Measure (α → ℝ) => η (Convexity.StdSimplex.coordinateSet ℝ α)ᶜ) hν
     rw [Measure.restrict_apply hs.compl] at h'
     simpa [Set.inter_compl_self] using h'.symm
   have heval (q : MvPolynomial α ℝ) (v : α → ℝ) :

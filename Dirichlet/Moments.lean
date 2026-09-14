@@ -65,12 +65,12 @@ theorem integral_dirichletMeasure_power_product {b : ι → ℝ} (hb : b ∈ mvR
       rw [integral_dirichletMeasure hb]
       have hae := ae_zero_lt_of_mem_stdSimplex (ι := ι)
       have hmem := self_mem_ae_restrict
-        (μ := stdSimplexMeasure) (isClosed_stdSimplex ℝ ι).measurableSet
+        (μ := stdSimplexMeasure) (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet
       have hint :
-          (∫ u in stdSimplex ℝ ι,
+          (∫ u in Convexity.StdSimplex.coordinateSet ℝ ι,
             (∏ i, u i ^ m i) * dirichletPdfReal b u ∂stdSimplexMeasure) =
           (1 / mvRealBeta b) *
-            ∫ u in stdSimplex ℝ ι, ∏ i, u i ^ ((b + m) i - 1)
+            ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι, ∏ i, u i ^ ((b + m) i - 1)
               ∂stdSimplexMeasure := by
         rw [← MeasureTheory.integral_const_mul]
         apply integral_congr_ae
@@ -334,16 +334,16 @@ theorem measurePreserving_stdSimplexAggregate_dirichletMeasure
       · refine Measure.restrict_eq_self_of_ae_mem ?_
         rw [ae_iff]
         change Measure.map (stdSimplexAggregate f) (dirichletMeasure b)
-          (stdSimplex ℝ κ)ᶜ = 0
+          (Convexity.StdSimplex.coordinateSet ℝ κ)ᶜ = 0
         rw [Measure.map_apply hT.measurable
-          (isClosed_stdSimplex ℝ κ).measurableSet.compl]
-        have hsub : stdSimplex ℝ ι ⊆ stdSimplexAggregate f ⁻¹' stdSimplex ℝ κ := by
+          (Convexity.StdSimplex.isClosed_coordinateSet ℝ κ).measurableSet.compl]
+        have hsub : Convexity.StdSimplex.coordinateSet ℝ ι ⊆ stdSimplexAggregate f ⁻¹' Convexity.StdSimplex.coordinateSet ℝ κ := by
           intro u hu
           exact stdSimplexAggregate_mem_stdSimplex hu
         refine measure_mono_null (fun u hu huι => hu (hsub huι)) ?_
-        change dirichletMeasure b (stdSimplex ℝ ι)ᶜ = 0
-        have hs := (isClosed_stdSimplex ℝ ι).measurableSet
-        have h' := congrArg (fun η : Measure (ι → ℝ) => η (stdSimplex ℝ ι)ᶜ)
+        change dirichletMeasure b (Convexity.StdSimplex.coordinateSet ℝ ι)ᶜ = 0
+        have hs := (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet
+        have h' := congrArg (fun η : Measure (ι → ℝ) => η (Convexity.StdSimplex.coordinateSet ℝ ι)ᶜ)
           (dirichletMeasure_restrict (ι := ι) b)
         rw [Measure.restrict_apply hs.compl] at h'
         simpa [Set.inter_compl_self] using h'.symm

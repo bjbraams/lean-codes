@@ -63,7 +63,7 @@ theorem integral_stdSimplex_eq_integral_freeCoords
     [Nonempty ι] (i : ι)
     {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
     (f : (ι → ℝ) → E) :
-  ∫ u in stdSimplex ℝ ι, f u ∂stdSimplexMeasure =
+  ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι, f u ∂stdSimplexMeasure =
     ∫ x in stdSimplexFreeCoords i, f (stdSimplexCoordMap i x) := by
   rw [stdSimplexMeasure_restrict_stdSimplex i]
   exact
@@ -73,7 +73,7 @@ theorem integral_stdSimplex_eq_integral_freeCoords
 chart. -/
 theorem lintegral_stdSimplex_eq_lintegral_freeCoords
     [Nonempty ι] (i : ι) (f : (ι → ℝ) → ENNReal) :
-    ∫⁻ u in stdSimplex ℝ ι, f u ∂stdSimplexMeasure =
+    ∫⁻ u in Convexity.StdSimplex.coordinateSet ℝ ι, f u ∂stdSimplexMeasure =
       ∫⁻ x in stdSimplexFreeCoords i, f (stdSimplexCoordMap i x) := by
   rw [stdSimplexMeasure_restrict_stdSimplex i]
   exact (isClosedEmbedding_stdSimplexCoordMap i).measurableEmbedding.lintegral_map f
@@ -479,7 +479,7 @@ theorem integral_posSimplex_inner_slice
     ∫ y in posSimplex C (1 - t),
       f (stdSimplexCoordMap j ((Homeomorph.funSplitAt ℝ ⟨i, hij⟩).symm (t, y))) =
     ((1 - t) ^ (Fintype.card ι - 2)) •
-      ∫ v in stdSimplex ℝ {q : ι // q ≠ i},
+      ∫ v in Convexity.StdSimplex.coordinateSet ℝ {q : ι // q ≠ i},
         f (stdSimplexCoordMap i (fun q ↦ (1 - t) * v q)) ∂stdSimplexMeasure := by
   dsimp only
   let jj : {q : ι // q ≠ i} := ⟨j, hij.symm⟩
@@ -530,7 +530,7 @@ theorem lintegral_posSimplex_inner_slice
     ∫⁻ y in posSimplex C (1 - t),
       f (stdSimplexCoordMap j ((Homeomorph.funSplitAt ℝ ⟨i, hij⟩).symm (t, y))) =
     ENNReal.ofReal ((1 - t) ^ (Fintype.card ι - 2)) *
-      ∫⁻ v in stdSimplex ℝ {q : ι // q ≠ i},
+      ∫⁻ v in Convexity.StdSimplex.coordinateSet ℝ {q : ι // q ≠ i},
         f (stdSimplexCoordMap i (fun q ↦ (1 - t) * v q)) ∂stdSimplexMeasure := by
   dsimp only
   let jj : {q : ι // q ≠ i} := ⟨j, hij.symm⟩
@@ -577,10 +577,10 @@ theorem lintegral_posSimplex_inner_slice
 coordinate. Unlike `integral_stdSimplex_split_at`, no integrability hypothesis is required. -/
 public theorem lintegral_stdSimplex_split_at
     (i : ι) [Nontrivial ι] (f : (ι → ℝ) → ENNReal) (hf : Measurable f) :
-    ∫⁻ u in stdSimplex ℝ ι, f u ∂stdSimplexMeasure =
+    ∫⁻ u in Convexity.StdSimplex.coordinateSet ℝ ι, f u ∂stdSimplexMeasure =
       ∫⁻ t in Set.Icc (0 : ℝ) 1,
         ENNReal.ofReal ((1 - t) ^ (card ι - 2)) *
-          ∫⁻ v in stdSimplex ℝ {j // j ≠ i},
+          ∫⁻ v in Convexity.StdSimplex.coordinateSet ℝ {j // j ≠ i},
             f (stdSimplexCoordMap i (fun j ↦ (1 - t) * v j)) ∂stdSimplexMeasure := by
   obtain ⟨j, hji⟩ := exists_ne i
   rw [lintegral_stdSimplex_eq_lintegral_freeCoords j]
@@ -618,17 +618,17 @@ public theorem integral_stdSimplex_split_at
     {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
     (i : ι) [Nontrivial ι]
     (f : (ι → ℝ) → E)
-    (hf : IntegrableOn f (stdSimplex ℝ ι) stdSimplexMeasure) :
-  ∫ u in stdSimplex ℝ ι, f u ∂stdSimplexMeasure =
+    (hf : IntegrableOn f (Convexity.StdSimplex.coordinateSet ℝ ι) stdSimplexMeasure) :
+  ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι, f u ∂stdSimplexMeasure =
     ∫ t in Set.Icc (0 : ℝ) 1,
       ((1 - t) ^ (card ι - 2)) •
-      ∫ v in stdSimplex ℝ {j // j ≠ i}, f (stdSimplexCoordMap i (fun j ↦ (1 - t) * v j))
+      ∫ v in Convexity.StdSimplex.coordinateSet ℝ {j // j ≠ i}, f (stdSimplexCoordMap i (fun j ↦ (1 - t) * v j))
         ∂stdSimplexMeasure := by
   obtain ⟨j, hji⟩ := exists_ne i
   have hg : IntegrableOn (fun x => f (stdSimplexCoordMap j x))
       (stdSimplexFreeCoords j) := by
     have hfm := hf
-    change Integrable f (stdSimplexMeasure.restrict (stdSimplex ℝ ι)) at hfm
+    change Integrable f (stdSimplexMeasure.restrict (Convexity.StdSimplex.coordinateSet ℝ ι)) at hfm
     rw [stdSimplexMeasure_restrict_stdSimplex j] at hfm
     change Integrable (fun x => f (stdSimplexCoordMap j x))
       (volume.restrict (stdSimplexFreeCoords j))
@@ -641,7 +641,7 @@ public theorem integral_stdSimplex_split_at
       (∫ y in posSimplex {q : {q : ι // q ≠ j} // q ≠ ⟨i, hji.symm⟩} (1 - t),
         f (stdSimplexCoordMap j ((Homeomorph.funSplitAt ℝ ⟨i, hji.symm⟩).symm (t, y)))) =
       ((1 - t) ^ (card ι - 2)) •
-        ∫ v in stdSimplex ℝ {j // j ≠ i},
+        ∫ v in Convexity.StdSimplex.coordinateSet ℝ {j // j ≠ i},
           f (stdSimplexCoordMap i (fun j ↦ (1 - t) * v j)) ∂stdSimplexMeasure := by
     filter_upwards [self_mem_ae_restrict (μ := volume) measurableSet_Ico] with t ht
     exact integral_posSimplex_inner_slice i j hji.symm t ht f
@@ -664,8 +664,8 @@ permutations. -/
 theorem integral_stdSimplex_comp_perm
     {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
     (σ : Equiv.Perm ι) (f : (ι → ℝ) → E) :
-  ∫ u in stdSimplex ℝ ι, f (u ∘ σ) ∂stdSimplexMeasure =
-    ∫ u in stdSimplex ℝ ι, f u ∂stdSimplexMeasure := by
+  ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι, f (u ∘ σ) ∂stdSimplexMeasure =
+    ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι, f u ∂stdSimplexMeasure := by
   have hp := measurePreserving_stdSimplexMeasure_perm σ
   have he : MeasurableEmbedding (fun u : ι → ℝ => u ∘ σ) := by
     apply (continuous_pi (fun j => continuous_apply (σ j))).measurableEmbedding
@@ -673,7 +673,7 @@ theorem integral_stdSimplex_comp_perm
     funext j
     have := congrFun huv (σ.symm j)
     simpa using this
-  have hr := hp.restrict_preimage_emb he (stdSimplex ℝ ι)
+  have hr := hp.restrict_preimage_emb he (Convexity.StdSimplex.coordinateSet ℝ ι)
   rw [preimage_stdSimplex_perm] at hr
   exact hr.integral_comp he f
 
@@ -682,11 +682,11 @@ theorem ContinuousOn.integrableOn_stdSimplex
     [Nonempty ι]
     {E : Type*} [NormedAddCommGroup E]
     {f : (ι → ℝ) → E}
-    (hf : ContinuousOn f (stdSimplex ℝ ι)) :
-    IntegrableOn f (stdSimplex ℝ ι) stdSimplexMeasure := by
+    (hf : ContinuousOn f (Convexity.StdSimplex.coordinateSet ℝ ι)) :
+    IntegrableOn f (Convexity.StdSimplex.coordinateSet ℝ ι) stdSimplexMeasure := by
   apply hf.integrableOn_of_subset_isCompact
-    (isCompact_stdSimplex ℝ ι)
-    (isClosed_stdSimplex ℝ ι).measurableSet
+    (Convexity.StdSimplex.isCompact_coordinateSet ℝ ι)
+    (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet
     Set.Subset.rfl
   rw [← Measure.restrict_apply_univ]
   exact measure_ne_top _ _
@@ -696,14 +696,14 @@ the standard simplex. -/
 theorem integral_stdSimplex_congr
     {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
     {f g : (ι → ℝ) → E}
-    (hfg : Set.EqOn f g (stdSimplex ℝ ι)) :
-    ∫ u in stdSimplex ℝ ι, f u ∂stdSimplexMeasure =
-      ∫ u in stdSimplex ℝ ι, g u ∂stdSimplexMeasure := by
+    (hfg : Set.EqOn f g (Convexity.StdSimplex.coordinateSet ℝ ι)) :
+    ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι, f u ∂stdSimplexMeasure =
+      ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι, g u ∂stdSimplexMeasure := by
   apply MeasureTheory.integral_congr_ae
   filter_upwards
     [self_mem_ae_restrict
       (μ := stdSimplexMeasure)
-      (isClosed_stdSimplex ℝ ι).measurableSet] with u hu
+      (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet] with u hu
   exact hfg hu
 
 /-- For a single-point index set, the integral over the simplex reduces to evaluation at the
@@ -711,29 +711,29 @@ all-ones vector. (Base case for induction.) -/
 theorem integral_stdSimplex_unique
     {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
     [CompleteSpace E] [Unique ι] (f : (ι → ℝ) → E) :
-  ∫ u in stdSimplex ℝ ι, f u ∂stdSimplexMeasure = f (fun _ ↦ 1) := by
+  ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι, f u ∂stdSimplexMeasure = f (fun _ ↦ 1) := by
   classical
   rw [stdSimplexMeasure_unique]
-  change ∫ u, f u ∂(dirac (fun _ : ι => (1 : ℝ))).restrict (stdSimplex ℝ ι) = _
-  rw [MeasureTheory.restrict_dirac' (isClosed_stdSimplex ℝ ι).measurableSet]
-  have hmem : (fun _ : ι => (1 : ℝ)) ∈ stdSimplex ℝ ι := by simp [stdSimplex]
+  change ∫ u, f u ∂(dirac (fun _ : ι => (1 : ℝ))).restrict (Convexity.StdSimplex.coordinateSet ℝ ι) = _
+  rw [MeasureTheory.restrict_dirac' (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet]
+  have hmem : (fun _ : ι => (1 : ℝ)) ∈ Convexity.StdSimplex.coordinateSet ℝ ι := by simp [Convexity.StdSimplex.coordinateSet]
   rw [if_pos hmem]
   exact MeasureTheory.integral_dirac f (fun _ : ι => (1 : ℝ))
 
 /-- Reduce a monomial integral on a nontrivial simplex to the monomial integral on the simplex
 obtained by deleting coordinate `i`. -/
 theorem integral_stdSimplex_explicit_monomial_succ [Nontrivial ι] (i : ι) (m : ι → ℕ) :
-  ∫ u in stdSimplex ℝ ι, (∏ j, u j ^ m j) ∂stdSimplexMeasure =
+  ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι, (∏ j, u j ^ m j) ∂stdSimplexMeasure =
     (Nat.factorial (m i) * Nat.factorial (card ι + (∑ j, m j) - 2 - m i)
       / Nat.factorial (card ι + ∑ j, m j - 1) : ℝ)
-      * ∫ u in stdSimplex ℝ {j : ι // j ≠ i}, (∏ j, u j ^ m j.val) ∂stdSimplexMeasure := by
+      * ∫ u in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i}, (∏ j, u j ^ m j.val) ∂stdSimplexMeasure := by
   have hf : IntegrableOn (fun u : ι → ℝ => ∏ j, u j ^ m j)
-      (stdSimplex ℝ ι) stdSimplexMeasure := by
+      (Convexity.StdSimplex.coordinateSet ℝ ι) stdSimplexMeasure := by
     apply ContinuousOn.integrableOn_stdSimplex
     fun_prop
   rw [integral_stdSimplex_split_at i _ hf]
   have hfactor (t : ℝ) (v : {j : ι // j ≠ i} → ℝ)
-      (hv : v ∈ stdSimplex ℝ {j : ι // j ≠ i}) :
+      (hv : v ∈ Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i}) :
       (∏ j, stdSimplexCoordMap i (fun q => (1 - t) * v q) j ^ m j) =
         t ^ m i * (1 - t) ^ (∑ q : {j : ι // j ≠ i}, m q.val) *
           ∏ q : {j : ι // j ≠ i}, v q ^ m q.val := by
@@ -757,16 +757,16 @@ theorem integral_stdSimplex_explicit_monomial_succ [Nontrivial ι] (i : ι) (m :
     rw [hprod]
     ring
   have hinner (t : ℝ) :
-      ∫ v in stdSimplex ℝ {j : ι // j ≠ i},
+      ∫ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
           (∏ j, stdSimplexCoordMap i (fun q => (1 - t) * v q) j ^ m j)
           ∂stdSimplexMeasure =
         (t ^ m i * (1 - t) ^ (∑ q : {j : ι // j ≠ i}, m q.val)) *
-          ∫ v in stdSimplex ℝ {j : ι // j ≠ i},
+          ∫ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
             (∏ q, v q ^ m q.val) ∂stdSimplexMeasure := by
     rw [← integral_const_mul]
     apply integral_congr_ae
     filter_upwards [self_mem_ae_restrict
-      (μ := stdSimplexMeasure) (isClosed_stdSimplex ℝ _).measurableSet] with v hv
+      (μ := stdSimplexMeasure) (Convexity.StdSimplex.isClosed_coordinateSet ℝ _).measurableSet] with v hv
     exact hfactor t v hv
   simp_rw [hinner]
   simp only [smul_eq_mul]
@@ -782,7 +782,7 @@ theorem integral_stdSimplex_explicit_monomial_succ [Nontrivial ι] (i : ι) (m :
     rw [hsum]
     dsimp [b]
     omega
-  let A : ℝ := ∫ v in stdSimplex ℝ {j : ι // j ≠ i},
+  let A : ℝ := ∫ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
     (∏ q, v q ^ m q.val) ∂stdSimplexMeasure
   calc
     ∫ t in Set.Icc (0 : ℝ) 1,
@@ -805,12 +805,12 @@ theorem integral_stdSimplex_explicit_monomial_succ [Nontrivial ι] (i : ι) (m :
 
 /-- The integral of a monomial with natural exponents over the standard simplex. -/
 theorem integral_stdSimplex_explicit_monomial (m : ι → ℕ) [Nonempty ι] :
-    ∫ u in stdSimplex ℝ ι, (∏ i, u i ^ m i) ∂stdSimplexMeasure =
+    ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι, (∏ i, u i ^ m i) ∂stdSimplexMeasure =
       (∏ i, Nat.factorial (m i)) / (Nat.factorial (card ι + (∑ i, m i) - 1) : ℝ) := by
   classical
   suffices h : ∀ n : ℕ, ∀ (α : Type u) [Fintype α], card α = n →
       ∀ (a : α → ℕ), Nonempty α →
-        ∫ u in stdSimplex ℝ α, (∏ j, u j ^ a j) ∂stdSimplexMeasure =
+        ∫ u in Convexity.StdSimplex.coordinateSet ℝ α, (∏ j, u j ^ a j) ∂stdSimplexMeasure =
           (∏ j, Nat.factorial (a j)) /
             (Nat.factorial (card α + (∑ j, a j) - 1) : ℝ) by
     exact h (card ι) ι rfl m inferInstance
@@ -853,14 +853,14 @@ theorem integral_stdSimplex_explicit_monomial (m : ι → ℕ) [Nonempty ι] :
 
 /-- The integral of the constant function 1 over the standard simplex. -/
 theorem integral_stdSimplex_constant [Nonempty ι] :
-    ∫ _ in stdSimplex ℝ ι, (1 : ℝ) ∂stdSimplexMeasure =
+    ∫ _ in Convexity.StdSimplex.coordinateSet ℝ ι, (1 : ℝ) ∂stdSimplexMeasure =
       1 / (Nat.factorial (card ι - 1) : ℝ) := by
   rw [MeasureTheory.setIntegral_const, Measure.real, stdSimplexMeasure_stdSimplex_toReal]
   ring
 
 /-- The integral of a `MvPolynomial` monomial over the standard simplex. -/
 theorem integral_stdSimplex_MvPolynomial_monomial (m : ι →₀ ℕ) [Nonempty ι] :
-    ∫ u in stdSimplex ℝ ι, m.prod (fun i n => u i ^ n) ∂stdSimplexMeasure =
+    ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι, m.prod (fun i n => u i ^ n) ∂stdSimplexMeasure =
       (∏ i, Nat.factorial (m i)) / (Nat.factorial (card ι + (∑ i, m i) - 1) : ℝ) := by
   simp_rw [m.prod_fintype _ fun _ ↦ pow_zero _]
   exact integral_stdSimplex_explicit_monomial (⇑m)
@@ -874,12 +874,12 @@ theorem integral_stdSimplex_comp_aggregate
     {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
     (g : (κ → ℝ) → E)
     (hg : AEStronglyMeasurable g
-      (((stdSimplexMeasure (ι := κ)).restrict (stdSimplex ℝ κ)).withDensity
+      (((stdSimplexMeasure (ι := κ)).restrict (Convexity.StdSimplex.coordinateSet ℝ κ)).withDensity
         (stdSimplexAggregateDensity f))) :
-    ∫ u in stdSimplex ℝ ι,
+    ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι,
         g (stdSimplexAggregate f u) ∂stdSimplexMeasure
       =
-    ∫ v in stdSimplex ℝ κ,
+    ∫ v in Convexity.StdSimplex.coordinateSet ℝ κ,
         (∏ k,
           v k ^ (stdSimplexAggregateFiberCard f k - 1) /
             Nat.factorial
@@ -887,8 +887,8 @@ theorem integral_stdSimplex_comp_aggregate
           g v
         ∂stdSimplexMeasure := by
   classical
-  let μ := (stdSimplexMeasure (ι := ι)).restrict (stdSimplex ℝ ι)
-  let ν := (stdSimplexMeasure (ι := κ)).restrict (stdSimplex ℝ κ)
+  let μ := (stdSimplexMeasure (ι := ι)).restrict (Convexity.StdSimplex.coordinateSet ℝ ι)
+  let ν := (stdSimplexMeasure (ι := κ)).restrict (Convexity.StdSimplex.coordinateSet ℝ κ)
   let d := stdSimplexAggregateDensity f
   have hagg : Measurable (stdSimplexAggregate (R := ℝ) f) := by
     exact (FunOnFinite.continuous_linearMap ℝ ℝ f).measurable
@@ -917,13 +917,13 @@ theorem integral_stdSimplex_comp_aggregate
       rw [hmeasure]
     _ = ∫ v, (d v).toReal • g v ∂ν := by
       rw [integral_withDensity_eq_integral_toReal_smul hd hd_lt]
-    _ = ∫ v in stdSimplex ℝ κ,
+    _ = ∫ v in Convexity.StdSimplex.coordinateSet ℝ κ,
         (∏ k, v k ^ (stdSimplexAggregateFiberCard f k - 1) /
           Nat.factorial (stdSimplexAggregateFiberCard f k - 1)) • g v
           ∂stdSimplexMeasure := by
       apply integral_congr_ae
       have hmem := self_mem_ae_restrict
-        (μ := stdSimplexMeasure) (isClosed_stdSimplex ℝ κ).measurableSet
+        (μ := stdSimplexMeasure) (Convexity.StdSimplex.isClosed_coordinateSet ℝ κ).measurableSet
       filter_upwards [hmem] with v hv
       congr 1
       unfold d stdSimplexAggregateDensity

@@ -38,14 +38,14 @@ theorem hasSum_regCarlsonDirichletAverage
     {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) (z : ι → ℂ)
     (g : ℕ → ℂ → ℂ) (f : ℂ → ℂ) (M : ℕ → ℝ)
     (hg : ∀ n, ContinuousOn (fun u : ι → ℝ ↦ g n (carlsonAffineForm z u))
-      (stdSimplex ℝ ι))
+      (Convexity.StdSimplex.coordinateSet ℝ ι))
     (hM : Summable M)
-    (hbound : ∀ n u, u ∈ stdSimplex ℝ ι → ‖g n (carlsonAffineForm z u)‖ ≤ M n)
-    (hsum : ∀ u, u ∈ stdSimplex ℝ ι →
+    (hbound : ∀ n u, u ∈ Convexity.StdSimplex.coordinateSet ℝ ι → ‖g n (carlsonAffineForm z u)‖ ≤ M n)
+    (hsum : ∀ u, u ∈ Convexity.StdSimplex.coordinateSet ℝ ι →
       HasSum (fun n ↦ g n (carlsonAffineForm z u)) (f (carlsonAffineForm z u))) :
     HasSum (fun n ↦ regCarlsonDirichletAverage b z (g n))
       (regCarlsonDirichletAverage b z f) := by
-  let μ := (MeasureTheory.Measure.stdSimplexMeasure (ι := ι)).restrict (stdSimplex ℝ ι)
+  let μ := (MeasureTheory.Measure.stdSimplexMeasure (ι := ι)).restrict (Convexity.StdSimplex.coordinateSet ℝ ι)
   let F : ℕ → (ι → ℝ) → ℂ := fun n u ↦
     regDirichletDensity b u * g n (carlsonAffineForm z u)
   let G : (ι → ℝ) → ℂ := fun u ↦
@@ -53,16 +53,16 @@ theorem hasSum_regCarlsonDirichletAverage
   let B : ℕ → (ι → ℝ) → ℝ := fun n u ↦ M n * ‖regDirichletDensity b u‖
   have hdens : Integrable (fun u ↦ regDirichletDensity b u) μ := by
     change IntegrableOn (fun u ↦ regDirichletDensity b u)
-      (stdSimplex ℝ ι) MeasureTheory.Measure.stdSimplexMeasure
+      (Convexity.StdSimplex.coordinateSet ℝ ι) MeasureTheory.Measure.stdSimplexMeasure
     simpa only [mul_one] using integrableOn_regDirichletDensity_mul b hb
       (continuousOn_const : ContinuousOn (fun _ : ι → ℝ ↦ (1 : ℂ))
-        (stdSimplex ℝ ι))
+        (Convexity.StdSimplex.coordinateSet ℝ ι))
   have hF_meas (n : ℕ) : AEStronglyMeasurable (F n) μ := by
     exact (integrableOn_regDirichletDensity_mul b hb (hg n)).1
   have hB (n : ℕ) : ∀ᵐ u ∂μ, ‖F n u‖ ≤ B n u := by
     filter_upwards [self_mem_ae_restrict
       (μ := MeasureTheory.Measure.stdSimplexMeasure)
-      (isClosed_stdSimplex ℝ ι).measurableSet] with u hu
+      (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet] with u hu
     simp only [F, B, norm_mul]
     rw [mul_comm (M n)]
     exact mul_le_mul_of_nonneg_left (hbound n u hu) (norm_nonneg _)
@@ -80,7 +80,7 @@ theorem hasSum_regCarlsonDirichletAverage
   have hlim : ∀ᵐ u ∂μ, HasSum (fun n ↦ F n u) (G u) := by
     filter_upwards [self_mem_ae_restrict
       (μ := MeasureTheory.Measure.stdSimplexMeasure)
-      (isClosed_stdSimplex ℝ ι).measurableSet] with u hu
+      (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet] with u hu
     exact (hsum u hu).mul_left (regDirichletDensity b u)
   simpa [F, G, μ, regCarlsonDirichletAverage, regDirichletIntegral] using
     hasSum_integral_of_dominated_convergence B hF_meas hB hB_summable hB_integrable hlim

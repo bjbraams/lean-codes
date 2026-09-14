@@ -5,7 +5,7 @@ Authors: Bastiaan J Braams.
 -/
 module
 
-public import Mathlib.Analysis.Convex.StdSimplex
+public import StdSimplexMeasure.Intrinsic
 public import Mathlib.Analysis.SpecialFunctions.Gamma.Beta
 public import Mathlib.Probability.Distributions.Beta
 public import Dirichlet.Integral.Real
@@ -18,7 +18,7 @@ import all StdSimplexMeasure.Measure
 # Real normalized Dirichlet measure on the standard simplex
 
 The multivariate Dirichlet measure [KBJ00, Ch 49] is defined on the standard simplex in
-symmetric variables, i.e. `stdSimplex ℝ ι`, or $E^{k-1}$ embedded in $ℝ^k$ where
+symmetric variables, i.e. `Convexity.StdSimplex.coordinateSet ℝ ι`, or $E^{k-1}$ embedded in $ℝ^k$ where
 `k = card ι`.
 
 This file constructs the density and the probability measure, and records permutation
@@ -110,7 +110,7 @@ theorem integral_dirichletMeasure_smul
     {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain)
     (f : (ι → ℝ) → E) :
     ∫ u, f u ∂(dirichletMeasure b) =
-      ∫ u in stdSimplex ℝ ι,
+      ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι,
         dirichletPdfReal b u • f u ∂stdSimplexMeasure := by
   rw [dirichletMeasure]
   have hlt :
@@ -120,10 +120,10 @@ theorem integral_dirichletMeasure_smul
   rw [integral_withDensity_eq_integral_toReal_smul
     (measurable_dirichletPdf b) hlt f]
   rw [← integral_indicator
-    (isClosed_stdSimplex ℝ ι).measurableSet]
+    (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet]
   apply integral_congr_ae
   filter_upwards with u
-  by_cases hu : u ∈ stdSimplex ℝ ι
+  by_cases hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι
   · have hnonneg := dirichletPdfReal_nonneg hb u
     simp [hu, dirichletPdf,
       ENNReal.toReal_ofReal hnonneg]
@@ -136,43 +136,43 @@ theorem integral_dirichletMeasure [Nonempty ι]
     {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain)
     (f : (ι → ℝ) → ℝ) :
     ∫ u, f u ∂(dirichletMeasure b) =
-      ∫ u in stdSimplex ℝ ι,
+      ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι,
         f u * dirichletPdfReal b u ∂stdSimplexMeasure := by
   simpa only [smul_eq_mul, mul_comm] using integral_dirichletMeasure_smul hb f
 
 /-- The measure of the standard simplex under the Dirichlet measure equals 1. -/
 theorem dirichletMeasure_stdSimplex
     [Nonempty ι] {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain) :
-    dirichletMeasure b (stdSimplex ℝ ι) = 1 := by
+    dirichletMeasure b (Convexity.StdSimplex.coordinateSet ℝ ι) = 1 := by
   let p : (ι → ℝ) → ℝ := fun u => ∏ i, u i ^ (b i - 1)
-  have hp_int : IntegrableOn p (stdSimplex ℝ ι) stdSimplexMeasure :=
+  have hp_int : IntegrableOn p (Convexity.StdSimplex.coordinateSet ℝ ι) stdSimplexMeasure :=
     integrableOn_mvRealBetaMonomial hb
-  have hd_int : IntegrableOn (dirichletPdfReal b) (stdSimplex ℝ ι)
+  have hd_int : IntegrableOn (dirichletPdfReal b) (Convexity.StdSimplex.coordinateSet ℝ ι)
       stdSimplexMeasure := by
     apply hp_int.const_mul (1 / mvRealBeta b) |>.congr
     have hae := ae_zero_lt_of_mem_stdSimplex (ι := ι)
     have hmem := self_mem_ae_restrict
-      (μ := stdSimplexMeasure) (isClosed_stdSimplex ℝ ι).measurableSet
+      (μ := stdSimplexMeasure) (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet
     filter_upwards [hmem, hae] with u hu hpos
     simp [dirichletPdfReal, stdSimplexInterior, hu, hpos, p]
   have hd_integral :
-      ∫ u in stdSimplex ℝ ι, dirichletPdfReal b u ∂stdSimplexMeasure = 1 := by
+      ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι, dirichletPdfReal b u ∂stdSimplexMeasure = 1 := by
     have hae := ae_zero_lt_of_mem_stdSimplex (ι := ι)
     have hmem := self_mem_ae_restrict
-      (μ := stdSimplexMeasure) (isClosed_stdSimplex ℝ ι).measurableSet
+      (μ := stdSimplexMeasure) (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet
     calc
-      ∫ u in stdSimplex ℝ ι, dirichletPdfReal b u ∂stdSimplexMeasure =
-          ∫ u in stdSimplex ℝ ι, (1 / mvRealBeta b) * p u ∂stdSimplexMeasure := by
+      ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι, dirichletPdfReal b u ∂stdSimplexMeasure =
+          ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι, (1 / mvRealBeta b) * p u ∂stdSimplexMeasure := by
             apply integral_congr_ae
             filter_upwards [hmem, hae] with u hu hpos
             simp [dirichletPdfReal, stdSimplexInterior, hu, hpos, p]
-      _ = (1 / mvRealBeta b) * ∫ u in stdSimplex ℝ ι, p u ∂stdSimplexMeasure := by
+      _ = (1 / mvRealBeta b) * ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι, p u ∂stdSimplexMeasure := by
         rw [MeasureTheory.integral_const_mul]
       _ = 1 := by
         rw [← mvRealBeta_eq_integral hb]
         field_simp [ne_of_gt (mvRealBeta_pos hb)]
   unfold dirichletMeasure
-  rw [withDensity_apply _ (isClosed_stdSimplex ℝ ι).measurableSet]
+  rw [withDensity_apply _ (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet]
   unfold dirichletPdf
   rw [← ofReal_integral_eq_lintegral_ofReal hd_int]
   · rw [hd_integral]
@@ -180,24 +180,24 @@ theorem dirichletMeasure_stdSimplex
   · filter_upwards with u
     exact dirichletPdfReal_nonneg hb u
 
-/-- The Dirichlet density vanishes outside `stdSimplex ℝ ι`. -/
+/-- The Dirichlet density vanishes outside `Convexity.StdSimplex.coordinateSet ℝ ι`. -/
 theorem dirichletPdf_eq_zero_of_not_mem_stdSimplex
-    (b : ι → ℝ) {u : ι → ℝ} (hu : u ∉ stdSimplex ℝ ι) :
+    (b : ι → ℝ) {u : ι → ℝ} (hu : u ∉ Convexity.StdSimplex.coordinateSet ℝ ι) :
     dirichletPdf b u = 0 := by
   simp [dirichletPdf, dirichletPdfReal, stdSimplexInterior, hu]
 
 /-- The Dirichlet measure is restricted to the standard simplex. -/
 theorem dirichletMeasure_restrict (b : ι → ℝ) :
-    (dirichletMeasure b).restrict (stdSimplex ℝ ι) =
+    (dirichletMeasure b).restrict (Convexity.StdSimplex.coordinateSet ℝ ι) =
       dirichletMeasure b := by
   unfold dirichletMeasure
   rw [restrict_withDensity
-    (isClosed_stdSimplex ℝ ι).measurableSet]
+    (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet]
   rw [← withDensity_indicator
-    (isClosed_stdSimplex ℝ ι).measurableSet]
+    (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet]
   apply withDensity_congr_ae
   filter_upwards with u
-  by_cases hu : u ∈ stdSimplex ℝ ι
+  by_cases hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι
   · simp [hu]
   · simp [hu, dirichletPdf, dirichletPdfReal,
       stdSimplexInterior]
@@ -240,8 +240,8 @@ def dirichletMeasureUniform (α : ℝ) : Measure (ι → ℝ) :=
 /-- The case of all `b` parameters equal to 1 reduces to scaled Lebesgue measure. -/
 theorem dirichletMeasureUniform_one :
     dirichletMeasureUniform (ι := ι) 1 =
-      (1 / stdSimplexMeasure (stdSimplex ℝ ι)) •
-      stdSimplexMeasure.restrict (stdSimplex ℝ ι) := by
+      (1 / stdSimplexMeasure (Convexity.StdSimplex.coordinateSet ℝ ι)) •
+      stdSimplexMeasure.restrict (Convexity.StdSimplex.coordinateSet ℝ ι) := by
   cases isEmpty_or_nonempty ι with
   | inl hι =>
       let : IsEmpty ι := hι
@@ -250,12 +250,12 @@ theorem dirichletMeasureUniform_one :
       let : Nonempty ι := hι
       let b : ι → ℝ := fun _ => 1
       have hb : b ∈ mvRealBetaDomain := by simp [b, mvRealBetaDomain]
-      have hs := (isClosed_stdSimplex ℝ ι).measurableSet
+      have hs := (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet
       rw [show dirichletMeasureUniform (ι := ι) 1 = dirichletMeasure b by rfl]
       rw [← dirichletMeasure_restrict b]
       unfold dirichletMeasure
       rw [restrict_withDensity hs]
-      have hd : dirichletPdf b =ᵐ[stdSimplexMeasure.restrict (stdSimplex ℝ ι)]
+      have hd : dirichletPdf b =ᵐ[stdSimplexMeasure.restrict (Convexity.StdSimplex.coordinateSet ℝ ι)]
           fun _ => ENNReal.ofReal (1 / mvRealBeta b) := by
         have hmem := self_mem_ae_restrict (μ := stdSimplexMeasure) hs
         have hpos := ae_zero_lt_of_mem_stdSimplex (ι := ι)
@@ -335,7 +335,7 @@ density and the standard-simplex measure. -/
 theorem integral_dirichletMeasure_complex [Nonempty ι]
     {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain) (f : (ι → ℝ) → ℂ) :
     ∫ u, f u ∂dirichletMeasure b =
-      ∫ u in stdSimplex ℝ ι, (dirichletPdfReal b u : ℂ) * f u
+      ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι, (dirichletPdfReal b u : ℂ) * f u
         ∂stdSimplexMeasure := by
   simpa only [Complex.real_smul] using integral_dirichletMeasure_smul hb f
 

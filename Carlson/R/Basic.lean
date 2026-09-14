@@ -41,7 +41,7 @@ theorem isOpen_carlsonRVariableDomain : IsOpen (carlsonRVariableDomain : Set (ι
 
 /-- A convex combination of points in the right half-plane remains there. -/
 theorem carlsonAffineForm_mem_rightHalfPlane {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain)
-    {u : ι → ℝ} (hu : u ∈ stdSimplex ℝ ι) :
+    {u : ι → ℝ} (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι) :
     carlsonAffineForm z u ∈ carlsonRightHalfPlane := by
   have hsubset : Set.range z ⊆ carlsonRightHalfPlane := by
     intro w hw
@@ -58,7 +58,7 @@ theorem carlsonRightHalfPlane_subset_slitPlane : carlsonRightHalfPlane ⊆ slitP
 
 /-- On the Carlson variable domain, the affine kernel lies in the principal-branch slit plane. -/
 theorem carlsonAffineForm_mem_slitPlane {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain)
-    {u : ι → ℝ} (hu : u ∈ stdSimplex ℝ ι) :
+    {u : ι → ℝ} (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι) :
     carlsonAffineForm z u ∈ slitPlane :=
   carlsonRightHalfPlane_subset_slitPlane (carlsonAffineForm_mem_rightHalfPlane hz hu)
 

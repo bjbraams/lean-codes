@@ -83,7 +83,7 @@ theorem hasFDerivAt_mvBetaMonomial {u : ι → ℝ} (hu : ∀ i, 0 < u i) (b : �
 /-- If `f` is continuous on the closed standard simplex, then
 `b ↦ regDirichletIntegral b f` is analytic on the domain of absolute convergence. -/
 theorem regDirichletIntegral_analyticOn {f : (ι → ℝ) → ℂ}
-    (hf : ContinuousOn f (stdSimplex ℝ ι)) :
+    (hf : ContinuousOn f (Convexity.StdSimplex.coordinateSet ℝ ι)) :
     AnalyticOn ℂ (fun b ↦ regDirichletIntegral b f) mvBetaConvergent := by
   classical
   cases isEmpty_or_nonempty ι with
@@ -98,7 +98,7 @@ theorem regDirichletIntegral_analyticOn {f : (ι → ℝ) → ℂ}
     let _ := hι
     have hH : AnalyticOnNhd ℂ (fun b : ι → ℂ ↦ ∏ i, (Gamma (b i))⁻¹) Set.univ :=
       analyticOnNhd_prod_invGamma
-    let μ := stdSimplexMeasure.restrict (stdSimplex ℝ ι)
+    let μ := stdSimplexMeasure.restrict (Convexity.StdSimplex.coordinateSet ℝ ι)
     let G : (ι → ℂ) → ℂ := fun b ↦
       ∫ u, (∏ i, (u i : ℂ) ^ (b i - 1)) * f u ∂μ
     have hG : AnalyticOnNhd ℂ G mvBetaConvergent := by
@@ -120,10 +120,10 @@ theorem regDirichletIntegral_analyticOn {f : (ι → ℝ) → ℂ}
       let a : ι → ℂ := fun i ↦ (α i : ℂ)
       have ha : a ∈ mvBetaConvergent := fun i ↦ by simpa [a] using hα i
       obtain ⟨Cf, hCf⟩ := bddAbove_def.mp
-        ((isCompact_stdSimplex ℝ ι).bddAbove_image hf.norm)
+        ((Convexity.StdSimplex.isCompact_coordinateSet ℝ ι).bddAbove_image hf.norm)
       let C : ℝ := max Cf 0
       have hC0 : 0 ≤ C := le_max_right _ _
-      have hf_le : ∀ u ∈ stdSimplex ℝ ι, ‖f u‖ ≤ C := fun u hu ↦
+      have hf_le : ∀ u ∈ Convexity.StdSimplex.coordinateSet ℝ ι, ‖f u‖ ≤ C := fun u hu ↦
         (hCf _ ⟨u, hu, rfl⟩).trans (le_max_left _ _)
       let bound : (ι → ℝ) → ℝ := fun u ↦
         C * ∑ i, ‖(∏ j, (u j : ℂ) ^ (a j - 1)) * Complex.log (u i : ℂ)‖
@@ -135,23 +135,23 @@ theorem regDirichletIntegral_analyticOn {f : (ι → ℝ) → ℂ}
       · filter_upwards [hs_nhds] with c hc
         have hc' : c ∈ mvBetaConvergent := fun i ↦ (hα i).trans (hc i)
         exact ((integrableOn_mvBetaMonomial c hc').mul_continuousOn hf
-          (isCompact_stdSimplex ℝ ι)).1
+          (Convexity.StdSimplex.isCompact_coordinateSet ℝ ι)).1
       · change IntegrableOn (fun u ↦ (∏ i, (u i : ℂ) ^ (b i - 1)) * f u)
-            (stdSimplex ℝ ι) stdSimplexMeasure
+            (Convexity.StdSimplex.coordinateSet ℝ ι) stdSimplexMeasure
         exact (integrableOn_mvBetaMonomial b hb).mul_continuousOn hf
-          (isCompact_stdSimplex ℝ ι)
+          (Convexity.StdSimplex.isCompact_coordinateSet ℝ ι)
       · apply Finset.aestronglyMeasurable_fun_sum
         intro i _
         have hmono := (integrableOn_mvBetaMonomial_mul_log b hb i).aestronglyMeasurable
         have hfmeas :=
           hf.aestronglyMeasurable (μ := stdSimplexMeasure)
-            (isClosed_stdSimplex ℝ ι).measurableSet
+            (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet
         have hscal : AEStronglyMeasurable
             (fun u ↦ Complex.log (u i : ℂ) * (∏ j, (u j : ℂ) ^ (b j - 1)) * f u) μ :=
           (hmono.mul hfmeas).congr <| Eventually.of_forall fun u ↦ by
             simp [mul_assoc, mul_left_comm, mul_comm]
         exact hscal.smul_const _
-      · filter_upwards [self_mem_ae_restrict (isClosed_stdSimplex ℝ ι).measurableSet,
+      · filter_upwards [self_mem_ae_restrict (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet,
             ae_zero_lt_of_mem_stdSimplex (ι := ι)] with u hu hupos
         intro c hc
         have hui i : 0 < u i := hupos i
@@ -190,7 +190,7 @@ theorem regDirichletIntegral_analyticOn {f : (ι → ℝ) → ℂ}
       · have hterm i := (integrableOn_mvBetaMonomial_mul_log a ha i).norm
         have hsum := integrable_finsetSum (s := Finset.univ) fun i _ ↦ hterm i
         simpa [bound] using hsum.const_mul C
-      · filter_upwards [self_mem_ae_restrict (isClosed_stdSimplex ℝ ι).measurableSet,
+      · filter_upwards [self_mem_ae_restrict (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet,
             ae_zero_lt_of_mem_stdSimplex (ι := ι)] with u hu hupos
         intro c hc
         have hmon := hasFDerivAt_mvBetaMonomial hupos c

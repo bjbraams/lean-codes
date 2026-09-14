@@ -34,7 +34,7 @@ def TVariableDomain (x y : ℂ) : Prop :=
 integral is nonzero. -/
 theorem affine_pair_ne_zero_of_mem_TVariableDomain
     {x y : ℂ} (hxy : TVariableDomain x y)
-    {u : Fin 2 → ℝ} (hu : u ∈ stdSimplex ℝ (Fin 2)) :
+    {u : Fin 2 → ℝ} (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ (Fin 2)) :
     carlsonAffineForm (pair x y) u ≠ 0 :=
   carlsonAffineForm_ne_zero_of_mem_carlsonTVariableDomain hxy hu
 
@@ -45,7 +45,7 @@ theorem integrableOn_regDirichletDensity_mul_TKernel
     IntegrableOn (fun u : Fin 2 → ℝ =>
       regDirichletDensity (pair b₀ b₁) u *
         carlsonTKernel (carlsonAffineForm (pair x y) u))
-      (stdSimplex ℝ (Fin 2)) MeasureTheory.Measure.stdSimplexMeasure :=
+      (Convexity.StdSimplex.coordinateSet ℝ (Fin 2)) MeasureTheory.Measure.stdSimplexMeasure :=
   integrableOn_regDirichletDensity_mul_carlsonTKernel hb hxy
 
 /-- Simultaneously exchanging the parameters and variables leaves the regularized

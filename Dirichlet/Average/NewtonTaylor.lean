@@ -58,9 +58,9 @@ theorem carlsonUnweightedAverage_const [Nonempty ι] (f : ℂ → ℂ) (w : ℂ)
   unfold carlsonUnweightedAverage realCarlsonDirichletAverage
   change (∫ u, f (carlsonAffineForm (fun _ ↦ w) u) ∂dirichletMeasure b) = f w
   have hrestrict := dirichletMeasure_restrict b
-  have hmem : ∀ᵐ u ∂dirichletMeasure b, u ∈ stdSimplex ℝ ι := by
+  have hmem : ∀ᵐ u ∂dirichletMeasure b, u ∈ Convexity.StdSimplex.coordinateSet ℝ ι := by
     rw [← hrestrict]
-    exact self_mem_ae_restrict (isClosed_stdSimplex ℝ ι).measurableSet
+    exact self_mem_ae_restrict (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet
   calc
     (∫ u, f (carlsonAffineForm (fun _ ↦ w) u) ∂dirichletMeasure b) =
         ∫ _, f w ∂dirichletMeasure b := by
@@ -109,7 +109,7 @@ def carlsonDividedDifference (n : ℕ) (f : ℂ → ℂ) (z : Fin (n + 1) → �
 /-- Unweighted probability normalization in finite coordinates. -/
 theorem carlsonUnweightedAverage_eq_factorial_integral (z : Fin (n + 1) → ℂ) (f : ℂ → ℂ) :
     carlsonUnweightedAverage z f = (n.factorial : ℂ) *
-      ∫ u in stdSimplex ℝ (Fin (n + 1)), f (carlsonAffineForm z u) ∂Measure.stdSimplexMeasure := by
+      ∫ u in Convexity.StdSimplex.coordinateSet ℝ (Fin (n + 1)), f (carlsonAffineForm z u) ∂Measure.stdSimplexMeasure := by
   unfold carlsonUnweightedAverage realCarlsonDirichletAverage
   change (∫ u, f (carlsonAffineForm z u) ∂dirichletMeasureUniform 1) = _
   rw [dirichletMeasureUniform_one, integral_smul_measure]

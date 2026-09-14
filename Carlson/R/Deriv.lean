@@ -25,7 +25,7 @@ variable {ι : Type*} [Fintype ι]
 /-- For a fixed simplex point, Carlson's power kernel is analytic in all variables throughout
 the right-half-plane domain. This is the pointwise input to the analyticity in Theorem 5.9-2. -/
 theorem analyticOnNhd_cpow_carlsonAffineForm (t : ℂ) (u : ι → ℝ)
-    (hu : u ∈ stdSimplex ℝ ι) :
+    (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι) :
     AnalyticOnNhd ℂ (fun z : ι → ℂ ↦ carlsonAffineForm z u ^ t)
       carlsonRVariableDomain := by
   intro z hz
@@ -46,7 +46,7 @@ theorem analyticOnNhd_cpow_carlsonAffineForm (t : ℂ) (u : ι → ℝ)
 Relation 5.9-6, equation (9). -/
 theorem hasDerivAt_cpow_carlsonAffineForm_update (t : ℂ) {z : ι → ℂ}
     (hz : z ∈ carlsonRVariableDomain) {u : ι → ℝ}
-    (hu : u ∈ stdSimplex ℝ ι) (i : ι) :
+    (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι) (i : ι) :
     HasDerivAt (fun w ↦ carlsonAffineForm (Function.update z i w) u ^ t)
       ((u i : ℂ) * (t * carlsonAffineForm z u ^ (t - 1))) (z i) := by
   exact HasDerivAt.comp_carlsonAffineForm_update i
@@ -157,7 +157,7 @@ theorem analyticOnNhd_carlsonRIntegral (t : ℂ) {b : ι → ℂ}
 the second equation of Theorem 5.9-2. -/
 theorem sum_mul_deriv_cpow_carlsonAffineForm (t : ℂ) {z : ι → ℂ}
     (hz : z ∈ carlsonRVariableDomain) {u : ι → ℝ}
-    (hu : u ∈ stdSimplex ℝ ι) :
+    (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι) :
     ∑ i, z i * deriv (fun w ↦ carlsonAffineForm (Function.update z i w) u ^ t) (z i) =
       t * carlsonAffineForm z u ^ t := by
   simp_rw [(hasDerivAt_cpow_carlsonAffineForm_update t hz hu _).deriv]

@@ -55,7 +55,7 @@ theorem mem_carlsonTVariableDomain_of_range_subset {H : Set ℂ}
 /-- On the T-variable domain, Carlson's affine form never vanishes on the standard simplex. -/
 theorem carlsonAffineForm_ne_zero_of_mem_carlsonTVariableDomain
     {z : ι → ℂ} (hz : z ∈ carlsonTVariableDomain)
-    {u : ι → ℝ} (hu : u ∈ stdSimplex ℝ ι) :
+    {u : ι → ℝ} (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι) :
     carlsonAffineForm z u ≠ 0 := by
   intro hzero
   apply hz
@@ -67,7 +67,7 @@ the convex hull of the variables avoids zero. -/
 theorem continuousOn_carlsonTKernel_carlsonAffineForm
     {z : ι → ℂ} (hz : z ∈ carlsonTVariableDomain) :
     ContinuousOn (fun u : ι → ℝ => carlsonTKernel (carlsonAffineForm z u))
-      (stdSimplex ℝ ι) := by
+      (Convexity.StdSimplex.coordinateSet ℝ ι) := by
   intro u hu
   exact Complex.continuous_exp.continuousAt.comp_continuousWithinAt
     ((continuous_carlsonAffineForm z).continuousAt.inv₀
@@ -76,7 +76,7 @@ theorem continuousOn_carlsonTKernel_carlsonAffineForm
 /-- For a fixed simplex point, the T-kernel is analytic in all variables throughout the
 intrinsic zero-avoiding domain. -/
 theorem analyticOnNhd_carlsonTKernel_carlsonAffineForm
-    (u : ι → ℝ) (hu : u ∈ stdSimplex ℝ ι) :
+    (u : ι → ℝ) (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι) :
     AnalyticOnNhd ℂ (fun z : ι → ℂ => carlsonTKernel (carlsonAffineForm z u))
       carlsonTVariableDomain := by
   intro z hz
@@ -106,7 +106,7 @@ theorem integrableOn_regDirichletDensity_mul_carlsonTKernel
     (hz : z ∈ carlsonTVariableDomain) :
     IntegrableOn (fun u : ι → ℝ =>
       regDirichletDensity b u * carlsonTKernel (carlsonAffineForm z u))
-      (stdSimplex ℝ ι) MeasureTheory.Measure.stdSimplexMeasure :=
+      (Convexity.StdSimplex.coordinateSet ℝ ι) MeasureTheory.Measure.stdSimplexMeasure :=
   integrableOn_regDirichletDensity_mul b hb
     (continuousOn_carlsonTKernel_carlsonAffineForm hz)
 
@@ -172,14 +172,14 @@ theorem exists_isRegCarlsonTContinuation {z : ι → ℂ}
 Carlson's affine form at some point of the standard simplex. -/
 theorem zero_mem_convexHull_range_iff (z : ι → ℂ) :
     (0 : ℂ) ∈ convexHull ℝ (Set.range z) ↔
-      ∃ u ∈ stdSimplex ℝ ι, carlsonAffineForm z u = 0 := by
+      ∃ u : Convexity.StdSimplex ℝ ι, carlsonAffineForm z u.coordinates = 0 := by
   constructor
   · intro hz
     obtain ⟨κ, _, w, y, hw₀, hw₁, hy, hsum⟩ :=
       (mem_convexHull_iff_exists_fintype (R := ℝ) (E := ℂ)).1 hz
     choose i hi using fun k : κ => (hy k)
     let u : ι → ℝ := fun j => ∑ k, if i k = j then w k else 0
-    refine ⟨u, ⟨?_, ?_⟩, ?_⟩
+    refine ⟨Convexity.StdSimplex.ofCoordinates u ⟨?_, ?_⟩, ?_⟩
     · intro j
       exact Finset.sum_nonneg fun k _ => by split_ifs <;> simp [hw₀]
     · have hsumu : ∑ j, u j = ∑ k, w k := by
@@ -212,39 +212,40 @@ theorem zero_mem_convexHull_range_iff (z : ι → ℂ) :
           intro k _
           simp [Complex.real_smul]
         _ = 0 := hsum
-  · rintro ⟨u, hu, hzero⟩
+  · rintro ⟨u, hzero⟩
     rw [← hzero]
-    exact carlsonAffineForm_mem_convexHull z hu
+    exact carlsonAffineForm_mem_convexHull z u.coordinates_mem
 
 /-- The intrinsic T-variable domain is open. -/
 theorem isOpen_carlsonTVariableDomain :
     IsOpen (carlsonTVariableDomain : Set (ι → ℂ)) := by
   rw [← isClosed_compl_iff]
-  let π : (ι → ℂ) × stdSimplex ℝ ι → ι → ℂ := Prod.fst
-  have hcont : Continuous (fun p : (ι → ℂ) × stdSimplex ℝ ι =>
-      carlsonAffineForm p.1 p.2.val) := by
+  let π : (ι → ℂ) × Convexity.StdSimplex ℝ ι → ι → ℂ := Prod.fst
+  have hcont : Continuous (fun p : (ι → ℂ) × Convexity.StdSimplex ℝ ι =>
+      carlsonAffineForm p.1 p.2.coordinates) := by
     unfold carlsonAffineForm
-    refine continuous_finset_sum _ fun i _ => ?_
+    refine continuous_finsetSum _ fun i _ => ?_
     exact (Complex.continuous_ofReal.comp
-        ((continuous_apply i).comp (continuous_subtype_val.comp continuous_snd))).mul
+        ((continuous_apply i).comp
+          (Convexity.StdSimplex.continuous_coordinates.comp continuous_snd))).mul
       ((continuous_apply i).comp continuous_fst)
-  have hZ : IsClosed {p : (ι → ℂ) × stdSimplex ℝ ι |
-      carlsonAffineForm p.1 p.2.val = 0} :=
+  have hZ : IsClosed {p : (ι → ℂ) × Convexity.StdSimplex ℝ ι |
+      carlsonAffineForm p.1 p.2.coordinates = 0} :=
     isClosed_singleton.preimage hcont
   have himage : (carlsonTVariableDomain : Set (ι → ℂ))ᶜ =
-      π '' {p | carlsonAffineForm p.1 p.2.val = 0} := by
+      π '' {p | carlsonAffineForm p.1 p.2.coordinates = 0} := by
     ext z
     constructor
     · intro hz
       have hz' : (0 : ℂ) ∈ convexHull ℝ (Set.range z) := by
         simpa [carlsonTVariableDomain] using hz
-      obtain ⟨u, hu, hzero⟩ := (zero_mem_convexHull_range_iff z).1 hz'
-      exact ⟨⟨z, ⟨u, hu⟩⟩, hzero, rfl⟩
+      obtain ⟨u, hzero⟩ := (zero_mem_convexHull_range_iff z).1 hz'
+      exact ⟨⟨z, u⟩, hzero, rfl⟩
     · rintro ⟨⟨z', u⟩, hp, rfl⟩
       simpa [carlsonTVariableDomain] using
-        (zero_mem_convexHull_range_iff z').2 ⟨u.val, u.property, hp⟩
+        (zero_mem_convexHull_range_iff z').2 ⟨u, hp⟩
   rw [himage]
-  exact (isClosedMap_fst_of_compactSpace (X := ι → ℂ) (Y := stdSimplex ℝ ι)) _ hZ
+  exact (isClosedMap_fst_of_compactSpace (X := ι → ℂ) (Y := Convexity.StdSimplex ℝ ι)) _ hZ
 
 end DirichletTransform
 

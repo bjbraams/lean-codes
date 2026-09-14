@@ -24,7 +24,7 @@ variable {ι : Type*} [Fintype ι]
 /-- The power kernel represented by `carlsonPowerPolynomial` is uniformly bounded on the
 standard simplex by the corresponding power of the sum of the variable norms. -/
 theorem norm_eval_carlsonPowerPolynomial_le (n : ℕ) (z : ι → ℂ) {u : ι → ℝ}
-    (hu : u ∈ stdSimplex ℝ ι) :
+    (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι) :
     ‖(carlsonPowerPolynomial n z).eval (fun i ↦ (u i : ℂ))‖ ≤
       (∑ i, ‖z i‖) ^ n := by
   rw [eval_carlsonPowerPolynomial, norm_pow]
@@ -118,7 +118,7 @@ lemma norm_carlsonRPolynomialNumerator_le (n : ℕ) (b z : ι → ℂ) {B : ℝ}
 
 /-- Reciprocal Gamma gains at least factorial decay under positive integer shifts
 in the half-plane `1 ≤ re s`. -/
-private lemma norm_invGamma_add_nat_le {s : ℂ} (hs : 1 ≤ s.re) (n : ℕ) :
+theorem norm_invGamma_add_nat_le {s : ℂ} (hs : 1 ≤ s.re) (n : ℕ) :
     ‖(Gamma (s + n))⁻¹‖ ≤ ‖(Gamma s)⁻¹‖ / (n.factorial : ℝ) := by
   induction n with
   | zero => simp

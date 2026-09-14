@@ -128,6 +128,24 @@ theorem IsRegCarlsonContinuation.mk_of_eq_realCarlsonDirichletAverage [Nonempty 
   · exact (regCarlsonDirichletAverage_ofReal hb z f).symm
   · simpa [mvBetaConvergent, mvRealBetaDomain] using hb
 
+/-- A holomorphic scalar function on a convex open set admits an entire regularized
+Dirichlet-parameter continuation at every node vector in that set. -/
+theorem exists_isRegCarlsonContinuation
+    {Ω : Set ℂ} (hΩopen : IsOpen Ω) (hΩconv : Convex ℝ Ω)
+    {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f Ω) {z : ι → ℂ} (hz : Set.range z ⊆ Ω) :
+    ∃ G, IsRegCarlsonContinuation f z G := by
+  apply exists_entire_regDirichletContinuation_of_contDiffNear
+  intro N
+  have haffine : ContDiff ℝ N (fun u : ι → ℝ => carlsonAffineForm z u) := by
+    unfold carlsonAffineForm
+    exact ContDiff.sum fun i _ =>
+      (Complex.ofRealCLM.contDiff.comp
+        (ContinuousLinearMap.proj i : (ι → ℝ) →L[ℝ] ℝ).contDiff).mul contDiff_const
+  refine ⟨carlsonAffineForm z ⁻¹' Ω, hΩopen.preimage (continuous_carlsonAffineForm z),
+    fun u hu => convexHull_min hz hΩconv (carlsonAffineForm_mem_convexHull z hu), ?_⟩
+  exact (hf.contDiffOn_of_completeSpace.restrict_scalars ℝ).comp haffine.contDiffOn
+    (fun _ hu => hu)
+
 end DirichletTransform
 
 end CarlsonDirichletAverage

@@ -7,7 +7,7 @@ module
 
 public import Mathlib.Analysis.Complex.Basic
 public import Mathlib.Analysis.Calculus.FDeriv.Pi
-public import Mathlib.Analysis.Convex.StdSimplex
+public import StdSimplexMeasure.Intrinsic
 public import Mathlib.Analysis.Convex.Combination
 
 /-!
@@ -47,7 +47,7 @@ lemma carlsonAffineFormCLM_apply (u : ι → ℝ) (z : ι → ℂ) :
 
 /-- On the standard simplex, the operator norm of Carlson's affine form is at most one. -/
 lemma norm_carlsonAffineFormCLM_le_one {u : ι → ℝ}
-    (hu : u ∈ stdSimplex ℝ ι) : ‖carlsonAffineFormCLM u‖ ≤ 1 := by
+    (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι) : ‖carlsonAffineFormCLM u‖ ≤ 1 := by
   refine ContinuousLinearMap.opNorm_le_bound _ zero_le_one fun z => ?_
   rw [carlsonAffineFormCLM_apply]
   calc
@@ -68,7 +68,7 @@ lemma norm_carlsonAffineFormCLM_le_one {u : ι → ℝ}
 /-- Moving the node vector moves every simplex affine combination by at most the supremum-norm
 distance between the node vectors. -/
 lemma dist_carlsonAffineForm_le_norm_sub (z w : ι → ℂ)
-    {u : ι → ℝ} (hu : u ∈ stdSimplex ℝ ι) :
+    {u : ι → ℝ} (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι) :
     dist (carlsonAffineForm w u) (carlsonAffineForm z u) ≤ ‖w - z‖ := by
   rw [← carlsonAffineFormCLM_apply u w, ← carlsonAffineFormCLM_apply u z]
   rw [dist_eq_norm, ← map_sub]
@@ -81,7 +81,7 @@ lemma dist_carlsonAffineForm_le_norm_sub (z w : ι → ℂ)
 
 /-- A simplex affine combination is bounded by the supremum norm of its nodes. -/
 theorem norm_carlsonAffineForm_le_pi_norm (z : ι → ℂ)
-    {u : ι → ℝ} (hu : u ∈ stdSimplex ℝ ι) :
+    {u : ι → ℝ} (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι) :
     ‖carlsonAffineForm z u‖ ≤ ‖z‖ := by
   simpa only [carlsonAffineFormCLM_apply, one_mul] using
     ((carlsonAffineFormCLM u).le_opNorm z).trans
@@ -110,7 +110,7 @@ lemma carlsonSimplexCLM_tangent (z : ι → ℂ) (i j : ι) :
 
 /-- Carlson's affine form lies in the real convex hull of its parameters. -/
 theorem carlsonAffineForm_mem_convexHull (z : ι → ℂ) {u : ι → ℝ}
-    (hu : u ∈ stdSimplex ℝ ι) :
+    (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι) :
     carlsonAffineForm z u ∈ convexHull ℝ (Set.range z) := by
   have h := affineCombination_mem_convexHull (s := Finset.univ) (v := z) (w := u)
     (fun i _ ↦ hu.1 i) hu.2

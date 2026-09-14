@@ -31,7 +31,7 @@ variable {ι : Type*} [Fintype ι]
 /-- A function has `N` continuous derivatives near the closed standard simplex if it has that
 regularity on some open neighborhood of the simplex in the ambient coordinate space. -/
 def ContDiffNearStdSimplex (N : ℕ) (f : (ι → ℝ) → ℂ) : Prop :=
-  ∃ U : Set (ι → ℝ), IsOpen U ∧ stdSimplex ℝ ι ⊆ U ∧ ContDiffOn ℝ N f U
+  ∃ U : Set (ι → ℝ), IsOpen U ∧ Convexity.StdSimplex.coordinateSet ℝ ι ⊆ U ∧ ContDiffOn ℝ N f U
 
 /-- Having more derivatives near the simplex implies having any smaller number of derivatives
 there. -/
@@ -43,7 +43,7 @@ theorem ContDiffNearStdSimplex.of_le {N M : ℕ} (hNM : N ≤ M)
 
 /-- Finite differentiability on a neighborhood implies continuity on the closed simplex. -/
 theorem ContDiffNearStdSimplex.continuousOn {N : ℕ} {f : (ι → ℝ) → ℂ}
-    (hf : ContDiffNearStdSimplex N f) : ContinuousOn f (stdSimplex ℝ ι) := by
+    (hf : ContDiffNearStdSimplex N f) : ContinuousOn f (Convexity.StdSimplex.coordinateSet ℝ ι) := by
   obtain ⟨U, hU, hsub, hf⟩ := hf
   exact hf.continuousOn.mono hsub
 
@@ -100,14 +100,14 @@ def stdSimplexFaceRestriction (i : ι) (f : (ι → ℝ) → ℂ) :
 /-- The coordinate map sends the smaller standard simplex onto the face where coordinate `i`
 is zero. -/
 theorem stdSimplexCoordMap_mem_face (i : ι)
-    {v : {j : ι // j ≠ i} → ℝ} (hv : v ∈ stdSimplex ℝ {j : ι // j ≠ i}) :
-    stdSimplexCoordMap i v ∈ stdSimplex ℝ ι := by
+    {v : {j : ι // j ≠ i} → ℝ} (hv : v ∈ Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i}) :
+    stdSimplexCoordMap i v ∈ Convexity.StdSimplex.coordinateSet ℝ ι := by
   rw [stdSimplexCoordMap_mem_stdSimplex_iff]
   exact ⟨hv.1, hv.2.le⟩
 
 /-- On the smaller standard simplex, the inserted coordinate of the face map is zero. -/
 @[simp] theorem stdSimplexCoordMap_face_apply_self (i : ι)
-    {v : {j : ι // j ≠ i} → ℝ} (hv : v ∈ stdSimplex ℝ {j : ι // j ≠ i}) :
+    {v : {j : ι // j ≠ i} → ℝ} (hv : v ∈ Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i}) :
     stdSimplexCoordMap i v i = 0 := by
   rw [stdSimplexCoordMap_apply_self, hv.2]
   simp
@@ -203,7 +203,7 @@ theorem ContDiffNearStdSimplex.slice {N : ℕ} {f : (ι → ℝ) → ℂ}
       fun_prop
   refine ⟨V, hU.preimage (hmap.continuous), ?_, ?_⟩
   · intro v hv
-    have : stdSimplexCoordMap i (fun j => (1 - t) * v j) ∈ stdSimplex ℝ ι := by
+    have : stdSimplexCoordMap i (fun j => (1 - t) * v j) ∈ Convexity.StdSimplex.coordinateSet ℝ ι := by
       rw [stdSimplexCoordMap_mem_stdSimplex_iff]
       refine ⟨fun j => mul_nonneg (sub_nonneg.mpr ht.2) (hv.1 j), ?_⟩
       rw [← Finset.mul_sum, hv.2, mul_one]
@@ -213,8 +213,8 @@ theorem ContDiffNearStdSimplex.slice {N : ℕ} {f : (ι → ℝ) → ℂ}
 
 /-- Affine slices of a continuous simplex function remain continuous on the opposite face. -/
 theorem continuousOn_stdSimplexSlice (i : ι) {t : ℝ} (ht : t ∈ Icc (0 : ℝ) 1)
-    {f : (ι → ℝ) → ℂ} (hf : ContinuousOn f (stdSimplex ℝ ι)) :
-    ContinuousOn (stdSimplexSlice i t f) (stdSimplex ℝ {j : ι // j ≠ i}) := by
+    {f : (ι → ℝ) → ℂ} (hf : ContinuousOn f (Convexity.StdSimplex.coordinateSet ℝ ι)) :
+    ContinuousOn (stdSimplexSlice i t f) (Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i}) := by
   have hmap : Continuous
       (fun v : {j : ι // j ≠ i} → ℝ =>
         stdSimplexCoordMap i (fun q => (1 - t) * v q)) := by
@@ -238,7 +238,7 @@ def powerPartitionDenom (M : ℕ) (u : ι → ℝ) : ℂ :=
   ∑ j, (u j : ℂ) ^ M
 
 theorem powerPartitionDenom_ne_zero (M : ℕ) {u : ι → ℝ}
-    (hu : u ∈ stdSimplex ℝ ι) : powerPartitionDenom M u ≠ 0 := by
+    (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι) : powerPartitionDenom M u ≠ 0 := by
   have hex : ∃ j, 0 < u j := by
     by_contra hn
     push Not at hn
@@ -273,11 +273,11 @@ theorem contDiffNear_div_powerPartitionDenom {n : ℕ} {f : (ι → ℝ) → ℂ
 theorem isClosed_stdSimplexFreeCoords (i : ι) :
     IsClosed (stdSimplexFreeCoords (R := ℝ) i) := by
   have heq : stdSimplexFreeCoords (R := ℝ) i =
-      stdSimplexCoordMap i ⁻¹' stdSimplex ℝ ι := by
+      stdSimplexCoordMap i ⁻¹' Convexity.StdSimplex.coordinateSet ℝ ι := by
     ext x
     exact (stdSimplexCoordMap_mem_stdSimplex_iff i x).symm
   rw [heq]
-  exact (isClosed_stdSimplex ℝ ι).preimage (continuous_stdSimplexCoordMap i)
+  exact (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).preimage (continuous_stdSimplexCoordMap i)
 
 theorem stdSimplexCoordMap_add_single (i : ι) (j : {j : ι // j ≠ i})
     (x : {j : ι // j ≠ i} → ℝ) (t : ℝ) :
