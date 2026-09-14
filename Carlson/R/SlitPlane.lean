@@ -1,7 +1,7 @@
 /- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
 module
 
-public import Carlson.R.Continuation
+public import Carlson.R.Basic
 public import Mathlib.Analysis.Complex.Convex
 
 /-! # Slit-plane domains for Carlson's R-function

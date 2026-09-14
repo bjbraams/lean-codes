@@ -2,6 +2,7 @@
 module
 
 public import Carlson.TwoVariable.Quadratic
+public import Carlson.R.JointParameter
 
 /-!
 # Quadratic transformations on the full Dirichlet parameter domain

@@ -14,6 +14,12 @@ public import SeveralComplexVariables.Derivatives
 Real differentiability and the coordinate Cauchy–Riemann equations characterize holomorphy
 on an open finite-dimensional domain. The proof uses Mathlib's one-variable conversion
 theorem and Osgood, rather than constructing a second complex derivative theory.
+
+The domain `ι → ℂ` is intentional: each Wirtinger derivative and each displayed
+Cauchy–Riemann equation singles out a coordinate. The codomain may be a complex normed
+space, with completeness assumed for the analyticity results. Coordinate-free holomorphy
+is expressed by the usual complex Fréchet derivative; these results describe it in
+coordinates and relate the real derivative to the existing `partialDeriv` interface.
 -/
 
 @[expose] public noncomputable section
@@ -88,7 +94,7 @@ theorem _root_.AnalyticOnNhd.conjWirtingerDeriv_eq_zero {U : Set (ι → ℂ)}
   simp [conjWirtingerDeriv, hCR, smul_smul]
 
 /-- For holomorphic functions the holomorphic Wirtinger derivative agrees with the
-ordinary coordinate derivative used by the Carlson applications. -/
+complex coordinate derivative `partialDeriv`. -/
 theorem _root_.AnalyticOnNhd.wirtingerDeriv_eq_partialDeriv {U : Set (ι → ℂ)}
     {f : (ι → ℂ) → F} (hf : AnalyticOnNhd ℂ f U) (hU : IsOpen U)
     {z : ι → ℂ} (hz : z ∈ U) (i : ι) : wirtingerDeriv i f z = partialDeriv i f z := by

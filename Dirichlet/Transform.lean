@@ -33,6 +33,9 @@ the name (regularized) simplex Mellin transform is also appropriate.
 
 Polynomial transforms are developed in `Dirichlet.Polynomial`; smooth simplex functions,
 tangential derivatives, and face restrictions are developed in `StdSimplexMeasure.Smooth`.
+`Dirichlet.Transform.Parametric` retains holomorphic auxiliary parameters throughout the
+finite-shift construction and gluing. The shared shift-region and power-partition lemmas
+are exported here for that construction.
 
 ## References
 [Carl77] Carlson, Bille Chandler. "Special functions of applied mathematics." Academic Press, 1977.
@@ -310,12 +313,13 @@ private def shiftedDirichletIntegral (i : ι) :
         shiftedDirichletIntegral i l (b + Pi.single (j : ι) 1)
           (stdSimplexTangentDeriv j i f)
 
-private def shiftRegion (i : ι) (l : List {j : ι // j ≠ i}) : Set (ι → ℂ) :=
+/-- Convergence region for a finite list of tangential parameter shifts. -/
+def shiftRegion (i : ι) (l : List {j : ι // j ≠ i}) : Set (ι → ℂ) :=
   {b | (l.length : ℝ) < (b i).re ∧ ∀ j : {j : ι // j ≠ i},
     0 < (b j).re + (l.count j : ℝ)}
 
 omit [Fintype ι] in
-private theorem shiftRegion_cons (i : ι) (j : {j : ι // j ≠ i})
+theorem shiftRegion_cons (i : ι) (j : {j : ι // j ≠ i})
     (l : List {j : ι // j ≠ i}) {b : ι → ℂ} (hb : b ∈ shiftRegion i (j :: l)) :
     (b + Pi.single (j : ι) 1 - Pi.single i 1) ∈ shiftRegion i l ∧
       (b + Pi.single (j : ι) 1) ∈ shiftRegion i l := by
@@ -401,22 +405,23 @@ private theorem shiftedDirichletIntegral_eq (i : ι) (l : List {j : ι // j ≠ 
       rw [H]
       ring
 
-private def shiftList (i : ι) (N : ℕ) : List {j : ι // j ≠ i} :=
+/-- Each free coordinate is shifted `N` times. -/
+def shiftList (i : ι) (N : ℕ) : List {j : ι // j ≠ i} :=
   (List.replicate N (Finset.univ.toList : List {j : ι // j ≠ i})).flatten
 
-private theorem shiftList_length (i : ι) (N : ℕ) :
+theorem shiftList_length (i : ι) (N : ℕ) :
     (shiftList i N).length = (Fintype.card ι - 1) * N := by
   have hcard : Fintype.card {j : ι // j ≠ i} = Fintype.card ι - 1 := by
     rw [Fintype.card_subtype_compl, Fintype.card_subtype_eq]
   simp [shiftList, List.length_flatten, hcard, mul_comm]
 
-private theorem shiftList_count (i : ι) (N : ℕ) (j : {j : ι // j ≠ i}) :
+theorem shiftList_count (i : ι) (N : ℕ) (j : {j : ι // j ≠ i}) :
     (shiftList i N).count j = N := by
   have hc : (Finset.univ.toList : List {j : ι // j ≠ i}).count j = 1 :=
     List.count_eq_one_of_mem (Finset.nodup_toList _) (by simp)
   simp [shiftList, List.count_flatten, hc]
 
-private theorem regDirichletIntegral_power_partition {b : ι → ℂ}
+theorem regDirichletIntegral_power_partition {b : ι → ℂ}
     (hb : b ∈ mvBetaConvergent) {f : (ι → ℝ) → ℂ}
     (hf : ContinuousOn f (Convexity.StdSimplex.coordinateSet ℝ ι)) (M : ℕ) :
     regDirichletIntegral b f =

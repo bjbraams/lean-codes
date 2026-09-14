@@ -8,7 +8,7 @@ module
 public import Dirichlet.Beta.Real
 public import StdSimplexMeasure.Integral
 
-import all StdSimplexMeasure.Measure
+import all StdSimplexMeasure.Measure.Basic
 
 /-!
 # Real Dirichlet monomial integrals

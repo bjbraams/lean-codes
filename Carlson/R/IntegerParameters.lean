@@ -7,6 +7,7 @@ module
 
 public import Carlson.R.ZeroParameter
 public import Carlson.R.Relations
+public import Dirichlet.Average.ContinuedRelations
 public import Carlson.R.EulerTransform
 
 /-!

@@ -8,6 +8,7 @@ module
 public import Carlson.TwoVariable.Basic
 public import Carlson.L.Deriv
 public import Carlson.L.Properties
+public import Carlson.L.SlitRelations
 public import Dirichlet.Average.NewtonTaylor
 public import Dirichlet.Average.Bridge
 
@@ -125,6 +126,21 @@ theorem sub_mul_regLContinued_one_one (t x y : ℂ)
   simpa only [regLContinued,
     regCarlsonLContinued_eq_integral _ hz one_one_mem_mvBetaConvergent,
     regCarlsonRContinued_eq_integral _ hz one_one_mem_mvBetaConvergent, carlsonLKernel] using h
+
+/-- Carlson (1987), (3.9), in a division-free regularized form. The identity is
+valid at coincident nodes and at every complex Dirichlet parameter. -/
+theorem regCarlsonLSlit_pair_contiguous (t u v : ℂ) {x y : ℂ}
+    (hz : pair x y ∈ carlsonRSlitDomain) :
+    u * (y - x) * regCarlsonLSlit t (pair (u + 1) v) (pair x y) =
+      y * regCarlsonLSlit t (pair u v) (pair x y) -
+        regCarlsonLSlit (t + 1) (pair u v) (pair x y) := by
+  have h₀ := regCarlsonLSlit_eq_sum_addDirichletUnit t (pair u v) hz
+  have h₁ := regCarlsonLSlit_add_one_eq_sum_mul_addDirichletUnit t (pair u v) hz
+  have hu : addDirichletUnit (pair u v) 0 = pair (u + 1) v := by
+    ext i
+    fin_cases i <;> simp [addDirichletUnit, pair]
+  simp only [Fin.sum_univ_two, pair_zero, pair_one, hu] at h₀ h₁
+  linear_combination h₁ - y * h₀
 
 end DirichletTransform.TwoVariable
 end

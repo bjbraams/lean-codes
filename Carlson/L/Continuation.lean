@@ -15,9 +15,9 @@ public import SeveralComplexVariables.Derivatives
 The continued L-function is the exponent derivative of the continued R-function.
 Joint entireness of R proves joint entireness of L, not merely separate
 existence of derivatives. This establishes the parameter part of Carlson (1987),
-(2.1), for arbitrary complex Dirichlet parameters. As for the current R-interface,
-nodes are in the right half-plane; continuation to the full product slit plane
-is not claimed here.
+(2.1), for arbitrary complex Dirichlet parameters. This module retains the original
+right-half-plane node interface. `Carlson.L.SlitContinuation` extends it to the full
+product slit plane and proves joint holomorphy in all arguments.
 -/
 
 open Complex ProbabilityTheory

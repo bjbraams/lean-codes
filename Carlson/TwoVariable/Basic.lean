@@ -1,9 +1,9 @@
 /- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
 module
 
-public import Carlson.RPolynomial.Basic
-public import Carlson.R.Basic
-public import Carlson.S
+public import Mathlib.Data.Complex.Basic
+public import Mathlib.LinearAlgebra.Matrix.Notation
+public import Mathlib.Algebra.BigOperators.Fin
 
 /-! # Two-variable Carlson functions -/
 
@@ -32,30 +32,6 @@ def swap : Equiv.Perm (Fin 2) := Equiv.swap 0 1
 @[simp] theorem pair_comp_swap (x y : ℂ) : pair x y ∘ swap = pair y x := by
   funext i
   fin_cases i <;> rfl
-
-/-- The canonical two-variable specialization of the regularized Carlson polynomial. -/
-abbrev regRPolynomial (n : ℕ) (b₀ b₁ z₀ z₁ : ℂ) : ℂ :=
-  regCarlsonRPolynomial n (pair b₀ b₁) (pair z₀ z₁)
-
-/-- The canonical two-variable specialization of the native regularized Carlson R-integral. -/
-abbrev regRIntegral (t b₀ b₁ z₀ z₁ : ℂ) : ℂ :=
-  regCarlsonRIntegral t (pair b₀ b₁) (pair z₀ z₁)
-
-/-- The canonical two-variable specialization of the native Carlson R-integral. -/
-abbrev rIntegral (t b₀ b₁ z₀ z₁ : ℂ) : ℂ :=
-  carlsonRIntegral t (pair b₀ b₁) (pair z₀ z₁)
-
-/-- The canonical two-variable specialization of the native regularized Carlson S-integral. -/
-abbrev regSIntegral (b₀ b₁ z₀ z₁ : ℂ) : ℂ :=
-  regCarlsonSIntegral (pair b₀ b₁) (pair z₀ z₁)
-
-/-- The canonical two-variable specialization of the native Carlson S-integral. -/
-abbrev sIntegral (b₀ b₁ z₀ z₁ : ℂ) : ℂ :=
-  carlsonSIntegral (pair b₀ b₁) (pair z₀ z₁)
-
-/-- The canonical two-variable specialization of Carlson's entire regularized S-series. -/
-abbrev regSSeries (b₀ b₁ z₀ z₁ : ℂ) : ℂ :=
-  regCarlsonSSeries (pair z₀ z₁) (pair b₀ b₁)
 
 end DirichletTransform.TwoVariable
 end CarlsonTwoVariable

@@ -1,7 +1,7 @@
 /- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
 module
 
-public import Carlson.TwoVariable.Basic
+public import Carlson.TwoVariable.RPolynomial.Basic
 public import Carlson.RPolynomial.Transform
 public import Mathlib.Algebra.BigOperators.NatAntidiagonal
 public import Mathlib.LinearAlgebra.Finsupp.LSum

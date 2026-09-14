@@ -11,6 +11,7 @@ public import Dirichlet.Integral.Real
 public import Dirichlet.Integral.Complex
 public import Dirichlet.Real
 public import Dirichlet.Complex
+public import Dirichlet.ParameterShift
 public import Dirichlet.Complex.Analytic
 public import Dirichlet.Bridge
 public import Dirichlet.Moments

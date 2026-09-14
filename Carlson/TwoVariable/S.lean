@@ -1,7 +1,8 @@
 /- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
 module
 
-public import Carlson.TwoVariable.Basic
+public import Carlson.TwoVariable.S.Basic
+public import Carlson.TwoVariable.R.Basic
 public import Carlson.R.Confluence
 
 /-! # The two-variable Carlson S-function -/

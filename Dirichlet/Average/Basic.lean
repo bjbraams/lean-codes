@@ -58,6 +58,10 @@ The function supplied to the simplex integral is `u ↦ f (∑ i, u i * z i)`. -
 def regCarlsonDirichletAverage (b z : ι → ℂ) (f : ℂ → ℂ) : ℂ :=
   regDirichletIntegral b (fun u ↦ f (carlsonAffineForm z u))
 
+/-- Carlson's native (unregularized) Dirichlet average on the convergence region. -/
+def carlsonDirichletAverage (b z : ι → ℂ) (f : ℂ → ℂ) : ℂ :=
+  Gamma (∑ i, b i) * regCarlsonDirichletAverage b z f
+
 /-! ## The native averaging process -/
 
 /-- Simultaneously permuting the simplex coordinates and the parameters of the affine form

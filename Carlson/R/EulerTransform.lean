@@ -1,7 +1,7 @@
 /- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
 module
 
-public import Carlson.R.Contour
+public import Carlson.R.SingleIntegral.Continuation
 public import Carlson.R.JointParameter
 public import Carlson.R.SlitJointAnalytic
 

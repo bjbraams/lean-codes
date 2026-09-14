@@ -17,17 +17,21 @@ public import SeveralComplexVariables.Osgood
 
 This file proves the several-complex-variables theorem that a complex
 Fréchet-differentiable map on an open subset of a finite-dimensional complex normed space is
-analytic. The general theorem uses coordinates only inside its proof.
-
-The file is independent of simplex measures and Carlson functions.  It is a temporary project
-home for material ultimately intended for a Mathlib location such as
+analytic. The general theorem uses coordinates only inside its proof. The file is a temporary
+project home for material ultimately intended for a Mathlib location such as
 `Mathlib.Analysis.Complex.SeveralVariables.Basic`.
 
 ## Main results
 
-`DifferentiableOn.analyticOnNhd_finiteDimensional` is basis-independent.
-`DifferentiableOn.analyticOnNhd_pi` and `differentiableOn_iff_analyticOnNhd_pi` retain the
-finite-coordinate interface used by the Carlson applications.
+`DifferentiableOn.analyticOnNhd_finiteDimensional` and
+`differentiableOn_iff_analyticOnNhd_finiteDimensional` give the coordinate-free interface
+for arbitrary finite-dimensional complex normed domains and complete complex normed codomains.
+
+`DifferentiableOn.analyticOnNhd_pi` and `differentiableOn_iff_analyticOnNhd_pi` give the
+corresponding interface for finite coordinate spaces `ι → ℂ`. Such spaces are natural for
+separate holomorphy, coordinate derivatives, and polydisc expansions. The coordinate theorem
+is proved first and then transported along a linear equivalence; this proof order imposes
+no choice of coordinates on the general statements.
 -/
 
 public section

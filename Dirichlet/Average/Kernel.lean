@@ -117,6 +117,61 @@ theorem carlsonAffineForm_mem_convexHull (z : ι → ℂ) {u : ι → ℝ}
   rw [affineCombination_eq_centerMass hu.2] at h
   simpa [Finset.centerMass, hu.2, carlsonAffineForm, Complex.real_smul, mul_comm] using h
 
+/-- The convex hull of the nodes is exactly the image of the intrinsic simplex
+under Carlson's affine form, including for empty index types. -/
+theorem mem_convexHull_range_iff_carlsonAffineForm (z : ι → ℂ) (x : ℂ) :
+    x ∈ convexHull ℝ (Set.range z) ↔
+      ∃ u : Convexity.StdSimplex ℝ ι, carlsonAffineForm z u.coordinates = x := by
+  constructor
+  · intro hz
+    obtain ⟨κ, _, w, y, hw₀, hw₁, hy, hsum⟩ :=
+      (mem_convexHull_iff_exists_fintype (R := ℝ) (E := ℂ)).1 hz
+    choose i hi using fun k : κ => (hy k)
+    let u : ι → ℝ := fun j => ∑ k, if i k = j then w k else 0
+    refine ⟨Convexity.StdSimplex.ofCoordinates u ⟨?_, ?_⟩, ?_⟩
+    · intro j
+      exact Finset.sum_nonneg fun k _ => by split_ifs <;> simp [hw₀]
+    · have hsumu : ∑ j, u j = ∑ k, w k := by
+        simp only [u]
+        rw [Finset.sum_comm]
+        refine Finset.sum_congr rfl fun k _ => ?_
+        simp [Finset.sum_ite_eq]
+      simpa [hsumu] using hw₁
+    · change (∑ j, (u j : ℂ) * z j) = x
+      have hswap :
+          ∑ j, (∑ k, (if i k = j then w k else 0 : ℂ)) * z j =
+            ∑ k, (w k : ℂ) * z (i k) := by
+        simp only [Finset.sum_mul]
+        rw [Finset.sum_comm]
+        refine Finset.sum_congr rfl fun k _ => ?_
+        simp [Finset.sum_ite_eq]
+      calc
+        ∑ j, (u j : ℂ) * z j = ∑ j, (∑ k, (if i k = j then w k else 0 : ℂ)) * z j := by
+          apply Finset.sum_congr rfl
+          intro j _
+          congr 1
+          simp only [u, Complex.ofReal_sum, apply_ite Complex.ofReal, ofReal_zero]
+        _ = ∑ k, (w k : ℂ) * z (i k) := hswap
+        _ = ∑ k, (w k : ℂ) * y k := by
+          apply Finset.sum_congr rfl
+          intro k _
+          rw [hi k]
+        _ = ∑ k, w k • y k := by
+          apply Finset.sum_congr rfl
+          intro k _
+          simp [Complex.real_smul]
+        _ = x := hsum
+  · rintro ⟨u, hzero⟩
+    rw [← hzero]
+    exact carlsonAffineForm_mem_convexHull z u.coordinates_mem
+
+/-- Zero lies in the convex hull precisely when the affine form vanishes at
+some simplex point. -/
+theorem zero_mem_convexHull_range_iff (z : ι → ℂ) :
+    (0 : ℂ) ∈ convexHull ℝ (Set.range z) ↔
+      ∃ u : Convexity.StdSimplex ℝ ι, carlsonAffineForm z u.coordinates = 0 :=
+  mem_convexHull_range_iff_carlsonAffineForm z 0
+
 end DirichletTransform
 
 end CarlsonDirichletKernel

@@ -12,7 +12,7 @@ public import Dirichlet.Integral.Real
 public import StdSimplexMeasure.Interior
 
 import Mathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
-import all StdSimplexMeasure.Measure
+import all StdSimplexMeasure.Measure.Basic
 
 /-!
 # Real normalized Dirichlet measure on the standard simplex

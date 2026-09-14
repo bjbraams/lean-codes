@@ -91,3 +91,59 @@ theorem gamma_add_nat_div_gamma_eq_ascPochhammer
 end Real
 
 end
+
+/-! ## Gamma regularity and decay under natural shifts
+
+The historical `DirichletTransform` names are retained; these results are scalar
+and independent of simplex measures or Carlson functions.
+-/
+
+open Complex
+@[expose] public noncomputable section
+namespace DirichletTransform
+
+/-- Carlson's set `U`: complex numbers that are not nonpositive integers, equivalently the
+finite points at which the Gamma function has no pole. -/
+def IsCarlsonGammaRegular (w : ℂ) : Prop :=
+  ∀ n : ℕ, w ≠ -(n : ℂ)
+
+/-- Positive integral shifts preserve Gamma regularity. -/
+theorem IsCarlsonGammaRegular.add_nat {w : ℂ} (hw : IsCarlsonGammaRegular w) (m : ℕ) :
+    IsCarlsonGammaRegular (w + m) := by
+  intro n h
+  apply hw (n + m)
+  push_cast
+  linear_combination h
+
+/-- No ascending Pochhammer factor vanishes at a Gamma-regular argument. -/
+theorem IsCarlsonGammaRegular.ascPochhammer_ne_zero {w : ℂ}
+    (hw : IsCarlsonGammaRegular w) (n : ℕ) :
+    (ascPochhammer ℂ n).eval w ≠ 0 := by
+  rw [Ne, ascPochhammer_eval_eq_zero_iff]
+  rintro ⟨m, _, hm⟩
+  apply hw m
+  linear_combination hm
+
+/-- Reciprocal Gamma gains at least factorial decay under positive integer shifts
+in the half-plane `1 ≤ re s`. -/
+theorem norm_invGamma_add_nat_le {s : ℂ} (hs : 1 ≤ s.re) (n : ℕ) :
+    ‖(Gamma (s + n))⁻¹‖ ≤ ‖(Gamma s)⁻¹‖ / (n.factorial : ℝ) := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    have hz : s + n ≠ 0 := ne_zero_of_re_pos (by simp only [add_re, natCast_re]; positivity)
+    have hnorm : (n + 1 : ℝ) ≤ ‖s + n‖ := by
+      have H := re_le_norm (s + n)
+      simp only [add_re, natCast_re] at H
+      linarith
+    have hrec : (Gamma (s + n + 1))⁻¹ = (s + n)⁻¹ * (Gamma (s + n))⁻¹ := by
+      rw [one_div_Gamma_eq_self_mul_one_div_Gamma_add_one (s + n)]
+      field_simp
+    rw [Nat.cast_succ, ← add_assoc, hrec, norm_mul, norm_inv]
+    calc
+      ‖s + n‖⁻¹ * ‖(Gamma (s + n))⁻¹‖ ≤ (n + 1 : ℝ)⁻¹ * (‖(Gamma s)⁻¹‖ / n.factorial) := by
+        exact mul_le_mul (inv_anti₀ (by positivity) hnorm) ih (norm_nonneg _) (by positivity)
+      _ = _ := by simp only [Nat.factorial_succ, Nat.cast_mul, Nat.cast_succ, div_eq_mul_inv, mul_inv_rev]; ring
+
+
+end DirichletTransform

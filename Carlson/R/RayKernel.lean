@@ -2,7 +2,7 @@
 module
 
 public import Carlson.R.Relations
-public import Carlson.R.SingleIntegral
+public import Carlson.R.SingleIntegral.PositiveRay
 public import Mathlib.Analysis.MellinTransform
 
 /-!

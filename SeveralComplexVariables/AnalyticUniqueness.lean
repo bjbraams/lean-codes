@@ -14,8 +14,8 @@ import Mathlib.Analysis.SpecificLimits.Basic
 # Analytic uniqueness from positive real parameters
 
 This file records uniqueness principles for holomorphic functions whose values are known only
-on the positive real locus.  They are useful for transporting identities proved using real
-Dirichlet probability measures to their complex analytic continuations.
+on the positive real locus.  They are useful for transporting certain identities proved using
+real probability measures to their complex analytic continuations.
 -/
 
 open Complex Set Filter

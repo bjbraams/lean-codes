@@ -59,6 +59,7 @@ Status is deliberately fine-grained: a proved special case does not discharge a 
 | 1 | Arbitrary finite indices and separate radii | Proved; `Polydisc`, `CauchyIntegral`, and `polydisc_cauchy_reindex` in `Reindex` |
 | 1 | Basis-independent differentiability ⇒ analyticity | Proved; `Basic` |
 | 2 | Coordinate derivatives and Fréchet derivative bridge | Proved; `Derivatives`, including reconstruction as a finite sum |
+| 2 | Formal versus analytic polynomial derivatives | Proved; `PolynomialDerivatives`: coordinate-slice derivatives equal evaluation of `MvPolynomial.pderiv`; the slice theorem needs no finite variable-type assumption |
 | 2 | Mixed derivatives and Jacobian | Proved; `Derivatives`: arbitrary reordering, finite-sum linearity and matrix chain rule; `Reindex`: coordinate and iterated derivative transport |
 | 2 | Wirtinger derivatives and Cauchy–Riemann equivalence | Proved; `CauchyRiemann`: real differentiability plus coordinate CR equations iff analyticity on an open set |
 | 2 | Locally bounded separate holomorphy ⇒ analyticity | Proved; `LocallyBounded`: explicit joint Lipschitz estimates supply continuity for Osgood |
@@ -75,6 +76,21 @@ Status is deliberately fine-grained: a proved special case does not discharge a 
 `ParametricIntegral` and `AnalyticUniqueness` are additional proved infrastructure retained
 for Carlson and other applications. Compact-domain differentiation under the integral is used
 to differentiate the higher Cauchy kernels without varying the contour.
+
+`CauchyDerivatives` adds the scalar one-variable higher-derivative Cauchy
+formula at any point of the open disk, filling the arbitrary-point TODO in
+Mathlib's center-only higher-derivative circle formula. It requires only
+holomorphy in the disk and continuity on its closure, not boundary derivatives.
+Its kernel-differentiation lemma and formula are independent of Carlson and
+are exported by the SCV umbrella; their intended upstream home is
+`Mathlib.Analysis.Complex.CauchyIntegral`.
+
+`ContourIntegral` adds holomorphic dependence of compact weighted integrals of
+jointly holomorphic kernels, with an arbitrary continuous parametrization and
+an integrable fixed weight. Its circle specialization allows a boundary function
+that is merely continuous. These results support entire-parameter Carlson Cauchy
+representations; they do not supply Jordan-curve topology, contour homotopy
+invariance, or analytic monodromy.
 
 ## Boundaries and next review
 

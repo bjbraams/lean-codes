@@ -1,8 +1,9 @@
 /- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
 module
 
-public import Carlson.TwoVariable.Basic
-public import Carlson.R
+public import Carlson.TwoVariable.R.Basic
+public import Carlson.TwoVariable.RPolynomial.Basic
+public import Carlson.R.SingleIntegral.Continuation
 
 /-! # The two-variable Carlson R-function -/
 

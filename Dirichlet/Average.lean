@@ -10,8 +10,13 @@ public import Dirichlet.Average.Deriv
 public import Dirichlet.Average.Associated
 public import Dirichlet.Average.PowerSeries
 public import Dirichlet.Average.Cauchy
+public import Dirichlet.Average.ResolventContinuation
+public import Dirichlet.Average.CauchyContinuation
 public import Dirichlet.Average.NewtonTaylor
 public import Dirichlet.Average.Continuation
+public import Dirichlet.Average.JointContinuation
+public import Dirichlet.Average.HolomorphicDomain
+public import Dirichlet.Average.IntegralDomain
 public import Dirichlet.Average.Aggregation
 public import Dirichlet.Average.ContinuedRelations
 

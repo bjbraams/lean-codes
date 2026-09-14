@@ -8,7 +8,7 @@ public import Mathlib.Data.Nat.Choose.Multinomial
 import Mathlib.Analysis.SpecificLimits.Normed
 import Mathlib.Topology.Algebra.InfiniteSum.TsumUniformlyOn
 import Pochhammer.Estimates
-import Pochhammer.Gamma
+public import Pochhammer.Gamma
 
 /-! # Estimates for Carlson's R-polynomials
 
@@ -115,27 +115,6 @@ lemma norm_carlsonRPolynomialNumerator_le (n : ℕ) (b z : ι → ℂ) {B : ℝ}
   rw [hsum]
   refine (sum_le_sum_of_subset_of_nonneg himage fun _ _ _ => by positivity).trans_eq ?_
   exact (sum_pow_eq_sum_piAntidiag univ (fun i => ‖z i‖) n).symm
-
-/-- Reciprocal Gamma gains at least factorial decay under positive integer shifts
-in the half-plane `1 ≤ re s`. -/
-theorem norm_invGamma_add_nat_le {s : ℂ} (hs : 1 ≤ s.re) (n : ℕ) :
-    ‖(Gamma (s + n))⁻¹‖ ≤ ‖(Gamma s)⁻¹‖ / (n.factorial : ℝ) := by
-  induction n with
-  | zero => simp
-  | succ n ih =>
-    have hz : s + n ≠ 0 := ne_zero_of_re_pos (by simp only [add_re, natCast_re]; positivity)
-    have hnorm : (n + 1 : ℝ) ≤ ‖s + n‖ := by
-      have H := re_le_norm (s + n)
-      simp only [add_re, natCast_re] at H
-      linarith
-    have hrec : (Gamma (s + n + 1))⁻¹ = (s + n)⁻¹ * (Gamma (s + n))⁻¹ := by
-      rw [one_div_Gamma_eq_self_mul_one_div_Gamma_add_one (s + n)]
-      field_simp
-    rw [Nat.cast_succ, ← add_assoc, hrec, norm_mul, norm_inv]
-    calc
-      ‖s + n‖⁻¹ * ‖(Gamma (s + n))⁻¹‖ ≤ (n + 1 : ℝ)⁻¹ * (‖(Gamma s)⁻¹‖ / n.factorial) := by
-        exact mul_le_mul (inv_anti₀ (by positivity) hnorm) ih (norm_nonneg _) (by positivity)
-      _ = _ := by simp only [Nat.factorial_succ, Nat.cast_mul, Nat.cast_succ, div_eq_mul_inv, mul_inv_rev]; ring
 
 /-- A summable majorant uniform in compact parameter sets and bounded node vectors. -/
 theorem exists_summable_norm_regCarlsonR_div_factorial_bounded_variables
