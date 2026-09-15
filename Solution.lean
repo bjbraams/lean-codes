@@ -141,7 +141,7 @@ def regR {ι : Type*} [Fintype ι] (t : ℂ) (b z : ι → ℂ) : ℂ :=
   DirichletTransform.regCarlsonRSlit t b z
 
 /-- Gamma-regularized Carlson L is the exponent derivative of the same R-function. -/
-def regL (t : ℂ) (b z : ι → ℂ) : ℂ := deriv (fun s => regR s b z) t
+abbrev regL (t : ℂ) (b z : ι → ℂ) : ℂ := deriv (fun s => regR s b z) t
 
 /-- Carlson 6.8-2: joint holomorphy in all exponents, all Dirichlet parameters, and slit-plane nodes. -/
 theorem r_joint :
