@@ -1,4 +1,4 @@
-# Module structure
+# Carlson project module structure
 
 The project has five mathematical layers. Dependencies run from
 simplex-independent support (`Pochhammer`, `SeveralComplexVariables`) and
@@ -7,35 +7,81 @@ simplex geometry/integration (`StdSimplexMeasure`) through `Dirichlet` to
 application layer, and Dirichlet theory does not import Carlson functions.
 
 The root modules and the topic umbrellas below are convenient entry points.
-Internal modules should import the specific prerequisites they use, rather
-than the whole application library. The reorganization preserves public
-declaration names and mathematical statements; some formerly private helpers
-are now shared between adjacent modules.
 
-## Simplex foundations
+## Pochhammer support modules
 
-| Topic umbrella | Implementation modules | Responsibility |
-| --- | --- | --- |
-| `StdSimplexMeasure.PositiveSimplex` | `PositiveSimplex.Basic`, `SumIntegral`, `Aggregation` | Solid-simplex geometry and volume; sum-coordinate integration; aggregation |
-| `StdSimplexMeasure.Measure` | `Measure.Basic`, `Aggregation` | Ambient coordinate measure and invariance; aggregation pushforward density |
-| `StdSimplexMeasure.Integral` | `Integral.Basic`, `Slicing`, `Monomial`, `Aggregation` | Coordinate integral API; slicing/Fubini; polynomial integration; aggregation |
+To be described.
 
-`Coordinates`, `Intrinsic`, and `IntrinsicMeasure` retain their separate roles.
-In particular, `stdSimplexMeasure` is still a measure on the **entire sum-one
-affine hyperplane**, not a measure supported only on the simplex. Intrinsic
-simplex measure is its restriction transported through the coordinate
-homeomorphism. Neither construction nor its normalization has changed.
+## Several complex variables support modules
+
+To be described.
+
+## Simplex foundation modules
+
+### `StdSimplexMeasure.PositiveSimplex`
+
+Contains modules `Basic`, `SumIntegral`, `Aggregation`.
+
+Geometric operations. Solid-simplex geometry and volume; sum-coordinate integration; aggregation.
+
+### `StdSimplexMeasure.Measure`
+
+Contains modules `Basic`, `Aggregation`.
+
+Ambient coordinate measure and invariance; aggregation pushforward density.
+
+`stdSimplexMeasure` is a measure on the **entire sum-one affine hyperplane**, not a measure
+supported only on the simplex.
+Intrinsic simplex measure is its restriction transported through the coordinate
+homeomorphism.
+
+### `StdSimplexMeasure.Integral`
+
+Contains modules `Basic`, `Slicing`, `Monomial`, `Aggregation`.
+
+Coordinate integral API; slicing/Fubini; polynomial integration; aggregation.
+
 Ambient smooth neighborhoods and derivatives remain in the coordinate vector
 space.
 
-## Dirichlet theory
+## Dirichlet theory modules
+
+### `Dirichlet.Beta.Complex.Basic`
+
+Contains module `Integral`.
+
+Complex multivariate beta. Gamma quotient and parameter identities.
+Simplex integral evaluation.
+
+### `Dirichlet.Real`
+
+Real probability results. `Dirichlet.Real.Moments` → `Real.Aggregation` → `Real.Marginals`.
+Probability statements about moments, aggregation, and beta marginals are downstream of the real distribution.
+
+### `Dirichlet.Complex`
+
+Complex Dirichlet results.
+Analytic dependence and
+continuation are downstream of the native complex integrals.
+
+### `Dirichlet.Bridge`
+
+Compatibility between Real and Complex results.
+The real probability distribution and complex integral interface share analytic
+foundations; neither interface imports the other.
+
+### Dirichlet layers
+
+| Module | Role |
+| --- | --- |
+| `StdSimplexMeasure.Interior` | Positive-coordinate simplex interior, measurability, permutation invariance, and almost-everywhere membership |
+| `Dirichlet.Integral.Real` | Nonnegative and real monomial integrals, beta normalization, and real integrability |
+| `Dirichlet.Integral.Complex` | Absolutely convergent complex monomial integrals and logarithmic majorants |
+| `Dirichlet.Complex.Analytic` | Parameter analyticity on the absolute-convergence domain |
+| `Dirichlet.Transform` | Continuation beyond the convergence domain for suitable test functions |
 
 | Topic | Modules |
 | --- | --- |
-| Complex multivariate beta | `Dirichlet.Beta.Complex.Basic`: Gamma quotient and parameter identities; `Integral`: simplex integral evaluation |
-| Native real and complex interfaces | `Dirichlet.Real`, `Dirichlet.Complex`; compatibility in `Dirichlet.Bridge` |
-| Real probability results | `Dirichlet.Real.Moments` → `Real.Aggregation` → `Real.Marginals` |
-| Density and integral parameter shifts | `Dirichlet.ParameterShift` |
 | Native averages | `Dirichlet.Average.Basic`: regularized and ordinary definitions together |
 | Associated average analysis | `Dirichlet.Average.Associated.Relations` → `Deriv` → `Analytic` |
 | Holomorphic kernels and joint continuation | `Dirichlet.Complex.Parametric` → `Dirichlet.Transform.Parametric` → `Dirichlet.Average.JointContinuation`: Carlson 6.3-6 on general convex open node domains; the general Jordan-curve representation remains separate |
@@ -48,14 +94,11 @@ space.
 `Dirichlet.Real` remains the basic distribution interface, not an umbrella
 over its probability corollaries.
 
-Real probability and native complex integration share foundations; neither
-basic interface depends on the other. Probability statements about moments,
-aggregation, and beta marginals are downstream of the real distribution.
 Analytic continuation remains downstream of native complex integration.
 The general affine-form convex-hull characterization belongs in
 `Dirichlet.Average.Kernel`, not in the T-function application.
 
-## Carlson functions
+## Carlson functions modules
 
 ### R-function analytic construction
 
@@ -107,7 +150,7 @@ coefficients, and hence for differentiating such identities to obtain
 L-relations. Reorganization itself does not establish that extension.
 
 Scalar Gamma-regularity and reciprocal-Gamma estimates live in
-`Pochhammer.Gamma`; their existing `DirichletTransform` names are retained.
+`Pochhammer.Gamma`.
 
 ### Two-variable and S-function theory
 
@@ -132,14 +175,3 @@ and L interfaces retain their original node domains and normalization.
 `Carlson.S` re-exports `S.Basic`, `S.Series`, `S.Analytic`, `S.Deriv`,
 and `S.Properties`: native definitions, series continuation, joint analysis,
 continued node derivatives, and functional identities.
-
-## What this reorganization does not change
-
-- No Lean or Mathlib upgrade, namespace migration, or change to Lake topology.
-- No changes to definitions, theorem assumptions, or treatment of empty index
-  types.
-- No new mathematical coverage is claimed. See
-  [R coverage](Carlson/R/Coverage.md) and [L coverage](Carlson/L/Coverage.md).
-- Several-complex-variable theory and the broader Pochhammer support library
-  retain their current organization; a future Mathlib contribution can place
-  their general results in upstream topic hierarchies.
