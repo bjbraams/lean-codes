@@ -14,17 +14,28 @@ import Mathlib.Topology.Algebra.Monoid.FunOnFinite
 import Mathlib.LinearAlgebra.Matrix.Notation
 
 /-!
-# Selected results: Carlson special functions and their foundations
+# Carlson registry claims and supporting declarations
 
 This is the independent Palomar Challenge module, not an import index.
 Only Mathlib is imported. Intentional placeholders are confined to this file;
 `Solution.lean` supplies the same declarations with proofs from all five
 project libraries. Never import this module into the proof development.
 
-The selection covers rising factorials, several complex variables, ambient
-simplex measure, real and complex Dirichlet integrals, joint continuation,
-and regularized R/L functions. It does not advertise every theorem in the
-repository. In particular, the general simply connected average-continuation
+This module contains 21 theorem declarations, including foundations for rising
+factorials, several complex variables, ambient simplex measure, and real and
+complex Dirichlet integrals. Those foundational declarations remain part of the
+module but are not separately selected registry claims.
+
+The current `comparator.json` selects only the following ten theorems in the
+`PalomarSnapshot` namespace: `joint_average_continuation`, `r_joint`, `r_native`,
+`r_euler`, `r_euler_poisson`, `r_first_quadratic`, `r_second_quadratic`, `l_joint`,
+`l_native`, and `l_exponent_derivative`, together with the construction `regR`.
+These are the submitted continuation/R/L claims; the other eleven theorems are
+supporting material. All five project libraries remain in the source snapshot.
+See `README.md` and `formalization.yaml` for the scope and literature account.
+
+The selection does not advertise every theorem in the repository.
+In particular, the general simply connected average-continuation
 theorem, Carlson's contour formula 6.8-7, and the complete L-function article
 are not claimed here. See the root coverage documents for remaining work.
 
