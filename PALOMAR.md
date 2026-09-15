@@ -1,10 +1,13 @@
 # Palomar snapshot preparation
 
-The registry-facing statement is [Statement.lean](Statement.lean). Its 21 selected
-theorems represent all five mathematical libraries; it is not a complete index
-of the repository's declarations. The exact public Git commit identifies the
-whole submitted source snapshot, while [comparator.json](comparator.json)
-identifies the particular formal claims to be compared.
+The registry-facing statement is [Statement.lean](Statement.lean).
+[comparator.json](comparator.json) now selects 10 Carlson/Dirichlet-average
+continuation theorems and one R-function construction. The two Lean wrappers
+are unchanged and still contain 21 theorem declarations; the other 11 describe
+supporting material and are not separately selected claims. The exact public
+Git commit identifies the whole source snapshot, including all five mathematical
+libraries. The [README](README.md#mathematical-scope-and-research-interest)
+explains the selected mathematical subject, research audience, and provenance.
 
 ## Statement and solution separation
 
@@ -15,7 +18,7 @@ needed to read the claims. No project-specific imports are permitted, including
 transitive imports. The statement is below the 300-line advisory
 threshold and the 1,000-line / 100-KiB hard limits.
 
-The intended 22 placeholders are confined to Statement: 21 advertised theorems
+The intended 22 placeholders are confined to Statement: 21 theorem declarations
 and the construction of `PalomarSnapshot.regR`. The latter is listed in
 `definition_names`; joint holomorphy and native agreement characterize it on
 the slit domain. Its solution is the existing `regCarlsonRSlit`, not an
@@ -39,16 +42,25 @@ names are visible in the short proofs in Solution.
 
 | Selected declarations | Existing proof modules |
 | --- | --- |
-| gamma_shift, vandermonde | Pochhammer/Gamma.lean; Pochhammer/Vandermonde.lean |
-| holomorphic_analytic, osgood, cauchy_derivatives | SeveralComplexVariables/Basic.lean; Osgood.lean; CauchyDerivatives.lean |
-| simplex_chart_independent, simplex_monomial | StdSimplexMeasure/Measure/Basic.lean; Integral/Monomial.lean |
-| complex_beta_integral | Dirichlet/Integral/Complex.lean |
-| dirichlet_probability, dirichlet_moments, dirichlet_aggregation | Dirichlet/Real.lean; Real/Moments.lean; Real/Aggregation.lean |
 | joint_average_continuation | Dirichlet/Average/JointContinuation.lean |
 | r_joint, r_native | Carlson/R/SlitJointAnalytic.lean; SlitIntegral.lean |
 | r_euler, r_euler_poisson | Carlson/R/EulerTransform.lean; EulerPoisson.lean |
 | r_first_quadratic, r_second_quadratic | Carlson/TwoVariable/QuadraticSlit.lean |
 | l_joint, l_native, l_exponent_derivative | Carlson/L/SlitContinuation.lean; SlitIntegral.lean |
+
+The retained but unselected wrapper theorems are `gamma_shift`, `vandermonde`,
+`holomorphic_analytic`, `osgood`, `cauchy_derivatives`,
+`simplex_chart_independent`, `simplex_monomial`, `complex_beta_integral`,
+`dirichlet_probability`, `dirichlet_moments`, and `dirichlet_aggregation`.
+Their proofs and the supporting libraries have not been removed or replaced
+by Mathlib imports. Foundational source credits, including Boas, remain in
+[formalization.yaml](formalization.yaml).
+
+The quadratic source relationship is explicitly `adapts`: the formulas use
+Gamma regularization and all complex parameters on Carlson's stated
+positive-real-part unsquared-variable domain. The slit-plane transformed nodes
+are already part of Carlson 6.9-3 and 6.10-1, not a new extension beyond those
+book statements. See the [detailed account](README.md#quadratic-transformations-precise-relationship-to-carlson).
 
 The ordinary R and L normalizations at Gamma poles, unrestricted quadratic
 branch components, general simply connected continuation of arbitrary averages,
@@ -83,9 +95,13 @@ bodies agree between the two environments. In particular, keep the explicit
 it from a placeholder whose body does not use it.
 
 Local Lean checking and axiom audits are not a substitute for Comparator.
-Comparator, lean4export, and NanoDa were not found on PATH during preparation;
-no official Comparator or independent-kernel pass is claimed. Palomar's verifier
-will perform its own checks on the selected immutable commit.
+The maintainer reports that the preceding submission passed Palomar mechanical
+verification. Editorial review did not offer registration: it found inadequate
+research-interest justification for separately selected foundational families
+and an insufficient account of the quadratic adaptations. This revision changes
+only Comparator selection and documentation, not Lean declarations or proofs.
+The new immutable snapshot still requires external verification and editorial
+review; the previous mechanical success is not a registration or an endorsement.
 
 ## Before submission
 
@@ -96,11 +112,12 @@ will perform its own checks on the selected immutable commit.
 2. Include the root [LICENSE](LICENSE), containing the standard Apache License
    2.0 text from the Apache Software Foundation and matching the metadata's
    `Apache-2.0` declaration.
-3. Review and commit the entire intended source snapshot, including the two new
-   Lean files, Comparator configuration, metadata, Lakefile, and pinned manifest.
-   No commit or push has been made by this preparation.
+3. Review and commit the revised Comparator configuration, metadata, README,
+   and this guide. Keep the existing Lean files, Lakefile, and pinned manifest.
+   No commit or push is made by this revision.
 4. Push that commit to a public GitHub repository. Submit its full 40-character
-   SHA and the root `comparator.json` to Palomar.
+   SHA and the root `comparator.json` to Palomar. Leave the existing Palomar ID
+   blank: the preceding submission was not registered.
 5. Complete the external verification and review before registering the result.
 
 The reference-PDF directories and `.lake` are intentionally ignored by Git.

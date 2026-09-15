@@ -4,18 +4,19 @@ version: "v0.4"
 project:
   name: B. C. Carlson's approach to special functions of applied mathematics
   description: >-
-    Lean formalization of B. C. Carlson's book "Special Functions of Applied Mathematics"
-    and some related publications. Carlson's approach involves averages with respect to
-    complex Dirichlet measure of elementary functions defined on the standard simplex.
-    The formalization is work in progress, but substantial portions of Carlson’s Dirichlet-
-    average theory and selected results for the related L-function have been formalized.
-    Formalization expanded beyond the core of Carlson's book with broader foundational
-    formalization of some rising-factorial and related identities, theory of Several
-    Complex Variables, and real Dirichlet probability theory.
-    The selected registry statements include joint continuation of averages on convex
-    open domains, slit-domain regularized R and L functions, Euler inversion,
-    Euler-Poisson equations, and both quadratic R transformations. This is a
-    snapshot of a broader ongoing development, not complete coverage of the sources.
+    Lean formalization of selected results in B. C. Carlson's theory of special
+    functions as complex Dirichlet averages. The registry selection establishes
+    joint entire-parameter continuation of holomorphic averages on convex open
+    scalar domains; joint holomorphy and native-integral agreement for the
+    Gamma-regularized R and L functions on principal slit-node domains; Euler
+    inversion and Euler-Poisson equations; and Gamma-regularized adaptations of
+    both quadratic R transformations for all complex exponent and Dirichlet
+    parameters with positive-real-part unsquared variables. The L function is
+    related to R by exponent differentiation. The repository also supplies
+    Pochhammer, several-complex-variable, simplex-integration, and Dirichlet
+    foundations, which are not separately selected registry claims. This is a
+    snapshot of an ongoing development, not complete coverage of Carlson's
+    1977 book or 1987 L-function article.
   authors:
     - Bastiaan J Braams
   responsible_maintainers:
@@ -28,11 +29,34 @@ sources:
     type: book
     id: Academic Press, 1977
     relationship: formalizes
-    location: Selected results from Chapters 3–6 and Sections 8.3–8.5
+    location: Chapter 6, especially 6.3-6 and Section 6.8; supporting results from Chapters 3–5
     note: >-
-      The compared declarations cover only the results stated in Statement.lean.
-      The proofs sometimes use different analytic constructions than in Carlson's
-      work.
+      The selected nonquadratic book results concern general average continuation,
+      R-function joint holomorphy, native agreement, Euler inversion, and
+      Euler-Poisson equations. The functions use Gamma regularization and the
+      proofs sometimes use different analytic constructions. The quadratic
+      adaptations are recorded separately below. Other book material in the
+      repository, including Sections 8.3–8.5, is not independently selected here.
+  - title: Special Functions of Applied Mathematics
+    authors: [B. C. Carlson]
+    type: book
+    id: Academic Press, 1977
+    relationship: adapts
+    location: Transformation 6.9-3, p. 161; Transformation 6.10-1, pp. 164–166; Section 6.8
+    note: >-
+      r_first_quadratic and r_second_quadratic adapt Carlson's formulas to
+      regR = R / Gamma(sum b). Carlson already assumes Re x > 0 and Re y > 0
+      for the unsquared variables and explicitly permits the transformed nodes
+      in the slit plane. The Lean results preserve that node domain: x^2,
+      y^2, ((x+y)/2)^2, and x*y need not have positive real parts. This is
+      broader than the repository's earlier common right-half-plane integral
+      domains, not a new node-domain extension beyond Carlson's stated formulas.
+      The book imposes beta + 1/2 in U (excluding nonpositive integers) for
+      these ordinary-R statements. Our Gamma-regularized identities hold for
+      all complex t and beta, with factor 2^(1-2*beta)*sqrt(pi)/Gamma(beta).
+      The formalization extends local identities using parameter and joint-node
+      analyticity, paralleling Carlson's permanence of functional relations.
+      No claim of mathematical novelty or unrestricted branch continuation is made.
   - title: Dirichlet averages of x^t log x
     authors: [B. C. Carlson]
     type: paper
@@ -50,25 +74,34 @@ sources:
     relationship: adapts
     location: Chapters 1–2
     note: >-
-      The selected SCV statements use Mathlib's differentiability and analyticity
+      The supporting SCV library uses Mathlib's differentiability and analyticity
       predicates, including complete complex normed codomains where proved.
       Osgood's continuity hypothesis is retained; unrestricted Hartogs is not claimed.
+      These foundational results remain in the repository and the Lean wrappers
+      but are not separately selected in comparator.json.
   - title: "Continuous Multivariate Distributions, Volume 1: Models and Applications"
     authors: [Samuel Kotz, N. Balakrishnan, Norman L. Johnson]
     type: book
     id: Wiley, 2000; DOI 10.1002/0471722065
     relationship: formalizes
-    note: Real Dirichlet normalization, mixed moments, and aggregation.
+    note: >-
+      Real Dirichlet normalization, mixed moments, and aggregation in the
+      supporting library. These remain part of the source snapshot, not
+      separately selected registry claims.
 
 classification:
   arxiv: [math.CA, math.CV]
-  msc2020: ["33C65", "32A05", "60E05"]
+  msc2020: ["33C65", "32A05"]
 
 status:
   scope: >-
     All five mathematical libraries are included in the proof-side imports.
-    Comparator selects 21 theorems and one R-function construction, not every
-    declaration in the repository. See Statement.lean.
+    Comparator selects 10 Carlson/Dirichlet-average continuation theorems and
+    one R-function construction. Statement.lean and Solution.lean retain their
+    21 theorem declarations unchanged; the other 11 are supporting material,
+    not separately submitted claims. Their presence does not assert that they
+    are already available in Mathlib. comparator.json specifies the selection;
+    the README explains its mathematical scope and research interest.
   # Intentional Challenge placeholders are excluded from these counts.
   sorry_count: 0
   sorry_in_definitions: 0
@@ -90,7 +123,10 @@ fidelity:
     hyperplane, restricted only when integrating over the simplex. R and L
     are Gamma-regularized and use principal branches. Native agreement on
     slit nodes requires the whole node convex hull to avoid the cut.
-    Quadratic formulas retain positive-real-part square-root variables.
+    Quadratic formulas retain Carlson's positive-real-part unsquared variables,
+    allowing slit-plane squared and transformed nodes as in his stated formulas.
+    They are adaptations to Gamma regularization with no exclusions on t or beta,
+    not claims that ordinary R is finite at all parameter poles.
     Probability normalization and natural mixed moments exclude the empty
     index type. General nonconvex simply connected continuation, multiply
     connected and Riemann-surface extensions, and contour formula 6.8-7 remain open.
@@ -99,5 +135,11 @@ review:
   status: agent-reviewed
   notes: >-
     Lean builds and declaration axiom audits have been used during development.
-    The selected Solution declarations have been checked with Lean, but an
-    official Comparator/NanoDa run and Palomar editorial review are still pending.
+    The maintainer reports that Palomar mechanical verification succeeded for
+    the preceding submission with the same Lean declarations. Its automated
+    editorial review declined registration because the separate foundational
+    selections lacked a research-interest account and the quadratic adaptations
+    needed clearer provenance. This revision narrows the Comparator selection
+    and revises the documentation without changing any Lean file. External
+    verification and editorial review of this revised snapshot remain pending;
+    no independent human peer review or registration is claimed.
