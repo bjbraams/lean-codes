@@ -44,19 +44,12 @@ sources:
     relationship: adapts
     location: Transformation 6.9-3, p. 161; Transformation 6.10-1, pp. 164–166; Section 6.8
     note: >-
-      r_first_quadratic and r_second_quadratic adapt Carlson's formulas to
-      regR = R / Gamma(sum b). Carlson already assumes Re x > 0 and Re y > 0
-      for the unsquared variables and explicitly permits the transformed nodes
-      in the slit plane. The Lean results preserve that node domain: x^2,
-      y^2, ((x+y)/2)^2, and x*y need not have positive real parts. This is
-      broader than the repository's earlier common right-half-plane integral
-      domains, not a new node-domain extension beyond Carlson's stated formulas.
-      The book imposes beta + 1/2 in U (excluding nonpositive integers) for
-      these ordinary-R statements. Our Gamma-regularized identities hold for
-      all complex t and beta, with factor 2^(1-2*beta)*sqrt(pi)/Gamma(beta).
-      The formalization extends local identities using parameter and joint-node
-      analyticity, paralleling Carlson's permanence of functional relations.
-      No claim of mathematical novelty or unrestricted branch continuation is made.
+      Formalizes Carlson's quadratic transformations 6.9-3 and 6.10-1 in
+      Gamma-regularized form. The node assumptions agree with Carlson's: the
+      unsquared variables have positive real parts, while squared and transformed
+      arguments use the principal slit-plane branch. Regularization permits
+      statements for all complex exponent and Dirichlet parameters. No enlargement
+      of Carlson's node domain or mathematical novelty is claimed.
   - title: Dirichlet averages of x^t log x
     authors: [B. C. Carlson]
     type: paper
