@@ -1,0 +1,35 @@
+{
+  "challenge_module": "Statement",
+  "solution_module": "Solution",
+  "theorem_names": [
+    "PalomarSnapshot.gamma_shift",
+    "PalomarSnapshot.vandermonde",
+    "PalomarSnapshot.holomorphic_analytic",
+    "PalomarSnapshot.osgood",
+    "PalomarSnapshot.cauchy_derivatives",
+    "PalomarSnapshot.simplex_chart_independent",
+    "PalomarSnapshot.simplex_monomial",
+    "PalomarSnapshot.complex_beta_integral",
+    "PalomarSnapshot.dirichlet_probability",
+    "PalomarSnapshot.dirichlet_moments",
+    "PalomarSnapshot.dirichlet_aggregation",
+    "PalomarSnapshot.joint_average_continuation",
+    "PalomarSnapshot.r_joint",
+    "PalomarSnapshot.r_native",
+    "PalomarSnapshot.r_euler",
+    "PalomarSnapshot.r_euler_poisson",
+    "PalomarSnapshot.r_first_quadratic",
+    "PalomarSnapshot.r_second_quadratic",
+    "PalomarSnapshot.l_joint",
+    "PalomarSnapshot.l_native",
+    "PalomarSnapshot.l_exponent_derivative"
+  ],
+  "definition_names": [
+    "PalomarSnapshot.regR"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ]
+}

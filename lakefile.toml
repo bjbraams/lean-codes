@@ -17,6 +17,12 @@ globs = [
 name = "main"
 root = "Main"
 
+[[lean_lib]]
+name = "Statement"
+
+[[lean_lib]]
+name = "Solution"
+
 [[require]]
 name = "mathlib"
 scope = "leanprover-community"

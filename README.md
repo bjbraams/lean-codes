@@ -30,6 +30,14 @@ never import the simplex or application layers.
 Each directory has a matching umbrella module. `Main.lean` imports all five.
 See the [module structure guide](STRUCTURE.md) for the finer topic splits and import paths.
 
+## Registry statement
+
+[Statement.lean](Statement.lean) gives a Mathlib-only statement of 21 selected
+results for a proposed Palomar snapshot. [Solution.lean](Solution.lean) connects
+them to the project proofs; its separate environment never imports the intentional
+statement placeholders. See [PALOMAR.md](PALOMAR.md) for the selection, validation
+commands, and remaining submission requirements. This is not yet a registered result.
+
 ## References
 
 Carlson, B. C. "Special Function of Applied Mathematics." Academic Press, 1977.

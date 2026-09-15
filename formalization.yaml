@@ -2,11 +2,23 @@
 version: "v0.4"
 
 project:
-  name: Carlson special functions
+  name: B. C. Carlson's approach to special functions of applied mathematics
   description: >-
-    Lean formalization of Carlson's special functions through Dirichlet averages,
-    with supporting simplex integration and several complex variables theory.
+    Lean formalization of B. C. Carlson's book "Special Functions of Applied Mathematics"
+    and some related publications. Carlson's approach involves averages with respect to
+    complex Dirichlet measure of elementary functions defined on the standard simplex.
+    The formalization is work in progress, but substantial portions of Carlson’s Dirichlet-
+    average theory and selected results for the related L-function have been formalized.
+    Formalization expanded beyond the core of Carlson's book with broader foundational
+    formalization of some rising-factorial and related identities, theory of Several
+    Complex Variables, and real Dirichlet probability theory.
+    The selected registry statements include joint continuation of averages on convex
+    open domains, slit-domain regularized R and L functions, Euler inversion,
+    Euler-Poisson equations, and both quadratic R transformations. This is a
+    snapshot of a broader ongoing development, not complete coverage of the sources.
   authors:
+    - Bastiaan J Braams
+  responsible_maintainers:
     - Bastiaan J Braams
   license: Apache-2.0
 
@@ -15,16 +27,77 @@ sources:
     authors: [B. C. Carlson]
     type: book
     id: Academic Press, 1977
+    relationship: formalizes
+    location: Selected results from Chapters 3–6 and Sections 8.3–8.5
+    note: >-
+      The compared declarations cover only the results stated in Statement.lean.
+      The proofs sometimes use different analytic constructions than in Carlson's
+      work.
   - title: Dirichlet averages of x^t log x
     authors: [B. C. Carlson]
-    type: article
+    type: paper
     id: SIAM Journal on Mathematical Analysis 18 (1987), 550–565
+    relationship: formalizes
+    location: Selected results from Sections 2–8
+    note: >-
+      The registry selection states joint holomorphy, native-integral agreement,
+      and the exponent derivative defining L. The rest of the article is not
+      advertised as fully formalized.
+  - title: Lecture notes on several complex variables
+    authors: [Harold P. Boas]
+    type: other
+    id: Lecture notes, 2013
+    relationship: adapts
+    location: Chapters 1–2
+    note: >-
+      The selected SCV statements use Mathlib's differentiability and analyticity
+      predicates, including complete complex normed codomains where proved.
+      Osgood's continuity hypothesis is retained; unrestricted Hartogs is not claimed.
+  - title: "Continuous Multivariate Distributions, Volume 1: Models and Applications"
+    authors: [Samuel Kotz, N. Balakrishnan, Norman L. Johnson]
+    type: book
+    id: Wiley, 2000; DOI 10.1002/0471722065
+    relationship: formalizes
+    note: Real Dirichlet normalization, mixed moments, and aggregation.
+
+classification:
+  arxiv: [math.CA, math.CV]
+  msc2020: ["33C65", "32A05", "60E05"]
+
+status:
+  scope: >-
+    All five mathematical libraries are included in the proof-side imports.
+    Comparator selects 21 theorems and one R-function construction, not every
+    declaration in the repository. See Statement.lean.
+  # Intentional Challenge placeholders are excluded from these counts.
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms: [propext, Quot.sound, Classical.choice]
 
 automation:
   methods:
     - method: agent
       framework: Codex
-  notes: Human-directed, agent-assisted development with Lean validation.
+  notes: >-
+    Human-directed, agent-assisted mathematical development, proof writing,
+    debugging, and review using Codex and Lean validation. Historical model
+    versions and per-session costs are not reconstructed here. The metadata
+    does not claim an independent human peer review.
+
+fidelity:
+  divergences: >-
+    The ambient measure is coordinate Lebesgue measure on the entire sum-one
+    hyperplane, restricted only when integrating over the simplex. R and L
+    are Gamma-regularized and use principal branches. Native agreement on
+    slit nodes requires the whole node convex hull to avoid the cut.
+    Quadratic formulas retain positive-real-part square-root variables.
+    Probability normalization and natural mixed moments exclude the empty
+    index type. General nonconvex simply connected continuation, multiply
+    connected and Riemann-surface extensions, and contour formula 6.8-7 remain open.
 
 review:
   status: agent-reviewed
+  notes: >-
+    Lean builds and declaration axiom audits have been used during development.
+    The selected Solution declarations have been checked with Lean, but an
+    official Comparator/NanoDa run and Palomar editorial review are still pending.
