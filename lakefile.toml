@@ -27,8 +27,3 @@ name = "Solution"
 name = "mathlib"
 scope = "leanprover-community"
 rev = "v4.33.1"
-
-[[require]]
-name = "doc-gen4"
-scope = "leanprover"
-rev = "v4.33.1"
