@@ -177,7 +177,7 @@ theorem norm_polydiscTaylor_term_le {f : (Fin d → ℂ) → E} {c h : Fin d →
       ring
     _ ≤ _ := by
       apply mul_le_mul_of_nonneg_left _ hM0
-      apply Finset.prod_le_prod
+      apply Finset.prod_le_prod₀
       · intro i hi
         exact pow_nonneg (div_nonneg (norm_nonneg _) (hR i).le) _
       · intro i hi

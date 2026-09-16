@@ -104,13 +104,6 @@ variable [Semiring R] [PartialOrder R] [IsStrictOrderedRing R]
     coordinates (s.map f) = stdSimplexAggregate f (coordinates s) :=
   weights_map_eq_stdSimplexAggregate f s
 
-/-- Aggregation is continuous on finite intrinsic simplices. -/
-@[fun_prop] theorem continuous_map [TopologicalSpace R] [ContinuousAdd R] (f : ι → κ) :
-    Continuous (fun s : StdSimplex R ι => s.map f) := by
-  apply continuous_induced_rng.mpr
-  simpa only [Function.comp_def, coordinates_map] using
-    (continuous_stdSimplexAggregate (R := R) f).comp continuous_coordinates
-
 end IntrinsicAggregation
 
 end Convexity.StdSimplex
@@ -125,7 +118,7 @@ def homeomorphFreeCoords (i : ι) :
     stdSimplexFreeCoords (R := ℝ) i ≃ₜ StdSimplex ℝ ι where
   toEquiv := equivFreeCoords i
   continuous_toFun := by
-    apply continuous_induced_rng.mpr
+    apply isEmbedding_coordinates.isInducing.continuous_iff.mpr
     exact (continuous_stdSimplexCoordMap i).comp continuous_subtype_val
   continuous_invFun :=
     ((continuous_stdSimplexCoordProj i).comp continuous_coordinates).subtype_mk _

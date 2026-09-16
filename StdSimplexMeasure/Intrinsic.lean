@@ -5,7 +5,7 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import Mathlib.Geometry.Convex.ConvexSpace.Defs
+public import Mathlib.Geometry.Convex.ConvexSpace.CompactSpaceStdSimplex
 public import Mathlib.Topology.Algebra.Module.FiniteDimension
 public import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
 
@@ -17,16 +17,15 @@ of its realization in the ambient vector space, used for measures, restrictions,
 and neighborhoods. The membership description is kept explicit for ambient
 calculus; `range_coordinates` identifies it with the intrinsic object.
 
-Mathlib v4.33.1 has no topology on the intrinsic simplex. The finite-index
-coordinate topology below is induced by the weights, as in the newer upstream
-topology. On upgrading Mathlib, replace this instance with the upstream one and
-use its coordinate-embedding theorems. No topology on infinite-index simplices
-is asserted here.
+The intrinsic simplex uses Mathlib's topology and compactness instance. For finite
+index types, Mathlib's coordinate embedding identifies this topology with the
+topology induced by the weights.
 -/
 
 @[expose] public noncomputable section
 open scoped Classical
 namespace Convexity.StdSimplex
+section Semiring
 variable {R : Type*} [Semiring R] [PartialOrder R]
 variable {ι : Type*} [Fintype ι]
 
@@ -107,35 +106,31 @@ instance [CompactIccSpace R] [IsOrderedAddMonoid R] : CompactSpace (coordinateSe
 
 end Topology
 
-/-- Finite coordinate topology, pending adoption of Mathlib's upstream topology. -/
-instance finiteCoordinateTopology [TopologicalSpace R] (I : Type*) [Fintype I] :
-    TopologicalSpace (StdSimplex R I) :=
-  TopologicalSpace.induced coordinates inferInstance
+end Semiring
 
-theorem isEmbedding_coordinates [TopologicalSpace R] :
+variable {R : Type*} [Ring R] [PartialOrder R] [IsStrictOrderedRing R]
+variable [TopologicalSpace R] [IsTopologicalRing R]
+variable {ι : Type*} [Fintype ι]
+
+theorem isEmbedding_coordinates :
     Topology.IsEmbedding (coordinates (R := R) (ι := ι)) :=
-  ⟨⟨rfl⟩, coordinates_injective⟩
+  isEmbedding_toFun_comp_weights R ι
 
-@[fun_prop] theorem continuous_coordinates [TopologicalSpace R] :
+@[fun_prop] theorem continuous_coordinates :
     Continuous (coordinates (R := R) (ι := ι)) :=
   isEmbedding_coordinates.continuous
 
 /-- The intrinsic simplex and its coordinate realization have the same topology. -/
-def coordinateHomeomorph [TopologicalSpace R] : StdSimplex R ι ≃ₜ coordinateSet R ι where
+def coordinateHomeomorph : StdSimplex R ι ≃ₜ coordinateSet R ι where
   toEquiv := coordinateEquiv
   continuous_toFun := continuous_coordinates.subtype_mk _
   continuous_invFun := by
-    apply continuous_induced_rng.mpr
+    apply isEmbedding_coordinates.isInducing.continuous_iff.mpr
     exact continuous_subtype_val
 
-instance [TopologicalSpace R] [OrderClosedTopology R] [ContinuousAdd R]
-    [CompactIccSpace R] [IsOrderedAddMonoid R] : CompactSpace (StdSimplex R ι) :=
-  coordinateHomeomorph.symm.compactSpace
-
-theorem isClosedEmbedding_coordinates [TopologicalSpace R] [OrderClosedTopology R]
-    [ContinuousAdd R] : Topology.IsClosedEmbedding (coordinates (R := R) (ι := ι)) where
-  toIsEmbedding := isEmbedding_coordinates
-  isClosed_range := by rw [range_coordinates]; exact isClosed_coordinateSet R ι
+theorem isClosedEmbedding_coordinates [OrderClosedTopology R] :
+    Topology.IsClosedEmbedding (coordinates (R := R) (ι := ι)) :=
+  isClosedEmbedding_toFun_comp_weights R ι
 
 instance : MeasurableSpace (StdSimplex ℝ ι) := borel _
 instance : BorelSpace (StdSimplex ℝ ι) := ⟨rfl⟩

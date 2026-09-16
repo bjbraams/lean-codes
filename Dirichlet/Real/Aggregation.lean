@@ -218,9 +218,6 @@ theorem measurePreserving_stdSimplexAggregate_dirichletMeasure
         isProbabilityMeasure_dirichletMeasure hb
       let : IsProbabilityMeasure (dirichletMeasure (stdSimplexAggregate f b)) :=
         isProbabilityMeasure_dirichletMeasure hb'
-      let : IsProbabilityMeasure
-          (Measure.map (stdSimplexAggregate f) (dirichletMeasure b)) :=
-        isProbabilityMeasure_map hT.aemeasurable
       refine eq_of_forall_monomial_integral_eq_of_restrict_stdSimplex ?_ ?_ ?_
       · refine Measure.restrict_eq_self_of_ae_mem ?_
         rw [ae_iff]

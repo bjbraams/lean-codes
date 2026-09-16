@@ -68,8 +68,7 @@ theorem hasDerivAt_circleIntegral_sub_zpow_mul
     simpa only [Function.comp_def, id_eq, hexp, Int.cast_neg, Int.cast_add,
       Int.cast_natCast, Int.cast_one, mul_neg_one, neg_mul, neg_neg] using hd
   convert (hd'.mul_const (f (circleMap c R θ))).const_mul (deriv (circleMap c R) θ) using 1
-  · rfl
-  · ring
+  ring
 
 /-- Cauchy's formula for every derivative at any point inside the circle. The function
 need only be holomorphic in the open disk and continuous on its closure. -/

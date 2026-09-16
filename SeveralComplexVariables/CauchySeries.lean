@@ -57,7 +57,7 @@ lemma norm_multiIndexMonomial_le {d n : ℕ} (m : Fin d → ℕ)
   refine (ContinuousMultilinearMap.norm_compContinuousLinearMap_le _ _).trans ?_
   rw [ContinuousMultilinearMap.norm_mkPiAlgebra]
   simp only [one_mul]
-  refine Finset.prod_le_one (fun _ _ => norm_nonneg _) fun q _ => ?_
+  refine Finset.prod_le_one₀ (fun _ _ => norm_nonneg _) fun q _ => ?_
   refine ContinuousLinearMap.opNorm_le_bound _ zero_le_one fun w => ?_
   simpa using norm_le_pi_norm w q.1
 

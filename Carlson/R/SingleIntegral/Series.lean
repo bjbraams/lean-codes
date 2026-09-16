@@ -159,15 +159,14 @@ private lemma hasSum_carlsonRUnitIntervalIntegral
       fun n => A n * betaIntegral (a + n) a' := funext hterm
   rw [hfun] at hseries
   convert hseries using 1
-  · rfl
-  · unfold carlsonRUnitIntervalIntegral f K μ
-    apply integral_congr_ae
-    filter_upwards [self_mem_ae_restrict measurableSet_Ioo] with u hu
-    congr 1
-    apply Finset.prod_congr rfl
-    intro i hi
-    congr 1
-    ring
+  unfold carlsonRUnitIntervalIntegral f K μ
+  apply integral_congr_ae
+  filter_upwards [self_mem_ae_restrict measurableSet_Ioo] with u hu
+  congr 1
+  apply Finset.prod_congr rfl
+  intro i hi
+  congr 1
+  ring
 
 
 

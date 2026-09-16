@@ -57,7 +57,7 @@ lemma norm_carlsonRPolynomialNumerator_le (n : ℕ) (b z : ι → ℂ) {B : ℝ}
       fun i _ => (norm_ascPochhammer_eval_le (b i) (m i) hB (hb i)).trans <|
         pow_le_pow_left₀ (by positivity)
           (by gcongr; exact_mod_cast hmi i) _
-    refine (prod_le_prod (fun _ _ => norm_nonneg _) hpt).trans ?_
+    refine (prod_le_prod₀ (fun _ _ => norm_nonneg _) hpt).trans ?_
     rw [prod_pow_eq_pow_sum]
     have hsum : ∑ j, m j = n := by
       have := Finsupp.sum_of_support_subset m (subset_univ m.support)

@@ -160,7 +160,7 @@ theorem regDirichletIntegral_analyticOn {f : (ι → ℝ) → ℂ}
         have hmon : ‖∏ j, (u j : ℂ) ^ (c j - 1)‖ ≤
             ‖∏ j, (u j : ℂ) ^ (a j - 1)‖ := by
           simp only [norm_prod]
-          refine Finset.prod_le_prod (fun _ _ ↦ norm_nonneg _) fun j _ ↦ ?_
+          refine Finset.prod_le_prod₀ (fun _ _ ↦ norm_nonneg _) fun j _ ↦ ?_
           have hjpos : 0 < u j := hui j
           rw [norm_cpow_eq_rpow_re_of_pos hjpos, norm_cpow_eq_rpow_re_of_pos hjpos]
           simp only [sub_re, one_re]

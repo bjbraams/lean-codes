@@ -178,7 +178,7 @@ theorem locallyBounded_regCarlsonDirichletAverage_parameters_nodes
       (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet, ae_zero_lt_of_mem_stdSimplex (ι := ι)] with u hu hupos
     have hm : ‖∏ i, (u i : ℂ) ^ (q.1 i - 1)‖ ≤ ‖∏ i, (u i : ℂ) ^ (a i - 1)‖ := by
       simp only [norm_prod]
-      apply Finset.prod_le_prod (fun _ _ => norm_nonneg _)
+      apply Finset.prod_le_prod₀ (fun _ _ => norm_nonneg _)
       intro i _
       rw [norm_cpow_eq_rpow_re_of_pos (hupos i), norm_cpow_eq_rpow_re_of_pos (hupos i)]
       apply Real.rpow_le_rpow_of_exponent_ge (hupos i)

@@ -45,13 +45,13 @@ theorem norm_carlsonRPolynomialNumerator_le_pochhammer (n : ℕ) (b z : ι → �
       have hnodes : ‖∏ i, z i ^ m i‖ ≤ r ^ n := by
         rw [Complex.norm_prod]
         calc
-          _ ≤ ∏ i, r ^ m i := prod_le_prod (fun _ _ => norm_nonneg _)
+          _ ≤ ∏ i, r ^ m i := prod_le_prod₀ (fun _ _ => norm_nonneg _)
             (fun i _ => by rw [norm_pow]; exact pow_le_pow_left₀ (norm_nonneg _) (hz i) _)
           _ = _ := by rw [prod_pow_eq_pow_sum, hsum]
       have hparams : ‖∏ i, (ascPochhammer ℂ (m i)).eval (b i)‖ ≤
           ∏ i, (ascPochhammer ℝ (m i)).eval (B i) := by
         rw [Complex.norm_prod]
-        exact prod_le_prod (fun _ _ => norm_nonneg _) (fun i _ => hp m i)
+        exact prod_le_prod₀ (fun _ _ => norm_nonneg _) (fun i _ => hp m i)
       rw [norm_mul, norm_mul, Complex.norm_natCast]
       calc
         _ ≤ (Nat.multinomial univ m : ℝ) * r ^ n *
