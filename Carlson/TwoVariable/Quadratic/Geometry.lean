@@ -1,15 +1,43 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.TwoVariable.Basic
 public import Carlson.R.Basic
 
-/-! # Means and branch-safe quadratic domains -/
+/-!
+# Means and branch-safe quadratic domains
 
+The squared arithmetic and geometric means entering Carlson's quadratic transformations, and
+the node domains on which both sides of the transformations are defined by branch-safe
+principal powers.
+
+## Main definitions
+
+* `Carlson.TwoVariable.arithmeticMeanSq`, `Carlson.TwoVariable.geometricMeanSq`: the means
+  `((x + y) / 2) ^ 2` and `x * y`.
+* `Carlson.TwoVariable.FirstQuadraticDomain`, `Carlson.TwoVariable.SecondQuadraticDomain`: the
+  branch-safe domains for Transformations 6.9-3 and 6.10-1.
+
+## Main results
+
+* `Carlson.TwoVariable.FirstQuadraticDomain.affine`,
+  `Carlson.TwoVariable.SecondQuadraticDomain.affine`: both domains are star-shaped about the
+  all-one nodes.
+
+## References
+
+* [Carl77] B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
+-/
+
+open Dirichlet
 open Complex MeasureTheory ProbabilityTheory Filter Set
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform.TwoVariable
+namespace Carlson.TwoVariable
 
 /-- The squared arithmetic mean occurring in Carlson's first quadratic transformation. -/
 def arithmeticMeanSq (x y : ℂ) : ℂ := ((x + y) / 2) ^ 2
@@ -54,7 +82,8 @@ theorem FirstQuadraticDomain.affine {x y : ℂ} (hz : FirstQuadraticDomain x y)
     {r : ℝ} (hr : r ∈ Set.Icc 0 1) :
     FirstQuadraticDomain (1 - (r : ℂ) + r * x) (1 - (r : ℂ) + r * y) := by
   have hpos {v : ℂ} (hv : 0 < v.re) : 0 < (1 - (r : ℂ) + r * v).re := by
-    have H := convex_carlsonRightHalfPlane (by norm_num [carlsonRightHalfPlane] : (1 : ℂ) ∈ carlsonRightHalfPlane)
+    have H := convex_carlsonRightHalfPlane (by
+        norm_num [carlsonRightHalfPlane] : (1 : ℂ) ∈ carlsonRightHalfPlane)
       hv (sub_nonneg.mpr hr.2) hr.1 (by ring : 1 - r + r = 1)
     simpa [Complex.real_smul, carlsonRightHalfPlane] using H
   have hm : 0 < ((x + y) / 2).re := by
@@ -133,4 +162,4 @@ lemma SecondQuadraticDomain.same_sign {x y : ℂ} (hz : SecondQuadraticDomain x 
   · exact Or.inl h
   · exact Or.inr ⟨by simpa using neg_pos.mpr h.1, by simpa using neg_pos.mpr h.2⟩
 
-end DirichletTransform.TwoVariable
+end Carlson.TwoVariable

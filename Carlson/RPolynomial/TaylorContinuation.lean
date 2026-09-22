@@ -5,6 +5,7 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import ComplexAnalysis.CauchyEstimates
 public import Carlson.RPolynomial.PowerSeries
 public import Carlson.RPolynomial.SharpEstimates
 public import Dirichlet.Average.Continuation
@@ -19,10 +20,11 @@ Dirichlet parameters on the full scalar Taylor disk (Carlson, Theorem 6.3-1).
 The sharp estimate from Section 6.2 supplies locally uniform convergence.
 -/
 
+open Dirichlet
 open Complex Set
-open scoped Classical Topology NNReal ENNReal
+open scoped Topology NNReal ENNReal
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 private lemma affine_sub_center (A : ℂ) (z : ι → ℂ) {u : ι → ℝ}
@@ -39,13 +41,14 @@ theorem isRegCarlsonContinuation_taylor_of_geometric_bound
     (hsum : ∀ u ∈ Convexity.StdSimplex.coordinateSet ℝ ι,
       HasSum (fun n => a n * (carlsonAffineForm z u - A) ^ n) (f (carlsonAffineForm z u))) :
     IsRegCarlsonContinuation f z (regCarlsonTaylorSeries A a z) := by
+  classical
   have hmajor (K : Set (ι → ℂ)) (hK : IsCompact K) :=
     exists_summable_norm_carlsonTaylor_bounded_variables hK hC hq
       (norm_nonneg (fun i => z i - A)) hqr ha
   refine ⟨?_, ?_⟩
   · apply analyticOnNhd_tsum_of_summable_norm_on_compacts isOpen_univ
     · intro n
-      exact analyticOnNhd_const.mul (analyticOnNhd_regCarlsonR n _)
+      exact analyticOnNhd_const.mul (analyticOnNhd_regCarlsonRPolynomial n _)
     · intro K _ hK
       obtain ⟨M, hM, hbound⟩ := hmajor K hK
       exact ⟨M, hM, fun n b hb => hbound n b hb _ (norm_le_pi_norm _)⟩
@@ -115,41 +118,12 @@ theorem isRegCarlsonContinuation_taylor {A : ℂ} {R : ℝ}
 
 /-- Every entire continuation agrees with the Taylor construction wherever the
 nodes lie in a disk of holomorphy of the scalar function. -/
-theorem IsRegCarlsonContinuation.eq_taylor {A : ℂ} {R : ℝ}
+theorem _root_.Dirichlet.IsRegCarlsonContinuation.eq_taylor {A : ℂ} {R : ℝ}
     {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f (Metric.ball A R))
     {z : ι → ℂ} (hz : ‖fun i => z i - A‖ < R)
     {G : (ι → ℂ) → ℂ} (hG : IsRegCarlsonContinuation f z G) :
     G = regCarlsonTaylorSeries A (fun n => iteratedDeriv n f A / n.factorial) z :=
   hG.eq (isRegCarlsonContinuation_taylor hf hz)
-
-private lemma exists_taylor_geometric_bound {A : ℂ} {R r : ℝ}
-    {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f (Metric.ball A R))
-    (hr : 0 ≤ r) (hrR : r < R) :
-    ∃ C q : ℝ, 0 ≤ C ∧ 0 ≤ q ∧ q * r < 1 ∧
-      ∀ n, ‖iteratedDeriv n f A / n.factorial‖ ≤ C * q ^ n := by
-  obtain ⟨s, hrs, hsR⟩ := exists_between hrR
-  have hs : 0 < s := hr.trans_lt hrs
-  let s' : ℝ≥0 := ⟨s, hs.le⟩
-  have hfull := DifferentiableOn.hasFPowerSeriesOnBall (R := s')
-    (hf.differentiableOn.mono (Metric.closedBall_subset_ball hsR)) (show 0 < s' from hs)
-  have hlocal := (hf A (by simp; exact hr.trans_lt hrR)).hasFPowerSeriesAt
-  rw [hfull.hasFPowerSeriesAt.eq_formalMultilinearSeries hlocal] at hfull
-  obtain ⟨ρ, hrρ, hρs⟩ := exists_between hrs
-  have hρ : 0 < ρ := hr.trans_lt hrρ
-  let ρ' : ℝ≥0 := ⟨ρ, hρ.le⟩
-  have hρrad : (ρ' : ℝ≥0∞) <
-      (FormalMultilinearSeries.ofScalars ℂ (fun n => iteratedDeriv n f A / n.factorial)).radius :=
-    (show (ρ' : ℝ≥0∞) < s' by exact_mod_cast hρs).trans_le hfull.r_le
-  obtain ⟨C, hC, hbound⟩ := FormalMultilinearSeries.norm_le_div_pow_of_pos_of_lt_radius
-    (FormalMultilinearSeries.ofScalars ℂ (fun n => iteratedDeriv n f A / n.factorial))
-    (show 0 < ρ' from hρ) hρrad
-  refine ⟨C, ρ⁻¹, hC.le, inv_nonneg.mpr hρ.le, ?_, ?_⟩
-  · simpa [div_eq_mul_inv, mul_comm] using (div_lt_one hρ).mpr hrρ
-  · intro n
-    have hn := hbound n
-    rw [FormalMultilinearSeries.ofScalars_norm] at hn
-    change ‖iteratedDeriv n f A / n.factorial‖ ≤ C / ρ ^ n at hn
-    simpa only [div_eq_mul_inv, inv_pow] using hn
 
 /-- Absolute convergence of the continued Taylor expansion at every complex
 parameter vector and throughout the full node disk. -/
@@ -157,7 +131,7 @@ theorem summable_norm_regCarlsonTaylorSeries {A : ℂ} {R : ℝ}
     {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f (Metric.ball A R))
     {z : ι → ℂ} (hz : ‖fun i => z i - A‖ < R) (b : ι → ℂ) :
     Summable (fun n => ‖(iteratedDeriv n f A / n.factorial) *
-      regCarlsonR n (fun i => z i - A) b‖) := by
+      regCarlsonRPolynomial n b (fun i => z i - A)‖) := by
   obtain ⟨C, q, hC, hq, hqr, ha⟩ := exists_taylor_geometric_bound hf (norm_nonneg _) hz
   obtain ⟨M, hM, hbound⟩ := exists_summable_norm_carlsonTaylor_bounded_variables
     (isCompact_singleton (x := b)) hC hq (norm_nonneg _) hqr ha
@@ -166,12 +140,12 @@ theorem summable_norm_regCarlsonTaylorSeries {A : ℂ} {R : ℝ}
 
 /-- The convergent R-polynomial Taylor series represents every continued average,
 including at exceptional total parameters. -/
-theorem IsRegCarlsonContinuation.hasSum_taylor {A : ℂ} {R : ℝ}
+theorem _root_.Dirichlet.IsRegCarlsonContinuation.hasSum_taylor {A : ℂ} {R : ℝ}
     {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f (Metric.ball A R))
     {z : ι → ℂ} (hz : ‖fun i => z i - A‖ < R)
     {G : (ι → ℂ) → ℂ} (hG : IsRegCarlsonContinuation f z G) (b : ι → ℂ) :
     HasSum (fun n => (iteratedDeriv n f A / n.factorial) *
-      regCarlsonR n (fun i => z i - A) b) (G b) := by
+      regCarlsonRPolynomial n b (fun i => z i - A)) (G b) := by
   rw [hG.eq_taylor hf hz]
   exact (summable_norm_regCarlsonTaylorSeries hf hz b).of_norm.hasSum
 
@@ -181,28 +155,27 @@ theorem hasSumLocallyUniformlyOn_regCarlsonTaylorSeries_joint {A : ℂ} {R : ℝ
     {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f (Metric.ball A R)) :
     HasSumLocallyUniformlyOn
       (fun (n : ℕ) (p : Sum ι ι → ℂ) => (iteratedDeriv n f A / n.factorial) *
-        regCarlsonR n (fun i => p (.inr i) - A) (fun i => p (.inl i)))
+        regCarlsonRPolynomial n (fun i => p (.inl i)) (fun i => p (.inr i) - A))
       (fun p => regCarlsonTaylorSeries A (fun n => iteratedDeriv n f A / n.factorial)
         (fun i => p (.inr i)) (fun i => p (.inl i)))
       {p : Sum ι ι → ℂ | ‖fun i => p (.inr i) - A‖ < R} := by
   have hnorm : Continuous (fun p : Sum ι ι → ℂ => ‖fun i => p (.inr i) - A‖) := by fun_prop
-  have hs : SummableLocallyUniformlyOn
+  suffices hs : SummableLocallyUniformlyOn
       (fun (n : ℕ) (p : Sum ι ι → ℂ) => (iteratedDeriv n f A / n.factorial) *
-        regCarlsonR n (fun i => p (.inr i) - A) (fun i => p (.inl i)))
-      {p : Sum ι ι → ℂ | ‖fun i => p (.inr i) - A‖ < R} := by
-    apply SummableLocallyUniformlyOn_of_locally_bounded (isOpen_lt hnorm continuous_const)
-    intro K hKU hK
-    rcases K.eq_empty_or_nonempty with rfl | hne
-    · exact ⟨0, summable_zero, by simp⟩
-    obtain ⟨p₀, hp₀, hmax⟩ := hK.exists_isMaxOn hne hnorm.continuousOn
-    obtain ⟨C, q, hC, hq, hqr, ha⟩ :=
-      exists_taylor_geometric_bound hf (norm_nonneg _) (hKU hp₀)
-    have hp : Continuous (fun p : Sum ι ι → ℂ => fun i => p (.inl i)) := by fun_prop
-    obtain ⟨M, hM, hbound⟩ := exists_summable_norm_carlsonTaylor_bounded_variables
-      (hK.image hp) hC hq (norm_nonneg _) hqr ha
-    refine ⟨M, hM, fun n p hpk => hbound n _ (mem_image_of_mem _ hpk) _ (fun i => ?_)⟩
-    exact (norm_le_pi_norm (fun j => p (.inr j) - A) i).trans (hmax hpk)
-  exact hs.hasSumLocallyUniformlyOn
+        regCarlsonRPolynomial n (fun i => p (.inl i)) (fun i => p (.inr i) - A))
+      {p : Sum ι ι → ℂ | ‖fun i => p (.inr i) - A‖ < R} from hs.hasSumLocallyUniformlyOn
+  apply SummableLocallyUniformlyOn_of_locally_bounded (isOpen_lt hnorm continuous_const)
+  intro K hKU hK
+  rcases K.eq_empty_or_nonempty with rfl | hne
+  · exact ⟨0, summable_zero, by simp⟩
+  obtain ⟨p₀, hp₀, hmax⟩ := hK.exists_isMaxOn hne hnorm.continuousOn
+  obtain ⟨C, q, hC, hq, hqr, ha⟩ :=
+    exists_taylor_geometric_bound hf (norm_nonneg _) (hKU hp₀)
+  have hp : Continuous (fun p : Sum ι ι → ℂ => fun i => p (.inl i)) := by fun_prop
+  obtain ⟨M, hM, hbound⟩ := exists_summable_norm_carlsonTaylor_bounded_variables
+    (hK.image hp) hC hq (norm_nonneg _) hqr ha
+  refine ⟨M, hM, fun n p hpk => hbound n _ (mem_image_of_mem _ hpk) _ (fun i => ?_)⟩
+  exact (norm_le_pi_norm (fun j => p (.inr j) - A) i).trans (hmax hpk)
 
 /-- The joint holomorphy conclusion of Carlson's Theorem 6.3-1. There are no
 Dirichlet-parameter exclusions, and the node domain is the full product of disks. -/
@@ -213,6 +186,7 @@ theorem analyticOnNhd_regCarlsonTaylorSeries_joint {A : ℂ} {R : ℝ}
         (fun n => iteratedDeriv n f A / n.factorial)
         (fun i => p (.inr i)) (fun i => p (.inl i)))
       {p : Sum ι ι → ℂ | ‖fun i => p (.inr i) - A‖ < R} := by
+  classical
   apply (hasSumLocallyUniformlyOn_regCarlsonTaylorSeries_joint hf).analyticOnNhd_pi
   · intro n p _
     exact analyticAt_const.mul (analyticAt_regCarlsonR_comp
@@ -223,5 +197,5 @@ theorem analyticOnNhd_regCarlsonTaylorSeries_joint {A : ℂ} {R : ℝ}
   · apply isOpen_lt _ continuous_const
     fun_prop
 
-end DirichletTransform
+end Carlson
 end

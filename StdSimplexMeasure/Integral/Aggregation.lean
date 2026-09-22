@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Bastiaan J Braams.
+Authors: Bastiaan J Braams
 -/
 module
 
@@ -17,7 +17,17 @@ import Mathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 import StdSimplexMeasure.EuclideanCrossSection
 import all StdSimplexMeasure.Measure.Basic
 
-/-! # Coordinate aggregation in standard-simplex integrals -/
+/-!
+# Coordinate aggregation in standard-simplex integrals
+
+Transformation of a simplex integral under coordinate aggregation along a surjection: the
+integral of `g ∘ stdSimplexAggregate f` over the source simplex is the integral of `g` against
+the aggregation pushforward density on the target simplex.
+
+## Main results
+
+* `MeasureTheory.integral_stdSimplex_comp_aggregate`: the change-of-variables formula.
+-/
 
 open Fintype (card)
 
@@ -31,7 +41,6 @@ universe u
 
 variable {ι : Type u} [Fintype ι]
 
-open scoped Classical
 
 /-- Transformation of integrals under coordinate aggregation. The measurability hypothesis is
 stated for the weighted target measure, which is exactly the push-forward measure occurring in

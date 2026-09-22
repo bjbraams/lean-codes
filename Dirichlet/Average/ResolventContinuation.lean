@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Dirichlet.Average.Cauchy
@@ -20,9 +24,9 @@ Riemann surfaces are deliberately left open.
 -/
 
 open Complex MeasureTheory ProbabilityTheory Set Filter Metric
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Dirichlet
 variable {ι : Type*} [Fintype ι]
 
 /-- Evaluation points which avoid every affine combination of the nodes on the
@@ -70,7 +74,8 @@ theorem exists_joint_regCarlsonResolvent (n : ℕ) :
         analyticAt_fst rfl
     · apply Finset.analyticAt_fun_sum
       intro i _
-      exact (((ContinuousLinearMap.proj (some i) : (Option ι → ℂ) →L[ℂ] ℂ).analyticAt p.1).comp_of_eq
+      exact (((ContinuousLinearMap.proj (some i) : (Option ι → ℂ)
+          →L[ℂ] ℂ).analyticAt p.1).comp_of_eq
         analyticAt_fst rfl).mul
         (((ContinuousLinearMap.proj i : (ι → ℂ) →L[ℂ] ℂ).analyticAt p.2).comp_of_eq
           analyticAt_snd rfl)
@@ -130,5 +135,5 @@ theorem isRegCarlsonContinuation_continuedRegCarlsonResolvent (n : ℕ)
   exact (analyticOnNhd_continuedRegCarlsonResolvent n (b, s, z) ⟨mem_univ _, hs⟩).comp_of_eq
     (analyticAt_id.prod analyticAt_const) rfl
 
-end DirichletTransform
+end Dirichlet
 end

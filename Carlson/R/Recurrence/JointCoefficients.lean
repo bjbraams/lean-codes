@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.R.Recurrence.Coefficients
@@ -11,9 +15,9 @@ Dirichlet parameters and `some (inr i)` for nodes. No R-function dependence
 or recurrence theorem is imported here. -/
 
 open Complex Set
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- Coordinates for a polynomial in the exponent parameter, Dirichlet parameters, and nodes. -/
@@ -91,6 +95,7 @@ theorem hasDerivAt_carlsonRecurrencePoint_eval (p : MvPolynomial (Option (ι ⊕
     (a : ℂ) (b z : ι → ℂ) :
     HasDerivAt (fun s => p.eval (carlsonRecurrencePoint s b z))
       ((MvPolynomial.pderiv none p).eval (carlsonRecurrencePoint a b z)) a := by
+  classical
   have h := p.hasDerivAt_eval_update (carlsonRecurrencePoint a b z) none a
   convert h using 1
   · funext s
@@ -101,4 +106,4 @@ theorem hasDerivAt_carlsonRecurrencePoint_eval (p : MvPolynomial (Option (ι ⊕
     ext i
     cases i <;> simp [carlsonRecurrencePoint]
 
-end DirichletTransform
+end Carlson

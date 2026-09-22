@@ -23,7 +23,6 @@ topology induced by the weights.
 -/
 
 @[expose] public noncomputable section
-open scoped Classical
 namespace Convexity.StdSimplex
 section Semiring
 variable {R : Type*} [Semiring R] [PartialOrder R]
@@ -36,12 +35,14 @@ def coordinates (s : StdSimplex R ι) : ι → R := fun i => s.weights i
 def coordinateSet (R : Type*) (ι : Type*) [Semiring R] [PartialOrder R] [Fintype ι] :
     Set (ι → R) := {u | (∀ i, 0 ≤ u i) ∧ ∑ i, u i = 1}
 
+/-- Membership in the coordinate set: nonnegative coordinates summing to one. -/
 theorem mem_coordinateSet {u : ι → R} :
     u ∈ coordinateSet R ι ↔ (∀ i, 0 ≤ u i) ∧ ∑ i, u i = 1 := Iff.rfl
 
+/-- The coordinates of an intrinsic point lie in the coordinate set. -/
 theorem coordinates_mem (s : StdSimplex R ι) : coordinates s ∈ coordinateSet R ι := by
   refine ⟨s.nonneg, ?_⟩
-  simpa [coordinates, Finsupp.sum_fintype] using s.total
+  simp [coordinates]
 
 /-- Recover an intrinsic point from its ambient coordinates and membership proof. -/
 def ofCoordinates (u : ι → R) (hu : u ∈ coordinateSet R ι) : StdSimplex R ι where
@@ -49,20 +50,24 @@ def ofCoordinates (u : ι → R) (hu : u ∈ coordinateSet R ι) : StdSimplex R 
   nonneg i := by simpa using hu.1 i
   total := by simpa [Finsupp.sum_fintype] using hu.2
 
+/-- Reading the coordinates of the point built from a coordinate vector returns that vector. -/
 @[simp] theorem coordinates_ofCoordinates (u : ι → R) (hu : u ∈ coordinateSet R ι) :
     coordinates (ofCoordinates u hu) = u := rfl
 
+/-- Rebuilding a point from its own coordinates returns the point. -/
 @[simp] theorem ofCoordinates_coordinates (s : StdSimplex R ι) :
     ofCoordinates (coordinates s) (coordinates_mem s) = s := by
   ext i
   rfl
 
 omit [Fintype ι] in
+/-- The coordinate map of the intrinsic simplex is injective. -/
 theorem coordinates_injective : Function.Injective (coordinates (R := R) (ι := ι)) := by
   intro s t h
   ext i
   exact congrFun h i
 
+/-- The coordinate map has the coordinate set as its range. -/
 theorem range_coordinates :
     Set.range (coordinates (R := R) (ι := ι)) = coordinateSet R ι := by
   ext u
@@ -76,10 +81,12 @@ def coordinateEquiv : StdSimplex R ι ≃ coordinateSet R ι where
   left_inv := ofCoordinates_coordinates
   right_inv _ := rfl
 
+/-- Every coordinate of a point of the coordinate set lies between zero and one. -/
 theorem mem_Icc_of_mem_coordinateSet [IsOrderedAddMonoid R]
     {u : ι → R} (hu : u ∈ coordinateSet R ι) (i : ι) : u i ∈ Set.Icc 0 1 :=
   ⟨hu.1 i, hu.2 ▸ Finset.single_le_sum (fun j _ => hu.1 j) (Finset.mem_univ i)⟩
 
+/-- With an empty index type the coordinate set is empty. -/
 theorem coordinateSet_empty [Nontrivial R] [IsEmpty ι] : coordinateSet R ι = ∅ := by
   ext u
   simp [coordinateSet]
@@ -88,6 +95,7 @@ section Topology
 variable [TopologicalSpace R] [OrderClosedTopology R] [ContinuousAdd R]
 
 variable (R ι) in
+/-- The coordinate set is closed. -/
 theorem isClosed_coordinateSet : IsClosed (coordinateSet R ι) := by
   have hset : coordinateSet R ι =
       (⋂ i, {u : ι → R | 0 ≤ u i}) ∩ {u | ∑ i, u i = 1} := by ext; simp [coordinateSet]
@@ -96,6 +104,7 @@ theorem isClosed_coordinateSet : IsClosed (coordinateSet R ι) := by
     (isClosed_eq (by fun_prop) continuous_const)
 
 variable (R ι) in
+/-- The coordinate set is compact. -/
 theorem isCompact_coordinateSet [CompactIccSpace R] [IsOrderedAddMonoid R] :
     IsCompact (coordinateSet R ι) :=
   isCompact_Icc.of_isClosed_subset (isClosed_coordinateSet R ι)
@@ -112,10 +121,12 @@ variable {R : Type*} [Ring R] [PartialOrder R] [IsStrictOrderedRing R]
 variable [TopologicalSpace R] [IsTopologicalRing R]
 variable {ι : Type*} [Fintype ι]
 
+/-- The coordinate map is a topological embedding of the intrinsic simplex. -/
 theorem isEmbedding_coordinates :
     Topology.IsEmbedding (coordinates (R := R) (ι := ι)) :=
   isEmbedding_toFun_comp_weights R ι
 
+/-- The coordinate map of the intrinsic simplex is continuous. -/
 @[fun_prop] theorem continuous_coordinates :
     Continuous (coordinates (R := R) (ι := ι)) :=
   isEmbedding_coordinates.continuous
@@ -128,13 +139,18 @@ def coordinateHomeomorph : StdSimplex R ι ≃ₜ coordinateSet R ι where
     apply isEmbedding_coordinates.isInducing.continuous_iff.mpr
     exact continuous_subtype_val
 
+/-- The coordinate map is a closed embedding of the intrinsic simplex. -/
 theorem isClosedEmbedding_coordinates [OrderClosedTopology R] :
     Topology.IsClosedEmbedding (coordinates (R := R) (ι := ι)) :=
   isClosedEmbedding_toFun_comp_weights R ι
 
-instance : MeasurableSpace (StdSimplex ℝ ι) := borel _
-instance : BorelSpace (StdSimplex ℝ ι) := ⟨rfl⟩
+/-- The Borel σ-algebra of the intrinsic real standard simplex. -/
+instance measurableSpace : MeasurableSpace (StdSimplex ℝ ι) := borel _
 
+/-- The intrinsic real standard simplex is a Borel space. -/
+instance borelSpace : BorelSpace (StdSimplex ℝ ι) := ⟨rfl⟩
+
+/-- The coordinate map is a measurable embedding of the real intrinsic simplex. -/
 theorem measurableEmbedding_coordinates :
     MeasurableEmbedding (coordinates (R := ℝ) (ι := ι)) :=
   isClosedEmbedding_coordinates.measurableEmbedding

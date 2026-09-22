@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.TwoVariable.RPolynomial.Basic
@@ -6,12 +10,34 @@ public import Carlson.RPolynomial.Transform
 public import Mathlib.Algebra.BigOperators.NatAntidiagonal
 public import Mathlib.LinearAlgebra.Finsupp.LSum
 
-/-! # Two-variable Carlson R-polynomials -/
+/-!
+# Two-variable Carlson R-polynomials
 
+The explicit Pochhammer form of the two-node Carlson R-polynomial,
+`∑ k, (b₀)_k (b₁)_{n-k} C(n, k) x^k y^{n-k}`, its agreement with the general multivariate
+construction, and its symmetry and parity properties, including the vanishing of odd-degree
+equal-parameter polynomials at opposite nodes.
+
+## Main definitions
+
+* `Carlson.TwoVariable.carlsonRPolynomialNumerator₂`: the explicit Pochhammer numerator.
+
+## Main results
+
+* `Carlson.TwoVariable.carlsonRPolynomialNumerator_pair`: agreement with the general numerator.
+* `Carlson.TwoVariable.regRPolynomial_eq_numerator₂_mul_one_div_Gamma`: the regularized
+  polynomial through its numerator.
+* `Carlson.TwoVariable.regRPolynomial_eq_zero_of_odd`: parity vanishing at opposite nodes.
+
+## References
+
+* [Carl77] B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
+-/
+
+open Dirichlet
 open Complex
-open scoped Classical
 @[expose] public noncomputable section CarlsonTwoVariable
-namespace DirichletTransform.TwoVariable
+namespace Carlson.TwoVariable
 
 /-- The explicit Pochhammer numerator of a two-variable Carlson R-polynomial. This form is
 well-defined at all parameter values, including zeros of the usual normalizing Pochhammer
@@ -76,7 +102,7 @@ theorem carlsonRPolynomialNumerator_pair (n : ℕ) (b₀ b₁ x y : ℂ) :
       intro m hm
       rw [MvPolynomial.C_mul_X_eq_monomial, MvPolynomial.C_mul_X_eq_monomial,
         MvPolynomial.monomial_pow, MvPolynomial.monomial_pow,
-        MvPolynomial.monomial_mul]
+        MvPolynomial.monomial_mul_monomial]
       rw [show (n.choose m : MvPolynomial (Fin 2) ℂ) = MvPolynomial.C (n.choose m : ℂ) by rfl,
         mul_comm, MvPolynomial.C_mul_monomial]
       change L (Finsupp.single _ _) = _
@@ -192,5 +218,5 @@ theorem carlsonPowerPolynomial_pair_smul (n : ℕ) (a x y : ℂ) :
   rw [h]
   exact carlsonPowerPolynomial_smul n a (pair x y)
 
-end DirichletTransform.TwoVariable
+end Carlson.TwoVariable
 end CarlsonTwoVariable

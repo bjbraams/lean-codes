@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.TwoVariable.R.Inversion
@@ -9,10 +13,11 @@ public import Carlson.L.SlitContinuation
 The full slit-domain correction is `log x + log y`; the `log (x * y)` version
 requires the branch-safe right-half-plane hypotheses. -/
 
+open Dirichlet
 open Complex MeasureTheory ProbabilityTheory Filter Set
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform.TwoVariable
+namespace Carlson.TwoVariable
 
 /-- Carlson (1987), (2.11), in branch-correct form on the entire product slit plane.
 No Gamma-regularity assumptions are needed for these regularized functions. -/
@@ -57,4 +62,4 @@ theorem regCarlsonLSlit_pair_inversion_log_mul (t u v : ℂ) {x y : ℂ}
   · exact carlsonRightHalfPlane_subset_slitPlane hx
   · exact carlsonRightHalfPlane_subset_slitPlane hy
 
-end DirichletTransform.TwoVariable
+end Carlson.TwoVariable

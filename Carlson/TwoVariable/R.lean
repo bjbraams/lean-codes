@@ -1,16 +1,37 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.TwoVariable.R.Basic
 public import Carlson.TwoVariable.RPolynomial.Basic
 public import Carlson.R.SingleIntegral.Continuation
 
-/-! # The two-variable Carlson R-function -/
+/-!
+# The two-variable Carlson R-function
 
+Elementary properties of the two-node R-integral: agreement with the R-polynomial at natural
+exponents, symmetry, positive homogeneity, and the logarithmic elementary function
+`R₋₁(1, 1; x, y)` of Carlson's Section 8.5, including its diagonal value.
+
+## Main results
+
+* `Carlson.TwoVariable.regRIntegral_natCast`, `Carlson.TwoVariable.regRIntegral_swap`,
+  `Carlson.TwoVariable.regRIntegral_smul_of_pos`: basic identities.
+* `Carlson.TwoVariable.regRContinued_neg_one_one_one`: the logarithm as an R-function.
+
+## References
+
+* [Carl77] B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
+-/
+
+open Dirichlet
 open Complex Filter
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section CarlsonTwoVariable
-namespace DirichletTransform.TwoVariable
+namespace Carlson.TwoVariable
 
 /-- The two-variable integral at a natural exponent agrees with the Carlson polynomial. -/
 theorem regRIntegral_natCast (n : ℕ) (b₀ b₁ z₀ z₁ : ℂ)
@@ -39,7 +60,7 @@ theorem regRIntegral_smul_of_pos (t b₀ b₁ x y : ℂ) {a : ℝ} (ha : 0 < a)
       (pair ((a : ℂ) * x) ((a : ℂ) * y)) = _
   rw [show pair ((a : ℂ) * x) ((a : ℂ) * y) =
       fun i => (a : ℂ) * pair x y i by funext i; fin_cases i <;> rfl]
-  exact DirichletTransform.regCarlsonRIntegral_smul_of_pos t hz ha
+  exact Carlson.regCarlsonRIntegral_smul_of_pos t hz ha
 
 /-- The logarithmic base case in Carlson 8.5(2), without division by a node
 difference. Thus the identity also holds on the diagonal. -/
@@ -118,5 +139,5 @@ theorem regRContinued_neg_one_one_one_diag (x : ℂ)
     regCarlsonDirichletAverage_const _ _ hb]
   simp [cpow_neg_one, Gamma_add_one 1 one_ne_zero]
 
-end DirichletTransform.TwoVariable
+end Carlson.TwoVariable
 end CarlsonTwoVariable

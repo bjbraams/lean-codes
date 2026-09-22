@@ -1,8 +1,13 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Dirichlet.Complex.Analytic
-public import SeveralComplexVariables.LocallyBounded
+public import Analysis.Integral.Parametric
+public import SeveralComplexVariables.SeparateAnalytic
 
 /-!
 # Holomorphic kernels in Dirichlet integrals
@@ -13,9 +18,9 @@ Dirichlet-parameter continuation.
 -/
 
 open Complex MeasureTheory MeasureTheory.Measure ProbabilityTheory Filter Set Metric
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Dirichlet
 variable {ι κ : Type*} [Fintype ι] [Fintype κ]
 
 omit [Fintype κ] in
@@ -29,6 +34,31 @@ theorem continuousOn_complexSimplexKernel
       (U ×ˢ Convexity.StdSimplex.coordinateSet ℝ ι) :=
   hH.comp (by fun_prop) (fun p hp => hW p.1 hp.1 p.2 hp.2)
 
+/-- Differentiation in auxiliary parameters passes through a convergent Dirichlet integral. -/
+theorem hasFDerivAt_regDirichletIntegral_kernel
+    {U : Set (κ → ℂ)} (hU : IsOpen U) {W : Set ((κ → ℂ) × (ι → ℂ))}
+    {H : ((κ → ℂ) × (ι → ℂ)) → ℂ} (hH : AnalyticOnNhd ℂ H W)
+    (hW : ∀ z ∈ U, ∀ u ∈ Convexity.StdSimplex.coordinateSet ℝ ι,
+      (z, fun i => (u i : ℂ)) ∈ W)
+    {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) (z : κ → ℂ) (hz : z ∈ U) :
+    HasFDerivAt (fun y => regDirichletIntegral b (fun u => H (y, fun i => (u i : ℂ))))
+      (∫ u in Convexity.StdSimplex.coordinateSet ℝ ι,
+        regDirichletDensity b u • ((fderiv ℂ H (z, fun i => (u i : ℂ))).comp
+          (ContinuousLinearMap.inl ℂ (κ → ℂ) (ι → ℂ))) ∂stdSimplexMeasure) z := by
+  let K := Convexity.StdSimplex.coordinateSet ℝ ι
+  let D := fun (z : κ → ℂ) (u : ι → ℝ) => (fderiv ℂ H (z, fun i => (u i : ℂ))).comp
+    (ContinuousLinearMap.inl ℂ (κ → ℂ) (ι → ℂ))
+  have hK : IsCompact K := Convexity.StdSimplex.isCompact_coordinateSet ℝ ι
+  have hc := continuousOn_complexSimplexKernel hH.continuousOn hW
+  have hD : ContinuousOn (fun p : (κ → ℂ) × (ι → ℝ) => D p.1 p.2) (U ×ˢ K) := by
+    exact (hH.fderiv.continuousOn.comp (by fun_prop)
+      (fun p hp => hW p.1 hp.1 p.2 hp.2)).clm_comp continuousOn_const
+  simpa only [regDirichletIntegral, smul_eq_mul, K, D, Function.comp_def] using!
+    hasFDerivAt_integral_smul_of_continuousOn_compact hK
+      (integrableOn_regDirichletDensity b hb) hU hz hc hD
+      (fun y hy u hu => ((hH _ (hW y hy u hu)).differentiableAt.hasFDerivAt).comp y
+        (hasFDerivAt_prodMk_left (𝕜 := ℂ) y (fun i => (u i : ℂ))))
+
 /-- A native Dirichlet integral preserves holomorphic dependence on auxiliary parameters. -/
 theorem analyticOnNhd_regDirichletIntegral_kernel
     {U : Set (κ → ℂ)} (hU : IsOpen U) {W : Set ((κ → ℂ) × (ι → ℂ))}
@@ -37,49 +67,10 @@ theorem analyticOnNhd_regDirichletIntegral_kernel
       (z, fun i => (u i : ℂ)) ∈ W)
     {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) :
     AnalyticOnNhd ℂ (fun z => regDirichletIntegral b (fun u => H (z, fun i => (u i : ℂ)))) U := by
-  let K := Convexity.StdSimplex.coordinateSet ℝ ι
-  let μ := (MeasureTheory.Measure.stdSimplexMeasure (ι := ι)).restrict K
-  let D := fun (z : κ → ℂ) (u : ι → ℝ) => (fderiv ℂ H (z, fun i => (u i : ℂ))).comp
-    (ContinuousLinearMap.inl ℂ (κ → ℂ) (ι → ℂ))
-  have hK : IsCompact K := Convexity.StdSimplex.isCompact_coordinateSet ℝ ι
-  have hc := continuousOn_complexSimplexKernel hH.continuousOn hW
-  have hD : ContinuousOn (fun p : (κ → ℂ) × (ι → ℝ) => D p.1 p.2) (U ×ˢ K) := by
-    exact (hH.fderiv.continuousOn.comp (by fun_prop)
-      (fun p hp => hW p.1 hp.1 p.2 hp.2)).clm_comp continuousOn_const
-  have hd : Integrable (regDirichletDensity b) μ := by
-    change IntegrableOn (fun u => regDirichletDensity b u) K stdSimplexMeasure
-    simpa only [mul_one] using integrableOn_regDirichletDensity_mul b hb
-      (continuousOn_const : ContinuousOn (fun _ : ι → ℝ => (1 : ℂ)) K)
-  have hslice {z : κ → ℂ} (hz : z ∈ U) :
-      ContinuousOn (fun u => H (z, fun i => (u i : ℂ))) K :=
-    hc.comp (continuous_const.prodMk continuous_id).continuousOn (fun u hu => ⟨hz, hu⟩)
-  change AnalyticOnNhd ℂ (fun z => ∫ u, regDirichletDensity b u *
-    H (z, fun i => (u i : ℂ)) ∂μ) U
-  apply analyticOnNhd_integral_of_dominated_of_fderiv_le
-    (μ := μ) (F := fun z u => regDirichletDensity b u * H (z, fun i => (u i : ℂ))) hU
+  apply DifferentiableOn.analyticOnNhd_pi _ hU
   intro z hz
-  obtain ⟨r, hr, hball⟩ := nhds_basis_closedBall.mem_iff.mp (hU.mem_nhds hz)
-  obtain ⟨M, hM⟩ := ((isCompact_closedBall z r).prod hK).bddAbove_image
-    (hD.mono (Set.prod_mono hball Subset.rfl)).norm
-  refine ⟨closedBall z r, (fun u => ‖regDirichletDensity b u‖ * M),
-    (fun y u => regDirichletDensity b u • D y u), closedBall_mem_nhds z hr, ?_,
-    integrableOn_regDirichletDensity_mul b hb (hslice hz), ?_, ?_, hd.norm.mul_const M, ?_⟩
-  · filter_upwards [hU.mem_nhds hz] with y hy
-    exact (integrableOn_regDirichletDensity_mul b hb (hslice hy)).aestronglyMeasurable
-  · exact hd.aestronglyMeasurable.smul
-      ((hD.comp (continuous_const.prodMk continuous_id).continuousOn
-        (fun u hu => ⟨hz, hu⟩)).aestronglyMeasurable hK.measurableSet)
-  · filter_upwards [ae_restrict_mem hK.measurableSet] with u hu
-    intro y hy
-    rw [norm_smul]
-    have hDu : ‖D y u‖ ≤ M := hM ⟨(y, u), ⟨hy, hu⟩, rfl⟩
-    exact mul_le_mul_of_nonneg_left hDu (norm_nonneg _)
-  · filter_upwards [ae_restrict_mem hK.measurableSet] with u hu
-    intro y hy
-    have hcomp : HasFDerivAt (fun v : κ → ℂ => H (v, fun i => (u i : ℂ))) (D y u) y :=
-      ((hH _ (hW y (hball hy) u hu)).differentiableAt.hasFDerivAt).comp y
-        (hasFDerivAt_prodMk_left (𝕜 := ℂ) y (fun i => (u i : ℂ)))
-    exact hcomp.const_mul (regDirichletDensity b u)
+  exact (hasFDerivAt_regDirichletIntegral_kernel hU hH hW hb z
+      hz).differentiableAt.differentiableWithinAt
 
 /-- Compactness of the kernel and a common Dirichlet majorant give local boundedness
 simultaneously in Dirichlet and auxiliary parameters. -/
@@ -149,6 +140,7 @@ theorem analyticOnNhd_regDirichletIntegral_kernel_joint
     AnalyticOnNhd ℂ (fun p : (ι → ℂ) × (κ → ℂ) =>
       regDirichletIntegral p.1 (fun u => H (p.2, fun i => (u i : ℂ))))
       (mvBetaConvergent ×ˢ U) := by
+  classical
   let L := ContinuousLinearEquiv.sumPiEquivProdPi ℂ ι κ (fun _ => ℂ)
   have hLapply (q : (ι ⊕ κ) → ℂ) : L q = ((fun i => q (.inl i)), (fun i => q (.inr i))) := rfl
   let V := L ⁻¹' (mvBetaConvergent ×ˢ U)
@@ -157,47 +149,43 @@ theorem analyticOnNhd_regDirichletIntegral_kernel_joint
   have hV : IsOpen V := (isOpen_mvBetaConvergent.prod hU).preimage L.continuous
   have hc := continuousOn_complexSimplexKernel hH.continuousOn hW
   have hG : AnalyticOnNhd ℂ G V := by
-    apply SeveralComplexVariables.analyticOnNhd_of_separately_analytic_locally_bounded hV
-    · intro q hq k
-      have hupdateB (v : ι → ℂ) (i : ι) (w : ℂ) :
-          Function.update v i w = fun j => if j = i then w else v j := by
-        funext j
-        simp only [Function.update_apply]
-      have hupdateZ (v : κ → ℂ) (i : κ) (w : ℂ) :
-          Function.update v i w = fun j => if j = i then w else v j := by
-        funext j
-        simp only [Function.update_apply]
-      cases k with
-      | inl i =>
-        have hcont : ContinuousOn (fun u => H ((L q).2, fun i => (u i : ℂ)))
-            (Convexity.StdSimplex.coordinateSet ℝ ι) :=
-          hc.comp (continuous_const.prodMk continuous_id).continuousOn (fun u hu => ⟨hq.2, hu⟩)
-        have h := (isOpen_mvBetaConvergent.analyticOn_iff_analyticOnNhd.mp
-          (regDirichletIntegral_analyticOn hcont)).analyticAt_update hq.1 i
-        change AnalyticAt ℂ (fun w => regDirichletIntegral
-          (Function.update (fun j => q (.inl j)) i w)
-          (fun u => H ((fun j => q (.inr j)), fun j => (u j : ℂ)))) (q (.inl i)) at h
-        dsimp only [G]
-        simp only [hLapply]
-        simpa only [hupdateB, Function.update_apply, Sum.inl.injEq,
-          reduceCtorEq, if_false] using! h
-      | inr i =>
-        have h := (analyticOnNhd_regDirichletIntegral_kernel hU hH hW hq.1).analyticAt_update hq.2 i
-        change AnalyticAt ℂ (fun w => regDirichletIntegral (fun j => q (.inl j))
-          (fun u => H (Function.update (fun j => q (.inr j)) i w,
-            fun j => (u j : ℂ)))) (q (.inr i)) at h
-        dsimp only [G]
-        simp only [hLapply]
-        simpa only [hupdateZ, Function.update_apply, Sum.inr.injEq,
-          reduceCtorEq, if_false] using! h
-    · intro q hq
-      obtain ⟨M, hM⟩ := locallyBounded_regDirichletIntegral_kernel
-        (F := fun z u => H (z, fun i => (u i : ℂ))) hU hc hq.1 hq.2
-      exact ⟨M, L.continuous.continuousAt.tendsto.eventually hM⟩
+    apply SeveralComplexVariables.analyticOnNhd_of_separately_analytic hV
+    intro q hq k
+    have hupdateB (v : ι → ℂ) (i : ι) (w : ℂ) :
+        Function.update v i w = fun j => if j = i then w else v j := by
+      funext j
+      simp only [Function.update_apply]
+    have hupdateZ (v : κ → ℂ) (i : κ) (w : ℂ) :
+        Function.update v i w = fun j => if j = i then w else v j := by
+      funext j
+      simp only [Function.update_apply]
+    cases k with
+    | inl i =>
+      have hcont : ContinuousOn (fun u => H ((L q).2, fun i => (u i : ℂ)))
+          (Convexity.StdSimplex.coordinateSet ℝ ι) :=
+        hc.comp (continuous_const.prodMk continuous_id).continuousOn (fun u hu => ⟨hq.2, hu⟩)
+      have h := (isOpen_mvBetaConvergent.analyticOn_iff_analyticOnNhd.mp
+        (regDirichletIntegral_analyticOn hcont)).analyticAt_update hq.1 i
+      change AnalyticAt ℂ (fun w => regDirichletIntegral
+        (Function.update (fun j => q (.inl j)) i w)
+        (fun u => H ((fun j => q (.inr j)), fun j => (u j : ℂ)))) (q (.inl i)) at h
+      dsimp only [G]
+      simp only [hLapply]
+      simpa only [hupdateB, Function.update_apply, Sum.inl.injEq,
+        reduceCtorEq, ite_false] using! h
+    | inr i =>
+      have h := (analyticOnNhd_regDirichletIntegral_kernel hU hH hW hq.1).analyticAt_update hq.2 i
+      change AnalyticAt ℂ (fun w => regDirichletIntegral (fun j => q (.inl j))
+        (fun u => H (Function.update (fun j => q (.inr j)) i w,
+          fun j => (u j : ℂ)))) (q (.inr i)) at h
+      dsimp only [G]
+      simp only [hLapply]
+      simpa only [hupdateZ, Function.update_apply, Sum.inr.injEq,
+        reduceCtorEq, ite_false] using! h
   intro p hp
   have hmem : L.symm p ∈ V := by simpa [V] using hp
   have h := (hG _ hmem).comp_of_eq (L.symm.analyticAt p) rfl
   simpa [G] using! h
 
-end DirichletTransform
+end Dirichlet
 end

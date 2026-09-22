@@ -1,6 +1,11 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
+public import ComplexAnalysis.HalfPlane
 public import Carlson.TwoVariable.RPolynomial
 public import Carlson.R.SlitJointAnalytic
 
@@ -12,14 +17,11 @@ this symmetry first near the all-one node vector, then continue in the parameter
 and in the slit-plane node. This is the R-identity underlying Carlson (1987), (2.12).
 -/
 
+open Dirichlet
 open Complex Filter Set
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform.TwoVariable
-
-private theorem analyticAt_coordinate (p : Fin 3 → ℂ) (i : Fin 3) :
-    AnalyticAt ℂ (fun q : Fin 3 → ℂ => q i) p :=
-  (analyticAt_pi_iff.mp analyticAt_id) i
+namespace Carlson.TwoVariable
 
 /-- Only one monomial survives when the first polynomial node vanishes. -/
 theorem carlsonRPolynomialNumerator₂_zero_left (n : ℕ) (u v y : ℂ) :
@@ -48,9 +50,9 @@ private theorem parameterSymmetry_native_near_one (a u v y : ℂ)
   have h₁ := hasSum_regCarlsonRIntegral_near_one a (pair u v) (pair 0 y) hb hnode
   have h₂ := hasSum_regCarlsonRIntegral_near_one v (pair (u + v - a) a) (pair 0 y) hB hnode
   have heq : (fun n : ℕ => (ascPochhammer ℂ n).eval a / (n.factorial : ℂ) *
-      regCarlsonR n (pair 0 y) (pair u v)) =
+      regCarlsonRPolynomial n (pair u v) (pair 0 y)) =
       (fun n => (ascPochhammer ℂ n).eval v / (n.factorial : ℂ) *
-      regCarlsonR n (pair 0 y) (pair (u + v - a) a)) := by
+      regCarlsonRPolynomial n (pair (u + v - a) a) (pair 0 y)) := by
     funext n
     change _ * regRPolynomial n u v 0 y = _ * regRPolynomial n (u + v - a) a 0 y
     rw [regRPolynomial_eq_numerator₂_mul_one_div_Gamma,
@@ -79,20 +81,24 @@ private theorem parameterSymmetry_near_one (a u v y : ℂ) (hy : ‖y‖ < 1) :
   have hB (p : Fin 3 → ℂ) : AnalyticAt ℂ B p := by
     apply analyticAt_pi_iff.mpr
     intro i; fin_cases i
-    · exact ((analyticAt_coordinate p 1).add (analyticAt_coordinate p 2)).sub (analyticAt_coordinate p 0)
-    · exact analyticAt_coordinate p 0
+    · exact ((analyticAt_pi_iff.mp (analyticAt_id (𝕜 := ℂ) (z := p))
+        1).add (analyticAt_pi_iff.mp (analyticAt_id (𝕜 := ℂ) (z := p))
+            2)).sub (analyticAt_pi_iff.mp (analyticAt_id (𝕜 := ℂ) (z := p)) 0)
+    · exact (analyticAt_pi_iff.mp (analyticAt_id (𝕜 := ℂ) (z := p)) 0)
   have hb (p : Fin 3 → ℂ) : AnalyticAt ℂ (fun q => pair (q 1) (q 2)) p := by
     apply analyticAt_pi_iff.mpr
     intro i; fin_cases i
-    · exact analyticAt_coordinate p 1
-    · exact analyticAt_coordinate p 2
+    · exact (analyticAt_pi_iff.mp (analyticAt_id (𝕜 := ℂ) (z := p)) 1)
+    · exact (analyticAt_pi_iff.mp (analyticAt_id (𝕜 := ℂ) (z := p)) 2)
   have hleft : AnalyticOnNhd ℂ (fun p : Fin 3 → ℂ =>
       regCarlsonRSlit (-(p 0)) (pair (p 1) (p 2)) (pair 1 (1 - y))) univ :=
-    fun p _ => analyticAt_regCarlsonRSlit_comp (analyticAt_coordinate p 0).neg
+    fun p _ => analyticAt_regCarlsonRSlit_comp (analyticAt_pi_iff.mp (analyticAt_id (𝕜 := ℂ)
+        (z := p)) 0).neg
       (hb p) analyticAt_const hs
   have hright : AnalyticOnNhd ℂ (fun p : Fin 3 → ℂ =>
       regCarlsonRSlit (-(p 2)) (B p) (pair 1 (1 - y))) univ :=
-    fun p _ => analyticAt_regCarlsonRSlit_comp (analyticAt_coordinate p 2).neg
+    fun p _ => analyticAt_regCarlsonRSlit_comp (analyticAt_pi_iff.mp (analyticAt_id (𝕜 := ℂ)
+        (z := p)) 2).neg
       (hB p) analyticAt_const hs
   have heq := hleft.eq_of_eventuallyEq hright (z₀ := fun _ => 1) (by
     have hl := (hb (fun _ => 1)).continuousAt.tendsto.eventually
@@ -129,17 +135,6 @@ theorem regCarlsonRSlit_parameterSymmetry (a u v : ℂ) {w : ℂ} (hw : w ∈ sl
     (isOpen_lt (by fun_prop) continuous_const).mem_nhds (by simp)
   filter_upwards [hnear] with w hw
   simpa using parameterSymmetry_near_one a u v (1 - w) hw
-
-/-- A ratio of two right-half-plane numbers cannot lie on the nonpositive real axis. -/
-theorem div_mem_slitPlane_of_re_pos {x y : ℂ} (hx : 0 < x.re) (hy : 0 < y.re) :
-    x / y ∈ slitPlane := by
-  apply mem_slitPlane_iff.mpr
-  by_cases hi : (x / y).im = 0
-  · left
-    have h := congrArg Complex.re (div_mul_cancel₀ x (ne_zero_of_re_pos hy))
-    rw [mul_re, hi, zero_mul, sub_zero] at h
-    nlinarith
-  · exact Or.inr hi
 
 /-- Normalize the first node, with branch control for arbitrary right-half-plane nodes.
 The normalized second node need only belong to the slit plane. -/
@@ -254,4 +249,4 @@ theorem regCarlsonRSlit_parameterInterchange_last (t u v : ℂ) {x y : ℂ}
   rw [← regCarlsonRSlit_pair_swap (-u) (v + u + t) (-t)
     (show (1 : ℂ) ∈ slitPlane by simp) (div_mem_slitPlane_of_re_pos hx hy), add_comm v u]
 
-end DirichletTransform.TwoVariable
+end Carlson.TwoVariable

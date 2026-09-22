@@ -4,13 +4,17 @@ defaultTargets = ["Main"]
 
 [[lean_lib]]
 name = "Main"
-roots = ["Dirichlet", "Carlson", "StdSimplexMeasure", "Pochhammer", "SeveralComplexVariables"]
+roots = ["Algebra", "Dirichlet", "Carlson", "StdSimplexMeasure", "Pochhammer", "SeveralComplexVariables", "ComplexAnalysis", "Analysis", "Topology"]
 globs = [
+  "Algebra", "Algebra.+",
   "StdSimplexMeasure", "StdSimplexMeasure.+",
   "Dirichlet", "Dirichlet.+",
   "Carlson", "Carlson.+",
   "Pochhammer", "Pochhammer.+",
   "SeveralComplexVariables", "SeveralComplexVariables.+",
+  "ComplexAnalysis", "ComplexAnalysis.+",
+  "Analysis", "Analysis.+",
+  "Topology", "Topology.+",
 ]
 
 [[lean_exe]]

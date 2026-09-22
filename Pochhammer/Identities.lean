@@ -22,8 +22,8 @@ public noncomputable section
 theorem ascPochhammer_eval_shift {R : Type*} [CommSemiring R] (p : R) (n : ℕ) :
     p * (ascPochhammer R n).eval (p + 1) =
       (p + n) * (ascPochhammer R n).eval p := by
-  have h := congrArg (Polynomial.eval p) (ascPochhammer_succ_left R n)
-  simpa [ascPochhammer_succ_eval, mul_comm] using h.symm
+  simpa [ascPochhammer_succ_eval, mul_comm] using
+    (congrArg (Polynomial.eval p) (ascPochhammer_succ_left R n)).symm
 
 /-- Evaluation of the product formula for ascending Pochhammer symbols. -/
 theorem ascPochhammer_add_eval {R : Type*} [CommSemiring R] (p : R) (n m : ℕ) :

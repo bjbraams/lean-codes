@@ -1,11 +1,9 @@
 /-
 Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Bastiaan J Braams.
+Authors: Bastiaan J Braams
 -/
 module
-
-
 
 public import Mathlib.Probability.Moments.Variance
 public import Dirichlet.Real
@@ -13,8 +11,22 @@ public import Dirichlet.Real
 import Pochhammer.Gamma
 import all StdSimplexMeasure.Measure.Basic
 
-/-! # Moments, means, variances, and covariances of the real Dirichlet distribution -/
+/-!
+# Moments, means, variances, and covariances of the real Dirichlet distribution
 
+Explicit moment formulas for the Dirichlet distribution on the standard simplex: integrals of
+monomials and of real power products, the mean and variance of a coordinate, and the
+covariance of two distinct coordinates.
+
+## Main results
+
+* `ProbabilityTheory.integral_dirichletMeasure_monomial`,
+  `ProbabilityTheory.integral_dirichletMeasure_power_product`.
+* `ProbabilityTheory.variance_dirichletMeasure_coordinate`,
+  `ProbabilityTheory.covariance_dirichletMeasure_coordinate`.
+-/
+
+open Dirichlet
 open Real MeasureTheory MeasureTheory.Measure
 open scoped ENNReal
 
@@ -24,7 +36,6 @@ namespace ProbabilityTheory
 
 variable {ι : Type*} [Fintype ι]
 
-open scoped Classical
 
 /-- The integral of a power product (generalized monomial) against the Dirichlet measure. -/
 theorem integral_dirichletMeasure_power_product {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain)
@@ -80,7 +91,7 @@ theorem integral_dirichletMeasure_power_product {b : ι → ℝ} (hb : b ∈ mvR
       field_simp
 
 /-- The integral of a monomial against the Dirichlet measure. -/
-/- The `[Nonempty ι]` hypothesis is essential.  For an empty index type the left side is
+/- The `[Nonempty ι]` hypothesis is essential. For an empty index type the left side is
 zero, while the empty products and the degree-zero rising factorial make the right side one. -/
 theorem integral_dirichletMeasure_monomial [Nonempty ι]
     {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain)
@@ -130,6 +141,7 @@ theorem integral_dirichletMeasure_monomial [Nonempty ι]
 theorem integral_dirichletMeasure_coordinate
     {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain) (i : ι) :
     ∫ u, (u i) ∂(dirichletMeasure b) = (b i) / (∑ j, b j) := by
+  classical
   let : Nonempty ι := ⟨i⟩
   let m : ι → ℝ := fun j => if j = i then 1 else 0
   have hm : b + m ∈ mvRealBetaDomain := by
@@ -168,6 +180,7 @@ theorem integral_dirichletMeasure_coordinate_sq
     {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain) (i : ι) :
     ∫ u, (u i) ^ 2 ∂(dirichletMeasure b) =
       b i * (b i + 1) / ((∑ j, b j) * (∑ j, b j + 1)) := by
+  classical
   let : Nonempty ι := ⟨i⟩
   let m : ι → ℕ := fun j => if j = i then 2 else 0
   have h := integral_dirichletMeasure_monomial hb m
@@ -195,6 +208,7 @@ theorem integral_dirichletMeasure_two_coordinates
     {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain) {i j : ι} (hij : i ≠ j) :
     ∫ u, u i * u j ∂(dirichletMeasure b) =
       b i * b j / ((∑ k, b k) * (∑ k, b k + 1)) := by
+  classical
   let : Nonempty ι := ⟨i⟩
   let m : ι → ℕ := fun k => if k = i then 1 else if k = j then 1 else 0
   have h := integral_dirichletMeasure_monomial hb m

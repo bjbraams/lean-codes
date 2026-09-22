@@ -14,10 +14,23 @@ public import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
 
 import StdSimplexMeasure.ProdSlices
 
-/-! # Aggregation of solid-simplex volume -/
+/-!
+# Aggregation of solid-simplex volume
+
+The pushforward of Lebesgue measure on a solid simplex along a coordinate aggregation map,
+computed by disintegrating the simplex along the fibers. The result is a weighted density on
+the target simplex.
+
+## Main definitions
+
+* `posSimplexAggregateDensity`: the parameter-dependent fiber integral.
+
+## Main results
+
+* `lintegral_posSimplex_comp_aggregate`: the aggregation formula for nonnegative integrands.
+-/
 
 open MeasureTheory
-open scoped Classical
 
 @[expose] public noncomputable section
 
@@ -30,6 +43,7 @@ theorem lintegral_posSimplex_split_pred {α : Type*} [Fintype α]
     ∫⁻ x in posSimplex α r, G (MeasurableEquiv.piEquivPiSubtypeProd (fun _ : α ↦ ℝ) p x) =
       ∫⁻ u in posSimplex {a : α // p a} r,
         ∫⁻ v in posSimplex {a : α // ¬p a} (r - ∑ i, u i), G (u, v) := by
+  classical
   let e := MeasurableEquiv.piEquivPiSubtypeProd (fun _ : α ↦ ℝ) p
   have hmp := volume_preserving_piEquivPiSubtypeProd (fun _ : α ↦ ℝ) p
   let T : Set (({a : α // p a} → ℝ) × ({a : α // ¬p a} → ℝ)) :=
@@ -112,6 +126,7 @@ private theorem measurable_lintegral_posSimplex_sub
     {δ : Type*} [Fintype δ] (r : ℝ)
     (F : ℝ → (δ → ℝ) → ENNReal) (hF : Measurable (Function.uncurry F)) :
     Measurable fun s => ∫⁻ z in posSimplex δ (r - s), F s z := by
+  classical
   let T : Set (ℝ × (δ → ℝ)) := {q | q.2 ∈ posSimplex δ (r - q.1)}
   have hT : MeasurableSet T := by
     have hsum : Measurable (fun q : ℝ × (δ → ℝ) => q.1 + ∑ i, q.2 i) := by fun_prop
@@ -142,6 +157,7 @@ private theorem measurable_lintegral_posSimplex_sub
   rw [heq]
   exact hI.lintegral_prod_right
 
+open scoped Classical in
 /-- Fibrewise density for the push-forward of Lebesgue measure on a solid simplex under
 coordinate aggregation. For a vector `z` this is the product of the solid-simplex volumes
 of the fibres of `f`. -/
@@ -150,6 +166,7 @@ def posSimplexAggregateDensity {α β : Type*} [Fintype α] [Fintype β]
   ∏ k, ENNReal.ofReal (z k) ^ (Fintype.card {i : α // f i = k} - 1) /
     (Nat.factorial (Fintype.card {i : α // f i = k} - 1) : ENNReal)
 
+open scoped Classical in
 /-- After splitting the source at one fibre, coordinate aggregation consists of summing that
 fibre and aggregating the complementary coordinates. -/
 private theorem linearMap_piEquivPiSubtypeProd_eq
@@ -171,13 +188,13 @@ private theorem linearMap_piEquivPiSubtypeProd_eq
   rw [FunOnFinite.linearMap_apply_apply]
   by_cases hj : j = k
   · subst j
-    rw [dif_pos rfl]
+    rw [dite_eq_left rfl]
     rw [Finset.sum_subtype (p := fun a => f a = k)
       (Finset.univ.filter fun a => f a = k) (by simp)]
     apply Finset.sum_congr rfl
     intro a _
     simp [a.property]
-  · simp only [dif_neg hj]
+  · simp only [dite_eq_right hj]
     rw [FunOnFinite.linearMap_apply_apply]
     rw [Finset.sum_subtype (p := fun a => f a = j)
       (Finset.univ.filter fun a => f a = j) (by simp)]
@@ -193,9 +210,10 @@ private theorem linearMap_piEquivPiSubtypeProd_eq
         right_inv := fun a => by ext; rfl }
     intro a
     have hne : ¬f a = k := fun h => hj (a.property.symm.trans h)
-    rw [dif_neg hne]
+    rw [dite_eq_right hne]
     congr 1
 
+open scoped Classical in
 /-- The aggregation density factors when one target coordinate and its source fibre are
 split off. -/
 private theorem posSimplexAggregateDensity_split
@@ -217,7 +235,7 @@ private theorem posSimplexAggregateDensity_split
     ENNReal.ofReal (if h : j = k then s else z ⟨j, h⟩) ^
       (Fintype.card {i : α // f i = j} - 1) /
         (Nat.factorial (Fintype.card {i : α // f i = j} - 1) : ENNReal)) k]
-  rw [dif_pos rfl]
+  rw [dite_eq_left rfl]
   congr 1
   apply Fintype.prod_congr
   intro j
@@ -229,7 +247,7 @@ private theorem posSimplexAggregateDensity_split
       invFun := fun a => ⟨a.1.1, congrArg Subtype.val a.property⟩
       left_inv := fun a => by ext; rfl
       right_inv := fun a => by ext; rfl }
-  rw [dif_neg j.property]
+  rw [dite_eq_right j.property]
   have hj : (⟨(j : β), j.property⟩ : {j : β // j ≠ k}) = j := Subtype.ext rfl
   rw [hj]
   apply congrArg (fun n : ℕ => ENNReal.ofReal (z j) ^ (n - 1) /
@@ -259,6 +277,7 @@ theorem lintegral_posSimplex_comp_aggregate_of_isEmpty
   funext b
   exact isEmptyElim b
 
+open scoped Classical in
 /-- The solid-simplex aggregation formula when the target has a unique coordinate. -/
 theorem lintegral_posSimplex_comp_aggregate_of_unique
     {α β : Type*} [Fintype α] [Fintype β] [Unique β]
@@ -330,11 +349,187 @@ theorem lintegral_posSimplex_comp_aggregate_of_unique
           rw [e.symm_apply_apply]
     _ = ∫⁻ z in posSimplex β r, g z * posSimplexAggregateDensity f z := by rw [hsimplex]
 
+open scoped Classical in
+/-- Reinsert the value `s` at the coordinate `k` of a vector indexed by the other coordinates. -/
+private def assembleAt {β : Type*} (k : β) (s : ℝ) (z : {j : β // j ≠ k} → ℝ) : β → ℝ :=
+  fun j => if h : j = k then s else z ⟨j, h⟩
+
+open scoped Classical in
+/-- Reinsertion at a coordinate is measurable, jointly in the value and the remaining vector. -/
+@[fun_prop]
+private theorem measurable_assembleAt {β : Type*} (k : β) {X : Type*} [MeasurableSpace X]
+    {s : X → ℝ} {z : X → {j : β // j ≠ k} → ℝ} (hs : Measurable s) (hz : Measurable z) :
+    Measurable fun x => assembleAt k (s x) (z x) := by
+  apply Measurable.of_eval _
+  intro j
+  by_cases hj : j = k
+  · subst j
+    simp only [assembleAt]
+    exact hs
+  · simp only [assembleAt, dite_eq_right hj]
+    fun_prop
+
+open scoped Classical in
+/-- The lower-dimensional aggregation integral at mass `s` on the coordinate `k`: the
+aggregated integrand with `s` reinserted at `k`, integrated with the aggregation density of
+the remaining coordinates over the solid simplex of radius `r - s`. -/
+private def aggregateSliceIntegral {α β : Type*} [Fintype α] [Fintype β] (f : α → β) (k : β)
+    (g : (β → ℝ) → ENNReal) (r s : ℝ) : ENNReal :=
+  ∫⁻ z in posSimplex {j : β // j ≠ k} (r - s),
+    g (assembleAt k s z) *
+      posSimplexAggregateDensity
+        (fun a : {a : α // ¬f a = k} => (⟨f a, a.property⟩ : {j : β // j ≠ k})) z
+
+open scoped Classical in
+/-- The slice integral is a measurable function of the mass at the distinguished coordinate. -/
+private theorem measurable_aggregateSliceIntegral {α β : Type*} [Fintype α] [Fintype β]
+    (f : α → β) (k : β) (g : (β → ℝ) → ENNReal) (r : ℝ) (hg : Measurable g) :
+    Measurable (aggregateSliceIntegral f k g r) := by
+  have hpair : Measurable (Function.uncurry (fun (s : ℝ) (z : {j : β // j ≠ k} → ℝ) =>
+      g (assembleAt k s z) * posSimplexAggregateDensity
+        (fun a : {a : α // ¬f a = k} => (⟨f a, a.property⟩ : {j : β // j ≠ k})) z)) := by
+    apply Measurable.mul
+    · exact hg.comp (measurable_assembleAt k measurable_fst measurable_snd)
+    · unfold posSimplexAggregateDensity
+      fun_prop
+  exact measurable_lintegral_posSimplex_sub r _ hpair
+
+open scoped Classical in
+/-- The source side of the aggregation identity after splitting the source simplex at the fibre
+over `k`, given the aggregation identity for the remaining coordinates. -/
+private theorem lintegral_posSimplex_comp_aggregate_source
+    {α β : Type*} [Fintype α] [Fintype β]
+    (f : α → β) (hf : Function.Surjective f) (k : β) (r : ℝ) (hr : 0 ≤ r)
+    (g : (β → ℝ) → ENNReal) (hg : Measurable g)
+    (ih : ∀ r' : ℝ, 0 ≤ r' → ∀ g' : ({j : β // j ≠ k} → ℝ) → ENNReal, Measurable g' →
+      ∫⁻ x in posSimplex {a : α // ¬f a = k} r', g' (FunOnFinite.linearMap ℝ ℝ
+          (fun a : {a : α // ¬f a = k} => (⟨f a, a.property⟩ : {j : β // j ≠ k})) x) =
+        ∫⁻ z in posSimplex {j : β // j ≠ k} r', g' z * posSimplexAggregateDensity
+          (fun a : {a : α // ¬f a = k} => (⟨f a, a.property⟩ : {j : β // j ≠ k})) z) :
+    ∫⁻ x in posSimplex α r, g (FunOnFinite.linearMap ℝ ℝ f x) =
+      ∫⁻ s in Set.Icc (0 : ℝ) r, aggregateSliceIntegral f k g r s *
+        (ENNReal.ofReal s ^ (Fintype.card {a : α // f a = k} - 1) /
+          Nat.factorial (Fintype.card {a : α // f a = k} - 1)) := by
+  let p : α → Prop := fun a => f a = k
+  let eα := MeasurableEquiv.piEquivPiSubtypeProd (fun _ : α => ℝ) p
+  let f' : {a : α // ¬p a} → {j : β // j ≠ k} := fun a => ⟨f a, a.property⟩
+  let G : ({a : α // p a} → ℝ) × ({a : α // ¬p a} → ℝ) → ENNReal :=
+    fun q => g (assembleAt k (∑ i, q.1 i) (FunOnFinite.linearMap ℝ ℝ f' q.2))
+  have hG : Measurable G :=
+    hg.comp (measurable_assembleAt k (by fun_prop) (by fun_prop))
+  have hsource : (∫⁻ x in posSimplex α r, g (FunOnFinite.linearMap ℝ ℝ f x)) =
+      ∫⁻ u in posSimplex {a : α // p a} r,
+        ∫⁻ v in posSimplex {a : α // ¬p a} (r - ∑ i, u i), G (u, v) := by
+    calc
+      _ = ∫⁻ x in posSimplex α r, G (eα x) := by
+        apply setLIntegral_congr_fun (measurableSet_posSimplex α r)
+        intro x _
+        have ha := linearMap_piEquivPiSubtypeProd_eq f k (eα x)
+        simp only [p, eα, eα.symm_apply_apply] at ha
+        dsimp only [G]
+        apply congrArg g
+        rw [ha]
+        rfl
+      _ = _ := lintegral_posSimplex_split_pred p r G hG
+  let _ : Nonempty {a : α // p a} := ⟨⟨Classical.choose (hf k), Classical.choose_spec (hf k)⟩⟩
+  rw [hsource]
+  calc
+    _ = ∫⁻ u in posSimplex {a : α // p a} r, aggregateSliceIntegral f k g r (∑ i, u i) := by
+      apply setLIntegral_congr_fun (measurableSet_posSimplex {a : α // p a} r)
+      intro u hu
+      have hrs : 0 ≤ r - ∑ i, u i := sub_nonneg.mpr hu.2
+      have hrec := ih (r - ∑ i, u i) hrs (fun z => g (assembleAt k (∑ i, u i) z))
+        (hg.comp (measurable_assembleAt k measurable_const measurable_id))
+      simpa only [G, aggregateSliceIntegral] using hrec
+    _ = _ := lintegral_posSimplex_comp_sum r hr _ (measurable_aggregateSliceIntegral f k g r hg)
+
+open scoped Classical in
+/-- The target side of the aggregation identity after splitting the target simplex at the
+coordinate `k`. -/
+private theorem lintegral_posSimplex_mul_aggregateDensity_split
+    {α β : Type*} [Fintype α] [Fintype β] (f : α → β) (k : β) (r : ℝ) (hr : 0 ≤ r)
+    (g : (β → ℝ) → ENNReal) (hg : Measurable g) :
+    ∫⁻ z in posSimplex β r, g z * posSimplexAggregateDensity f z =
+      ∫⁻ s in Set.Icc (0 : ℝ) r, aggregateSliceIntegral f k g r s *
+        (ENNReal.ofReal s ^ (Fintype.card {a : α // f a = k} - 1) /
+          Nat.factorial (Fintype.card {a : α // f a = k} - 1)) := by
+  let pβ : β → Prop := fun j => j = k
+  let eβ := MeasurableEquiv.piEquivPiSubtypeProd (fun _ : β => ℝ) pβ
+  let Aβ := {j : β // pβ j}
+  let _ : Fintype Aβ := Subtype.fintype pβ
+  let _ : Unique Aβ :=
+    { default := ⟨k, rfl⟩
+      uniq := fun a => Subtype.ext a.property }
+  have heβ (q : (Aβ → ℝ) × ({j : β // j ≠ k} → ℝ)) :
+      eβ.symm q = assembleAt k (∑ i, q.1 i) q.2 := by
+    funext j
+    by_cases hj : j = k
+    · subst j
+      change (if h : k = k then q.1 ⟨k, h⟩ else q.2 ⟨k, h⟩) = _
+      simp only [assembleAt]
+      rw [Fintype.sum_unique]
+      congr 2
+    · change (if h : j = k then q.1 ⟨j, h⟩ else q.2 ⟨j, h⟩) = _
+      simp only [assembleAt, dite_eq_right hj]
+  let Gβ : (Aβ → ℝ) × ({j : β // j ≠ k} → ℝ) → ENNReal :=
+    fun q => g (eβ.symm q) * posSimplexAggregateDensity f (eβ.symm q)
+  have hGβ : Measurable Gβ := by
+    apply Measurable.mul
+    · exact hg.comp eβ.symm.measurable
+    · unfold posSimplexAggregateDensity
+      fun_prop
+  calc
+    _ = ∫⁻ z in posSimplex β r, Gβ (eβ z) := by
+      apply setLIntegral_congr_fun (measurableSet_posSimplex β r)
+      intro z _
+      simp only [Gβ, eβ.symm_apply_apply]
+    _ = ∫⁻ u in posSimplex Aβ r,
+        ∫⁻ z in posSimplex {j : β // j ≠ k} (r - ∑ i, u i), Gβ (u, z) :=
+      lintegral_posSimplex_split_pred pβ r Gβ hGβ
+    _ = ∫⁻ u in posSimplex Aβ r,
+        aggregateSliceIntegral f k g r (∑ i, u i) *
+          (ENNReal.ofReal (∑ i, u i) ^ (Fintype.card {a : α // f a = k} - 1) /
+            Nat.factorial (Fintype.card {a : α // f a = k} - 1)) := by
+      apply setLIntegral_congr_fun (measurableSet_posSimplex Aβ r)
+      intro u _
+      change (∫⁻ z in posSimplex {j : β // j ≠ k} (r - ∑ i, u i), Gβ (u, z)) = _
+      calc
+        _ = ∫⁻ z in posSimplex {j : β // j ≠ k} (r - ∑ i, u i),
+            (g (assembleAt k (∑ i, u i) z) * posSimplexAggregateDensity
+              (fun a : {a : α // ¬f a = k} => (⟨f a, a.property⟩ : {j : β // j ≠ k})) z) *
+              (ENNReal.ofReal (∑ i, u i) ^ (Fintype.card {a : α // f a = k} - 1) /
+                Nat.factorial (Fintype.card {a : α // f a = k} - 1)) := by
+          apply setLIntegral_congr_fun (measurableSet_posSimplex {j : β // j ≠ k} _)
+          intro z _
+          change Gβ (u, z) = _
+          rw [show Gβ (u, z) = g (assembleAt k (∑ i, u i) z) *
+              posSimplexAggregateDensity f (assembleAt k (∑ i, u i) z) by
+            simp only [Gβ, heβ]]
+          have hsplit := posSimplexAggregateDensity_split f k (∑ i, u i) z
+          dsimp only at hsplit
+          rw [show assembleAt k (∑ i, u i) z =
+            fun j => if h : j = k then ∑ i, u i else z ⟨j, h⟩ from rfl, hsplit]
+          ac_rfl
+        _ = _ := by
+          apply lintegral_mul_const'
+          exact ENNReal.div_ne_top (by simp) (by positivity)
+    _ = _ := by
+      have hm : Measurable (fun s => aggregateSliceIntegral f k g r s *
+          (ENNReal.ofReal s ^ (Fintype.card {a : α // f a = k} - 1) /
+            Nat.factorial (Fintype.card {a : α // f a = k} - 1))) := by
+        have := measurable_aggregateSliceIntegral f k g r hg
+        fun_prop
+      rw [lintegral_posSimplex_comp_sum r hr _ hm]
+      simp [Aβ, pβ]
+
+open scoped Classical in
 /-- Pushing Lebesgue measure on a solid simplex forward under coordinate aggregation
 (`FunOnFinite.linearMap`) weights the target solid simplex by the product of fibre volumes.
 
 This is the solid-simplex form of the aggregation identity used for `stdSimplexMeasure`.
-The unique-target case is `lintegral_posSimplex_comp_sum`. -/
+The unique-target case is `lintegral_posSimplex_comp_sum`. The proof is a strong induction on
+the number of target coordinates: one target coordinate `k` is split off, and both sides are
+expressed through the same integral over the mass at `k`. -/
 theorem lintegral_posSimplex_comp_aggregate
     {α β : Type*} [Fintype α] [Fintype β]
     (f : α → β) (hf : Function.Surjective f) (r : ℝ) (hr : 0 ≤ r)
@@ -353,168 +548,16 @@ theorem lintegral_posSimplex_comp_aggregate
                   uniq := fun _ => Subsingleton.elim _ _ }
               exact lintegral_posSimplex_comp_aggregate_of_unique f hf r hr g hg
           | inr _ =>
-              classical
               let k : β := Classical.choice inferInstance
-              let β' := {j : β // j ≠ k}
-              let p : α → Prop := fun a => f a = k
-              let f' : {a : α // ¬p a} → β' := fun a => ⟨f a, a.property⟩
-              have hf' : Function.Surjective f' := by
+              have hcard' : Fintype.card {j : β // j ≠ k} < n := by
+                rw [← hcard, Fintype.card_subtype_compl (fun j : β => j = k),
+                  Fintype.card_subtype_eq k]
+                exact Nat.sub_lt (Fintype.card_pos) zero_lt_one
+              have hf' : Function.Surjective
+                  (fun a : {a : α // ¬f a = k} => (⟨f a, a.property⟩ : {j : β // j ≠ k})) := by
                 intro j
                 obtain ⟨a, ha⟩ := hf j
                 exact ⟨⟨a, fun hak => j.property (ha.symm.trans hak)⟩, Subtype.ext ha⟩
-              have hcard' : Fintype.card β' < n := by
-                rw [← hcard]
-                rw [Fintype.card_subtype_compl (fun j : β => j = k),
-                  Fintype.card_subtype_eq k]
-                exact Nat.sub_lt (Fintype.card_pos) zero_lt_one
-              let eα := MeasurableEquiv.piEquivPiSubtypeProd (fun _ : α => ℝ) p
-              let assemble : ℝ → (β' → ℝ) → (β → ℝ) := fun s z j =>
-                if h : j = k then s else z ⟨j, h⟩
-              let G : ({a : α // p a} → ℝ) × ({a : α // ¬p a} → ℝ) → ENNReal :=
-                fun q => g (assemble (∑ i, q.1 i)
-                  (FunOnFinite.linearMap ℝ ℝ f' q.2))
-              have hG : Measurable G := by
-                apply hg.comp
-                apply measurable_pi_lambda _
-                intro j
-                by_cases hj : j = k
-                · subst j
-                  simp only [assemble, dif_pos rfl]
-                  fun_prop
-                · simp only [assemble, dif_neg hj]
-                  fun_prop
-              have hsource :
-                  (∫⁻ x in posSimplex α r,
-                    g (FunOnFinite.linearMap ℝ ℝ f x)) =
-                    ∫⁻ u in posSimplex {a : α // p a} r,
-                      ∫⁻ v in posSimplex {a : α // ¬p a} (r - ∑ i, u i), G (u, v) := by
-                calc
-                  _ = ∫⁻ x in posSimplex α r, G (eα x) := by
-                    apply setLIntegral_congr_fun (measurableSet_posSimplex α r)
-                    intro x _
-                    have ha := linearMap_piEquivPiSubtypeProd_eq f k (eα x)
-                    dsimp only [G]
-                    apply congrArg g
-                    simpa only [p, eα, β', f', assemble, eα.symm_apply_apply] using ha
-                  _ = _ := lintegral_posSimplex_split_pred p r G hG
-              let H : ℝ → ENNReal := fun s =>
-                ∫⁻ z in posSimplex β' (r - s),
-                  g (assemble s z) * posSimplexAggregateDensity f' z
-              have hpair : Measurable (Function.uncurry (fun (s : ℝ) (z : β' → ℝ) =>
-                  g (assemble s z) * posSimplexAggregateDensity f' z)) := by
-                apply Measurable.mul
-                · apply hg.comp
-                  apply measurable_pi_lambda _
-                  intro j
-                  by_cases hj : j = k
-                  · subst j
-                    simp only [assemble, dif_pos rfl]
-                    fun_prop
-                  · simp only [assemble, dif_neg hj]
-                    fun_prop
-                · unfold posSimplexAggregateDensity
-                  fun_prop
-              have hH : Measurable H := by
-                exact measurable_lintegral_posSimplex_sub r _ hpair
-              let A := {a : α // p a}
-              let _ : Nonempty A := ⟨⟨Classical.choose (hf k), Classical.choose_spec (hf k)⟩⟩
-              have hscalar :
-                  (∫⁻ x in posSimplex α r,
-                    g (FunOnFinite.linearMap ℝ ℝ f x)) =
-                    ∫⁻ s in Set.Icc (0 : ℝ) r,
-                      H s * (ENNReal.ofReal s ^ (Fintype.card A - 1) /
-                        Nat.factorial (Fintype.card A - 1)) := by
-                rw [hsource]
-                calc
-                  _ = ∫⁻ u in posSimplex A r, H (∑ i, u i) := by
-                    apply setLIntegral_congr_fun (measurableSet_posSimplex A r)
-                    intro u hu
-                    have hrs : 0 ≤ r - ∑ i, u i := sub_nonneg.mpr hu.2
-                    have hrec := ih (Fintype.card β') hcard' f' hf'
-                      (r - ∑ i, u i) hrs (fun z => g (assemble (∑ i, u i) z))
-                      (by
-                        apply hg.comp
-                        apply measurable_pi_lambda _
-                        intro j
-                        by_cases hj : j = k
-                        · subst j
-                          simp only [assemble, dif_pos rfl]
-                          fun_prop
-                        · simp only [assemble, dif_neg hj]
-                          fun_prop)
-                      rfl
-                    simpa only [G, H] using hrec
-                  _ = _ := lintegral_posSimplex_comp_sum r hr H hH
-              let pβ : β → Prop := fun j => j = k
-              let eβ := MeasurableEquiv.piEquivPiSubtypeProd (fun _ : β => ℝ) pβ
-              let Aβ := {j : β // pβ j}
-              let _ : Fintype Aβ := Subtype.fintype pβ
-              let _ : Unique Aβ :=
-                { default := ⟨k, rfl⟩
-                  uniq := fun a => Subtype.ext a.property }
-              have heβ (q : (Aβ → ℝ) × (β' → ℝ)) :
-                  eβ.symm q = assemble (∑ i, q.1 i) q.2 := by
-                funext j
-                by_cases hj : j = k
-                · subst j
-                  change (if h : k = k then q.1 ⟨k, h⟩ else q.2 ⟨k, h⟩) = _
-                  simp only [dif_pos rfl, assemble]
-                  rw [Fintype.sum_unique]
-                  congr 2
-                · change (if h : j = k then q.1 ⟨j, h⟩ else q.2 ⟨j, h⟩) = _
-                  simp only [dif_neg hj, assemble]
-              let Gβ : (Aβ → ℝ) × (β' → ℝ) → ENNReal := fun q =>
-                g (eβ.symm q) * posSimplexAggregateDensity f (eβ.symm q)
-              have hGβ : Measurable Gβ := by
-                apply Measurable.mul
-                · exact hg.comp eβ.symm.measurable
-                · unfold posSimplexAggregateDensity
-                  fun_prop
-              have htarget :
-                  (∫⁻ z in posSimplex β r,
-                    g z * posSimplexAggregateDensity f z) =
-                    ∫⁻ s in Set.Icc (0 : ℝ) r,
-                      H s * (ENNReal.ofReal s ^ (Fintype.card A - 1) /
-                        Nat.factorial (Fintype.card A - 1)) := by
-                calc
-                  _ = ∫⁻ z in posSimplex β r, Gβ (eβ z) := by
-                    apply setLIntegral_congr_fun (measurableSet_posSimplex β r)
-                    intro z _
-                    simp only [Gβ, eβ.symm_apply_apply]
-                  _ = ∫⁻ u in posSimplex Aβ r,
-                      ∫⁻ z in posSimplex β' (r - ∑ i, u i), Gβ (u, z) :=
-                    lintegral_posSimplex_split_pred pβ r Gβ hGβ
-                  _ = ∫⁻ u in posSimplex Aβ r,
-                      H (∑ i, u i) *
-                        (ENNReal.ofReal (∑ i, u i) ^ (Fintype.card A - 1) /
-                          Nat.factorial (Fintype.card A - 1)) := by
-                    apply setLIntegral_congr_fun (measurableSet_posSimplex Aβ r)
-                    intro u _
-                    change (∫⁻ z in posSimplex β' (r - ∑ i, u i), Gβ (u, z)) = _
-                    calc
-                      _ = ∫⁻ z in posSimplex β' (r - ∑ i, u i),
-                          (g (assemble (∑ i, u i) z) *
-                            posSimplexAggregateDensity f' z) *
-                            (ENNReal.ofReal (∑ i, u i) ^ (Fintype.card A - 1) /
-                              Nat.factorial (Fintype.card A - 1)) := by
-                        apply setLIntegral_congr_fun (measurableSet_posSimplex β' _)
-                        intro z _
-                        change Gβ (u, z) = _
-                        rw [show Gβ (u, z) = g (assemble (∑ i, u i) z) *
-                            posSimplexAggregateDensity f (assemble (∑ i, u i) z) by
-                          simp only [Gβ, heβ]]
-                        rw [posSimplexAggregateDensity_split f k]
-                        simp only [A]
-                        ac_rfl
-                      _ = H (∑ i, u i) *
-                          (ENNReal.ofReal (∑ i, u i) ^ (Fintype.card A - 1) /
-                            Nat.factorial (Fintype.card A - 1)) := by
-                        apply lintegral_mul_const'
-                        exact ENNReal.div_ne_top (by simp) (by positivity)
-                  _ = _ := by
-                    have hm : Measurable (fun s => H s *
-                        (ENNReal.ofReal s ^ (Fintype.card A - 1) /
-                          Nat.factorial (Fintype.card A - 1))) := by fun_prop
-                    rw [lintegral_posSimplex_comp_sum r hr _ hm]
-                    simp [Aβ, pβ]
-              exact hscalar.trans htarget.symm
+              exact (lintegral_posSimplex_comp_aggregate_source f hf k r hr g hg
+                  fun r' hr' g' hg' => ih _ hcard' _ hf' r' hr' g' hg' rfl).trans
+                (lintegral_posSimplex_mul_aggregateDensity_split f k r hr g hg).symm

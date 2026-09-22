@@ -1,16 +1,30 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
-public import Mathlib.Data.Complex.Basic
+public import Mathlib.Basic.Complex.Basic
 public import Mathlib.LinearAlgebra.Matrix.Notation
 public import Mathlib.Algebra.BigOperators.Fin
 
-/-! # Two-variable Carlson functions -/
+/-!
+# Two-variable Carlson functions
+
+The two-coordinate index type `Fin 2` and the elementary API used by all two-variable
+specializations: pairs `![x, y]` as functions on `Fin 2` and the coordinate transposition.
+
+## Main definitions
+
+* `Carlson.TwoVariable.pair`: the function `![x, y] : Fin 2 → ℂ`.
+* `Carlson.TwoVariable.swap`: the transposition of the two coordinates.
+-/
 
 open Complex
-open scoped Classical Matrix
+open scoped Matrix
 @[expose] public noncomputable section CarlsonTwoVariable
-namespace DirichletTransform.TwoVariable
+namespace Carlson.TwoVariable
 
 /-- A pair, represented as a function on the canonical two-element index type. -/
 def pair (x y : ℂ) : Fin 2 → ℂ := ![x, y]
@@ -22,7 +36,7 @@ def pair (x y : ℂ) : Fin 2 → ℂ := ![x, y]
 @[simp] theorem pair_one (x y : ℂ) : pair x y 1 = y := rfl
 
 /-- The sum of the entries of a pair. -/
-@[simp] theorem sum_pair (x y : ℂ) : ∑ i, pair x y i = x + y := by
+theorem sum_pair (x y : ℂ) : ∑ i, pair x y i = x + y := by
   simp [pair, Fin.sum_univ_two]
 
 /-- The transposition of the two coordinates of `Fin 2`. -/
@@ -33,5 +47,5 @@ def swap : Equiv.Perm (Fin 2) := Equiv.swap 0 1
   funext i
   fin_cases i <;> rfl
 
-end DirichletTransform.TwoVariable
+end Carlson.TwoVariable
 end CarlsonTwoVariable

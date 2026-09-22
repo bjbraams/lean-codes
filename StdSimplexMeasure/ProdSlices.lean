@@ -58,7 +58,7 @@ product. The inner integral is over the section `{y | (x, y) ∈ T}`. Unlike
 `setIntegral_prod_slices`, this result requires no integrability hypothesis. -/
 theorem setLIntegral_prod_slices
     {α β : Type*} [MeasurableSpace α] [MeasurableSpace β]
-    {μ : Measure α} {ν : Measure β} [SFinite μ] [SFinite ν]
+    {μ : Measure α} {ν : Measure β} [SFinite ν]
     (T : Set (α × β)) (hT : MeasurableSet T)
     (f : α × β → ENNReal) (hf : AEMeasurable f ((μ.prod ν).restrict T)) :
     ∫⁻ p in T, f p ∂μ.prod ν =
@@ -120,10 +120,9 @@ theorem setIntegral_prod_slices_symm
       ∫ y, ∫ x in Prod.mk y ⁻¹' (Prod.swap ⁻¹' T), f (x, y) ∂μ ∂ν := by
   have hS : MeasurableSet (Prod.swap ⁻¹' T) := hT.preimage measurable_swap
   have hf' : IntegrableOn (fun q : β × α ↦ f q.swap) (Prod.swap ⁻¹' T) (ν.prod μ) := by
-    have hInt : Integrable ((Prod.swap ⁻¹' T).indicator (fun q ↦ f q.swap)) (ν.prod μ) := by
-      rw [← indicator_swap T f]
-      exact integrable_swap_iff.mpr (hf.integrable_indicator hT)
-    exact (integrable_indicator_iff hS).mp hInt
+    apply (integrable_indicator_iff hS).mp
+    rw [← indicator_swap T f]
+    exact integrable_swap_iff.mpr (hf.integrable_indicator hT)
   rw [← integral_indicator hT, ← integral_prod_swap, indicator_swap T f, integral_indicator hS]
   exact setIntegral_prod_slices (Prod.swap ⁻¹' T) hS (fun q ↦ f q.swap) hf'
 
@@ -140,7 +139,7 @@ private theorem prod_Icc_slice_preimage (s : Set α) (lo hi : α → ℝ) (x : �
 
 /-- Tonelli's theorem for the region between two graphs, in the closed-interval convention.
 This is the `Icc` companion of `regionBetween`; see `measurableSet_region_between_cc`. -/
-theorem setLIntegral_prod_Icc_slice {μ : Measure α} [SFinite μ]
+theorem setLIntegral_prod_Icc_slice {μ : Measure α}
     {s : Set α} (hs : MeasurableSet s)
     {lo hi : α → ℝ} (hlo : Measurable lo) (hhi : Measurable hi)
     (f : α × ℝ → ENNReal)

@@ -18,7 +18,6 @@ the last free coordinate gives the one-dimensional slices used by the simplex FT
 -/
 
 open MeasureTheory MeasureTheory.Measure
-open scoped Classical
 
 @[expose] public noncomputable section
 
@@ -28,10 +27,12 @@ namespace MeasureTheory
 def finSimplexPoint (v : Fin n → ℝ) : Fin (n + 1) → ℝ :=
   Fin.snoc v (1 - ∑ k, v k)
 
+/-- Completing a free-coordinate vector to a simplex point is continuous. -/
 theorem continuous_finSimplexPoint : Continuous (finSimplexPoint (n := n)) := by
   unfold finSimplexPoint
   fun_prop
 
+/-- Completing a point of the solid unit simplex gives a point of the standard simplex. -/
 theorem finSimplexPoint_mem {v : Fin n → ℝ} (hv : v ∈ posSimplexFin n 1) :
     finSimplexPoint v ∈ Convexity.StdSimplex.coordinateSet ℝ (Fin (n + 1)) := by
   constructor
@@ -41,16 +42,16 @@ theorem finSimplexPoint_mem {v : Fin n → ℝ} (hv : v ∈ posSimplexFin n 1) :
     · simpa [finSimplexPoint] using hv.1 l
   · simp [finSimplexPoint, Fin.sum_univ_castSucc]
 
+/-- The solid unit simplex is compact. -/
 theorem isCompact_posSimplexFin_one (n : ℕ) : IsCompact (posSimplexFin n 1) := by
-  have hclosed : IsClosed (posSimplexFin n 1) := by
-    change IsClosed ({v : Fin n → ℝ | ∀ k, 0 ≤ v k} ∩ {v | ∑ k, v k ≤ 1})
+  refine isCompact_Icc.of_isClosed_subset (s := Set.Icc (fun _ => 0) (fun _ => 1)) ?_ ?_
+  · change IsClosed ({v : Fin n → ℝ | ∀ k, 0 ≤ v k} ∩ {v | ∑ k, v k ≤ 1})
     simp only [Set.ofPred_forall]
     exact (isClosed_iInter fun k => isClosed_le continuous_const (continuous_apply k)).inter
       (isClosed_le (show Continuous (fun v : Fin n → ℝ => ∑ k, v k) by fun_prop) continuous_const)
-  apply isCompact_Icc.of_isClosed_subset hclosed (s := Set.Icc (fun _ => 0) (fun _ => 1))
-  intro v hv
-  refine ⟨hv.1, fun k => ?_⟩
-  exact (Finset.single_le_sum (fun l _ => hv.1 l) (Finset.mem_univ k)).trans hv.2
+  · intro v hv
+    refine ⟨hv.1, fun k => ?_⟩
+    exact (Finset.single_le_sum (fun l _ => hv.1 l) (Finset.mem_univ k)).trans hv.2
 
 /-- The standard-simplex integral in the chart omitting its last coordinate. -/
 theorem integral_stdSimplex_fin {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
@@ -130,7 +131,8 @@ theorem integral_posSimplexFin_snoc {E : Type*} [NormedAddCommGroup E] [NormedSp
         Fin.snoc_castSucc, Fin.snoc_last]
       constructor
       · intro h
-        exact ⟨by simpa using h.1 (Fin.last n), by simpa using (show t ≤ 1 - ∑ k, v k by linarith [h.2])⟩
+        exact ⟨by
+            simpa using h.1 (Fin.last n), by simpa using (show t ≤ 1 - ∑ k, v k by linarith [h.2])⟩
       · intro h
         refine ⟨?_, by simpa using (show (∑ k, v k) + t ≤ 1 by linarith [h.2])⟩
         intro k
@@ -154,6 +156,7 @@ theorem integral_posSimplexFin_snoc_outer {E : Type*} [NormedAddCommGroup E] [No
     (g : (Fin (n + 1) → ℝ) → E) (hg : IntegrableOn g (posSimplexFin (n + 1) 1)) :
     ∫ v in posSimplexFin (n + 1) 1, g v =
       ∫ t in Set.Icc (0 : ℝ) 1, ∫ v in posSimplexFin n (1 - t), g (Fin.snoc v t) := by
+  classical
   let e := MeasurableEquiv.piFinSuccAbove (fun _ : Fin (n + 1) => ℝ) (Fin.last n)
   have he (t : ℝ) (v : Fin n → ℝ) : e.symm (t, v) = Fin.snoc v t := by
     ext k
@@ -206,6 +209,7 @@ theorem integral_posSimplexFin_scale {E : Type*} [NormedAddCommGroup E] [NormedS
     (g : (Fin n → ℝ) → E) {r : ℝ} (hr : 0 < r) :
     ∫ v in posSimplexFin n r, g v =
       r ^ n • ∫ v in posSimplexFin n 1, g (r • v) := by
+  classical
   let G := (posSimplexFin n r).indicator g
   have hmem (v : Fin n → ℝ) : r • v ∈ posSimplexFin n r ↔ v ∈ posSimplexFin n 1 := by
     simp only [posSimplexFin, Set.mem_ofPred_eq, Pi.smul_apply, smul_eq_mul, ← Finset.mul_sum]

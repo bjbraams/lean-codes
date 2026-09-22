@@ -1,20 +1,44 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.S.Series
 
-/-! # Joint holomorphy and locally uniform S-series convergence -/
+/-!
+# Joint holomorphy and locally uniform S-series convergence
 
+The exponential series defining the continued S-function converges locally uniformly in all
+parameters and nodes jointly, so the continued function is jointly entire and all its mixed
+derivatives are sums of the termwise derivatives.
+
+## Main results
+
+* `Carlson.analyticOnNhd_regCarlsonSSeries_joint`: joint holomorphy in parameters and nodes.
+* `Carlson.tendstoLocallyUniformlyOn_regCarlsonSPartialSum_joint`: locally uniform convergence of
+  the partial sums.
+* `Carlson.hasSumLocallyUniformlyOn_carlsonIteratedPartialDeriv_regCarlsonSSeries_joint`: termwise
+  mixed differentiation of the series.
+* `Carlson.analyticOnNhd_regCarlsonSIntegral_variables`: node holomorphy of the native integral.
+
+## References
+
+* [Carl77] B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
+-/
+
+open Dirichlet
 open Complex MeasureTheory ProbabilityTheory Filter Set
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- Each exponential-series term is jointly entire in its parameters and nodes. -/
 private theorem analyticOnNhd_regCarlsonSTerm_joint (n : ℕ) :
     AnalyticOnNhd ℂ (fun q : Sum ι ι → ℂ =>
-      (Nat.factorial n : ℂ)⁻¹ * regCarlsonR n (fun i => q (.inr i)) (fun i => q (.inl i)))
+      (Nat.factorial n : ℂ)⁻¹ * regCarlsonRPolynomial n (fun i => q (.inl i)) (fun i => q (.inr i)))
       Set.univ := by
   intro q _
   exact analyticAt_const.mul (analyticAt_regCarlsonR_comp
@@ -28,24 +52,27 @@ The coordinates `Sum.inl i` represent parameters and `Sum.inr i` represent nodes
 theorem hasSumLocallyUniformlyOn_regCarlsonSSeries_joint :
     HasSumLocallyUniformlyOn
       (fun (n : ℕ) (q : Sum ι ι → ℂ) =>
-        (Nat.factorial n : ℂ)⁻¹ * regCarlsonR n (fun i => q (.inr i)) (fun i => q (.inl i)))
+        (Nat.factorial n : ℂ)⁻¹ * regCarlsonRPolynomial n (fun i => q (.inl i))
+            (fun i => q (.inr i)))
       (fun q => regCarlsonSSeries (fun i => q (.inr i)) (fun i => q (.inl i))) Set.univ := by
-  have hs : SummableLocallyUniformlyOn
+  suffices hs : SummableLocallyUniformlyOn
       (fun (n : ℕ) (q : Sum ι ι → ℂ) =>
-        (Nat.factorial n : ℂ)⁻¹ * regCarlsonR n (fun i => q (.inr i)) (fun i => q (.inl i)))
-      Set.univ := by
-    apply SummableLocallyUniformlyOn_of_locally_bounded isOpen_univ
-    intro K hKuniv hK
-    have hc : Continuous (fun q : Sum ι ι → ℂ => ∑ i, ‖q (.inr i)‖) := by fun_prop
-    obtain ⟨Z₀, hZ₀⟩ := hK.bddAbove_image hc.continuousOn
-    have hp : Continuous (fun q : Sum ι ι → ℂ => fun i => q (.inl i)) := by fun_prop
-    obtain ⟨M, hM, hbound⟩ :=
-      exists_summable_norm_regCarlsonR_div_factorial_bounded_variables
-        (hK.image hp) (le_max_right Z₀ 0)
-    refine ⟨M, hM, fun n q hq => hbound n _ (Set.mem_image_of_mem _ hq) _ ?_⟩
-    exact (hZ₀ (Set.mem_image_of_mem _ hq)).trans (le_max_left _ _)
-  simpa only [regCarlsonSSeries_eq_tsum_regCarlsonR] using hs.hasSumLocallyUniformlyOn
+        (Nat.factorial n : ℂ)⁻¹ * regCarlsonRPolynomial n (fun i => q (.inl i))
+            (fun i => q (.inr i)))
+      Set.univ by
+    simpa only [regCarlsonSSeries_eq_tsum_regCarlsonRPolynomial] using hs.hasSumLocallyUniformlyOn
+  apply SummableLocallyUniformlyOn_of_locally_bounded isOpen_univ
+  intro K hKuniv hK
+  have hc : Continuous (fun q : Sum ι ι → ℂ => ∑ i, ‖q (.inr i)‖) := by fun_prop
+  obtain ⟨Z₀, hZ₀⟩ := hK.bddAbove_image hc.continuousOn
+  have hp : Continuous (fun q : Sum ι ι → ℂ => fun i => q (.inl i)) := by fun_prop
+  obtain ⟨M, hM, hbound⟩ :=
+    exists_summable_norm_regCarlsonR_div_factorial_bounded_variables
+      (hK.image hp) (le_max_right Z₀ 0)
+  refine ⟨M, hM, fun n q hq => hbound n _ (Set.mem_image_of_mem _ hq) _ ?_⟩
+  exact (hZ₀ (Set.mem_image_of_mem _ hq)).trans (le_max_left _ _)
 
+open scoped Classical in
 /-- The continued S-function is jointly entire in parameters and nodes, by locally uniform
 convergence of the R-polynomial expansion. A sum index encodes the two vectors. -/
 theorem analyticOnNhd_regCarlsonSSeries_joint :
@@ -74,10 +101,12 @@ theorem hasSumLocallyUniformlyOn_carlsonIteratedPartialDeriv_regCarlsonSSeries_j
     (is : List (Sum ι ι)) :
     HasSumLocallyUniformlyOn
       (fun n : ℕ => carlsonIteratedPartialDeriv is (fun q : Sum ι ι → ℂ =>
-        (Nat.factorial n : ℂ)⁻¹ * regCarlsonR n (fun i => q (.inr i)) (fun i => q (.inl i))))
+        (Nat.factorial n : ℂ)⁻¹ * regCarlsonRPolynomial n (fun i => q (.inl i))
+            (fun i => q (.inr i))))
       (carlsonIteratedPartialDeriv is (fun q : Sum ι ι → ℂ =>
         regCarlsonSSeries (fun i => q (.inr i)) (fun i => q (.inl i)))) Set.univ := by
   simp only [carlsonIteratedPartialDeriv_eq_iteratedPartialDeriv]
+  let : DecidableEq (Sum ι ι) := Classical.decEq _
   exact hasSumLocallyUniformlyOn_regCarlsonSSeries_joint.iteratedPartialDeriv
     analyticOnNhd_regCarlsonSTerm_joint isOpen_univ is
 
@@ -89,9 +118,11 @@ theorem tendstoLocallyUniformlyOn_carlsonIteratedPartialDeriv_regCarlsonSPartial
       (carlsonIteratedPartialDeriv is (fun q : Sum ι ι → ℂ =>
         regCarlsonSSeries (fun i => q (.inr i)) (fun i => q (.inl i)))) Filter.atTop Set.univ := by
   simp only [carlsonIteratedPartialDeriv_eq_iteratedPartialDeriv]
+  let : DecidableEq (Sum ι ι) := Classical.decEq _
   exact tendstoLocallyUniformlyOn_regCarlsonSPartialSum_joint.iteratedPartialDeriv
     (Filter.Eventually.of_forall analyticOnNhd_regCarlsonSPartialSum_joint) isOpen_univ is
 
+open scoped Classical in
 /-- The iterated Fréchet derivatives of the partial sums converge in multilinear operator
 norm, locally uniformly jointly in the parameters and nodes. -/
 theorem tendstoLocallyUniformlyOn_iteratedFDeriv_regCarlsonSPartialSum_joint (k : ℕ) :
@@ -127,4 +158,4 @@ theorem analyticOnNhd_regCarlsonSIntegral_variables {b : ι → ℂ}
       (Ω := Set.univ) isOpen_univ (convex_univ : Convex ℝ (Set.univ : Set ℂ))
       analyticOnNhd_cexp hb)
 
-end DirichletTransform
+end Carlson

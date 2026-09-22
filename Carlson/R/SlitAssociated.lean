@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.R.AssociatedDependence
@@ -17,10 +21,10 @@ and Dirichlet parameters; no polynomial or analytic dependence of those witnesse
 on the parameters is claimed.
 -/
 
+open Dirichlet
 open Complex Set
-open scoped Classical
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- Carlson's Theorem 8.4-3 for all complex parameters and slit-plane nodes.
@@ -38,4 +42,4 @@ theorem exists_polynomial_relation_associatedRSlit
   exact ⟨A, hA, fun _ hz => polynomial_relation_regCarlsonRSlit_of_right
     Finset.univ A _ _ hrel hz⟩
 
-end DirichletTransform
+end Carlson

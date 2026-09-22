@@ -52,6 +52,46 @@ theorem norm_ascPochhammer_eval_le (a : ℂ) (k : ℕ) {B : ℝ} (hB : 0 ≤ B)
       _ = (B + k + 1) ^ (k + 1) := (pow_succ _ _).symm
       _ = (B + (k + 1 : ℕ)) ^ (k + 1) := by simp [Nat.cast_succ, add_assoc]
 
+/-- Ascending Pochhammer symbols do not vanish in the open right half-plane. -/
+theorem ascPochhammer_eval_ne_zero_of_re_pos {c : ℂ} (hc : 0 < c.re) (n : ℕ) :
+    (ascPochhammer ℂ n).eval c ≠ 0 := by
+  rw [Ne, ascPochhammer_eval_eq_zero_iff]
+  rintro ⟨k, _, hk⟩
+  have h := congrArg Complex.re hk
+  simp only [natCast_re, neg_re] at h
+  linarith
+
+/-- A geometric bound for binomial coefficients, uniform in the degree. -/
+theorem norm_ascPochhammer_eval_le_factorial_mul_pow (a : ℂ) (n : ℕ) :
+    ‖(ascPochhammer ℂ n).eval a‖ ≤ (n.factorial : ℝ) * (‖a‖ + 1) ^ n := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    rw [ascPochhammer_succ_eval, norm_mul]
+    have h : ‖a + (n : ℂ)‖ ≤ (n + 1) * (‖a‖ + 1) := by
+      have h₀ := norm_add_le a (n : ℂ)
+      simp only [norm_natCast] at h₀
+      nlinarith [norm_nonneg a, Nat.cast_nonneg (α := ℝ) n]
+    calc
+      _ ≤ ((n.factorial : ℝ) * (‖a‖ + 1) ^ n) * ((n + 1) * (‖a‖ + 1)) :=
+        mul_le_mul ih h (norm_nonneg _) (by positivity)
+      _ = _ := by rw [Nat.factorial_succ, Nat.cast_mul, Nat.cast_add, Nat.cast_one, pow_succ]; ring
+
+/-- The half-integer Pochhammer factors are a lower bound for the denominator. -/
+theorem norm_ascPochhammer_half_le {c : ℂ} (hc : 1 / 2 ≤ c.re) (n : ℕ) :
+    ‖(ascPochhammer ℂ n).eval (1 / 2)‖ ≤ ‖(ascPochhammer ℂ n).eval c‖ := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    simp only [ascPochhammer_succ_eval, norm_mul]
+    apply mul_le_mul ih _ (norm_nonneg _) (norm_nonneg _)
+    calc
+      ‖(1 / 2 : ℂ) + n‖ = 1 / 2 + (n : ℝ) := by
+        rw [show (1 / 2 : ℂ) + n = ((1 / 2 + (n : ℝ) : ℝ) : ℂ) by push_cast; rfl,
+          Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg (by positivity)]
+      _ ≤ (c + n).re := by simp only [add_re, natCast_re]; linarith
+      _ ≤ ‖c + n‖ := re_le_norm _
+
 end Complex
 
 end

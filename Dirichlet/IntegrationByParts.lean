@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 /- Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bastiaan J Braams.
@@ -23,11 +28,11 @@ boundary term. This result uses only the native integral theory.
 -/
 
 open Complex MeasureTheory ProbabilityTheory MeasureTheory.Measure Set Filter
-open scoped Topology Classical
+open scoped Topology
 
 @[expose] public noncomputable section
 
-namespace DirichletTransform
+namespace Dirichlet
 
 variable {ι : Type*} [Fintype ι]
 
@@ -36,6 +41,8 @@ def dirichletChartDensity (i : ι) (b : ι → ℂ)
     (x : {j : ι // j ≠ i} → ℝ) : ℂ :=
   ∏ j, positiveGammaPower (b j) (stdSimplexCoordMap i x j)
 
+/-- On the sum-one hyperplane the product of positive Gamma powers is the regularized Dirichlet
+density. -/
 theorem prod_positiveGammaPower_eq_regDirichletDensity (b : ι → ℂ)
     (u : ι → ℝ) (hu : ∑ j, u j = 1) :
     (∏ j, positiveGammaPower (b j) (u j)) = regDirichletDensity b u := by
@@ -48,11 +55,14 @@ theorem prod_positiveGammaPower_eq_regDirichletDensity (b : ι → ℂ)
     apply Finset.prod_eq_zero (Finset.mem_univ j)
     simp [positiveGammaPower, positiveCpow, hj]
 
+/-- The chart density is the regularized Dirichlet density pulled back along the coordinate
+chart. -/
 theorem dirichletChartDensity_eq (i : ι) (b : ι → ℂ)
     (x : {j : ι // j ≠ i} → ℝ) :
     dirichletChartDensity i b x = regDirichletDensity b (stdSimplexCoordMap i x) :=
   prod_positiveGammaPower_eq_regDirichletDensity b _ (sum_stdSimplexCoordMap i x)
 
+/-- The chart density is supported in the chart preimage of the closed simplex. -/
 theorem tsupport_dirichletChartDensity_subset (i : ι) (b : ι → ℂ) :
     tsupport (dirichletChartDensity i b) ⊆
       stdSimplexCoordMap i ⁻¹' Convexity.StdSimplex.coordinateSet ℝ ι := by
@@ -64,6 +74,8 @@ theorem tsupport_dirichletChartDensity_subset (i : ι) (b : ι → ℂ) :
   rw [dirichletChartDensity_eq, regDirichletDensity, Set.indicator_of_notMem]
   exact fun h => hn h.1
 
+/-- A chart-density integrand is the indicator of the free-coordinate simplex times the pulled-back
+regularized integrand. -/
 theorem dirichletChartDensity_mul_eq_indicator (i : ι) (b : ι → ℂ)
     (f : (ι → ℝ) → ℂ) :
     (fun x => dirichletChartDensity i b x * f (stdSimplexCoordMap i x)) =
@@ -78,6 +90,9 @@ theorem dirichletChartDensity_mul_eq_indicator (i : ι) (b : ι → ℂ)
     intro h
     exact hx ((stdSimplexCoordMap_mem_stdSimplex_iff i x).mp h.1)
 
+open scoped Classical in
+/-- Integration against the chart density in free coordinates computes the regularized Dirichlet
+integral. -/
 theorem integral_dirichletChartDensity_mul (i : ι) (b : ι → ℂ)
     (f : (ι → ℝ) → ℂ) :
     (∫ x, dirichletChartDensity i b x * f (stdSimplexCoordMap i x)) =
@@ -87,6 +102,8 @@ theorem integral_dirichletChartDensity_mul (i : ι) (b : ι → ℂ)
     integral_indicator (isClosed_stdSimplexFreeCoords i).measurableSet,
     regDirichletIntegral, integral_stdSimplex_eq_integral_freeCoords i]
 
+open scoped Classical in
+/-- On the convergence region, chart-density integrands of continuous functions are integrable. -/
 theorem integrable_dirichletChartDensity_mul (i : ι) (b : ι → ℂ)
     (hb : b ∈ mvBetaConvergent) {f : (ι → ℝ) → ℂ}
     (hf : ContinuousOn f (Convexity.StdSimplex.coordinateSet ℝ ι)) :
@@ -99,6 +116,9 @@ theorem integrable_dirichletChartDensity_mul (i : ι) (b : ι → ℂ)
     integrable_indicator_iff (isClosed_stdSimplexFreeCoords i).measurableSet]
   exact h'
 
+open scoped Classical in
+/-- Lowering one parameter by one isolates the corresponding Gamma-power factor of the chart
+density. -/
 theorem dirichletChartDensity_lower (i k : ι) (b : ι → ℂ)
     (x : {j : ι // j ≠ i} → ℝ) :
     dirichletChartDensity i (b - Pi.single k 1) x =
@@ -111,6 +131,9 @@ theorem dirichletChartDensity_lower (i k : ι) (b : ι → ℂ)
     intro l hl
     simp [Pi.single_eq_of_ne (Finset.mem_erase.mp hl).1]
 
+open scoped Classical in
+/-- The line derivative of the chart density along a free coordinate direction is a difference of
+lowered chart densities. -/
 theorem hasLineDerivAt_dirichletChartDensity (i : ι) (j : {j : ι // j ≠ i})
     (b : ι → ℂ) (hb : ∀ k, 2 < (b k).re) (x : {j : ι // j ≠ i} → ℝ) :
     HasLineDerivAt ℝ (dirichletChartDensity i b)
@@ -143,6 +166,7 @@ theorem hasLineDerivAt_dirichletChartDensity (i : ι) (j : {j : ι // j ≠ i})
   convert! hp using 1
   simpa [dirichletChartDensity] using hd.symm
 
+open scoped Classical in
 /-- Tangential integration by parts, initially with exponents that vanish differentiably
 at every boundary face. The Gamma normalization removes the usual exponent coefficients. -/
 theorem regDirichletIntegral_tangent_ibp (i : ι) (j : {j : ι // j ≠ i})
@@ -184,4 +208,4 @@ theorem regDirichletIntegral_tangent_ibp (i : ι) (j : {j : ι // j ≠ i})
     (fun u => fderiv ℝ f u (Pi.single (j : ι) 1 - Pi.single i 1))]
   simpa only [integral_dirichletChartDensity_mul, neg_sub] using H
 
-end DirichletTransform
+end Dirichlet

@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Bastiaan J Braams.
+Authors: Bastiaan J Braams
 -/
 module
 
@@ -32,7 +32,6 @@ constants that occur when coordinate measures on standard simplices are pushed f
 
 variable {ι : Type*} [Fintype ι]
 
-open scoped Classical
 open Convexity
 
 /-- Coordinate aggregation sends `u : ι → R` to its block sums under a map `f : ι → κ`.
@@ -47,6 +46,14 @@ theorem continuous_stdSimplexAggregate {κ R : Type*} [Finite κ] [Semiring R]
     Continuous (stdSimplexAggregate (R := R) f) :=
   FunOnFinite.continuous_linearMap R R f
 
+/-- A semiring homomorphism commutes with aggregation along a finite map. -/
+theorem stdSimplexAggregate_map {κ R S : Type*} [Finite κ] [Semiring R] [Semiring S]
+    (g : R →+* S) (q : ι → κ) (b : ι → R) :
+    stdSimplexAggregate q (fun i => g (b i)) = fun k => g (stdSimplexAggregate q b k) := by
+  classical
+  ext k
+  simp [stdSimplexAggregate, FunOnFinite.linearMap_apply_apply]
+
 namespace Convexity.StdSimplex
 
 variable {κ R : Type*} [Fintype κ]
@@ -54,7 +61,7 @@ variable [Semiring R] [PartialOrder R] [IsStrictOrderedRing R]
 
 /-- Mapping an intrinsic standard-simplex point and then reading its weights agrees with
 aggregation of its finite coordinate function. -/
-@[simp] theorem weights_map_eq_stdSimplexAggregate (f : ι → κ) (s : StdSimplex R ι) :
+theorem weights_map_eq_stdSimplexAggregate (f : ι → κ) (s : StdSimplex R ι) :
     (fun k ↦ (s.map f).weights k) =
       stdSimplexAggregate f (fun i ↦ s.weights i) := by
   change ⇑(Finsupp.mapDomain f s.weights) =
@@ -92,6 +99,7 @@ def stdSimplexAggregateFiberCard {κ : Type*} (f : ι → κ) (k : κ) : ℕ := 
 theorem stdSimplexAggregateFiberCard_pos {κ : Type*} {f : ι → κ}
     (hf : Function.Surjective f) (k : κ) :
     0 < stdSimplexAggregateFiberCard f k := by
+  classical
   unfold stdSimplexAggregateFiberCard
   exact Fintype.card_pos_iff.mpr <| by
     obtain ⟨i, hi⟩ := hf k
@@ -101,6 +109,7 @@ theorem stdSimplexAggregateFiberCard_pos {κ : Type*} {f : ι → κ}
 domain. -/
 theorem sum_stdSimplexAggregateFiberCard {κ : Type*} [Fintype κ] (f : ι → κ) :
     ∑ k, stdSimplexAggregateFiberCard f k = Fintype.card ι := by
+  classical
   let e : (Σ k, {i : ι // f i = k}) ≃ ι :=
     { toFun := fun x => x.2.1
       invFun := fun i => ⟨f i, i, rfl⟩

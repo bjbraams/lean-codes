@@ -1,6 +1,11 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
+public import Pochhammer.Estimates
 public import Pochhammer.BinomialSeries
 public import Pochhammer.Identities
 public import Pochhammer.Vandermonde
@@ -16,22 +21,13 @@ majorant suffices for the local identity, which is subsequently extended by anal
 -/
 
 open Complex
-open scoped Classical
 @[expose] public noncomputable section
-namespace DirichletTransform.TwoVariable
+namespace Carlson.TwoVariable
 
 /-- Coefficient of the double series before grouping terms of equal total degree. -/
 def quadraticSeriesCoeff (a c : ℂ) (m k : ℕ) : ℂ :=
   (ascPochhammer ℂ (2 * m + k)).eval a /
     ((ascPochhammer ℂ m).eval c * (m.factorial : ℂ) * k.factorial) * (-1) ^ k
-
-private lemma pochhammer_ne_zero {c : ℂ} (hc : 0 < c.re) (n : ℕ) :
-    (ascPochhammer ℂ n).eval c ≠ 0 := by
-  rw [Ne, ascPochhammer_eval_eq_zero_iff]
-  rintro ⟨k, _, hk⟩
-  have h := congrArg Complex.re hk
-  simp only [natCast_re, neg_re] at h
-  linarith
 
 /-- The finite convolution that collapses Carlson's double series. -/
 theorem sum_antidiagonal_quadraticSeriesCoeff (a c : ℂ) (hc : 0 < c.re) (n : ℕ) :
@@ -62,7 +58,8 @@ theorem sum_antidiagonal_quadraticSeriesCoeff (a c : ℂ) (hc : 0 < c.re) (n : �
       apply (eq_div_iff (mul_ne_zero (hfactorial m) (hfactorial k))).mpr
       simpa only [mul_assoc] using hfac
     rw [hchoose]
-    field_simp [pochhammer_ne_zero hc m, pochhammer_ne_zero hc n, hfactorial]
+    field_simp [ascPochhammer_eval_ne_zero_of_re_pos hc m,
+        ascPochhammer_eval_ne_zero_of_re_pos hc n, hfactorial]
     rw [hcm]
     ring
   simp_rw [Finset.sum_congr rfl (fun mk hmk => hterm mk.1 mk.2 (Finset.mem_antidiagonal.mp hmk))]
@@ -70,44 +67,14 @@ theorem sum_antidiagonal_quadraticSeriesCoeff (a c : ℂ) (hc : 0 < c.re) (n : �
   rw [show a + (n : ℂ) + (1 - c - n) = a + 1 - c by ring]
   ring
 
-/-- A geometric bound for binomial coefficients, uniform in the degree. -/
-private lemma norm_pochhammer_le_factorial_mul_pow (a : ℂ) (n : ℕ) :
-    ‖(ascPochhammer ℂ n).eval a‖ ≤ (n.factorial : ℝ) * (‖a‖ + 1) ^ n := by
-  induction n with
-  | zero => simp
-  | succ n ih =>
-    rw [ascPochhammer_succ_eval, norm_mul]
-    have h : ‖a + (n : ℂ)‖ ≤ (n + 1) * (‖a‖ + 1) := by
-      have h₀ := norm_add_le a (n : ℂ)
-      simp only [norm_natCast] at h₀
-      nlinarith [norm_nonneg a, Nat.cast_nonneg (α := ℝ) n]
-    calc
-      _ ≤ ((n.factorial : ℝ) * (‖a‖ + 1) ^ n) * ((n + 1) * (‖a‖ + 1)) :=
-        mul_le_mul ih h (norm_nonneg _) (by positivity)
-      _ = _ := by rw [Nat.factorial_succ, Nat.cast_mul, Nat.cast_add, Nat.cast_one, pow_succ]; ring
-
-/-- The half-integer Pochhammer factors are a lower bound for the denominator. -/
-private lemma norm_half_pochhammer_le {c : ℂ} (hc : 1 / 2 ≤ c.re) (n : ℕ) :
-    ‖(ascPochhammer ℂ n).eval (1 / 2)‖ ≤ ‖(ascPochhammer ℂ n).eval c‖ := by
-  induction n with
-  | zero => simp
-  | succ n ih =>
-    simp only [ascPochhammer_succ_eval, norm_mul]
-    apply mul_le_mul ih _ (norm_nonneg _) (norm_nonneg _)
-    calc
-      ‖(1 / 2 : ℂ) + n‖ = 1 / 2 + (n : ℝ) := by
-        rw [show (1 / 2 : ℂ) + n = ((1 / 2 + (n : ℝ) : ℝ) : ℂ) by push_cast; rfl,
-          Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg (by positivity)]
-      _ ≤ (c + n).re := by simp only [add_re, natCast_re]; linarith
-      _ ≤ ‖c + n‖ := re_le_norm _
-
 private lemma quadraticSeriesCoeff_eq_binomial (a c : ℂ) (hc : 0 < c.re) (m k : ℕ) :
     quadraticSeriesCoeff a c m k =
       ((ascPochhammer ℂ (2 * m + k)).eval a / ((2 * m + k).factorial : ℂ)) *
         ((2 * m + k).choose k : ℂ) * 4 ^ m *
         ((ascPochhammer ℂ m).eval (1 / 2) / (ascPochhammer ℂ m).eval c) * (-1) ^ k := by
   have hfac : ((2 * m + k).choose k : ℂ) * ((2 * m).factorial : ℂ) * k.factorial =
-      (2 * m + k).factorial := by exact_mod_cast Nat.add_choose_mul_factorial_mul_factorial (2 * m) k
+      (2 * m + k).factorial := by
+          exact_mod_cast Nat.add_choose_mul_factorial_mul_factorial (2 * m) k
   have hdouble : ((2 * m).factorial : ℂ) =
       4 ^ m * (ascPochhammer ℂ m).eval (1 / 2) * (m.factorial : ℂ) := by
     have H := ascPochhammer_eval_double (1 / 2 : ℂ) m
@@ -115,7 +82,7 @@ private lemma quadraticSeriesCoeff_eq_binomial (a c : ℂ) (hc : 0 < c.re) (m k 
     exact H
   have hfactorial (l : ℕ) : (l.factorial : ℂ) ≠ 0 := by exact_mod_cast Nat.factorial_ne_zero l
   dsimp [quadraticSeriesCoeff]
-  field_simp [pochhammer_ne_zero hc m, hfactorial]
+  field_simp [ascPochhammer_eval_ne_zero_of_re_pos hc m, hfactorial]
   rw [hdouble] at hfac
   linear_combination -(ascPochhammer ℂ (2 * m + k)).eval a * hfac
 
@@ -127,10 +94,10 @@ theorem norm_quadraticSeriesCoeff_le (a c : ℂ) (hc : 1 / 2 ≤ c.re) (m k : �
   have ha : ‖(ascPochhammer ℂ (2 * m + k)).eval a / ((2 * m + k).factorial : ℂ)‖ ≤
       (‖a‖ + 1) ^ (2 * m + k) := by
     rw [norm_div, norm_natCast, div_le_iff₀ (by positivity)]
-    simpa [mul_comm] using norm_pochhammer_le_factorial_mul_pow a (2 * m + k)
+    simpa [mul_comm] using norm_ascPochhammer_eval_le_factorial_mul_pow a (2 * m + k)
   have hb : ‖(ascPochhammer ℂ m).eval (1 / 2) / (ascPochhammer ℂ m).eval c‖ ≤ 1 := by
-    rw [norm_div, div_le_one (norm_pos_iff.mpr (pochhammer_ne_zero hcpos m))]
-    exact norm_half_pochhammer_le hc m
+    rw [norm_div, div_le_one (norm_pos_iff.mpr (ascPochhammer_eval_ne_zero_of_re_pos hcpos m))]
+    exact norm_ascPochhammer_half_le hc m
   have hchoose : (((2 * m + k).choose k : ℕ) : ℝ) ≤ 2 ^ (2 * m + k) := by
     exact_mod_cast Nat.choose_le_two_pow (2 * m + k) k
   have hfour : (4 : ℝ) ^ m ≤ 2 ^ (2 * m + k) := by
@@ -226,5 +193,5 @@ theorem hasSum_quadraticSeries_row (a c w : ℂ) (m : ℕ) (hw : ‖w‖ < 1) :
     ring
   · simp only [sub_neg_eq_add, div_eq_mul_inv, one_mul]
 
-end DirichletTransform.TwoVariable
+end Carlson.TwoVariable
 end

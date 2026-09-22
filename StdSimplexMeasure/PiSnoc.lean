@@ -51,12 +51,14 @@ def piFinSnoc {n : ℕ} (α : Fin (n + 1) → Type*) [∀ i, MeasurableSpace (α
     (measurable_pi_iff.2 fun j ↦ measurable_pi_apply j.castSucc)
     (measurable_pi_apply _)
 
+/-- The forward map of `piFinSnoc` is `Fin.snoc`. -/
 @[simp]
 theorem piFinSnoc_apply {n : ℕ} (α : Fin (n + 1) → Type*) [∀ i, MeasurableSpace (α i)]
     (p : ((i : Fin n) → α i.castSucc) × α (Fin.last n)) :
     piFinSnoc α p = Fin.snoc p.1 p.2 :=
   rfl
 
+/-- The inverse of `piFinSnoc` splits off the last coordinate. -/
 @[simp]
 theorem piFinSnoc_symm_apply {n : ℕ} (α : Fin (n + 1) → Type*) [∀ i, MeasurableSpace (α i)]
     (f : ∀ i, α i) :

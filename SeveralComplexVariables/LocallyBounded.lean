@@ -5,29 +5,36 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.CauchyEstimates
 public import Mathlib.Analysis.Calculus.MeanValue
+public import SeveralComplexVariables.CauchyEstimates
 
 /-!
 # Locally bounded separate holomorphy
 
-Coordinate Cauchy estimates give joint local Lipschitz bounds for locally bounded,
-separately holomorphic functions. This supplies the continuity hypothesis of Osgood's
-theorem and the equicontinuity estimate used in Montel's theorem.
+Coordinate Cauchy estimates give joint local Lipschitz bounds for locally bounded, separately
+holomorphic functions. This supplies the continuity hypothesis of Osgood's theorem and the
+equicontinuity estimate used in Montel's theorem.
+
+## Main results
+
+`exists_lipschitzOnWith_of_separately_analytic_locally_bounded` converts a local bound on a
+separately holomorphic map into a joint local Lipschitz bound, hence into joint continuity.
+`analyticOnNhd_of_separately_analytic_locally_bounded` is the corresponding analyticity
+statement, using Osgood after that continuity.
 -/
 
 public section
 
 open Complex Filter Function Metric Set
-open scoped Classical NNReal Topology
+open scoped NNReal Topology
 
 namespace SeveralComplexVariables
 
-variable {ι F : Type*} [Fintype ι] [NormedAddCommGroup F] [NormedSpace ℂ F]
+variable {ι F : Type*} [Fintype ι] [DecidableEq ι] [NormedAddCommGroup F] [NormedSpace ℂ F]
 
 omit [NormedSpace ℂ F] in
-/-- Coordinate variation bounds telescope to a joint bound on a product set. This also
-includes the empty product, where every function is constant. -/
+/-- Coordinate variation bounds telescope to a joint bound on a product set. This also includes the
+empty product, where every function is constant. -/
 theorem norm_sub_le_sum_of_update {s : ι → Set ℂ} {f : (ι → ℂ) → F} {C : ℝ}
     (hf : ∀ z ∈ Set.pi univ s, ∀ i, ∀ w ∈ s i,
       ‖f (update z i w) - f z‖ ≤ C * ‖w - z i‖)
@@ -37,20 +44,21 @@ theorem norm_sub_le_sum_of_update {s : ι → Set ℂ} {f : (ι → ℂ) → F} 
     intro i hi
     dsimp only
     split_ifs <;> [exact hy i hi; exact hx i hi]
-  have hstep (t : Finset ι) :
-      ‖f (fun i => if i ∈ t then y i else x i) - f x‖ ≤ ∑ i ∈ t, C * ‖y i - x i‖ := by
-    induction t using Finset.induction_on with
-    | empty => simp
-    | @insert i t hi ih =>
-      have heq : (fun j => if j ∈ insert i t then y j else x j) =
-          update (fun j => if j ∈ t then y j else x j) i (y i) := by
-        funext j
-        by_cases hji : j = i <;> simp [hji]
-      rw [heq, Finset.sum_insert hi]
-      refine (norm_sub_le_norm_sub_add_norm_sub _ (f (fun j => if j ∈ t then y j else x j)) _).trans
-        (add_le_add ?_ ih)
-      simpa [hi] using hf _ (hmem t) i (y i) (hy i (mem_univ i))
-  simpa using hstep Finset.univ
+  suffices hstep : ∀ t : Finset ι,
+      ‖f (fun i => if i ∈ t then y i else x i) - f x‖ ≤ ∑ i ∈ t, C * ‖y i - x i‖ by
+    simpa using hstep Finset.univ
+  intro t
+  induction t using Finset.induction_on with
+  | empty => simp
+  | @insert i t hi ih =>
+    have heq : (fun j => if j ∈ insert i t then y j else x j) =
+        update (fun j => if j ∈ t then y j else x j) i (y i) := by
+      funext j
+      by_cases hji : j = i <;> simp [hji]
+    rw [heq, Finset.sum_insert hi]
+    refine (norm_sub_le_norm_sub_add_norm_sub _ (f (fun j => if j ∈ t then y j else x j)) _).trans
+      (add_le_add ?_ ih)
+    simpa [hi] using hf _ (hmem t) i (y i) (hy i (mem_univ i))
 
 /-- Updating a coordinate within its disc preserves a closed sup-norm ball. -/
 theorem update_mem_closedBall_of_mem {c z : ι → ℂ} {r : ℝ} (hr : 0 ≤ r)
@@ -62,8 +70,8 @@ theorem update_mem_closedBall_of_mem {c z : ι → ℂ} {r : ℝ} (hr : 0 ≤ r)
   · simpa [hji] using hw
   · simpa [hji] using hz j
 
-/-- A bounded separately holomorphic map is jointly Lipschitz on a smaller polydisc.
-The constant is explicit and uniform over families with the same bound. -/
+/-- A bounded separately holomorphic map is jointly Lipschitz on a smaller polydisc. The constant is
+explicit and uniform over families with the same bound. -/
 theorem norm_sub_le_of_separately_analytic_bounded {f : (ι → ℂ) → F}
     {c : ι → ℂ} {r M : ℝ} (hr : 0 < r)
     (hf : ∀ z ∈ closedBall c (2 * r), ∀ i,
@@ -131,7 +139,11 @@ theorem exists_lipschitzOnWith_of_separately_analytic_locally_bounded
 variable [CompleteSpace F]
 
 /-- **Locally bounded Osgood theorem.** Joint continuity need not be assumed when a
-separately holomorphic map is locally bounded on its open domain. -/
+separately holomorphic map is locally bounded on its open domain.
+
+This is weaker than Hartogs' theorem `analyticOnNhd_of_separately_analytic`, which drops the
+local boundedness hypothesis. It is a step in the proof of that theorem, applied after Baire's
+theorem provides local bounds, and therefore cannot be derived from it. -/
 theorem analyticOnNhd_of_separately_analytic_locally_bounded
     {U : Set (ι → ℂ)} {f : (ι → ℂ) → F} (hU : IsOpen U)
     (hf : ∀ z ∈ U, ∀ i, AnalyticAt ℂ (fun w => f (update z i w)) (z i))

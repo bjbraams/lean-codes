@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.S.Basic
@@ -8,12 +12,37 @@ public import Carlson.RPolynomial.Estimates
 public import SeveralComplexVariables.LocallyUniform
 public import Mathlib.MeasureTheory.Integral.DominatedConvergence
 
-/-! # The exponential series and entire parameter continuation of S -/
+/-!
+# The exponential series and entire parameter continuation of S
 
+Carlson's exponential generating series `∑ n, Rₙ(b, z) / n!` (formula 6.3-5) converges
+absolutely for all complex parameters and nodes and defines the entire regularized continuation
+of the S-function. This continuation is characterized uniquely by holomorphy in the parameters
+and agreement with the native integral.
+
+## Main definitions
+
+* `Carlson.IsRegCarlsonSContinuation`: the continuation predicate.
+* `Carlson.regCarlsonSSeries`, `Carlson.regCarlsonSPartialSum`: the series and its partial sums.
+
+## Main results
+
+* `Carlson.hasSum_regCarlsonSSeries`, `Carlson.summable_norm_regCarlsonR_div_factorial`:
+  absolute convergence everywhere.
+* `Carlson.regCarlsonSSeries_eq_regCarlsonSIntegral`: agreement with the native integral.
+* `Carlson.isRegCarlsonSContinuation_series`, `Carlson.IsRegCarlsonSContinuation.eq_series`:
+  the series is the unique entire continuation.
+
+## References
+
+* [Carl77] B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
+-/
+
+open Dirichlet
 open Complex MeasureTheory ProbabilityTheory Filter Set
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- A candidate is an entire regularized continuation of Carlson's `S` if it agrees with the
@@ -45,15 +74,15 @@ def regCarlsonSSeries (z b : ι → ℂ) : ℂ :=
 
 /-- Carlson's formula (6.3-5), exposing the regularized `S` continuation as the exponential
 generating series of the regularized `R` polynomials. -/
-theorem regCarlsonSSeries_eq_tsum_regCarlsonR (z b : ι → ℂ) :
+theorem regCarlsonSSeries_eq_tsum_regCarlsonRPolynomial (z b : ι → ℂ) :
     regCarlsonSSeries z b =
-      ∑' n : ℕ, (Nat.factorial n : ℂ)⁻¹ * regCarlsonR n z b := by
+      ∑' n : ℕ, (Nat.factorial n : ℂ)⁻¹ * regCarlsonRPolynomial n b z := by
   simp [regCarlsonSSeries, regCarlsonTaylorSeries]
 
 /-- Carlson's exponential series is absolutely summable at every complex parameter and
 node vector, including parameters outside the native integral's convergence region. -/
 theorem summable_norm_regCarlsonR_div_factorial (z b : ι → ℂ) :
-    Summable fun n : ℕ ↦ ‖(Nat.factorial n : ℂ)⁻¹ * regCarlsonR n z b‖ := by
+    Summable fun n : ℕ ↦ ‖(Nat.factorial n : ℂ)⁻¹ * regCarlsonRPolynomial n b z‖ := by
   obtain ⟨M, hM, hbound⟩ :=
     exists_summable_norm_regCarlsonR_div_factorial_on_compact_parameters z
       (isCompact_singleton (x := b))
@@ -63,15 +92,15 @@ theorem summable_norm_regCarlsonR_div_factorial (z b : ι → ℂ) :
 /-- The exponential generating series sums to the continued `S` function for all complex
 parameters and nodes, without an integral-convergence hypothesis. -/
 theorem hasSum_regCarlsonSSeries (z b : ι → ℂ) :
-    HasSum (fun n : ℕ ↦ (Nat.factorial n : ℂ)⁻¹ * regCarlsonR n z b)
+    HasSum (fun n : ℕ ↦ (Nat.factorial n : ℂ)⁻¹ * regCarlsonRPolynomial n b z)
       (regCarlsonSSeries z b) := by
-  rw [regCarlsonSSeries_eq_tsum_regCarlsonR]
+  rw [regCarlsonSSeries_eq_tsum_regCarlsonRPolynomial]
   exact (summable_norm_regCarlsonR_div_factorial z b).of_norm.hasSum
 
 /-- The `N`th partial sum in Carlson's exponential-series construction of the regularized
 `S` function. -/
 def regCarlsonSPartialSum (N : ℕ) (z b : ι → ℂ) : ℂ :=
-  ∑ n ∈ Finset.range N, (Nat.factorial n : ℂ)⁻¹ * regCarlsonR n z b
+  ∑ n ∈ Finset.range N, (Nat.factorial n : ℂ)⁻¹ * regCarlsonRPolynomial n b z
 
 /-- Every partial sum in Carlson's construction is entire in the Dirichlet parameters. -/
 theorem analyticOnNhd_regCarlsonSPartialSum (N : ℕ) (z : ι → ℂ) :
@@ -81,15 +110,15 @@ theorem analyticOnNhd_regCarlsonSPartialSum (N : ℕ) (z : ι → ℂ) :
   apply Finset.analyticAt_fun_sum
   intro n _
   exact analyticAt_const.mul
-    (analyticOnNhd_regCarlsonR n z b (Set.mem_univ b))
+    (analyticOnNhd_regCarlsonRPolynomial n z b (Set.mem_univ b))
 
 /-- The partial-sum consequence of summability.  The unconditional version for all complex
 parameters and nodes is `tendsto_regCarlsonSPartialSum_all`. -/
 theorem tendsto_regCarlsonSPartialSum (z b : ι → ℂ)
-    (h : Summable fun n : ℕ ↦ (Nat.factorial n : ℂ)⁻¹ * regCarlsonR n z b) :
+    (h : Summable fun n : ℕ ↦ (Nat.factorial n : ℂ)⁻¹ * regCarlsonRPolynomial n b z) :
     Filter.Tendsto (fun N ↦ regCarlsonSPartialSum N z b) Filter.atTop
       (nhds (regCarlsonSSeries z b)) := by
-  rw [regCarlsonSSeries_eq_tsum_regCarlsonR]
+  rw [regCarlsonSSeries_eq_tsum_regCarlsonRPolynomial]
   exact h.hasSum.tendsto_sum_nat
 
 /-- The partial sums converge to the entire regularized `S` function at every complex
@@ -113,9 +142,10 @@ is the regularized `S` integral.  This is the integral form of the power-series 
 in Sections 5.7--5.8. -/
 theorem hasSum_regCarlsonR_div_factorial_eq_regCarlsonSIntegral
     (z : ι → ℂ) {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) :
-    HasSum (fun n : ℕ ↦ (Nat.factorial n : ℂ)⁻¹ * regCarlsonR n z b)
+    HasSum (fun n : ℕ ↦ (Nat.factorial n : ℂ)⁻¹ * regCarlsonRPolynomial n b z)
       (regCarlsonSIntegral b z) := by
-  let μ := (MeasureTheory.Measure.stdSimplexMeasure (ι := ι)).restrict (Convexity.StdSimplex.coordinateSet ℝ ι)
+  let μ := (MeasureTheory.Measure.stdSimplexMeasure (ι := ι)).restrict
+      (Convexity.StdSimplex.coordinateSet ℝ ι)
   let C : ℝ := ∑ i, ‖z i‖
   let M : ℕ → ℝ := fun n ↦ C ^ n / Nat.factorial n
   let F : ℕ → (ι → ℝ) → ℂ := fun n u ↦
@@ -125,12 +155,8 @@ theorem hasSum_regCarlsonR_div_factorial_eq_regCarlsonSIntegral
   have hC : 0 ≤ C := Finset.sum_nonneg fun _ _ ↦ norm_nonneg _
   have hM : Summable M := by
     simpa [M] using Real.summable_pow_div_factorial C
-  have hdens : Integrable (fun u ↦ regDirichletDensity b u) μ := by
-    change IntegrableOn (fun u ↦ regDirichletDensity b u)
-      (Convexity.StdSimplex.coordinateSet ℝ ι) MeasureTheory.Measure.stdSimplexMeasure
-    simpa only [mul_one] using integrableOn_regDirichletDensity_mul b hb
-      (continuousOn_const : ContinuousOn (fun _ : ι → ℝ ↦ (1 : ℂ))
-        (Convexity.StdSimplex.coordinateSet ℝ ι))
+  have hdens : Integrable (fun u ↦ regDirichletDensity b u) μ :=
+    integrableOn_regDirichletDensity b hb
   have hF_meas (n : ℕ) : AEStronglyMeasurable (F n) μ := by
     exact (integrableOn_regDirichletDensity_mul b hb
       ((continuous_carlsonAffineForm z).continuousOn.pow n |>.div_const _)).1
@@ -167,7 +193,7 @@ theorem hasSum_regCarlsonR_div_factorial_eq_regCarlsonSIntegral
     (fun n u ↦ M n * ‖regDirichletDensity b u‖) hF_meas hbound
       hbound_summable hbound_integrable hlim
   have hterm (n : ℕ) : (∫ u, F n u ∂μ) =
-      (Nat.factorial n : ℂ)⁻¹ * regCarlsonR n z b := by
+      (Nat.factorial n : ℂ)⁻¹ * regCarlsonRPolynomial n b z := by
     rw [show (fun u ↦ F n u) = fun u ↦ (Nat.factorial n : ℂ)⁻¹ *
         (regDirichletDensity b u * carlsonAffineForm z u ^ n) by
       funext u
@@ -183,7 +209,7 @@ theorem hasSum_regCarlsonR_div_factorial_eq_regCarlsonSIntegral
 region. -/
 theorem summable_regCarlsonR_div_factorial
     (z : ι → ℂ) {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) :
-    Summable fun n : ℕ ↦ (Nat.factorial n : ℂ)⁻¹ * regCarlsonR n z b :=
+    Summable fun n : ℕ ↦ (Nat.factorial n : ℂ)⁻¹ * regCarlsonRPolynomial n b z :=
   (hasSum_regCarlsonR_div_factorial_eq_regCarlsonSIntegral z hb).summable
 
 /-- On the native convergence region, the series construction of the regularized `S`
@@ -191,7 +217,7 @@ function agrees with its defining Dirichlet integral. -/
 theorem regCarlsonSSeries_eq_regCarlsonSIntegral
     (z : ι → ℂ) {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) :
     regCarlsonSSeries z b = regCarlsonSIntegral b z := by
-  rw [regCarlsonSSeries_eq_tsum_regCarlsonR]
+  rw [regCarlsonSSeries_eq_tsum_regCarlsonRPolynomial]
   exact (hasSum_regCarlsonR_div_factorial_eq_regCarlsonSIntegral z hb).tsum_eq
 
 /-- Carlson's series construction is entire in all Dirichlet parameters.  This is the
@@ -199,13 +225,14 @@ analytic assertion in Corollary 6.3-3; its proof is the locally uniform version 
 coefficient estimate used above for pointwise summability. -/
 theorem analyticOnNhd_regCarlsonSSeries (z : ι → ℂ) :
     AnalyticOnNhd ℂ (regCarlsonSSeries z) Set.univ := by
+  classical
   rw [show regCarlsonSSeries z = fun b ↦ ∑' n : ℕ,
-      (Nat.factorial n : ℂ)⁻¹ * regCarlsonR n z b by
+      (Nat.factorial n : ℂ)⁻¹ * regCarlsonRPolynomial n b z by
     funext b
-    exact regCarlsonSSeries_eq_tsum_regCarlsonR z b]
+    exact regCarlsonSSeries_eq_tsum_regCarlsonRPolynomial z b]
   apply analyticOnNhd_tsum_of_summable_norm_on_compacts isOpen_univ
   · intro n
-    exact analyticOnNhd_const.mul (analyticOnNhd_regCarlsonR n z)
+    exact analyticOnNhd_const.mul (analyticOnNhd_regCarlsonRPolynomial n z)
   · intro K hKuniv hK
     exact exists_summable_norm_regCarlsonR_div_factorial_on_compact_parameters z hK
 
@@ -221,4 +248,4 @@ theorem IsRegCarlsonSContinuation.eq_series {z : ι → ℂ} {G : (ι → ℂ) �
     (hG : IsRegCarlsonSContinuation z G) : G = regCarlsonSSeries z :=
   hG.eq (isRegCarlsonSContinuation_series z)
 
-end DirichletTransform
+end Carlson

@@ -13,21 +13,20 @@ public import Mathlib.Analysis.Calculus.Deriv.Slope
 /-!
 # Complex powers on the positive half-line
 
-This scalar calculus has no simplex dependency. The historical `DirichletTransform`
-namespace is retained for compatibility.
 -/
 
 open Complex Set Filter
-open scoped Classical Topology
+open scoped Topology
 
 @[expose] public noncomputable section
 
-namespace DirichletTransform
+namespace Complex
 
 /-- A complex power on the positive half-line, extended by zero. -/
 def positiveCpow (a : ℂ) (x : ℝ) : ℂ :=
   if 0 < x then (x : ℂ) ^ a else 0
 
+/-- The positive-axis complex power is continuous when the exponent has positive real part. -/
 theorem continuous_positiveCpow {a : ℂ} (ha : 0 < a.re) :
     Continuous (positiveCpow a) := by
   have ha0 : a ≠ 0 := by intro h; simp [h] at ha
@@ -39,6 +38,8 @@ theorem continuous_positiveCpow {a : ℂ} (ha : 0 < a.re) :
   rw [heq]
   exact (continuous_ofReal_cpow_const ha).comp (continuous_id.max continuous_const)
 
+/-- The positive-axis complex power has the expected derivative when the exponent has real part
+greater than one. -/
 theorem hasDerivAt_positiveCpow {a : ℂ} (ha : 1 < a.re) (x : ℝ) :
     HasDerivAt (positiveCpow a) (a * positiveCpow (a - 1) x) x := by
   have ha0 : a ≠ 0 := by intro h; norm_num [h] at ha
@@ -63,8 +64,8 @@ theorem hasDerivAt_positiveCpow {a : ℂ} (ha : 1 < a.re) (x : ℝ) :
       filter_upwards [self_mem_nhdsWithin] with x hx
       have hx' : 0 < x := hx
       have hx0 : (x : ℂ) ≠ 0 := ofReal_ne_zero.mpr (ne_of_gt hx')
-      simp only [slope, vsub_eq_sub, sub_zero, positiveCpow, hx', if_true,
-        lt_self_iff_false, if_false, sub_zero, Complex.real_smul, ofReal_inv]
+      simp only [slope, vsub_eq_sub, sub_zero, positiveCpow, hx', ite_true,
+        lt_self_iff_false, ite_false, sub_zero, Complex.real_smul, ofReal_inv]
       rw [cpow_sub _ _ hx0, cpow_one]
       ring
   · rw [show a * positiveCpow (a - 1) x = 0 by
@@ -77,10 +78,13 @@ theorem hasDerivAt_positiveCpow {a : ℂ} (ha : 1 < a.re) (x : ℝ) :
 def positiveGammaPower (a : ℂ) (x : ℝ) : ℂ :=
   positiveCpow (a - 1) x / Gamma a
 
+/-- The Gamma-normalized positive-axis power is continuous when the exponent has real part greater
+than one. -/
 theorem continuous_positiveGammaPower {a : ℂ} (ha : 1 < a.re) :
     Continuous (positiveGammaPower a) :=
   (continuous_positiveCpow (by simp only [sub_re, one_re]; linarith)).div_const _
 
+/-- Differentiating the Gamma-normalized positive-axis power lowers its exponent by one. -/
 theorem hasDerivAt_positiveGammaPower {a : ℂ} (ha : 2 < a.re) (x : ℝ) :
     HasDerivAt (positiveGammaPower a) (positiveGammaPower (a - 1) x) x := by
   have ham : 0 < (a - 1).re := by simp only [sub_re, one_re]; linarith
@@ -93,6 +97,6 @@ theorem hasDerivAt_positiveGammaPower {a : ℂ} (ha : 2 < a.re) (x : ℝ) :
   rw [hg]
   field_simp [ham0]
 
-end DirichletTransform
+end Complex
 
 end

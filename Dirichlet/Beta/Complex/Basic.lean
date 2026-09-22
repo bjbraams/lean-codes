@@ -1,17 +1,30 @@
 /-
 Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Bastiaan J Braams.
+Authors: Bastiaan J Braams
 -/
 module
-
-
 
 public import Mathlib.Analysis.SpecialFunctions.Gamma.Beta
 
 import Pochhammer.Gamma
 
-/-! # The complex multivariate beta function -/
+/-!
+# The complex multivariate beta function
+
+The multivariate beta function `B(b) = ∏ i, Γ(b i) / Γ(∑ i, b i)` for a finite family of complex
+parameters, its domain of absolute convergence `re (b i) > 0`, and its algebraic properties:
+symmetry, nonvanishing, and the effect of positive integer translates of the parameters.
+
+## Main definitions
+
+* `Complex.mvBeta`: the multivariate beta function as a quotient of Gamma values.
+* `Complex.mvBetaConvergent`: the parameter vectors with all real parts positive.
+
+## Main results
+
+* `Complex.mvBeta_perm`, `Complex.mvBeta_ne_zero`, `Complex.mvBeta_addNat`.
+-/
 
 open Fintype
 

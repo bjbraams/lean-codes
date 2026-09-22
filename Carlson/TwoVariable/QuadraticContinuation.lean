@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.TwoVariable.Quadratic
@@ -15,9 +19,9 @@ values at nonpositive integral `β` where the entire ratio here vanishes.
 -/
 
 open Complex ProbabilityTheory Filter Set
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform.TwoVariable
+namespace Carlson.TwoVariable
 
 /-- Entire extension of `Γ(β + 1/2) / Γ(2β)`. The formula remains meaningful at Gamma poles. -/
 def quadraticGammaRatio (β : ℂ) : ℂ :=
@@ -45,10 +49,6 @@ theorem Gamma_mul_quadraticGammaRatio {β : ℂ} (hβ : 0 < β.re) :
       field_simp
     _ = _ := by linear_combination -H
 
-private lemma analyticAt_coordinate (p : Fin 2 → ℂ) (i : Fin 2) :
-    AnalyticAt ℂ (fun q : Fin 2 → ℂ => q i) p :=
-  (ContinuousLinearMap.proj i : (Fin 2 → ℂ) →L[ℂ] ℂ).analyticAt p
-
 /-- Permanence of functional relations in the two complex parameters. -/
 private theorem quadratic_parameter_identity
     (l : ℂ → ℂ) (r : ℂ → ℂ → Fin 2 → ℂ)
@@ -68,16 +68,16 @@ private theorem quadratic_parameter_identity
   have hleft : AnalyticOnNhd ℂ L univ := by
     intro p _
     apply analyticAt_regCarlsonRContinued_comp hz
-    · exact (hl _ (mem_univ _)).comp (analyticAt_coordinate p 0)
+    · exact (hl _ (mem_univ _)).comp (analyticAt_pi_iff.mp (analyticAt_id (𝕜 := ℂ) (z := p)) 0)
     · apply analyticAt_pi_iff.mpr
-      intro i; fin_cases i <;> exact (analyticAt_coordinate p 1)
+      intro i; fin_cases i <;> exact (analyticAt_pi_iff.mp (analyticAt_id (𝕜 := ℂ) (z := p)) 1)
   have hright : AnalyticOnNhd ℂ R univ := by
     intro p _
     apply AnalyticAt.mul
     · exact (analyticOnNhd_quadraticGammaRatio _ (mem_univ _)).comp
-        (analyticAt_coordinate p 1)
+        (analyticAt_pi_iff.mp (analyticAt_id (𝕜 := ℂ) (z := p)) 1)
     · exact analyticAt_regCarlsonRContinued_comp hZ
-        (analyticAt_coordinate p 0) (hr p (mem_univ _))
+        (analyticAt_pi_iff.mp (analyticAt_id (𝕜 := ℂ) (z := p)) 0) (hr p (mem_univ _))
   let o := pair (0 : ℂ) (1 / 4)
   have hbc : ContinuousAt (fun p : Fin 2 → ℂ => pair (p 1) (p 1)) o := by
     apply continuousAt_pi.mpr
@@ -86,17 +86,16 @@ private theorem quadratic_parameter_identity
     intro i; fin_cases i <;> norm_num [o, pair]))
   have hbr := (hr o (mem_univ _)).continuousAt.tendsto.eventually
     (isOpen_mvBetaConvergent.mem_nhds hseed)
-  have hevent : L =ᶠ[𝓝 o] R := by
-    filter_upwards [hbl, hbr] with p hbp hrp
-    dsimp [L, R]
-    rw [regCarlsonRContinued_eq_integral _ hz hbp, regCarlsonRContinued_eq_integral _ hZ hrp]
-    have hβ : 0 < (p 1).re := hbp 0
-    have htotal : 0 < (p 1 + p 1).re := by simpa using add_pos hβ hβ
-    apply mul_left_cancel₀ (Gamma_ne_zero_of_re_pos htotal)
-    rw [← mul_assoc, Gamma_mul_quadraticGammaRatio hβ]
-    have H := hnative (p 0) (p 1) hbp hrp
-    simpa only [carlsonRIntegral, sum_pair, hsum] using H
-  exact congrFun (hleft.eq_of_eventuallyEq hright hevent) (pair t β)
+  apply congrFun (hleft.eq_of_eventuallyEq hright (z₀ := o) ?_) (pair t β)
+  filter_upwards [hbl, hbr] with p hbp hrp
+  dsimp [L, R]
+  rw [regCarlsonRContinued_eq_integral _ hz hbp, regCarlsonRContinued_eq_integral _ hZ hrp]
+  have hβ : 0 < (p 1).re := hbp 0
+  have htotal : 0 < (p 1 + p 1).re := by simpa using add_pos hβ hβ
+  apply mul_left_cancel₀ (Gamma_ne_zero_of_re_pos htotal)
+  rw [← mul_assoc, Gamma_mul_quadraticGammaRatio hβ]
+  have H := hnative (p 0) (p 1) hbp hrp
+  simpa only [carlsonRIntegral, sum_pair, hsum] using H
 
 /-- First quadratic transformation, entire in both parameters, including exceptional
 Gamma parameters. There are no convergence or non-pole hypotheses. -/
@@ -110,8 +109,9 @@ theorem regRContinued_firstQuadratic (t β x y : ℂ) (hz : FirstQuadraticDomain
   · intro p _
     apply analyticAt_pi_iff.mpr
     intro i; fin_cases i
-    · exact (analyticAt_coordinate p 1).add (analyticAt_coordinate p 0)
-    · exact analyticAt_const.sub (analyticAt_coordinate p 0)
+    · exact (analyticAt_pi_iff.mp (analyticAt_id (𝕜 := ℂ) (z := p))
+        1).add (analyticAt_pi_iff.mp (analyticAt_id (𝕜 := ℂ) (z := p)) 0)
+    · exact analyticAt_const.sub (analyticAt_pi_iff.mp (analyticAt_id (𝕜 := ℂ) (z := p)) 0)
   · intro i; fin_cases i <;> norm_num [pair]
   · intro t β; simp only [sum_pair]; ring
   · exact fun t β hb hr => rIntegral_firstQuadratic t β x y hb hr hz
@@ -127,13 +127,13 @@ theorem regRContinued_secondQuadratic (t β x y : ℂ) (hz : SecondQuadraticDoma
   · intro p _
     apply analyticAt_pi_iff.mpr
     intro i; fin_cases i
-    · exact (analyticAt_const.mul (analyticAt_coordinate p 1)).add
-        (analyticAt_coordinate p 0)
-    · exact (analyticAt_const.sub (analyticAt_coordinate p 1)).sub
-        (analyticAt_coordinate p 0)
+    · exact (analyticAt_const.mul (analyticAt_pi_iff.mp (analyticAt_id (𝕜 := ℂ) (z := p)) 1)).add
+        (analyticAt_pi_iff.mp (analyticAt_id (𝕜 := ℂ) (z := p)) 0)
+    · exact (analyticAt_const.sub (analyticAt_pi_iff.mp (analyticAt_id (𝕜 := ℂ) (z := p)) 1)).sub
+        (analyticAt_pi_iff.mp (analyticAt_id (𝕜 := ℂ) (z := p)) 0)
   · intro i; fin_cases i <;> norm_num [pair]
   · intro t β; simp only [sum_pair]; ring
   · exact fun t β hb hr => rIntegral_secondQuadratic t β x y hb hr hz
 
-end DirichletTransform.TwoVariable
+end Carlson.TwoVariable
 end

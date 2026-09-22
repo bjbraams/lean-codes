@@ -1,15 +1,34 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.TwoVariable.ParameterSymmetry
 public import Carlson.R.EulerTransform
 
-/-! # Two-variable R-inversion on the full slit domain -/
+/-!
+# Two-variable R-inversion on the full slit domain
 
+Carlson's inversion formula for two nodes, expressing `R_t(b; x, y)` through
+`R_{-t}(b'; x⁻¹, y⁻¹)` with separate principal powers of the nodes, valid on the whole slit
+domain.
+
+## Main results
+
+* `Carlson.TwoVariable.regCarlsonRSlit_pair_inversion`: the two-variable inversion formula.
+
+## References
+
+* [Carl77] B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
+-/
+
+open Dirichlet
 open Complex MeasureTheory ProbabilityTheory Filter Set
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform.TwoVariable
+namespace Carlson.TwoVariable
 
 private theorem regCarlsonRSlit_pair_inversion_of_right (t u v : ℂ) {x y : ℂ}
     (hx : 0 < x.re) (hy : 0 < y.re) :
@@ -61,4 +80,4 @@ theorem regCarlsonRSlit_pair_inversion (t u v : ℂ) {x y : ℂ}
   have heq : pair (z 0) (z 1) = z := by ext i; fin_cases i <;> rfl
   simpa only [heq] using regCarlsonRSlit_pair_inversion_of_right t u v (hz 0) (hz 1)
 
-end DirichletTransform.TwoVariable
+end Carlson.TwoVariable

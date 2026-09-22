@@ -16,12 +16,13 @@ definition. `Carlson.RPolynomial.TaylorContinuation` proves convergence on the
 full disk of holomorphy and joint analyticity in parameters and nodes.
 -/
 
+open Dirichlet
 open Complex MeasureTheory ProbabilityTheory
-open scoped Classical Topology
+open scoped Topology
 
 @[expose] public noncomputable section
 
-namespace DirichletTransform
+namespace Carlson
 
 variable {ι : Type*} [Fintype ι]
 
@@ -40,7 +41,7 @@ theorem hasSum_regCarlsonR_of_powerSeries
     (hsum : ∀ u, u ∈ Convexity.StdSimplex.coordinateSet ℝ ι →
       HasSum (fun n ↦ a n * (carlsonAffineForm z u - A) ^ n)
         (f (carlsonAffineForm z u))) :
-    HasSum (fun n ↦ a n * regCarlsonR n (shiftCarlsonVariables A z) b)
+    HasSum (fun n ↦ a n * regCarlsonRPolynomial n b (shiftCarlsonVariables A z))
       (regCarlsonDirichletAverage b z f) := by
   let g : ℕ → ℂ → ℂ := fun n w ↦ a n * (w - A) ^ n
   have hg (n : ℕ) : ContinuousOn (fun u : ι → ℝ ↦ g n (carlsonAffineForm z u))
@@ -62,7 +63,7 @@ theorem hasSum_regCarlsonR_of_powerSeries
     rw [carlsonAffineForm_affine hu]
     simp [sub_eq_add_neg]
   calc
-    a n * regCarlsonR n (shiftCarlsonVariables A z) b =
+    a n * regCarlsonRPolynomial n b (shiftCarlsonVariables A z) =
         regDirichletIntegral b
           (fun u ↦ a n * carlsonAffineForm (shiftCarlsonVariables A z) u ^ n) := by
       rw [regDirichletIntegral_smul]
@@ -77,29 +78,29 @@ theorem hasSum_regCarlsonR_of_powerSeries
 Its convergence and continuation properties are proved in
 `Carlson.RPolynomial.TaylorContinuation`. -/
 def regCarlsonTaylorSeries (A : ℂ) (a : ℕ → ℂ) (z b : ι → ℂ) : ℂ :=
-  ∑' n, a n * regCarlsonR n (fun i ↦ z i - A) b
+  ∑' n, a n * regCarlsonRPolynomial n b (fun i ↦ z i - A)
 
 /-- Each term of Carlson's Taylor-series construction is entire in the Dirichlet parameters. -/
 theorem differentiable_regCarlsonTaylorTerm (A : ℂ) (a : ℕ → ℂ) (z : ι → ℂ) (n : ℕ) :
     Differentiable ℂ
-      (fun b ↦ a n * regCarlsonR n (fun i ↦ z i - A) b) := by
+      (fun b ↦ a n * regCarlsonRPolynomial n b (fun i ↦ z i - A)) := by
   exact (differentiable_const (c := a n)).mul
-    (differentiable_regCarlsonR n fun i ↦ z i - A)
+    (differentiable_regCarlsonRPolynomial n fun i ↦ z i - A)
 
 /-- Every finite partial sum in Carlson's Taylor-series construction is entire in the
 Dirichlet parameters. -/
 theorem differentiable_regCarlsonTaylorPartialSum
     (A : ℂ) (a : ℕ → ℂ) (z : ι → ℂ) (N : ℕ) :
     Differentiable ℂ
-      (fun b ↦ ∑ n ∈ Finset.range N, a n * regCarlsonR n (fun i ↦ z i - A) b) := by
+      (fun b ↦ ∑ n ∈ Finset.range N, a n * regCarlsonRPolynomial n b (fun i ↦ z i - A)) := by
   rw [show (fun b ↦ ∑ n ∈ Finset.range N,
-      a n * regCarlsonR n (fun i ↦ z i - A) b) =
+      a n * regCarlsonRPolynomial n b (fun i ↦ z i - A)) =
       ∑ n ∈ Finset.range N,
-        (fun b ↦ a n * regCarlsonR n (fun i ↦ z i - A) b) by
+        (fun b ↦ a n * regCarlsonRPolynomial n b (fun i ↦ z i - A)) by
     funext b
     simp]
   exact Differentiable.sum fun n _ ↦ differentiable_regCarlsonTaylorTerm A a z n
 
-end DirichletTransform
+end Carlson
 
 end

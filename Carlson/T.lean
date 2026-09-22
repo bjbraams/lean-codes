@@ -26,11 +26,11 @@ zero implies this condition.
   Academic Press, 1977.
 -/
 
+open Dirichlet
 open Complex MeasureTheory ProbabilityTheory
-open scoped Classical
 @[expose] public noncomputable section CarlsonT
 
-namespace DirichletTransform
+namespace Carlson
 
 variable {ι : Type*} [Fintype ι]
 
@@ -199,6 +199,6 @@ theorem isOpen_carlsonTVariableDomain :
   rw [himage]
   exact (isClosedMap_fst_of_compactSpace (X := ι → ℂ) (Y := Convexity.StdSimplex ℝ ι)) _ hZ
 
-end DirichletTransform
+end Carlson
 
 end CarlsonT

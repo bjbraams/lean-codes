@@ -1,6 +1,11 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
+public import Analysis.Deriv
 public import Carlson.TwoVariable.EqualParameter
 public import Carlson.TwoVariable.ParameterSymmetry
 public import Carlson.L.SlitContinuation
@@ -20,16 +25,19 @@ are those of the R-identities; transformed ratios use the slit-plane interface.
 At exponent zero the correction vanishes, giving both identities (6.8).
 -/
 
+open Dirichlet
 open Complex Filter Set
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform.TwoVariable
+namespace Carlson.TwoVariable
 
 /-- The normalization by `Γ(β + 1/2)`, retaining removable equal-parameter values. -/
 def regEqualLContinued (t x y : ℂ) (hz : pair x y ∈ carlsonRVariableDomain)
     (β : ℂ) : ℂ :=
   deriv (fun s => regEqualRContinued s x y hz β) t
 
+/-- The equal-parameter regularized L-function is the exponent derivative of the equal-parameter
+regularized R-function. -/
 theorem hasDerivAt_regEqualRContinued_L (t β x y : ℂ)
     (hz : pair x y ∈ carlsonRVariableDomain) :
     HasDerivAt (fun s => regEqualRContinued s x y hz β)
@@ -193,20 +201,6 @@ theorem regRParameterTransfer_eq_neg_L (t u v x y : ℂ)
   rw [regRParameterTransfer, heq]
   simpa using h.deriv
 
-private theorem deriv_diagonal {F : ℂ × ℂ → ℂ} {t : ℂ}
-    (hF : DifferentiableAt ℂ F (t, t)) :
-    deriv (fun s => F (s, s)) t =
-      deriv (fun s => F (s, t)) t + deriv (fun s => F (t, s)) t := by
-  have h₁ := hF.hasFDerivAt.comp_hasDerivAt_of_eq t
-    ((hasDerivAt_id t).prodMk (hasDerivAt_const t t)) rfl
-  have h₂ := hF.hasFDerivAt.comp_hasDerivAt_of_eq t
-    ((hasDerivAt_const t t).prodMk (hasDerivAt_id t)) rfl
-  have h := hF.hasFDerivAt.comp_hasDerivAt_of_eq t
-    ((hasDerivAt_id t).prodMk (hasDerivAt_id t)) rfl
-  simp only [Function.comp_def, id_eq] at h h₁ h₂
-  rw [h.deriv, h₁.deriv, h₂.deriv, ← map_add]
-  simp
-
 /-- Chain rule for the exponent and a sum-preserving parameter transfer. -/
 theorem deriv_regRContinued_exponent_transfer (t u v x y : ℂ)
     (hz : pair x y ∈ carlsonRVariableDomain) :
@@ -349,7 +343,7 @@ theorem equalLContinued_secondQuadratic (t β x y : ℂ)
       (fun _ : ℂ => (Gamma (u + v))⁻¹) := by
     funext s
     rw [show (0 : ℂ) = (0 : ℕ) by norm_num, regCarlsonRContinued_natCast]
-    simp only [regCarlsonR, regCarlsonRPolynomial_zero, sum_pair]
+    simp only [regCarlsonRPolynomial_zero, sum_pair]
     congr 2
     ring
   unfold regRParameterTransfer
@@ -371,4 +365,4 @@ theorem regEqualLContinued_secondQuadratic_zero (β x y : ℂ)
         (pair (2 * β) (1 / 2 - β)) := by
   simpa using regEqualLContinued_secondQuadratic_deriv 0 β x y hz
 
-end DirichletTransform.TwoVariable
+end Carlson.TwoVariable

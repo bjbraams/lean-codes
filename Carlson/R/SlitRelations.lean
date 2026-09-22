@@ -1,15 +1,38 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.R.SlitJointAnalytic
 public import Carlson.R.Relations
 
-/-! # Associated R-relations on the full slit domain -/
+/-!
+# Associated R-relations on the full slit domain
 
+The parameter-raising, parameter-lowering and tangential relations among associated
+R-functions (Carlson's Section 5.9 and 6.8), extended from the native domain to all complex
+Dirichlet parameters and all nodes in the product slit plane. The relations are stated without
+dividing by the exponent or the total parameter, so they remain valid at the exceptional values.
+
+## Main results
+
+* `Carlson.regCarlsonRSlit_eq_addDirichletUnit`: parameter raising.
+* `Carlson.regCarlsonRSlit_sub_dirichletUnit`: parameter lowering.
+* `Carlson.regCarlsonRSlit_tangent_sub`, `Carlson.regCarlsonRSlit_tangent`: the tangential
+  relations.
+
+## References
+
+* [Carl77] B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
+-/
+
+open Dirichlet
 open Complex MeasureTheory ProbabilityTheory Filter Set
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- The parameter-raising identity on the full slit domain, without dividing by
@@ -32,6 +55,7 @@ theorem regCarlsonRSlit_eq_addDirichletUnit (t : ℂ) (b : ι → ℂ)
   simp_rw [regCarlsonRSlit_eq_continued _ _ hw]
   exact regCarlsonRContinued_eq_addDirichletUnit t b hw i
 
+open scoped Classical in
 /-- Parameter lowering without dividing by the total parameter minus one. -/
 theorem regCarlsonRSlit_sub_dirichletUnit (t : ℂ) (b : ι → ℂ)
     {z : ι → ℂ} (hz : z ∈ carlsonRSlitDomain) (i : ι) :
@@ -51,6 +75,7 @@ theorem regCarlsonRSlit_sub_dirichletUnit (t : ℂ) (b : ι → ℂ)
   convert h using 1
   ring
 
+open scoped Classical in
 /-- The backward-shift tangential relation, including equal indices and coincident nodes. -/
 theorem regCarlsonRSlit_tangent_sub (t : ℂ) (b : ι → ℂ)
     {z : ι → ℂ} (hz : z ∈ carlsonRSlitDomain) (i j : ι) :
@@ -68,6 +93,7 @@ theorem regCarlsonRSlit_tangent (t : ℂ) (b : ι → ℂ)
       regCarlsonRSlit (t - 1) (addDirichletUnit (addDirichletUnit b j) i) z) =
       regCarlsonRSlit t (addDirichletUnit b i) z -
         regCarlsonRSlit t (addDirichletUnit b j) z := by
+  classical
   by_cases hij : i = j
   · subst j; simp
   have h₁ : addDirichletUnit (addDirichletUnit b j) i - Pi.single j 1 =
@@ -82,4 +108,4 @@ theorem regCarlsonRSlit_tangent (t : ℂ) (b : ι → ℂ)
   simpa only [h₁, h₂] using
     regCarlsonRSlit_tangent_sub t (addDirichletUnit (addDirichletUnit b j) i) hz i j
 
-end DirichletTransform
+end Carlson

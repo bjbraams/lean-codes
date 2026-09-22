@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.TwoVariable.Quadratic.Geometry
@@ -9,11 +13,13 @@ public import Pochhammer.Identities
 
 The squared-node regression theorem is retained alongside the correct involutive identity. -/
 
+open Dirichlet
 open Complex MeasureTheory ProbabilityTheory Filter Set
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform.TwoVariable
+namespace Carlson.TwoVariable
 
+/-- The two-variable Pochhammer numerator with a vanishing second node. -/
 lemma numerator₂_zero_right (n : ℕ) (p q x : ℂ) :
     carlsonRPolynomialNumerator₂ n p q x 0 = (ascPochhammer ℂ n).eval p * x ^ n := by
   rw [← carlsonRPolynomialNumerator_pair]
@@ -57,7 +63,6 @@ private lemma meanSq_zero_pow (n : ℕ) (x : ℂ) :
   dsimp [arithmeticMeanSq]
   ring
 
-set_option maxRecDepth 2048 in
 /-- Polynomial quadratic transformations before inserting redundant Pochhammer factors. -/
 private theorem numerator₂_firstQuadratic (n : ℕ) (β x y : ℂ) :
     carlsonRPolynomialNumerator₂ (2 * n) β β x y =
@@ -263,4 +268,4 @@ Extending the branch-sensitive node domains remains separate work.
 No Legendre, Chebyshev, Gegenbauer, or elliptic-integral
 specialization belongs in this file. -/
 
-end DirichletTransform.TwoVariable
+end Carlson.TwoVariable

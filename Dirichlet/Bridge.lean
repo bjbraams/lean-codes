@@ -18,7 +18,6 @@ They neither require nor invoke analytic continuation.
 -/
 
 open Complex MeasureTheory ProbabilityTheory
-open scoped Classical
 
 @[expose] public noncomputable section
 
@@ -33,7 +32,7 @@ variable {ι : Type*} [Fintype ι]
 
 end Complex
 
-namespace DirichletTransform
+namespace Dirichlet
 
 variable {ι : Type*} [Fintype ι]
 
@@ -70,9 +69,9 @@ theorem regDirichletDensity_ofReal_eq [Nonempty ι]
     field_simp [hprodC, hsumC]
   · simp [regDirichletDensity, dirichletPdfReal, hu]
 
-end DirichletTransform
+end Dirichlet
 
-namespace ProbabilityTheory
+namespace Dirichlet
 
 variable {ι : Type*} [Fintype ι]
 
@@ -83,7 +82,7 @@ theorem complexDirichletDensity_ofReal [Nonempty ι]
     complexDirichletDensity (fun i ↦ (b i : ℂ)) u = (dirichletPdfReal b u : ℂ) := by
   have hgamma : Gamma (∑ i, (b i : ℂ)) ≠ 0 :=
     Gamma_ne_zero_of_re_pos (sum_re_pos_of_mem_mvBetaConvergent (fun i ↦ hb i))
-  rw [complexDirichletDensity, DirichletTransform.regDirichletDensity_ofReal_eq hb]
+  rw [complexDirichletDensity, Dirichlet.regDirichletDensity_ofReal_eq hb]
   field_simp
 
 /-- The normalized native complex Dirichlet integral is a probability expectation at
@@ -91,7 +90,7 @@ positive real parameters. -/
 theorem complexDirichletIntegral_ofReal [Nonempty ι]
     {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain) (f : (ι → ℝ) → ℂ) :
     complexDirichletIntegral (fun i ↦ (b i : ℂ)) f = ∫ u, f u ∂dirichletMeasure b := by
-  rw [DirichletTransform.integral_dirichletMeasure_complex hb]
+  rw [Dirichlet.integral_dirichletMeasure_complex hb]
   unfold complexDirichletIntegral
   apply integral_congr_ae
   filter_upwards with u
@@ -103,12 +102,12 @@ theorem regDirichletIntegral_ofReal [Nonempty ι]
     {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain) (f : (ι → ℝ) → ℂ) :
     regDirichletIntegral (fun i ↦ (b i : ℂ)) f =
       (∫ u, f u ∂dirichletMeasure b) / Gamma (∑ i, (b i : ℂ)) := by
-  rw [DirichletTransform.integral_dirichletMeasure_complex hb]
+  rw [Dirichlet.integral_dirichletMeasure_complex hb]
   unfold regDirichletIntegral
   rw [← integral_div]
   apply integral_congr_ae
   filter_upwards with u
-  rw [DirichletTransform.regDirichletDensity_ofReal_eq hb]
+  rw [Dirichlet.regDirichletDensity_ofReal_eq hb]
   ring
 
 /-- Real-valued probability expectations can be recovered by specializing the complex
@@ -119,6 +118,6 @@ theorem complexDirichletIntegral_ofReal_ofReal [Nonempty ι]
       ((∫ u, f u ∂dirichletMeasure b) : ℂ) := by
   rw [complexDirichletIntegral_ofReal hb, integral_complex_ofReal]
 
-end ProbabilityTheory
+end Dirichlet
 
 end

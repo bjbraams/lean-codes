@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Bastiaan J Braams.
+Authors: Bastiaan J Braams
 -/
 module
 
@@ -42,11 +42,11 @@ are exported here for that construction.
 -/
 
 open Complex MeasureTheory ProbabilityTheory MeasureTheory.Measure Set
-open scoped Classical Topology
+open scoped Topology
 
-@[expose] public noncomputable section DirichletTransform
+@[expose] public noncomputable section Transform
 
-namespace DirichletTransform
+namespace Dirichlet
 
 variable {ι : Type*} [Fintype ι]
 
@@ -95,6 +95,7 @@ theorem exists_regDirichletContinuation_of_unique [Unique ι]
     ∃ F : (ι → ℂ) → ℂ,
       AnalyticOn ℂ F Set.univ ∧
         Set.EqOn F (fun b ↦ regDirichletIntegral b f) mvBetaConvergent := by
+  classical
   let ones : ι → ℝ := fun _ => 1
   refine ⟨fun b => f ones * (Gamma (b default))⁻¹, ?_, ?_⟩
   · intro b _
@@ -109,7 +110,8 @@ theorem exists_regDirichletContinuation_of_unique [Unique ι]
     have hones : ones ∈ Convexity.StdSimplex.coordinateSet ℝ ι := by
       simp [ones, Convexity.StdSimplex.coordinateSet]
     change f ones * (Gamma (b default))⁻¹ =
-      ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι, regDirichletDensity b u * f u ∂Measure.stdSimplexMeasure
+      ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι,
+          regDirichletDensity b u * f u ∂Measure.stdSimplexMeasure
     rw [hdirac]
     have hinter : ones ∈ stdSimplexInterior :=
       ⟨hones, fun _ => by simp [ones]⟩
@@ -140,27 +142,26 @@ omit [Fintype ι] in
 /-- Dirichlet continuation regions are convex, hence preconnected. -/
 theorem isPreconnected_dirichletConvergenceRegion (N : ℕ) :
     IsPreconnected (dirichletConvergenceRegion (ι := ι) N) := by
-  have hconv : Convex ℝ (dirichletConvergenceRegion (ι := ι) N) := by
-    intro x hx y hy a b ha hb hab i
-    have hx' := hx i
-    have hy' := hy i
-    have hre :
-        ((a • x + b • y) i).re = a * (x i).re + b * (y i).re := by
-      simp [Pi.add_apply, Pi.smul_apply, add_re, real_smul, mul_re, ofReal_re]
-    rw [hre]
-    rcases eq_or_lt_of_le ha with rfl | ha'
-    · have : b = 1 := by linarith
-      simpa [this]
-    · have hsum : a * (-(N : ℝ)) + b * (-(N : ℝ)) = -(N : ℝ) := by
-        rw [← add_mul, hab, one_mul]
-      have hlt :
-          a * (-(N : ℝ)) + b * (-(N : ℝ)) < a * (x i).re + b * (y i).re :=
-        add_lt_add_of_lt_of_le
-          (mul_lt_mul_of_pos_left hx' ha')
-          (mul_le_mul_of_nonneg_left (le_of_lt hy') hb)
-      rw [hsum] at hlt
-      exact hlt
-  exact hconv.isPreconnected
+  suffices hconv : Convex ℝ (dirichletConvergenceRegion (ι := ι) N) from hconv.isPreconnected
+  intro x hx y hy a b ha hb hab i
+  have hx' := hx i
+  have hy' := hy i
+  have hre :
+      ((a • x + b • y) i).re = a * (x i).re + b * (y i).re := by
+    simp [Pi.add_apply, Pi.smul_apply, add_re, real_smul, mul_re, ofReal_re]
+  rw [hre]
+  rcases eq_or_lt_of_le ha with rfl | ha'
+  · have : b = 1 := by linarith
+    simpa [this]
+  · have hsum : a * (-(N : ℝ)) + b * (-(N : ℝ)) = -(N : ℝ) := by
+      rw [← add_mul, hab, one_mul]
+    have hlt :
+        a * (-(N : ℝ)) + b * (-(N : ℝ)) < a * (x i).re + b * (y i).re :=
+      add_lt_add_of_lt_of_le
+        (mul_lt_mul_of_pos_left hx' ha')
+        (mul_le_mul_of_nonneg_left (le_of_lt hy') hb)
+    rw [hsum] at hlt
+    exact hlt
 
 /-- Two analytic continuations to a Dirichlet convergence region that agree on the ordinary
 convergence region agree everywhere on the continuation region. -/
@@ -188,6 +189,7 @@ theorem eqOn_dirichletContinuation {N : ℕ} {F G : (ι → ℂ) → ℂ}
   exact hF'.eqOn_of_preconnected_of_eventuallyEq hG'
     (isPreconnected_dirichletConvergenceRegion N) hz0 hev
 
+open scoped Classical in
 /-- Jacobian identity for the complementary-coordinate exponent in a simplex slice. -/
 theorem slice_jacobian_exponent (i : ι) [Nontrivial ι] (b : ι → ℂ) :
     ((Fintype.card ι - 2 : ℕ) : ℂ) + ∑ q : {j : ι // j ≠ i}, (b q - 1) =
@@ -205,6 +207,28 @@ theorem slice_jacobian_exponent (i : ι) [Nontrivial ι] (b : ι → ℂ) :
   rw [hcast_rest, hcast_two]
   ring
 
+open scoped Classical in
+/-- The inner integral of a simplex slice of a Dirichlet integrand: the distinguished coordinate
+and the radial factor come out, leaving the slice of `f` against the lower-dimensional
+monomial. -/
+theorem integral_mvBetaMonomial_mul_slice (i : ι) (b : ι → ℂ) {t : ℝ}
+    (ht : t ∈ Set.Ico (0 : ℝ) 1) (f : (ι → ℝ) → ℂ) :
+    (∫ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
+      ((∏ k, ((stdSimplexCoordMap i (fun q ↦ (1 - t) * v q) k : ℝ) : ℂ) ^ (b k - 1)) *
+        f (stdSimplexCoordMap i (fun q ↦ (1 - t) * v q))) ∂stdSimplexMeasure) =
+      ((t : ℂ) ^ (b i - 1) * (1 - t : ℂ) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1))) *
+        ∫ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
+          (∏ q, (v q : ℂ) ^ (b q - 1)) * stdSimplexSlice i t f v ∂stdSimplexMeasure := by
+  rw [← integral_const_mul]
+  apply setIntegral_congr_fun (Convexity.StdSimplex.isClosed_coordinateSet ℝ _).measurableSet
+  intro v hv
+  change (∏ k, ((stdSimplexCoordMap i (fun q ↦ (1 - t) * v q) k : ℝ) : ℂ) ^ (b k - 1)) *
+    f (stdSimplexCoordMap i (fun q ↦ (1 - t) * v q)) = _
+  rw [prod_cpow_stdSimplexCoordMap_scale i b ht hv]
+  simp only [stdSimplexSlice]
+  ring
+
+open scoped Classical in
 /-- Native slice formula: a regularized Dirichlet integral is an incomplete Mellin transform
 in one coordinate of a complementary regularized Dirichlet integral on the opposite face. -/
 theorem regDirichletIntegral_split_at [Nontrivial ι] (i : ι)
@@ -216,9 +240,6 @@ theorem regDirichletIntegral_split_at [Nontrivial ι] (i : ι)
           regDirichletIntegral (fun q : {j : ι // j ≠ i} => b q)
             (stdSimplexSlice i t f)) := by
   classical
-  let b' : {j : ι // j ≠ i} → ℂ := fun q ↦ b q
-  let c : ℂ := ∑ q : {j : ι // j ≠ i}, b q
-  have hb' : b' ∈ mvBetaConvergent := fun q ↦ hb q
   have hint : IntegrableOn
       (fun u : ι → ℝ ↦ (∏ j, (u j : ℂ) ^ (b j - 1)) * f u)
       (Convexity.StdSimplex.coordinateSet ℝ ι) stdSimplexMeasure :=
@@ -226,32 +247,6 @@ theorem regDirichletIntegral_split_at [Nontrivial ι] (i : ι)
       (Convexity.StdSimplex.isCompact_coordinateSet ℝ ι)
   rw [regDirichletIntegral_eq_prod_invGamma_mul,
     integral_stdSimplex_split_at i _ hint]
-  have hinner : ∀ t ∈ Set.Ico (0 : ℝ) 1,
-      (∫ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
-        ((∏ k, ((stdSimplexCoordMap i (fun q ↦ (1 - t) * v q) k : ℝ) : ℂ) ^
-          (b k - 1)) * f (stdSimplexCoordMap i (fun q ↦ (1 - t) * v q)))
-          ∂stdSimplexMeasure) =
-        ((t : ℂ) ^ (b i - 1) *
-          (1 - t : ℂ) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1))) *
-          ∫ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
-            (∏ q, (v q : ℂ) ^ (b q - 1)) * stdSimplexSlice i t f v
-              ∂stdSimplexMeasure := by
-    intro t ht
-    calc
-      _ = ∫ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
-          ((t : ℂ) ^ (b i - 1) *
-            (1 - t : ℂ) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1))) *
-              ((∏ q, (v q : ℂ) ^ (b q - 1)) * stdSimplexSlice i t f v)
-            ∂stdSimplexMeasure := by
-          apply setIntegral_congr_fun (Convexity.StdSimplex.isClosed_coordinateSet ℝ _).measurableSet
-          intro v hv
-          change
-            (∏ k, ((stdSimplexCoordMap i (fun q ↦ (1 - t) * v q) k : ℝ) : ℂ) ^
-                (b k - 1)) * f (stdSimplexCoordMap i (fun q ↦ (1 - t) * v q)) = _
-          rw [prod_cpow_stdSimplexCoordMap_scale i b ht hv]
-          simp only [stdSimplexSlice]
-          ring
-      _ = _ := by rw [integral_const_mul]
   have houter : ∀ᵐ t ∂volume.restrict (Set.Icc (0 : ℝ) 1),
       ((1 - t) ^ (Fintype.card ι - 2)) •
           (∫ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
@@ -259,7 +254,7 @@ theorem regDirichletIntegral_split_at [Nontrivial ι] (i : ι)
               (fun q ↦ (1 - t) * v q) k : ℝ) : ℂ) ^ (b k - 1)) *
                 f (stdSimplexCoordMap i (fun q ↦ (1 - t) * v q)))
               ∂stdSimplexMeasure) =
-        (t : ℂ) ^ (b i - 1) * (1 - t : ℂ) ^ (c - 1) *
+        (t : ℂ) ^ (b i - 1) * (1 - t : ℂ) ^ ((∑ q : {j : ι // j ≠ i}, b q) - 1) *
           ∫ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
             (∏ q, (v q : ℂ) ^ (b q - 1)) * stdSimplexSlice i t f v
               ∂stdSimplexMeasure := by
@@ -267,28 +262,10 @@ theorem regDirichletIntegral_split_at [Nontrivial ι] (i : ι)
         (Ico_ae_eq_Icc (μ := volume) (a := (0 : ℝ)) (b := 1)),
       ae_restrict_mem (μ := volume) measurableSet_Icc] with t heq htIcc
     have ht : t ∈ Set.Ico (0 : ℝ) 1 := heq.mpr htIcc
-    rw [hinner t ht]
-    have hbase : (1 - (t : ℂ)) ≠ 0 := by
-      intro hz
-      apply ht.2.ne
-      exact_mod_cast (sub_eq_zero.mp hz).symm
-    rw [Complex.real_smul, Complex.ofReal_pow, ← Complex.cpow_natCast]
+    rw [integral_mvBetaMonomial_mul_slice i b ht f, Complex.real_smul, Complex.ofReal_pow,
+      ← Complex.cpow_natCast, ← mul_assoc]
     push_cast
-    calc
-      (1 - t : ℂ) ^ ((Fintype.card ι - 2 : ℕ) : ℂ) *
-          (((t : ℂ) ^ (b i - 1) *
-            (1 - t : ℂ) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1))) *
-              ∫ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
-                (∏ q, (v q : ℂ) ^ (b q - 1)) * stdSimplexSlice i t f v
-                  ∂stdSimplexMeasure) =
-          (t : ℂ) ^ (b i - 1) *
-            ((1 - t : ℂ) ^ ((Fintype.card ι - 2 : ℕ) : ℂ) *
-              (1 - t : ℂ) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1))) *
-                ∫ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
-                  (∏ q, (v q : ℂ) ^ (b q - 1)) * stdSimplexSlice i t f v
-                    ∂stdSimplexMeasure := by ring
-      _ = _ := by
-        rw [← Complex.cpow_add _ _ hbase, slice_jacobian_exponent i b]
+    rw [Complex.cpow_natCast_mul_cpow_sum_sub_one i b ht]
   rw [integral_congr_ae houter]
   unfold regIncompleteMellin
   rw [Fintype.prod_eq_mul_prod_subtype_ne _ i]
@@ -298,11 +275,11 @@ theorem regDirichletIntegral_split_at [Nontrivial ι] (i : ι)
   apply integral_congr_ae
   filter_upwards with t
   rw [regDirichletIntegral_eq_prod_invGamma_mul]
-  dsimp only [c, b']
   ring
 
 /-! ### Continuation by tangential integration by parts -/
 
+open scoped Classical in
 /-- Iterated parameter shifts. Each step raises a free parameter and either lowers the
 omitted parameter or takes one tangential derivative of the integrand. -/
 private def shiftedDirichletIntegral (i : ι) :
@@ -313,12 +290,16 @@ private def shiftedDirichletIntegral (i : ι) :
         shiftedDirichletIntegral i l (b + Pi.single (j : ι) 1)
           (stdSimplexTangentDeriv j i f)
 
+open scoped Classical in
 /-- Convergence region for a finite list of tangential parameter shifts. -/
 def shiftRegion (i : ι) (l : List {j : ι // j ≠ i}) : Set (ι → ℂ) :=
   {b | (l.length : ℝ) < (b i).re ∧ ∀ j : {j : ι // j ≠ i},
     0 < (b j).re + (l.count j : ℝ)}
 
+open scoped Classical in
 omit [Fintype ι] in
+/-- Both parameter shifts produced by the first element of a shift list stay in the shift region of
+the remaining list. -/
 theorem shiftRegion_cons (i : ι) (j : {j : ι // j ≠ i})
     (l : List {j : ι // j ≠ i}) {b : ι → ℂ} (hb : b ∈ shiftRegion i (j :: l)) :
     (b + Pi.single (j : ι) 1 - Pi.single i 1) ∈ shiftRegion i l ∧
@@ -369,6 +350,7 @@ private theorem shiftedDirichletIntegral_eq (i : ι) (l : List {j : ι // j ≠ 
     {f : (ι → ℝ) → ℂ} (hf : ContDiffNearStdSimplex l.length f)
     {b : ι → ℂ} (hb : ∀ k, (l.length : ℝ) + 2 < (b k).re) :
     shiftedDirichletIntegral i l b f = regDirichletIntegral b f := by
+  classical
   induction l generalizing f b with
   | nil => rfl
   | cons j l ih =>
@@ -405,22 +387,30 @@ private theorem shiftedDirichletIntegral_eq (i : ι) (l : List {j : ι // j ≠ 
       rw [H]
       ring
 
+open scoped Classical in
 /-- Each free coordinate is shifted `N` times. -/
 def shiftList (i : ι) (N : ℕ) : List {j : ι // j ≠ i} :=
   (List.replicate N (Finset.univ.toList : List {j : ι // j ≠ i})).flatten
 
+/-- The shift list for `N` rounds has `(card ι - 1) * N` entries. -/
 theorem shiftList_length (i : ι) (N : ℕ) :
     (shiftList i N).length = (Fintype.card ι - 1) * N := by
+  classical
   have hcard : Fintype.card {j : ι // j ≠ i} = Fintype.card ι - 1 := by
     rw [Fintype.card_subtype_compl, Fintype.card_subtype_eq]
   simp [shiftList, List.length_flatten, hcard, mul_comm]
 
+open scoped Classical in
+/-- Every free coordinate occurs exactly `N` times in the shift list for `N` rounds. -/
 theorem shiftList_count (i : ι) (N : ℕ) (j : {j : ι // j ≠ i}) :
     (shiftList i N).count j = N := by
   have hc : (Finset.univ.toList : List {j : ι // j ≠ i}).count j = 1 :=
     List.count_eq_one_of_mem (Finset.nodup_toList _) (by simp)
   simp [shiftList, List.count_flatten, hc]
 
+open scoped Classical in
+/-- Partition of unity by the `M`-th power of the coordinates: the regularized Dirichlet integral
+is a sum of Pochhammer-weighted shifted integrals divided by the power partition denominator. -/
 theorem regDirichletIntegral_power_partition {b : ι → ℂ}
     (hb : b ∈ mvBetaConvergent) {f : (ι → ℝ) → ℂ}
     (hf : ContinuousOn f (Convexity.StdSimplex.coordinateSet ℝ ι)) (M : ℕ) :
@@ -455,6 +445,51 @@ theorem regDirichletIntegral_power_partition {b : ι → ℂ}
   have h := regDirichletIntegral_monomial_mul hb (Pi.single i M) g
   simpa [mvPochhammer, Pi.single_apply, apply_ite, Pi.add_def, add_ite, g] using! h
 
+open scoped Classical in
+/-- Raising the coordinate `i` of a parameter vector in the convergence region of order `N` by
+`(card ι - 1) * N + N` places it in the shift region of the full shift list at `i`. -/
+theorem add_single_mem_shiftRegion_shiftList {N : ℕ} {b : ι → ℂ}
+    (hb : b ∈ dirichletConvergenceRegion N) (i : ι) :
+    b + Pi.single i ((((Fintype.card ι - 1) * N + N : ℕ) : ℂ)) ∈
+      shiftRegion i (shiftList i N) := by
+  constructor
+  · simp only [shiftList_length, Pi.add_apply, Pi.single_eq_same, add_re, natCast_re]
+    have hi := hb i
+    push_cast
+    linarith
+  · intro j
+    simp only [Pi.add_apply, Pi.single_eq_of_ne j.property, add_zero, shiftList_count]
+    have hj := hb j
+    linarith
+
+/-- Near the constant parameter vector `L + 3`, every coordinate has real part above `L + 2`. -/
+theorem eventually_forall_lt_re_nhds_natCast (L : ℕ) :
+    ∀ᶠ b : ι → ℂ in 𝓝 (fun _ => ((L + 3 : ℕ) : ℂ)), ∀ i, (L : ℝ) + 2 < (b i).re := by
+  apply Filter.eventually_all.mpr
+  intro i
+  apply (isOpen_lt (continuous_const : Continuous fun _ : ι → ℂ => (L : ℝ) + 2)
+    (Complex.continuous_re.comp (continuous_apply i))).eventually_mem
+  simp only [Set.mem_ofPred_eq, Function.comp_apply, natCast_re]
+  push_cast
+  linarith
+
+open scoped Classical in
+/-- Parameters with all real parts above `(card ι - 1) * N + 2` satisfy, after raising the
+coordinate `i` by a natural number, the growth condition for the shift list of order `N`. -/
+theorem forall_length_add_two_lt_re_add_single {N M : ℕ} {b : ι → ℂ} (i : ι)
+    (hb : ∀ k, (((Fintype.card ι - 1) * N : ℕ) : ℝ) + 2 < (b k).re) :
+    ∀ k, ((shiftList i N).length : ℝ) + 2 < ((b + Pi.single i (M : ℂ) : ι → ℂ) k).re := by
+  intro k
+  rw [shiftList_length]
+  by_cases hki : k = i
+  · subst k
+    simp only [Pi.add_apply, Pi.single_eq_same, add_re, natCast_re]
+    have := hb i
+    have := Nat.cast_nonneg (α := ℝ) M
+    linarith
+  · simpa only [Pi.add_apply, Pi.single_eq_of_ne hki, add_zero] using hb k
+
+open scoped Classical in
 /-- If `f` has `(card ι - 1) * N` continuous derivatives near the closed simplex,
 its regularized Dirichlet integral continues to `-N < re (b i)` for every `i`.
 
@@ -483,43 +518,25 @@ theorem exists_regDirichletContinuation_of_contDiffNear {N : ℕ}
         intro b hb
         apply Finset.analyticAt_fun_sum
         intro i _
-        have hbi : b + Pi.single i (M : ℂ) ∈ shiftRegion i (shiftList i N) := by
-          constructor
-          · simp only [shiftList_length, Pi.add_apply, Pi.single_eq_same, add_re, natCast_re]
-            have hi := hb i
-            dsimp [M, L]
-            push_cast
-            linarith
-          · intro j
-            simp only [Pi.add_apply, Pi.single_eq_of_ne j.property, add_zero, shiftList_count]
-            have hj := hb j
-            linarith
         have hp : AnalyticAt ℂ (fun b : ι → ℂ => (ascPochhammer ℂ M).eval (b i)) b :=
-          ((AnalyticOnNhd.eval_polynomial (𝕜 := ℂ) (ascPochhammer ℂ M)) (b i) (mem_univ _)).comp_of_eq
+          ((AnalyticOnNhd.eval_polynomial (𝕜 := ℂ) (ascPochhammer ℂ M)) (b i)
+              (mem_univ _)).comp_of_eq
             ((ContinuousLinearMap.proj i : (ι → ℂ) →L[ℂ] ℂ).analyticAt b) rfl
         exact hp.mul (((analyticOnNhd_shiftedDirichletIntegral i (shiftList i N) (hgl i))
-          _ hbi).comp_of_eq (analyticAt_id.add analyticAt_const) rfl)
+          _ (add_single_mem_shiftRegion_shiftList hb i)).comp_of_eq
+            (analyticAt_id.add analyticAt_const) rfl)
       refine ⟨F, hF.analyticOn, ?_⟩
       have hFb : AnalyticOnNhd ℂ F mvBetaConvergent :=
         hF.mono (mvBetaConvergent_subset_dirichletConvergenceRegion N)
       have hnative := isOpen_mvBetaConvergent.analyticOn_iff_analyticOnNhd.mp
         (regDirichletIntegral_analyticOn hf.continuousOn)
-      let b₀ : ι → ℂ := fun _ => (L + 3 : ℕ)
-      have hb₀ : b₀ ∈ mvBetaConvergent := by
+      have hb₀ : (fun _ : ι => ((L + 3 : ℕ) : ℂ)) ∈ mvBetaConvergent := by
         intro i
-        simp [b₀]
+        simp
         positivity
       apply hFb.eqOn_of_preconnected_of_eventuallyEq hnative
         (by simpa using isPreconnected_dirichletConvergenceRegion (ι := ι) 0) hb₀
-      have hev : ∀ᶠ b : ι → ℂ in 𝓝 b₀, ∀ i, (L : ℝ) + 2 < (b i).re := by
-        apply Filter.eventually_all.mpr
-        intro i
-        apply (isOpen_lt (continuous_const : Continuous fun _ : ι → ℂ => (L : ℝ) + 2)
-          (Complex.continuous_re.comp (continuous_apply i))).eventually_mem
-        dsimp [b₀]
-        simp only [Nat.cast_add, Nat.cast_ofNat]
-        linarith
-      filter_upwards [hev] with b hb
+      filter_upwards [eventually_forall_lt_re_nhds_natCast L] with b hb
       have hbpos : b ∈ mvBetaConvergent := by
         intro i
         have := hb i
@@ -531,17 +548,8 @@ theorem exists_regDirichletContinuation_of_contDiffNear {N : ℕ}
       apply Finset.sum_congr rfl
       intro i _
       congr 1
-      apply shiftedDirichletIntegral_eq i (shiftList i N) (hgl i)
-      intro k
-      rw [shiftList_length]
-      by_cases hki : k = i
-      · subst k
-        simp only [Pi.add_apply, Pi.single_eq_same, add_re, natCast_re]
-        have := hb i
-        have := Nat.cast_nonneg (α := ℝ) M
-        change (L : ℝ) + 2 < (b i).re + M
-        linarith
-      · simpa only [Pi.add_apply, Pi.single_eq_of_ne hki, add_zero] using hb k
+      exact shiftedDirichletIntegral_eq i (shiftList i N) (hgl i)
+        (forall_length_add_two_lt_re_add_single i hb)
 
 /-- If a simplex function has every finite order of differentiability on a neighborhood of
 the simplex, its compatible finite-order regularized continuations glue to an entire function
@@ -551,6 +559,7 @@ theorem exists_entire_regDirichletContinuation_of_contDiffNear
     ∃ F : (ι → ℂ) → ℂ,
       AnalyticOnNhd ℂ F Set.univ ∧
         Set.EqOn F (fun b ↦ regDirichletIntegral b f) mvBetaConvergent := by
+  classical
   choose Φ hΦ using fun N ↦
     exists_regDirichletContinuation_of_contDiffNear (N := N) (hf ((Fintype.card ι - 1) * N))
   have hexists (b : ι → ℂ) : ∃ N, b ∈ dirichletConvergenceRegion N := by
@@ -596,6 +605,6 @@ theorem exists_entire_regDirichletContinuation_of_contDiffNear
   · intro b hb
     exact (hΦ (order b)).2 hb
 
-end DirichletTransform
+end Dirichlet
 
-end DirichletTransform
+end Transform

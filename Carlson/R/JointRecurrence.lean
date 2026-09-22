@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.R.SlitRecurrence
@@ -17,10 +21,10 @@ This constructs a universal homogeneity recurrence. It does not yet construct
 universal coefficient witnesses for arbitrary lists of associated shifts.
 -/
 
+open Dirichlet
 open Complex Set
-open scoped Classical
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- The same polynomial family gives the R-relation for every parameter and slit node. -/
@@ -34,4 +38,4 @@ theorem sum_carlsonAssociatedRecurrenceJointPolynomial_mul_rSlit
   | inl h => simp [regCarlsonRSlit_eq_zero_of_isEmpty _ b hz]
   | inr h => exact sum_carlsonAssociatedRecurrencePolynomial_mul_rSlit a b hz
 
-end DirichletTransform
+end Carlson

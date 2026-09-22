@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.R.SingleIntegral
@@ -13,9 +17,8 @@ derived from it without building phase choices into the basic definition.
 -/
 
 open Complex MeasureTheory ProbabilityTheory
-open scoped Classical
 @[expose] public noncomputable section CarlsonR
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- The Euler-type unit-interval integral underlying Carlson's Formula 8.1-1. -/
@@ -175,5 +178,5 @@ theorem carlsonEulerRayIntegral_eq_rIntegral
       dsimp only [W]
       ring
 
-end DirichletTransform
+end Carlson
 end CarlsonR

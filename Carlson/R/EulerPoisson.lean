@@ -1,14 +1,34 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.R.SlitDeriv
 
-/-! # The R Euler–Poisson system on the full slit domain -/
+/-!
+# The R Euler–Poisson system on the full slit domain
 
+Carlson's Euler–Poisson differential equations (6.4-2) for the R-function, in the form
+`carlsonEulerPoissonOperator i j b z (regCarlsonRSlit t b) = 0`, for every complex exponent,
+every complex Dirichlet parameter vector and every node vector in the product slit plane.
+
+## Main results
+
+* `Carlson.carlsonEulerPoissonOperator_regCarlsonRSlit`: the system for the regularized function.
+* `Carlson.carlsonEulerPoissonOperator_carlsonRSlit`: the system for the ordinary normalization.
+
+## References
+
+* [Carl77] B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
+-/
+
+open Dirichlet
 open Complex MeasureTheory ProbabilityTheory Filter Set
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- The Euler–Poisson system for R, for all complex parameters and slit-plane nodes.
@@ -37,4 +57,4 @@ theorem carlsonEulerPoissonOperator_carlsonRSlit (t : ℂ) (b : ι → ℂ)
   rw [carlsonEulerPoissonOperator_const_mul,
     carlsonEulerPoissonOperator_regCarlsonRSlit t b hz i j, mul_zero]
 
-end DirichletTransform
+end Carlson

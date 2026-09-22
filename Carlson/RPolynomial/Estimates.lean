@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.RPolynomial.Coefficients
@@ -15,10 +19,10 @@ public import Pochhammer.Gamma
 Home for the Section 6.2 bounds used in normally convergent series.
 -/
 
+open Dirichlet
 open Complex Finset ProbabilityTheory Set
-open scoped Classical
 @[expose] public noncomputable section CarlsonRPolynomial
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- The power kernel represented by `carlsonPowerPolynomial` is uniformly bounded on the
@@ -30,6 +34,8 @@ theorem norm_eval_carlsonPowerPolynomial_le (n : ℕ) (z : ι → ℂ) {u : ι �
   rw [eval_carlsonPowerPolynomial, norm_pow]
   exact pow_le_pow_left₀ (norm_nonneg _) (norm_carlsonAffineForm_le_sum_norm z hu) n
 
+/-- A crude bound on the Pochhammer numerator of the R-polynomial in terms of a bound on the
+parameters and the sum of the node norms. -/
 lemma norm_carlsonRPolynomialNumerator_le (n : ℕ) (b z : ι → ℂ) {B : ℝ}
     (hB : 0 ≤ B) (hb : ∀ i, ‖b i‖ ≤ B) :
     ‖carlsonRPolynomialNumerator n b z‖ ≤
@@ -120,7 +126,7 @@ lemma norm_carlsonRPolynomialNumerator_le (n : ℕ) (b z : ι → ℂ) {B : ℝ}
 theorem exists_summable_norm_regCarlsonR_div_factorial_bounded_variables
     {K : Set (ι → ℂ)} (hK : IsCompact K) {Z : ℝ} (hZ : 0 ≤ Z) :
     ∃ M : ℕ → ℝ, Summable M ∧ ∀ n b, b ∈ K → ∀ z : ι → ℂ, (∑ i, ‖z i‖) ≤ Z →
-      ‖(Nat.factorial n : ℂ)⁻¹ * regCarlsonR n z b‖ ≤ M n := by
+      ‖(Nat.factorial n : ℂ)⁻¹ * regCarlsonRPolynomial n b z‖ ≤ M n := by
   obtain ⟨B₀, hB₀⟩ := hK.bddAbove_image (continuous_norm.continuousOn)
   let B := max B₀ 0
   have hB : 0 ≤ B := le_max_right _ _
@@ -159,19 +165,21 @@ theorem exists_summable_norm_regCarlsonR_div_factorial_bounded_variables
     simpa [M, Nat.not_lt.mpr (Nat.le_add_left m _)] using H
   refine ⟨M, hM, ?_⟩
   intro n b hb z hz
-  have hraw : ‖(n.factorial : ℂ)⁻¹ * regCarlsonR n z b‖ ≤
+  have hraw : ‖(n.factorial : ℂ)⁻¹ * regCarlsonRPolynomial n b z‖ ≤
       (B + n) ^ n / n.factorial * Z ^ n * ‖(Gamma (S b + n))⁻¹‖ := by
     have H := norm_carlsonRPolynomialNumerator_le n b z hB (hbnd hb)
     have H' : ‖carlsonRPolynomialNumerator n b z‖ ≤ (B + n) ^ n * Z ^ n :=
       H.trans (mul_le_mul_of_nonneg_left (pow_le_pow_left₀ (by positivity) hz n) (by positivity))
     change ‖(n.factorial : ℂ)⁻¹ * regCarlsonRPolynomial n b z‖ ≤ _
-    rw [regCarlsonRPolynomial_eq_numerator_mul_one_div_Gamma, norm_mul, norm_mul, norm_inv, Complex.norm_natCast]
+    rw [regCarlsonRPolynomial_eq_numerator_mul_one_div_Gamma, norm_mul, norm_mul, norm_inv,
+        Complex.norm_natCast]
     calc
       _ ≤ (n.factorial : ℝ)⁻¹ * (((B + n) ^ n * Z ^ n) * ‖(Gamma (S b + n))⁻¹‖) := by
         gcongr
       _ = _ := by ring
   by_cases hnm : n < m
-  · exact hraw.trans (by dsimp [M]; rw [if_pos hnm]; gcongr; exact (hD n b hb).trans (le_max_left _ _))
+  · exact hraw.trans (by
+      dsimp [M]; rw [ite_eq_left hnm]; gcongr; exact (hD n b hb).trans (le_max_left _ _))
   obtain ⟨k, rfl⟩ := Nat.exists_eq_add_of_le (Nat.le_of_not_gt hnm)
   rw [Nat.add_comm m k] at hraw ⊢
   have hpow := Real.pow_div_factorial_le_exp (B + (k + m : ℕ)) (by positivity) (k + m)
@@ -184,7 +192,7 @@ theorem exists_summable_norm_regCarlsonR_div_factorial_bounded_variables
       gcongr
       exact hgamma k hb
     _ = M (k + m) := by
-      simp only [M, Nat.not_lt.mpr (Nat.le_add_left m k), if_false, Nat.add_sub_cancel_right,
+      simp only [M, Nat.not_lt.mpr (Nat.le_add_left m k), ite_false, Nat.add_sub_cancel_right,
         A, Nat.cast_add, pow_add, Real.exp_add, hexp, mul_pow]
       ring
 
@@ -192,10 +200,10 @@ theorem exists_summable_norm_regCarlsonR_div_factorial_bounded_variables
 theorem exists_summable_norm_regCarlsonR_div_factorial_on_compact_parameters
     (z : ι → ℂ) {K : Set (ι → ℂ)} (hK : IsCompact K) :
     ∃ M : ℕ → ℝ, Summable M ∧ ∀ n b, b ∈ K →
-      ‖(Nat.factorial n : ℂ)⁻¹ * regCarlsonR n z b‖ ≤ M n := by
+      ‖(Nat.factorial n : ℂ)⁻¹ * regCarlsonRPolynomial n b z‖ ≤ M n := by
   obtain ⟨M, hM, hbound⟩ := exists_summable_norm_regCarlsonR_div_factorial_bounded_variables hK
     (show 0 ≤ ∑ i, ‖z i‖ by positivity)
   exact ⟨M, hM, fun n b hb => hbound n b hb z le_rfl⟩
 
-end DirichletTransform
+end Carlson
 end CarlsonRPolynomial

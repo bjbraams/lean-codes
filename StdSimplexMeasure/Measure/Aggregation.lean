@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Bastiaan J Braams.
+Authors: Bastiaan J Braams
 -/
 module
 
@@ -14,10 +14,26 @@ public import Mathlib.MeasureTheory.Function.LpSeminorm.Basic
 public import StdSimplexMeasure.CoordinateRealization
 
 import Mathlib.MeasureTheory.Function.LocallyIntegrable
-import Mathlib.MeasureTheory.Measure.Dirac
+import Mathlib.MeasureTheory.Measure.Dirac.Def
+import Mathlib.MeasureTheory.Measure.Dirac.Basic
 import StdSimplexMeasure.PositiveSimplex.Aggregation
 
-/-! # Aggregation pushforward of simplex coordinate measure -/
+/-!
+# Aggregation pushforward of simplex coordinate measure
+
+The pushforward of the restricted simplex coordinate measure along a coordinate aggregation
+map `stdSimplexAggregate f` is absolutely continuous with respect to the target simplex
+measure, with the polynomial density `∏ k, y k ^ (card (f ⁻¹' {k}) - 1)` up to normalization.
+
+## Main definitions
+
+* `MeasureTheory.Measure.stdSimplexAggregateDensity`: the fiber-cardinality density.
+
+## Main results
+
+* `MeasureTheory.Measure.map_stdSimplexMeasure_restrict_stdSimplex_aggregate`: the aggregation
+  formula, proved by induction over the fibers.
+-/
 
 public noncomputable section StdSimplexCoordinateMeasure
 
@@ -25,7 +41,6 @@ namespace MeasureTheory.Measure
 
 variable {ι : Type*} [Fintype ι]
 
-open scoped Classical
 
 /-- Density associated with the cardinalities of the fibers of a coordinate aggregation map. -/
 @[expose] def stdSimplexAggregateDensity
@@ -68,6 +83,7 @@ theorem map_stdSimplexMeasure_restrict_stdSimplex_aggregate_of_unique
       ((stdSimplexMeasure (ι := ι)).restrict (Convexity.StdSimplex.coordinateSet ℝ ι)) =
     ((stdSimplexMeasure (ι := κ)).restrict (Convexity.StdSimplex.coordinateSet ℝ κ)).withDensity
       (stdSimplexAggregateDensity f) := by
+  classical
   ext s hs
   rw [Measure.map_apply (by fun_prop) hs]
   rw [withDensity_apply _ hs]
@@ -75,14 +91,15 @@ theorem map_stdSimplexMeasure_restrict_stdSimplex_aggregate_of_unique
   have hconst_mem : (fun _ : κ => (1 : ℝ)) ∈ Convexity.StdSimplex.coordinateSet ℝ κ := by
     simp [Convexity.StdSimplex.coordinateSet]
   rw [MeasureTheory.restrict_dirac' (Convexity.StdSimplex.isClosed_coordinateSet ℝ κ).measurableSet,
-    if_pos hconst_mem]
+    ite_eq_left hconst_mem]
   have hd : Measurable (stdSimplexAggregateDensity f) := by
     unfold stdSimplexAggregateDensity
     fun_prop
   rw [MeasureTheory.setLIntegral_dirac' hd hs]
   by_cases hmem : (fun _ : κ => (1 : ℝ)) ∈ s
-  · rw [if_pos hmem]
-    have hpre : stdSimplexAggregate f ⁻¹' s ∩ Convexity.StdSimplex.coordinateSet ℝ ι = Convexity.StdSimplex.coordinateSet ℝ ι := by
+  · rw [ite_eq_left hmem]
+    have hpre : stdSimplexAggregate f ⁻¹' s ∩ Convexity.StdSimplex.coordinateSet ℝ ι =
+        Convexity.StdSimplex.coordinateSet ℝ ι := by
       ext u
       simp only [Set.mem_inter_iff]
       constructor
@@ -98,7 +115,7 @@ theorem map_stdSimplexMeasure_restrict_stdSimplex_aggregate_of_unique
       stdSimplexMeasure_stdSimplex]
     simp [stdSimplexAggregateDensity, stdSimplexAggregateFiberCard,
       Subsingleton.elim (f _) default]
-  · rw [if_neg hmem]
+  · rw [ite_eq_right hmem]
     have hpre : stdSimplexAggregate f ⁻¹' s ∩ Convexity.StdSimplex.coordinateSet ℝ ι = ∅ := by
       ext u
       simp only [Set.mem_inter_iff, Set.mem_preimage, Set.mem_empty_iff_false]
@@ -112,6 +129,7 @@ theorem map_stdSimplexMeasure_restrict_stdSimplex_aggregate_of_unique
       · exact False.elim
     rw [Measure.restrict_apply (hs.preimage (by fun_prop)), hpre, measure_empty]
 
+open scoped Classical in
 /-- In omitted-coordinate charts, aggregation discards the coordinates in the remainder of
 the omitted target fibre and aggregates all complementary coordinates. -/
 private theorem stdSimplexAggregate_coordMap_split
@@ -187,6 +205,7 @@ private theorem stdSimplexAggregate_coordMap_split
   · rw [stdSimplexCoordMap_apply_of_ne k j hj]
     exact hfree j hj
 
+open scoped Classical in
 /-- In the same omitted-coordinate charts, the standard-simplex aggregation density is the
 solid-simplex aggregation density on the complementary fibres times the volume of the
 remainder of the omitted fibre. -/
@@ -227,7 +246,7 @@ private theorem stdSimplexAggregateDensity_coordMap_split
   congr 1
   apply Fintype.prod_congr
   intro j
-  letI (a : {a : {q : ι // q ≠ i} // p a}) : Decidable (f' a = j) :=
+  let (a : {a : {q : ι // q ≠ i} // p a}) : Decidable (f' a = j) :=
     Classical.propDecidable _
   rw [stdSimplexCoordMap_apply_of_ne k j j.property]
   have hjcard : stdSimplexAggregateFiberCard f j =
@@ -246,10 +265,67 @@ private theorem stdSimplexAggregateDensity_coordMap_split
     exact Fintype.card_congr E
   rw [hjcard]
 
+/-- Aggregating a vector along a map preserves its coordinate sum. -/
+theorem sum_linearMap_apply {α β : Type*} [Fintype α] [Fintype β] (f : α → β) (u : α → ℝ) :
+    ∑ q, FunOnFinite.linearMap ℝ ℝ f u q = ∑ a, u a := by
+  classical
+  rw [show (∑ q, FunOnFinite.linearMap ℝ ℝ f u q) =
+      ∑ q, ∑ a ∈ Finset.univ.filter (fun a => f a = q), u a by
+    apply Finset.sum_congr rfl
+    intro q _
+    rw [FunOnFinite.linearMap_apply_apply]]
+  exact Finset.sum_fiberwise Finset.univ f u
+
+open scoped Classical in
+/-- The pushforward of the restricted simplex measure under aggregation, integrated against a
+measurable function, in the chart omitting the coordinate `i`. -/
+private theorem lintegral_map_stdSimplexAggregate {κ : Type*} [Fintype κ] (f : ι → κ) (i : ι)
+    {g : (κ → ℝ) → ENNReal} (hg : Measurable g) :
+    ∫⁻ u, g u ∂Measure.map (stdSimplexAggregate f)
+        ((stdSimplexMeasure (ι := ι)).restrict (Convexity.StdSimplex.coordinateSet ℝ ι)) =
+      ∫⁻ x in posSimplex {j : ι // j ≠ i} 1,
+        g (stdSimplexAggregate f (stdSimplexCoordMap i x)) := by
+  have : Nonempty ι := ⟨i⟩
+  have haggregate : Measurable (stdSimplexAggregate (R := ℝ) f) := by
+    fun_prop
+  rw [lintegral_map hg (by fun_prop), stdSimplexMeasure_restrict_stdSimplex i]
+  change ∫⁻ a, (g ∘ stdSimplexAggregate f) a
+      ∂Measure.map (stdSimplexCoordMap i) (volume.restrict (stdSimplexFreeCoords i)) = _
+  rw [lintegral_map (hg.comp haggregate) (measurable_stdSimplexCoordMap i)]
+  rw [stdSimplexFreeCoords]
+  rfl
+
+open scoped Classical in
+/-- The density-weighted target simplex measure, integrated against a measurable function, in
+the chart omitting the coordinate `k`. -/
+private theorem lintegral_withDensity_stdSimplexAggregateDensity {κ : Type*} [Fintype κ]
+    (f : ι → κ) (k : κ) {g : (κ → ℝ) → ENNReal} (hg : Measurable g) :
+    ∫⁻ u, g u ∂((stdSimplexMeasure (ι := κ)).restrict
+        (Convexity.StdSimplex.coordinateSet ℝ κ)).withDensity (stdSimplexAggregateDensity f) =
+      ∫⁻ z in posSimplex {j : κ // j ≠ k} 1,
+        stdSimplexAggregateDensity f (stdSimplexCoordMap k z) * g (stdSimplexCoordMap k z) := by
+  have : Nonempty κ := ⟨k⟩
+  have hdensity : Measurable (stdSimplexAggregateDensity f) := by
+    unfold stdSimplexAggregateDensity
+    fun_prop
+  rw [lintegral_withDensity_eq_lintegral_mul _ hdensity hg,
+    stdSimplexMeasure_restrict_stdSimplex k]
+  let Q : (κ → ℝ) → ENNReal := fun u ↦ stdSimplexAggregateDensity f u * g u
+  have hQ : Measurable Q := hdensity.mul hg
+  change ∫⁻ a, Q a ∂Measure.map (stdSimplexCoordMap k)
+      (volume.restrict (stdSimplexFreeCoords k)) = _
+  rw [lintegral_map hQ (measurable_stdSimplexCoordMap k)]
+  rw [stdSimplexFreeCoords]
+  rfl
+
+open scoped Classical in
 /-- Pushing the restricted simplex measure forward under coordinate aggregation gives the
 restricted target simplex measure weighted by the product of the fiber-volume densities.
 
-This is the standard-simplex form of `lintegral_posSimplex_comp_aggregate`. -/
+This is the standard-simplex form of `lintegral_posSimplex_comp_aggregate`. Both sides are
+computed in the charts omitting a coordinate `i` of the source and its image `k = f i`, where
+the aggregation of the free coordinates is the solid-simplex aggregation for the map induced
+on the remaining coordinates. -/
 theorem map_stdSimplexMeasure_restrict_stdSimplex_aggregate
     {κ : Type*} [Fintype κ]
     (f : ι → κ) (hf : Function.Surjective f) :
@@ -290,51 +366,10 @@ theorem map_stdSimplexMeasure_restrict_stdSimplex_aggregate
           let D : ({j : κ // j ≠ k} → ℝ) → ENNReal := fun z ↦
             ENNReal.ofReal (1 - ∑ q, z q) ^ Fintype.card A /
               (Nat.factorial (Fintype.card A) : ENNReal)
-          have hsum (u : {a : {j : ι // j ≠ i} // p a} → ℝ) :
-              ∑ q, FunOnFinite.linearMap ℝ ℝ f' u q = ∑ a, u a := by
-            rw [show (∑ q, FunOnFinite.linearMap ℝ ℝ f' u q) =
-                ∑ q, ∑ a ∈ Finset.univ.filter (fun a => f' a = q), u a by
-              apply Finset.sum_congr rfl
-              intro q _
-              rw [FunOnFinite.linearMap_apply_apply]]
-            exact Finset.sum_fiberwise Finset.univ f' u
           apply Measure.ext_of_lintegral
           intro g hg
-          have hdensity : Measurable (stdSimplexAggregateDensity f) := by
-            unfold stdSimplexAggregateDensity
-            fun_prop
-          have haggregate : Measurable (stdSimplexAggregate (R := ℝ) f) := by
-            fun_prop
-          have hleft :
-              ∫⁻ u, g u ∂Measure.map (stdSimplexAggregate f)
-                ((stdSimplexMeasure (ι := ι)).restrict (Convexity.StdSimplex.coordinateSet ℝ ι)) =
-              ∫⁻ x in posSimplex {j : ι // j ≠ i} 1,
-                g (stdSimplexAggregate f (stdSimplexCoordMap i x)) := by
-            rw [lintegral_map hg (by fun_prop),
-              stdSimplexMeasure_restrict_stdSimplex i]
-            change ∫⁻ a, (g ∘ stdSimplexAggregate f) a
-                ∂Measure.map (stdSimplexCoordMap i)
-                  (volume.restrict (stdSimplexFreeCoords i)) = _
-            rw [lintegral_map (hg.comp haggregate)
-              (measurable_stdSimplexCoordMap i)]
-            rw [stdSimplexFreeCoords]
-            rfl
-          have hright :
-              ∫⁻ u, g u ∂((stdSimplexMeasure (ι := κ)).restrict
-                  (Convexity.StdSimplex.coordinateSet ℝ κ)).withDensity (stdSimplexAggregateDensity f) =
-              ∫⁻ z in posSimplex {j : κ // j ≠ k} 1,
-                stdSimplexAggregateDensity f (stdSimplexCoordMap k z) *
-                  g (stdSimplexCoordMap k z) := by
-            rw [lintegral_withDensity_eq_lintegral_mul _ hdensity hg,
-              stdSimplexMeasure_restrict_stdSimplex k]
-            let Q : (κ → ℝ) → ENNReal := fun u ↦ stdSimplexAggregateDensity f u * g u
-            have hQ : Measurable Q := hdensity.mul hg
-            change ∫⁻ a, Q a ∂Measure.map (stdSimplexCoordMap k)
-                (volume.restrict (stdSimplexFreeCoords k)) = _
-            rw [lintegral_map hQ (measurable_stdSimplexCoordMap k)]
-            rw [stdSimplexFreeCoords]
-            rfl
-          rw [hleft, hright]
+          rw [lintegral_map_stdSimplexAggregate f i hg,
+            lintegral_withDensity_stdSimplexAggregateDensity f k hg]
           let G :
               ({a : {j : ι // j ≠ i} // p a} → ℝ) ×
                 (A → ℝ) → ENNReal := fun q ↦
@@ -375,7 +410,7 @@ theorem map_stdSimplexMeasure_restrict_stdSimplex_aggregate
                 rw [← setLIntegral_const]]
               rw [volume_posSimplex A _ hr]
               unfold G H D
-              rw [hsum]
+              rw [sum_linearMap_apply]
             _ = ∫⁻ z in posSimplex {j : κ // j ≠ k} 1,
                 H z * posSimplexAggregateDensity f' z :=
               lintegral_posSimplex_comp_aggregate f' hf' 1 zero_le_one H hH

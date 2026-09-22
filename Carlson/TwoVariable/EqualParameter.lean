@@ -1,6 +1,11 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
+public import ComplexAnalysis.HalfPlane
 public import Carlson.TwoVariable.QuadraticContinuation
 public import Mathlib.Analysis.Complex.Polynomial.Basic
 
@@ -19,10 +24,11 @@ its removable values. The ordinary function is analytic wherever `β + 1/2` is
 not a nonpositive integer. No extension of the node domains is asserted here.
 -/
 
+open Dirichlet
 open Complex ProbabilityTheory Filter Set
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform.TwoVariable
+namespace Carlson.TwoVariable
 
 /-- Characterization of the entire equal-parameter regularization. -/
 def IsRegEqualRContinuation (t x y : ℂ) (G : ℂ → ℂ) : Prop :=
@@ -80,24 +86,6 @@ theorem isRegEqualRContinuation_secondQuadratic (t x y : ℂ) (hz : SecondQuadra
     · exact (analyticAt_const.sub analyticAt_id).sub analyticAt_const
   · exact fun β => regRContinued_secondQuadratic t β x y hz
 
-private lemma exists_right_root {z : ℂ} (hz : 0 < z.re) :
-    ∃ x : ℂ, x ^ 2 = z ∧ 0 < x.re ∧ |x.im| < x.re := by
-  obtain ⟨u, hu⟩ := IsAlgClosed.exists_pow_nat_eq z (show 0 < (2 : ℕ) by omega)
-  have hs : u.im ^ 2 < u.re ^ 2 := by
-    have H := congrArg Complex.re hu
-    simp only [pow_two, mul_re] at H
-    nlinarith
-  have hn : u.re ≠ 0 := by intro h; rw [h] at hs; nlinarith [sq_nonneg u.im]
-  have hp : ∀ v : ℂ, v ^ 2 = z → 0 < v.re → |v.im| < v.re := by
-    intro v hv hvp
-    have H := congrArg Complex.re hv
-    simp only [pow_two, mul_re] at H
-    exact (sq_lt_sq₀ (abs_nonneg _) hvp.le).mp (by rw [sq_abs]; nlinarith)
-  rcases lt_or_gt_of_ne hn with h | h
-  · refine ⟨-u, by simpa using hu, by simpa using neg_pos.mpr h, ?_⟩
-    exact hp (-u) (by simpa using hu) (by simpa using neg_pos.mpr h)
-  · exact ⟨u, hu, h, hp u hu h⟩
-
 private lemma secondQuadraticDomain_of_right_roots {x y : ℂ}
     (hx : |x.im| < x.re) (hy : |y.im| < y.re) : SecondQuadraticDomain x y := by
   have hxpos : 0 < x.re := (abs_nonneg _).trans_lt hx
@@ -131,8 +119,8 @@ private lemma secondQuadraticDomain_of_right_roots {x y : ℂ}
 in the definition of the continuation. -/
 theorem exists_isRegEqualRContinuation (t x y : ℂ) (hz : pair x y ∈ carlsonRVariableDomain) :
     ∃ G, IsRegEqualRContinuation t x y G := by
-  obtain ⟨u, hu, _, hup⟩ := exists_right_root (show 0 < x.re from hz 0)
-  obtain ⟨v, hv, _, hvp⟩ := exists_right_root (show 0 < y.re from hz 1)
+  obtain ⟨u, hu, _, hup⟩ := exists_sq_eq_of_re_pos (show 0 < x.re from hz 0)
+  obtain ⟨v, hv, _, hvp⟩ := exists_sq_eq_of_re_pos (show 0 < y.re from hz 1)
   exact ⟨_, by simpa only [hu, hv] using
     isRegEqualRContinuation_secondQuadratic t u v (secondQuadraticDomain_of_right_roots hup hvp)⟩
 
@@ -174,8 +162,8 @@ the equal-parameter regularization retains the removable values in that case. -/
 theorem regCarlsonRContinued_pair_eq (t β x y : ℂ) (hz : pair x y ∈ carlsonRVariableDomain) :
     regCarlsonRContinued t (pair x y) hz (pair β β) =
       quadraticGammaRatio β * regEqualRContinued t x y hz β := by
-  obtain ⟨u, hu, _, hup⟩ := exists_right_root (show 0 < x.re from hz 0)
-  obtain ⟨v, hv, _, hvp⟩ := exists_right_root (show 0 < y.re from hz 1)
+  obtain ⟨u, hu, _, hup⟩ := exists_sq_eq_of_re_pos (show 0 < x.re from hz 0)
+  obtain ⟨v, hv, _, hvp⟩ := exists_sq_eq_of_re_pos (show 0 < y.re from hz 1)
   subst x; subst y
   have hroot := secondQuadraticDomain_of_right_roots hup hvp
   rw [regEqualRContinued_secondQuadratic t β u v hroot]
@@ -187,8 +175,8 @@ theorem analyticAt_regEqualRContinued_comp
     {f b : E → ℂ} {p : E} {x y : ℂ} (hz : pair x y ∈ carlsonRVariableDomain)
     (hf : AnalyticAt ℂ f p) (hb : AnalyticAt ℂ b p) :
     AnalyticAt ℂ (fun w => regEqualRContinued (f w) x y hz (b w)) p := by
-  obtain ⟨u, hu, _, hup⟩ := exists_right_root (show 0 < x.re from hz 0)
-  obtain ⟨v, hv, _, hvp⟩ := exists_right_root (show 0 < y.re from hz 1)
+  obtain ⟨u, hu, _, hup⟩ := exists_sq_eq_of_re_pos (show 0 < x.re from hz 0)
+  obtain ⟨v, hv, _, hvp⟩ := exists_sq_eq_of_re_pos (show 0 < y.re from hz 1)
   subst x; subst y
   have hroot := secondQuadraticDomain_of_right_roots hup hvp
   simp only [regEqualRContinued_secondQuadratic _ _ u v hroot]
@@ -234,19 +222,19 @@ theorem isCarlsonGammaRegular_neg_nat_add_half (n : ℕ) :
 /-- At exponent zero the entire equal-parameter regularization is reciprocal Gamma. -/
 @[simp] theorem regEqualRContinued_zero (β x y : ℂ) (hz : pair x y ∈ carlsonRVariableDomain) :
     regEqualRContinued 0 x y hz β = (Gamma (β + 1 / 2))⁻¹ := by
-  obtain ⟨u, hu, _, hup⟩ := exists_right_root (show 0 < x.re from hz 0)
-  obtain ⟨v, hv, _, hvp⟩ := exists_right_root (show 0 < y.re from hz 1)
+  obtain ⟨u, hu, _, hup⟩ := exists_sq_eq_of_re_pos (show 0 < x.re from hz 0)
+  obtain ⟨v, hv, _, hvp⟩ := exists_sq_eq_of_re_pos (show 0 < y.re from hz 1)
   subst x; subst y
   have hroot := secondQuadraticDomain_of_right_roots hup hvp
   rw [regEqualRContinued_secondQuadratic 0 β u v hroot]
   rw [show (0 : ℂ) = (0 : ℕ) by norm_num, regCarlsonRContinued_natCast]
-  simp only [regCarlsonR, regCarlsonRPolynomial_zero, sum_pair]
+  simp only [regCarlsonRPolynomial_zero, sum_pair]
   congr 2
   ring
 
 /-- Regression check for the removable values: the exponent-zero function is one,
 including at `β = 0, -1, -2, ...`. -/
-@[simp] theorem equalRContinued_zero (β x y : ℂ) (hz : pair x y ∈ carlsonRVariableDomain)
+theorem equalRContinued_zero (β x y : ℂ) (hz : pair x y ∈ carlsonRVariableDomain)
     (hβ : IsCarlsonGammaRegular (β + 1 / 2)) : equalRContinued 0 x y hz β = 1 := by
   rw [equalRContinued, regEqualRContinued_zero, mul_inv_cancel₀ (Gamma_ne_zero hβ)]
 
@@ -266,5 +254,5 @@ theorem equalRContinued_secondQuadratic (t β x y : ℂ) (hz : SecondQuadraticDo
       (pair (2 * β + t) (1 / 2 - β - t)) := by
   rw [equalRContinued, regEqualRContinued_secondQuadratic t β x y hz]
 
-end DirichletTransform.TwoVariable
+end Carlson.TwoVariable
 end

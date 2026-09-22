@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Bastiaan J Braams.
+Authors: Bastiaan J Braams
 -/
 module
 
@@ -14,10 +14,30 @@ public import Mathlib.MeasureTheory.Function.LpSeminorm.Basic
 public import StdSimplexMeasure.CoordinateRealization
 
 import Mathlib.MeasureTheory.Function.LocallyIntegrable
-import Mathlib.MeasureTheory.Measure.Dirac
+import Mathlib.MeasureTheory.Measure.Dirac.Def
+import Mathlib.MeasureTheory.Measure.Dirac.Basic
 import StdSimplexMeasure.PositiveSimplex.Basic
 
-/-! # The ambient affine-hyperplane coordinate measure -/
+/-!
+# The ambient affine-hyperplane coordinate measure
+
+The Lebesgue measure on the sum-one affine hyperplane `{u : ι → ℝ | ∑ i, u i = 1}`, defined as
+the pushforward of Lebesgue measure on any free-coordinate chart. It is a measure on the entire
+hyperplane; the standard simplex carries its restriction. The definition is independent of the
+omitted coordinate, invariant under coordinate permutations, and zero for an empty index type.
+
+## Main definitions
+
+* `MeasureTheory.Measure.stdSimplexMeasureAt`: Lebesgue measure in the chart omitting `i`.
+* `MeasureTheory.Measure.stdSimplexMeasure`: the chart-independent hyperplane measure.
+
+## Main results
+
+* `MeasureTheory.Measure.stdSimplexMeasure_eq_at`: independence of the chart.
+* `MeasureTheory.Measure.measurePreserving_stdSimplexMeasure_perm`: permutation invariance.
+* `MeasureTheory.Measure.stdSimplexMeasure_restrict_stdSimplex`: the restricted simplex measure in
+  a chart; the simplex has finite measure and the hyperplane measure is sigma-finite.
+-/
 
 public noncomputable section StdSimplexCoordinateMeasure
 
@@ -25,7 +45,6 @@ namespace MeasureTheory.Measure
 
 variable {ι : Type*} [Fintype ι]
 
-open scoped Classical
 
 /-- The coordinate map is measurable. -/
 theorem measurable_stdSimplexCoordMap (i : ι) :
@@ -37,6 +56,7 @@ def stdSimplexMeasureAt (i : ι) : Measure (ι → ℝ) := by
   classical
   exact Measure.map (stdSimplexCoordMap (R := ℝ) i) volume
 
+open scoped Classical in
 /-- The Lebesgue measure is homogeneous of degree `(Fintype.card ι - 1)` in the free coordinates. -/
 theorem volume_map_smul_free_coords (i : ι) (c : ℝ) (hc : 0 < c) :
     Measure.map (c • · : ({j : ι // j ≠ i} → ℝ) → ({j : ι // j ≠ i} → ℝ)) volume =
@@ -50,6 +70,7 @@ theorem volume_map_smul_free_coords (i : ι) (c : ℝ) (hc : 0 < c) :
   simpa [f, abs_of_pos hc, Fintype.card_subtype_compl,
     ENNReal.ofReal_inv_of_pos (pow_pos hc _)] using hmap
 
+open scoped Classical in
 /-- Coordinate explicit form of `stdSimplexMeasureAt`. -/
 theorem stdSimplexMeasureAt_eq_map_piSplitAt_symm (i : ι) :
     stdSimplexMeasureAt i =
@@ -65,12 +86,14 @@ theorem stdSimplexMeasureAt_eq_map_piSplitAt_symm (i : ι) :
 private lemma stdSimplexScaleMap_det (t : ℝ) (i : ι) :
     abs (LinearMap.det ((1 - t) • (LinearMap.id : ({j // j ≠ i} → ℝ) →ₗ[ℝ] _)))
       = abs (1 - t) ^ (Fintype.card ι - 1) := by
+  classical
   simp [LinearMap.det_smul, Fintype.card_subtype_compl, abs_pow]
 
 /-- Pushing `stdSimplexMeasureAt (σ i)` forward along `σ` gives `stdSimplexMeasureAt i`. -/
 theorem stdSimplexMeasureAt_map_perm (i : ι) (σ : Equiv.Perm ι) :
   Measure.map (fun u => u ∘ σ)
     (stdSimplexMeasureAt (σ i)) = stdSimplexMeasureAt i := by
+  classical
   let e : {j : ι // j ≠ i} ≃ {j : ι // j ≠ σ i} := {
     toFun j := ⟨σ j, fun h => j.property (σ.injective h)⟩
     invFun j := ⟨σ.symm j, fun h => j.property (by simpa using congrArg σ h)⟩
@@ -105,6 +128,7 @@ theorem stdSimplexMeasureAt_map_perm (i : ι) (σ : Equiv.Perm ι) :
       exact (Measure.map_map (measurable_stdSimplexCoordMap i) T.measurable).symm
     _ = Measure.map (stdSimplexCoordMap i) volume := by rw [hT]
 
+open scoped Classical in
 /-- Pushing `stdSimplexMeasureAt i` forward along the transposition `swap i j` gives
 `stdSimplexMeasureAt j`. -/
 theorem stdSimplexMeasureAt_swap (i j : ι) :
@@ -113,6 +137,7 @@ theorem stdSimplexMeasureAt_swap (i j : ι) :
   simpa [Equiv.swap_apply_def] using
     (stdSimplexMeasureAt_map_perm j (Equiv.swap i j))
 
+open scoped Classical in
 /-- The affine free-coordinate change induced by swapping two ambient coordinates preserves
 Lebesgue measure. -/
 private theorem map_stdSimplexFreeCoordSwap_volume (i j : ι) (hij : i ≠ j) :
@@ -128,7 +153,7 @@ private theorem map_stdSimplexFreeCoordSwap_volume (i j : ι) (hij : i ≠ j) :
     · subst q
       rw [LinearMap.comp_apply, LinearMap.id_apply]
       change (if ji = ji then -∑ q, L x q else L x ji) = x ji
-      rw [if_pos rfl, sum_stdSimplexFreeCoordSwapLinear]
+      rw [ite_eq_left rfl, sum_stdSimplexFreeCoordSwapLinear]
       simp only [neg_neg]
       congr 1
     · simp [L, stdSimplexFreeCoordSwapLinear, ji, hq]
@@ -150,30 +175,31 @@ private theorem map_stdSimplexFreeCoordSwap_volume (i j : ι) (hij : i ≠ j) :
   rw [← Measure.map_map (by fun_prop) (by fun_prop), hmapL]
   exact Measure.IsAddLeftInvariant.map_add_left_eq_self c
 
+open scoped Classical in
 /-- The coordinate measure is independent of the chosen special coordinate. -/
 theorem stdSimplexMeasureAt_eq (i j : ι) :
     stdSimplexMeasureAt i = stdSimplexMeasureAt j := by
   by_cases hij : i = j
   · subst j
     rfl
-  have hswap : Measure.map (fun u : ι → ℝ => u ∘ Equiv.swap i j)
-      (stdSimplexMeasureAt i) = stdSimplexMeasureAt i := by
-    unfold stdSimplexMeasureAt
-    calc
-      Measure.map (fun u : ι → ℝ => u ∘ Equiv.swap i j)
-          (Measure.map (stdSimplexCoordMap i) volume) =
-          Measure.map ((fun u : ι → ℝ => u ∘ Equiv.swap i j) ∘
-            stdSimplexCoordMap i) volume :=
-        Measure.map_map (by fun_prop) (measurable_stdSimplexCoordMap i)
-      _ = Measure.map (stdSimplexCoordMap i ∘ stdSimplexFreeCoordSwap i j hij) volume := by
-        rw [stdSimplexCoordMap_comp_freeCoordSwap i j hij]
-      _ = Measure.map (stdSimplexCoordMap i)
-          (Measure.map (stdSimplexFreeCoordSwap i j hij) volume) :=
-        (Measure.map_map (measurable_stdSimplexCoordMap i)
-          (continuous_stdSimplexFreeCoordSwap i j hij).measurable).symm
-      _ = Measure.map (stdSimplexCoordMap i) volume := by
-        rw [map_stdSimplexFreeCoordSwap_volume i j hij]
-  exact hswap.symm.trans (stdSimplexMeasureAt_swap i j)
+  suffices hswap : Measure.map (fun u : ι → ℝ => u ∘ Equiv.swap i j)
+      (stdSimplexMeasureAt i) = stdSimplexMeasureAt i by
+    exact hswap.symm.trans (stdSimplexMeasureAt_swap i j)
+  unfold stdSimplexMeasureAt
+  calc
+    Measure.map (fun u : ι → ℝ => u ∘ Equiv.swap i j)
+        (Measure.map (stdSimplexCoordMap i) volume) =
+        Measure.map ((fun u : ι → ℝ => u ∘ Equiv.swap i j) ∘
+          stdSimplexCoordMap i) volume :=
+      Measure.map_map (by fun_prop) (measurable_stdSimplexCoordMap i)
+    _ = Measure.map (stdSimplexCoordMap i ∘ stdSimplexFreeCoordSwap i j hij) volume := by
+      rw [stdSimplexCoordMap_comp_freeCoordSwap i j hij]
+    _ = Measure.map (stdSimplexCoordMap i)
+        (Measure.map (stdSimplexFreeCoordSwap i j hij) volume) :=
+      (Measure.map_map (measurable_stdSimplexCoordMap i)
+        (continuous_stdSimplexFreeCoordSwap i j hij).measurable).symm
+    _ = Measure.map (stdSimplexCoordMap i) volume := by
+      rw [map_stdSimplexFreeCoordSwap_volume i j hij]
 
 /-- The coordinate Lebesgue measure on `stdSimplexAffineSet`. When `ι` is empty the measure
 is zero; otherwise it is the push-forward of Lebesgue measure from any set of free
@@ -188,9 +214,10 @@ def stdSimplexMeasure :
 theorem stdSimplexMeasure_eq_at [Nonempty ι] (i : ι) :
     stdSimplexMeasure (ι := ι) = stdSimplexMeasureAt i := by
   unfold stdSimplexMeasure
-  rw [dif_pos (inferInstance : Nonempty ι)]
+  rw [dite_eq_left (inferInstance : Nonempty ι)]
   exact stdSimplexMeasureAt_eq _ i
 
+open scoped Classical in
 /-- The coordinate map pushes the restricted volume on the free coordinates to the restricted
 simplex measure. -/
 theorem stdSimplexMeasure_restrict_stdSimplex
@@ -209,7 +236,7 @@ theorem stdSimplexMeasure_restrict_stdSimplex
 @[simp] theorem stdSimplexMeasure_empty [IsEmpty ι] :
     stdSimplexMeasure (ι := ι) = 0 := by
   unfold stdSimplexMeasure
-  exact dif_neg (not_nonempty_iff.mpr inferInstance)
+  exact dite_eq_right (not_nonempty_iff.mpr inferInstance)
 
 /-- `stdSimplexMeasure` is a `SigmaFinite` measure. -/
 instance sigmaFinite_stdSimplexMeasure :
@@ -226,6 +253,7 @@ instance sigmaFinite_stdSimplexMeasure :
       unfold stdSimplexMeasureAt
       exact (isClosedEmbedding_stdSimplexCoordMap i).measurableEmbedding.sigmaFinite_map
 
+open scoped Classical in
 /-- For a type with a unique element, the pushforward measure at that element is a Dirac mass
 at the all-ones point. -/
 @[simp] theorem stdSimplexMeasureAt_of_unique [Unique ι] (i : ι) :
@@ -270,7 +298,8 @@ theorem stdSimplexMeasure_restrict_stdSimplexAffineSet :
       rw [hp, Measure.restrict_univ]
 
 /-- The coordinate Lebesgue measure is finite on the standard simplex. -/
-instance : IsFiniteMeasure (stdSimplexMeasure.restrict (Convexity.StdSimplex.coordinateSet ℝ ι)) := by
+instance : IsFiniteMeasure (stdSimplexMeasure.restrict (Convexity.StdSimplex.coordinateSet ℝ ι))
+    := by
   refine ⟨?_⟩
   cases isEmpty_or_nonempty ι with
   | inl h =>
@@ -282,11 +311,10 @@ instance : IsFiniteMeasure (stdSimplexMeasure.restrict (Convexity.StdSimplex.coo
       rw [stdSimplexMeasure_restrict_stdSimplex i]
       rw [Measure.map_apply (measurable_stdSimplexCoordMap i) MeasurableSet.univ]
       rw [Set.preimage_univ, Measure.restrict_apply_univ]
-      have hc : IsCompact (stdSimplexFreeCoords (R := ℝ) i) := by
-        rw [← preimage_stdSimplexCoordMap i]
-        exact (isClosedEmbedding_stdSimplexCoordMap i).isCompact_preimage
-          (Convexity.StdSimplex.isCompact_coordinateSet ℝ ι)
-      exact hc.measure_lt_top
+      suffices hc : IsCompact (stdSimplexFreeCoords (R := ℝ) i) from hc.measure_lt_top
+      rw [← preimage_stdSimplexCoordMap i]
+      exact (isClosedEmbedding_stdSimplexCoordMap i).isCompact_preimage
+        (Convexity.StdSimplex.isCompact_coordinateSet ℝ ι)
 
 /-- Permuting coordinates is a measure-preserving transformation of `stdSimplexMeasure`:
 the map `x ↦ x ∘ σ` is measurable, and it pushes `stdSimplexMeasure` forward to itself. -/
@@ -314,6 +342,7 @@ $1/(k-1)!$ where `k = Fintype.card ι`. -/
 @[simp] theorem stdSimplexMeasure_stdSimplex [Nonempty ι] :
   stdSimplexMeasure (Convexity.StdSimplex.coordinateSet ℝ ι) =
     1 / (Nat.factorial (Fintype.card ι - 1) : ENNReal) := by
+  classical
   let i : ι := Classical.choice (inferInstance : Nonempty ι)
   rw [← Measure.restrict_apply_univ]
   rw [stdSimplexMeasure_restrict_stdSimplex i]
@@ -336,6 +365,7 @@ theorem stdSimplexMeasure_stdSimplex_ne_top [Nonempty ι] :
   rw [stdSimplexMeasure_stdSimplex]
   exact ENNReal.div_ne_top ENNReal.one_ne_top (by positivity)
 
+open scoped Classical in
 /-- The projected measure of a measurable set: `stdSimplexMeasureAt i s` equals the volume
 of the preimage of `s` under `stdSimplexCoordMap i`. -/
 theorem stdSimplexMeasureAt_apply
@@ -345,6 +375,7 @@ theorem stdSimplexMeasureAt_apply
   unfold stdSimplexMeasureAt
   exact Measure.map_apply (continuous_stdSimplexCoordMap i).measurable hs
 
+open scoped Classical in
 /-- The coordinate faces have measure 0. -/
 theorem stdSimplexMeasure_coord_eq_zero [Nonempty ι] (i : ι) :
   stdSimplexMeasure {u : ι → ℝ | u i = 0} = 0 := by
@@ -398,6 +429,46 @@ theorem memLp_coordinate_of_restrict_stdSimplex
   filter_upwards [hmem] with u hu
   rw [Real.norm_eq_abs, abs_of_nonneg (hu.1 i)]
   exact (Convexity.StdSimplex.mem_Icc_of_mem_coordinateSet hu i).2
+
+/-- Projection onto the first coordinate sends the coordinate measure on the
+two-coordinate affine simplex to Lebesgue measure. -/
+theorem map_stdSimplexMeasure_fin_two :
+    Measure.map (fun u : Fin 2 → ℝ => u 0)
+      (stdSimplexMeasure (ι := Fin 2)) = volume := by
+  let _ : DecidableEq (Fin 2) := Classical.decEq _
+  rw [stdSimplexMeasure_eq_at (1 : Fin 2)]
+  unfold stdSimplexMeasureAt
+  rw [Measure.map_map]
+  · let A := {j : Fin 2 // j ≠ 1}
+    let e : A ≃ Fin 1 :=
+      Fintype.equivOfCardEq (by simp [A, Fintype.card_subtype_compl])
+    let T := MeasurableEquiv.piCongrLeft (fun _ : A => ℝ) e.symm
+    have hT : Measure.map T volume = volume :=
+      (volume_measurePreserving_piCongrLeft (fun _ : A => ℝ) e.symm).map_eq
+    let U := MeasurableEquiv.funUnique (Fin 1) ℝ
+    have hU : Measure.map U volume = volume :=
+      (volume_preserving_funUnique (Fin 1) ℝ).map_eq
+    rw [← hU]
+    calc
+      Measure.map ((fun u : Fin 2 → ℝ => u 0) ∘ stdSimplexCoordMap 1)
+          (volume : Measure (A → ℝ)) =
+          Measure.map ((fun u : Fin 2 → ℝ => u 0) ∘ stdSimplexCoordMap 1)
+            (Measure.map T volume) := by rw [hT]
+      _ = Measure.map
+          (((fun u : Fin 2 → ℝ => u 0) ∘ stdSimplexCoordMap 1) ∘ T) volume :=
+        Measure.map_map
+          ((measurable_pi_apply 0).comp (measurable_stdSimplexCoordMap 1)) T.measurable
+      _ = Measure.map U volume := by
+        congr 1
+        funext x
+        simp only [Function.comp_apply]
+        rw [stdSimplexCoordMap_apply_of_ne (R := ℝ) (1 : Fin 2) (0 : Fin 2) (by omega)]
+        have he : (⟨0, by omega⟩ : A) = e.symm (e ⟨0, by omega⟩) := by simp
+        rw [he, MeasurableEquiv.piCongrLeft_apply_apply]
+        change x (e ⟨0, by omega⟩) = x default
+        exact congrArg x (Subsingleton.elim _ _)
+  · exact measurable_pi_apply 0
+  · exact measurable_stdSimplexCoordMap (1 : Fin 2)
 
 end MeasureTheory.Measure
 

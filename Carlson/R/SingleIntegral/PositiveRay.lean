@@ -1,14 +1,41 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
+public import ComplexAnalysis.Pow
 public import Carlson.R.SingleIntegral.Continuation
 
-/-! # Positive-ray representation and its change of variables -/
+/-!
+# Positive-ray representation and its change of variables
 
+Carlson's single-integral representation of the R-function on the positive ray, obtained from
+the unit-interval form through the reciprocal translation `s ↦ (s + 1)⁻¹`.
+
+## Main definitions
+
+* `Carlson.carlsonRPositiveRayIntegral`: the positive-ray integral.
+
+## Main results
+
+* `Carlson.carlsonRPositiveRayIntegral_eq_unitInterval`: the change of variables between the two
+  representations.
+* `Carlson.carlsonRPositiveRayIntegral_eq`: Carlson's Theorem 6.8-1 in positive-ray form.
+* `Carlson.carlsonRPositiveRayIntegral_eq_gamma_mul_continued`: the positive-ray representation
+  of the parameter-continued R-function.
+
+## References
+
+* [Carl77] B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
+-/
+
+open Dirichlet
 open Complex MeasureTheory ProbabilityTheory Filter Set
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- The positive-ray form of Carlson's single-integral representation. -/
@@ -55,26 +82,18 @@ private lemma hasDerivAt_recip_add_one (s : ℝ) (hs : 0 < s) :
   all_goals simp only [id_eq]
   all_goals ring
 
-/-- Complex powers split over a product whose first factor is a positive real number. -/
-private lemma ofReal_mul_cpow {r : ℝ} (hr : 0 < r) {x e : ℂ} (hx : x ≠ 0) :
-    ((r : ℂ) * x) ^ e = (r : ℂ) ^ e * x ^ e := by
-  have hr0 : (r : ℂ) ≠ 0 := ofReal_ne_zero.mpr hr.ne'
-  rw [Complex.cpow_def_of_ne_zero (mul_ne_zero hr0 hx),
-    Complex.cpow_def_of_ne_zero hr0, Complex.cpow_def_of_ne_zero hx,
-    Complex.log_ofReal_mul hr hx, ofReal_log hr.le, add_mul, Complex.exp_add]
-
 omit [Fintype ι] in
 /-- A finite product of complex powers with the same nonzero base combines by adding the
 exponents. -/
 private lemma prod_cpow_same_base
     (s : Finset ι) (r : ℂ) (hr : r ≠ 0) (e : ι → ℂ) :
     ∏ i ∈ s, r ^ e i = r ^ (∑ i ∈ s, e i) := by
+  classical
   induction s using Finset.induction with
   | empty => simp
   | @insert i s hi ih =>
       rw [Finset.prod_insert hi, Finset.sum_insert hi, ih, ← Complex.cpow_add _ _ hr]
 
-set_option maxHeartbeats 800000 in
 /-- Pointwise form of the reciprocal-translation substitution relating Carlson's ray and
 unit-interval integrands. -/
 private lemma ray_substitution_point
@@ -116,7 +135,7 @@ private lemma ray_substitution_point
   have hprod :
       (∏ i, ((r : ℂ) * (z i + (s : ℂ))) ^ (-b i)) =
         (r : ℂ) ^ (∑ i, -b i) * ∏ i, (z i + (s : ℂ)) ^ (-b i) := by
-    simp_rw [ofReal_mul_cpow hr (hzi _)]
+    simp_rw [ofReal_pos_mul_cpow _ _ hr (hzi _)]
     rw [Finset.prod_mul_distrib, prod_cpow_same_base Finset.univ (r : ℂ) hr0]
   have hexp : (2 : ℂ) + (a' - 1) + (a - 1) + ∑ i, -b i = 0 := by
     rw [Finset.sum_neg_distrib, ← hsum]
@@ -204,4 +223,4 @@ theorem carlsonRPositiveRayIntegral_eq_gamma_mul_continued
     carlsonRUnitIntervalIntegral_eq_gamma_mul_continued ha' ha
       (by simpa [add_comm] using hsum) hz, mul_comm (Gamma a')]
 
-end DirichletTransform
+end Carlson

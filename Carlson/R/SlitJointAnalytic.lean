@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.R.SlitContinuation
@@ -14,10 +18,11 @@ division by parameter factors. This proves the continuation assertion of Theorem
 but not Carlson's additional contour representation (6.8-7).
 -/
 
+open Dirichlet
 open Complex Filter Set
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι κ : Type*} [Fintype ι] [Fintype κ]
 
 private theorem analyticAt_regCarlsonRSlit_comp_of_strip
@@ -69,6 +74,7 @@ theorem analyticOnNhd_regCarlsonRSlit_comp
     (hb : AnalyticOnNhd ℂ b U) (hz : AnalyticOnNhd ℂ z U)
     (hslit : ∀ p ∈ U, z p ∈ carlsonRSlitDomain) :
     AnalyticOnNhd ℂ (fun p => regCarlsonRSlit (t p) (b p) (z p)) U := by
+  classical
   have hraise {b : (κ → ℂ) → ι → ℂ} (hb : AnalyticOnNhd ℂ b U) (i : ι) :
       AnalyticOnNhd ℂ (fun q => addDirichletUnit (b q) i) U := by
     intro p hp
@@ -133,10 +139,12 @@ theorem analyticOnNhd_regCarlsonRSlit_joint :
   · exact fun p _ => (ContinuousLinearMap.proj none : (Option (ι ⊕ ι) → ℂ) →L[ℂ] ℂ).analyticAt p
   · intro p _
     exact analyticAt_pi_iff.mpr fun i =>
-      (ContinuousLinearMap.proj (some (Sum.inl i : ι ⊕ ι)) : (Option (ι ⊕ ι) → ℂ) →L[ℂ] ℂ).analyticAt p
+      (ContinuousLinearMap.proj (some (Sum.inl i : ι ⊕ ι)) : (Option (ι ⊕ ι) → ℂ)
+          →L[ℂ] ℂ).analyticAt p
   · intro p _
     exact analyticAt_pi_iff.mpr fun i =>
-      (ContinuousLinearMap.proj (some (Sum.inr i : ι ⊕ ι)) : (Option (ι ⊕ ι) → ℂ) →L[ℂ] ℂ).analyticAt p
+      (ContinuousLinearMap.proj (some (Sum.inr i : ι ⊕ ι)) : (Option (ι ⊕ ι) → ℂ)
+          →L[ℂ] ℂ).analyticAt p
   · exact fun _ hp => hp
 
 /-- At any fixed slit-plane node vector, regularization makes `R` entire jointly in
@@ -190,4 +198,4 @@ theorem analyticAt_carlsonRSlit_comp
     simpa only [inv_inv] using h
   exact hgamma.mul (analyticAt_regCarlsonRSlit_comp ht hb hz hslit)
 
-end DirichletTransform
+end Carlson

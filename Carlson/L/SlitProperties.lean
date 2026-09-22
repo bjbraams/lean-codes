@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.L.SlitContinuation
@@ -15,10 +19,11 @@ remaining index type. Coincident-node and singleton formulas also cover Gamma ze
 in the regularized normalization.
 -/
 
+open Dirichlet
 open Complex Filter Set
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- Equal nodes may be combined by any surjective partition, on the full slit domain. -/
@@ -32,7 +37,8 @@ theorem regCarlsonLSlit_aggregate {κ : Type*} [Fintype κ]
     apply analyticAt_regCarlsonLSlit_comp analyticAt_const analyticAt_const _ (fun i => hw (q i))
     exact analyticAt_pi_iff.mpr fun i =>
       (ContinuousLinearMap.proj (q i) : (κ → ℂ) →L[ℂ] ℂ).analyticAt w
-  apply eqOn_carlsonRSlitDomain_of_eqOn_rightHalfPlane hleft (analyticOnNhd_regCarlsonLSlit t _) ?_ hz
+  apply eqOn_carlsonRSlitDomain_of_eqOn_rightHalfPlane hleft (analyticOnNhd_regCarlsonLSlit t _)
+      ?_ hz
   intro w hw
   change regCarlsonLSlit t b (w ∘ q) = regCarlsonLSlit t (stdSimplexAggregate q b) w
   dsimp only [Function.comp_def]
@@ -50,7 +56,8 @@ theorem regCarlsonLSlit_option_zero [Nonempty ι] (t : ℂ)
     apply analyticAt_regCarlsonLSlit_comp analyticAt_const analyticAt_const _ (fun i => hw (some i))
     exact analyticAt_pi_iff.mpr fun i =>
       (ContinuousLinearMap.proj (some i) : (Option ι → ℂ) →L[ℂ] ℂ).analyticAt w
-  apply eqOn_carlsonRSlitDomain_of_eqOn_rightHalfPlane (analyticOnNhd_regCarlsonLSlit t b) hright ?_ hz
+  apply eqOn_carlsonRSlitDomain_of_eqOn_rightHalfPlane (analyticOnNhd_regCarlsonLSlit t b)
+      hright ?_ hz
   intro w hw
   change regCarlsonLSlit t b w = regCarlsonLSlit t (b ∘ some) (w ∘ some)
   dsimp only [Function.comp_def]
@@ -67,7 +74,8 @@ theorem regCarlsonLSlit_perm (t : ℂ) (b : ι → ℂ) {z : ι → ℂ}
     apply analyticAt_regCarlsonLSlit_comp analyticAt_const analyticAt_const _ (fun i => hw (σ i))
     exact analyticAt_pi_iff.mpr fun i =>
       (ContinuousLinearMap.proj (σ i) : (ι → ℂ) →L[ℂ] ℂ).analyticAt w
-  apply eqOn_carlsonRSlitDomain_of_eqOn_rightHalfPlane hleft (analyticOnNhd_regCarlsonLSlit t b) ?_ hz
+  apply eqOn_carlsonRSlitDomain_of_eqOn_rightHalfPlane hleft (analyticOnNhd_regCarlsonLSlit t b)
+      ?_ hz
   intro w hw
   change regCarlsonLSlit t (b ∘ σ) (w ∘ σ) = regCarlsonLSlit t b w
   dsimp only [Function.comp_def]
@@ -91,6 +99,7 @@ theorem regCarlsonLSlit_const (t w : ℂ) (hw : w ∈ slitPlane) (b : ι → ℂ
   rw [regCarlsonLSlit_eq_continued t b (fun _ => hv)]
   exact regCarlsonLContinued_const t v hv b
 
+/-- The regularized slit L-function vanishes at the all-one node vector. -/
 @[simp] theorem regCarlsonLSlit_one (t : ℂ) (b : ι → ℂ) :
     regCarlsonLSlit t b (fun _ => 1) = 0 := by
   simpa using regCarlsonLSlit_const t 1 (by simp) b
@@ -136,4 +145,4 @@ theorem regCarlsonLSlit_smul_of_pos (t : ℂ) (b : ι → ℂ) {z : ι → ℂ}
     regCarlsonLSlit_eq_continued t b hw, regCarlsonRSlit_eq_continued t b hw]
   exact regCarlsonLContinued_smul_of_pos t b hw ha
 
-end DirichletTransform
+end Carlson

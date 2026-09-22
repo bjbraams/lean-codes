@@ -1,15 +1,20 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Dirichlet.Average.HolomorphicDomain
+public import Analysis.ConvexHullDomain
 
 /-!
 # The native node domain of a holomorphic Dirichlet average
 
 For any open scalar domain `D`, not necessarily convex, the node tuples whose
 convex hull lies in `D` form an open set. The regularized average continues
-jointly to all Dirichlet parameters on this node set. If `D` is star-convex,
-this node set is star-convex too, giving a useful uniqueness domain.
+jointly to all Dirichlet parameters on this node set. If `D` is connected,
+this node set is connected too, giving a useful uniqueness domain.
 
 This does not extend the average to tuples whose convex hull leaves `D`.
 That is the additional content of Carlson (1969), Theorem 8, on simply
@@ -17,9 +22,9 @@ connected domains; its general existence assertion remains open here.
 -/
 
 open Complex ProbabilityTheory Set Filter
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Dirichlet
 variable {ι : Type*} [Fintype ι]
 
 /-- The node tuples on which the scalar domain contains the whole simplex image. -/
@@ -50,7 +55,8 @@ theorem isOpen_carlsonIntegralNodeDomain {D : Set ℂ} (hD : IsOpen D) :
   have hc : Continuous (fun p : (ι → ℂ) × (ι → ℝ) => carlsonAffineForm p.1 p.2) := by
     unfold carlsonAffineForm
     fun_prop
-  have h := (Convexity.StdSimplex.isCompact_coordinateSet ℝ ι).eventually_forall_of_forall_eventually
+  have h := (Convexity.StdSimplex.isCompact_coordinateSet ℝ
+      ι).eventually_forall_of_forall_eventually
     (x₀ := z) (P := fun w u => carlsonAffineForm w u ∈ D)
     (fun u hu => (hD.preimage hc).eventually_mem
       (mem_carlsonIntegralNodeDomain_iff.mp hz u hu))
@@ -86,6 +92,21 @@ theorem isConnected_carlsonIntegralNodeDomain {D : Set ℂ} {c : ℂ}
   ((starConvex_carlsonIntegralNodeDomain hD).isPathConnected
     (const_mem_carlsonIntegralNodeDomain hc)).isConnected
 
+omit [Fintype ι] in
+/-- The native node domain is path connected whenever the scalar domain is path connected,
+including nonconvex domains and empty node index types. -/
+theorem isPathConnected_carlsonIntegralNodeDomain {D : Set ℂ} (hD : IsPathConnected D) :
+    IsPathConnected (carlsonIntegralNodeDomain (ι := ι) D) :=
+  hD.convexHull_range_subset
+
+omit [Fintype ι] in
+/-- Every connected open scalar domain has a connected native node domain. -/
+theorem isConnected_carlsonIntegralNodeDomain_of_isOpen
+    {D : Set ℂ} (hDo : IsOpen D) (hDc : IsConnected D) :
+    IsConnected (carlsonIntegralNodeDomain (ι := ι) D) :=
+  (isPathConnected_carlsonIntegralNodeDomain (hDo.isConnected_iff_isPathConnected.mp
+      hDc)).isConnected
+
 /-- Joint entire-parameter continuation over the native node domain of any open
 holomorphy domain. Convexity of that scalar domain is not required. -/
 theorem exists_joint_isRegCarlsonContinuation_on_integralDomain
@@ -116,11 +137,11 @@ theorem exists_joint_isRegCarlsonContinuation_on_integralDomain
       (analyticAt_id.prod analyticAt_const) rfl
   · simpa only [regCarlsonDirichletAverage, carlsonAffineForm, A, mul_comm] using hGeq z hz
 
-/-- Recognize native agreement throughout a star-convex scalar domain from
-agreement on a convex open seed containing its star center. Joint holomorphy
+/-- Recognize native agreement throughout any connected open scalar domain from
+agreement on a nonempty convex open seed. Joint holomorphy
 on the full product domain is a hypothesis, not an existence conclusion. -/
-theorem isJointRegCarlsonContinuationOn_of_convex_seed
-    {D V : Set ℂ} {c : ℂ} (hDo : IsOpen D) (hDc : StarConvex ℝ c D)
+theorem isJointRegCarlsonContinuationOn_of_convex_seed_of_isConnected
+    {D V : Set ℂ} {c : ℂ} (hDo : IsOpen D) (hDc : IsConnected D)
     (hVo : IsOpen V) (hVc : Convex ℝ V) (hc : c ∈ V) (hVD : V ⊆ D)
     {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f D)
     {F : ((ι → ℂ) × (ι → ℂ)) → ℂ}
@@ -138,7 +159,7 @@ theorem isJointRegCarlsonContinuationOn_of_convex_seed
     fun w hw => (hG (b, w) ⟨mem_univ _, hw⟩).comp_of_eq
       (analyticAt_const.prod analyticAt_id) rfl
   have hEq := hFa.eqOn_of_preconnected_of_eventuallyEq hGa
-    (isConnected_carlsonIntegralNodeDomain hDc (hVD hc)).isPreconnected
+    (isConnected_carlsonIntegralNodeDomain_of_isOpen hDo hDc).isPreconnected
     (const_mem_carlsonIntegralNodeDomain (ι := ι) (hVD hc)) ?_
   · exact (hEq hz).trans ((hGeq z hz).eq_native hb)
   · have hnear : (fun _ : ι => c) ∈ {w : ι → ℂ | Set.range w ⊆ V} := by
@@ -147,5 +168,18 @@ theorem isJointRegCarlsonContinuationOn_of_convex_seed
     have hwD : w ∈ carlsonIntegralNodeDomain D := (convexHull_min hw hVc).trans hVD
     exact (hseed w hw b hb).trans ((hGeq w hwD).eq_native hb).symm
 
-end DirichletTransform
+/-- The star-convex specialization of native agreement from a convex open seed. -/
+theorem isJointRegCarlsonContinuationOn_of_convex_seed
+    {D V : Set ℂ} {c : ℂ} (hDo : IsOpen D) (hDc : StarConvex ℝ c D)
+    (hVo : IsOpen V) (hVc : Convex ℝ V) (hc : c ∈ V) (hVD : V ⊆ D)
+    {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f D)
+    {F : ((ι → ℂ) × (ι → ℂ)) → ℂ}
+    (hF : AnalyticOnNhd ℂ F {p | Set.range p.2 ⊆ D})
+    (hseed : ∀ z, Set.range z ⊆ V → ∀ b ∈ mvBetaConvergent,
+      F (b, z) = regCarlsonDirichletAverage b z f) :
+    IsJointRegCarlsonContinuationOn D f F :=
+  isJointRegCarlsonContinuationOn_of_convex_seed_of_isConnected hDo
+    (hDc.isPathConnected (hVD hc)).isConnected hVo hVc hc hVD hf hF hseed
+
+end Dirichlet
 end

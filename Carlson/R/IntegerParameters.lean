@@ -29,10 +29,10 @@ This reduction does not yet classify all integral or half-integral parameter
 configurations in terms of elementary functions.
 -/
 
+open Dirichlet
 open Complex Polynomial ProbabilityTheory
-open scoped Classical
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι] [Nonempty ι]
 
 /-- A nonpositive integral parameter can be removed with polynomial coefficients,
@@ -108,6 +108,7 @@ theorem regCarlsonRContinued_option_neg_one (t : ℂ)
     regCarlsonRContinued_option_zero t hzero hz,
     regCarlsonRContinued_option_zero (t - 1) hzero hz, hsome]
 
+open scoped Classical in
 omit [Nonempty ι] in
 /-- Carlson's lowering relation 8.5(1), in pole-free regularized form. It is
 valid even at `a = 1` and coincident nodes, though solving for the left-hand
@@ -147,7 +148,7 @@ complex powers. This is the second terminating case used in Section 8.5. -/
 theorem regCarlsonRContinued_neg_sum_sub_nat (N : ℕ) (b : ι → ℂ)
     {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain) :
     regCarlsonRContinued (-(∑ i, b i) - N) z hz b =
-      (∏ i, z i ^ (-b i)) * regCarlsonR N (fun i => (z i)⁻¹) b := by
+      (∏ i, z i ^ (-b i)) * regCarlsonRPolynomial N b (fun i => (z i)⁻¹) := by
   rw [regCarlsonRContinued_euler,
     show -(∑ i, b i) - (-(∑ i, b i) - N) = (N : ℂ) by ring,
     regCarlsonRContinued_natCast]
@@ -159,9 +160,9 @@ reciprocals. Negative and zero Dirichlet parameters are allowed. -/
 theorem regCarlsonRContinued_neg_sum_sub_nat_int (N : ℕ) (m : ι → ℤ)
     {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain) :
     regCarlsonRContinued (-(∑ i, (m i : ℂ)) - N) z hz (fun i => m i) =
-      (∏ i, z i ^ (-m i)) * regCarlsonR N (fun i => (z i)⁻¹) (fun i => m i) := by
+      (∏ i, z i ^ (-m i)) * regCarlsonRPolynomial N (fun i => m i) (fun i => (z i)⁻¹) := by
   rw [regCarlsonRContinued_neg_sum_sub_nat]
   simp only [← Int.cast_neg, cpow_intCast]
 
-end DirichletTransform
+end Carlson
 end

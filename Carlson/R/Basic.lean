@@ -8,12 +8,38 @@ module
 public import Dirichlet.Average.Basic
 public import Mathlib.Analysis.SpecialFunctions.Pow.Deriv
 
-/-! # Carlson's R-function: basic definitions -/
+/-!
+# Carlson's R-function: basic definitions
 
+The native integral definitions of Carlson's R-function with complex exponent `t`, Dirichlet
+parameters `b` and nodes `z`, as the Dirichlet average of the power `w ↦ w ^ t`, and the
+right-half-plane node domain on which the principal power is holomorphic along the whole
+averaging kernel.
+
+## Main definitions
+
+* `Carlson.regCarlsonRIntegral`: the regularized native integral `R_t(b, z) / Γ(∑ i, b i)`.
+* `Carlson.carlsonRIntegral`: the ordinary native integral `R_t(b, z)`.
+* `Carlson.carlsonRVariableDomain`: node vectors with all coordinates in the right half-plane.
+
+## Main results
+
+* `Carlson.carlsonAffineForm_mem_slitPlane`: on that domain the affine kernel stays in the
+  principal-branch slit plane.
+
+The continuation of these integrals beyond the convergence region of the Dirichlet parameters
+and beyond the right half-plane is developed in `Carlson.R.Continuation` and
+`Carlson.R.SlitContinuation`.
+
+## References
+
+* [Carl77] B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
+-/
+
+open Dirichlet
 open Complex MeasureTheory ProbabilityTheory
-open scoped Classical
 @[expose] public noncomputable section CarlsonR
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- The native regularized integral representing `R_t(b,z) / Γ(∑ i, b i)`. -/
@@ -62,5 +88,5 @@ theorem carlsonAffineForm_mem_slitPlane {z : ι → ℂ} (hz : z ∈ carlsonRVar
     carlsonAffineForm z u ∈ slitPlane :=
   carlsonRightHalfPlane_subset_slitPlane (carlsonAffineForm_mem_rightHalfPlane hz hu)
 
-end DirichletTransform
+end Carlson
 end CarlsonR

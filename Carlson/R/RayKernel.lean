@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.R.Relations
@@ -13,10 +17,11 @@ have explicit power growth at infinity. These estimates also apply to the primit
 used in the associated-function recurrence of Section 8.4.
 -/
 
+open Dirichlet
 open Complex MeasureTheory Filter Asymptotics
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- A product of principal powers of affine factors on a positive ray. -/
@@ -28,6 +33,7 @@ theorem carlsonRayProduct_eq_scaled (c : ι → ℂ) {z : ι → ℂ}
     (hz : z ∈ carlsonRVariableDomain) {x : ℝ} (hx : 0 < x) :
     carlsonRayProduct c z x = (x : ℂ) ^ (∑ i, c i) *
       ∏ i, ((x : ℂ)⁻¹ + z i) ^ (c i) := by
+  classical
   have hx0 : (x : ℂ) ≠ 0 := ofReal_ne_zero.mpr hx.ne'
   have hf (i : ι) : (1 + (x : ℂ) * z i) ^ (c i) =
       (x : ℂ) ^ (c i) * ((x : ℂ)⁻¹ + z i) ^ (c i) := by
@@ -126,6 +132,7 @@ theorem tendsto_cpow_mul_carlsonRayProduct_atTop (a : ℂ) (c : ι → ℂ)
   apply H'.trans_tendsto
   simpa using tendsto_rpow_neg_atTop (neg_pos.mpr ha)
 
+open scoped Classical in
 /-- The Leibniz derivative of a power times a ray product, with each differentiated
 factor represented by lowering just that factor's exponent. -/
 def carlsonRayDerivative (a : ℂ) (c z : ι → ℂ) (x : ℝ) : ℂ :=
@@ -137,6 +144,7 @@ theorem hasDerivAt_cpow_mul_carlsonRayProduct (a : ℂ) (c : ι → ℂ)
     {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain) {x : ℝ} (hx : 0 < x) :
     HasDerivAt (fun x : ℝ => (x : ℂ) ^ a * carlsonRayProduct c z x)
       (carlsonRayDerivative a c z x) x := by
+  classical
   have hslit (i : ι) : 1 + (x : ℂ) * z i ∈ slitPlane := by
     apply carlsonRightHalfPlane_subset_slitPlane
     change 0 < (1 + (x : ℂ) * z i).re
@@ -175,6 +183,7 @@ theorem integrableOn_carlsonRayDerivative (c : ι → ℂ) {z : ι → ℂ}
     (hz : z ∈ carlsonRVariableDomain) {a : ℂ}
     (ha : 0 < a.re) (ha' : a.re + (∑ i, c i).re < 0) :
     IntegrableOn (carlsonRayDerivative a c z) (Set.Ioi 0) := by
+  classical
   have h0 : IntegrableOn (fun x : ℝ => (x : ℂ) ^ (a - 1) * carlsonRayProduct c z x)
       (Set.Ioi 0) := mellinConvergent_carlsonRayProduct c hz ha ha'
   have hi (i : ι) : IntegrableOn (fun x : ℝ => (x : ℂ) ^ a *
@@ -228,5 +237,5 @@ theorem mellin_carlsonRayProduct_eq_rIntegral {a a' : ℂ} {b z : ι → ℂ}
       rw [carlsonRPositiveRayIntegral_eq ha' ha (by rw [add_comm, hsum]) hb hz,
         betaIntegral_symm]
 
-end DirichletTransform
+end Carlson
 end

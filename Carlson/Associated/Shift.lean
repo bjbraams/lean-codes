@@ -1,15 +1,34 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Mathlib.Algebra.MvPolynomial.Eval
-public import Mathlib.Data.Complex.Basic
+public import Mathlib.Basic.Complex.Basic
 
-/-! # Associated shifts and rational coefficient data -/
+/-!
+# Associated shifts and rational coefficient data
 
+Bookkeeping structures for Carlson's associated R-functions (Chapter 8): an associated shift
+records integral shifts of the exponent and of the Dirichlet parameters, and a rational
+coefficient is a quotient of two multivariate polynomials in the nodes with nonzero denominator.
 
-open scoped Classical
+## Main definitions
+
+* `Carlson.CarlsonRAssociatedShift`: an integral exponent shift together with integral parameter
+  shifts, with `exponentValue` and `parameterValue` applying them.
+* `Carlson.CarlsonRRationalCoefficient`: numerator and denominator polynomials, evaluated by
+  `eval` on a node vector.
+
+## References
+
+* [Carl77] B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
+-/
+
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- Integral shifts specifying a Carlson R-function associated to a fixed exponent and
@@ -45,4 +64,4 @@ def CarlsonRRationalCoefficient.eval
     (q : CarlsonRRationalCoefficient ι) (z : ι → ℂ) : ℂ :=
   q.numerator.eval z / q.denominator.eval z
 
-end DirichletTransform
+end Carlson

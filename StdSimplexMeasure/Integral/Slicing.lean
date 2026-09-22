@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Bastiaan J Braams.
+Authors: Bastiaan J Braams
 -/
 module
 
@@ -17,7 +17,23 @@ import Mathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 import StdSimplexMeasure.EuclideanCrossSection
 import all StdSimplexMeasure.Measure.Basic
 
-/-! # Slicing and scaling standard-simplex integrals -/
+/-!
+# Slicing and scaling standard-simplex integrals
+
+Fubini-type slicing of simplex integrals: separating one coordinate expresses an integral over
+the simplex as an iterated integral over that coordinate and a scaled simplex in the remaining
+coordinates. The nested slices are reindexed through `stdSimplexDoubleComplementEquiv`.
+
+## Main definitions
+
+* `MeasureTheory.stdSimplexDoubleComplementEquiv`: the reindexing of doubly omitted coordinates.
+
+## Main results
+
+* `MeasureTheory.integral_posSimplex_inner_slice`,
+  `MeasureTheory.lintegral_posSimplex_inner_slice`: evaluation of the inner sliced integrals.
+* `MeasureTheory.lintegral_posSimplex_scale`: the scaling law for solid-simplex integrals.
+-/
 
 open Fintype (card)
 
@@ -31,8 +47,8 @@ universe u
 
 variable {ι : Type u} [Fintype ι]
 
-open scoped Classical
 
+open scoped Classical in
 /-- Splitting one coordinate from a finite real coordinate space preserves product Lebesgue
 measure. -/
 theorem volume_preserving_funSplitAt (i : ι) :
@@ -71,6 +87,7 @@ theorem volume_preserving_funSplitAt (i : ι) :
     change x j = x (eidx (Sum.inr j))
     rfl
 
+open scoped Classical in
 /-- In a free-coordinate chart omitting `j`, separating the coordinate corresponding to
 `i ≠ j` turns the chart domain into the standard product-coordinate simplex slices. -/
 private theorem image_stdSimplexFreeCoords_funSplitAt (i j : ι) (hij : i ≠ j) :
@@ -82,6 +99,7 @@ private theorem image_stdSimplexFreeCoords_funSplitAt (i j : ι) (hij : i ≠ j)
     posSimplexSlices ii 1
   exact image_posSimplex_funSplitAt (⟨i, hij⟩ : {q : ι // q ≠ j}) 1
 
+open scoped Classical in
 /-- Reindexing the coordinates left after deleting two distinct indices in opposite orders. -/
 def stdSimplexDoubleComplementEquiv (i j : ι) (hij : i ≠ j) :
     {q : {q : ι // q ≠ i} // q ≠ ⟨j, hij.symm⟩} ≃
@@ -93,6 +111,7 @@ def stdSimplexDoubleComplementEquiv (i j : ι) (hij : i ≠ j) :
   left_inv q := by ext; rfl
   right_inv q := by ext; rfl
 
+open scoped Classical in
 /-- Reindexing by `stdSimplexDoubleComplementEquiv` preserves finite coordinate sums. -/
 private theorem sum_stdSimplexDoubleComplementEquiv (i j : ι) (hij : i ≠ j)
     (x : {q : {q : ι // q ≠ i} // q ≠ ⟨j, hij.symm⟩} → ℝ) :
@@ -101,6 +120,7 @@ private theorem sum_stdSimplexDoubleComplementEquiv (i j : ι) (hij : i ≠ j)
         x ((stdSimplexDoubleComplementEquiv i j hij).symm q) := by
   rw [Equiv.sum_comp]
 
+open scoped Classical in
 /-- The double-complement reindexing sends the unit positive simplex onto itself. -/
 private theorem image_posSimplex_stdSimplexDoubleComplementEquiv
     (i j : ι) (hij : i ≠ j) :
@@ -134,6 +154,7 @@ private theorem image_posSimplex_stdSimplexDoubleComplementEquiv
       rw [Equiv.sum_comp]
       exact hys
 
+open scoped Classical in
 /-- Integrals over the two double-complement coordinate spaces agree after reindexing. -/
 private theorem integral_posSimplex_stdSimplexDoubleComplementEquiv
     (i j : ι) (hij : i ≠ j)
@@ -154,6 +175,7 @@ private theorem integral_posSimplex_stdSimplexDoubleComplementEquiv
   rw [← image_posSimplex_stdSimplexDoubleComplementEquiv i j hij]
   exact hT.setIntegral_image_emb T.measurableEmbedding g _
 
+open scoped Classical in
 /-- Nonnegative integrals over the two double-complement coordinate spaces agree after
 reindexing. -/
 private theorem lintegral_posSimplex_stdSimplexDoubleComplementEquiv
@@ -176,6 +198,7 @@ private theorem lintegral_posSimplex_stdSimplexDoubleComplementEquiv
     (posSimplex {q : {q : ι // q ≠ i} // q ≠ ⟨j, hij.symm⟩} 1)).lintegral_comp_emb
       T.measurableEmbedding g).symm
 
+open scoped Classical in
 /-- Fubini disintegration of a positive simplex after separating one coordinate. -/
 private theorem integral_posSimplex_split
     {α : Type*} [Fintype α] (i : α)
@@ -237,6 +260,7 @@ private theorem integral_posSimplex_split
           exact this
         simp [hy]
 
+open scoped Classical in
 /-- Tonelli disintegration of a positive simplex after separating one coordinate. Unlike the
 Bochner-integral version, this statement requires no prior integrability assumption. -/
 private theorem lintegral_posSimplex_split
@@ -289,6 +313,7 @@ private theorem lintegral_posSimplex_split
           exact this
         simp [hy]
 
+open scoped Classical in
 /-- Scaling a positive-simplex slice produces the expected power of its radius. -/
 private theorem integral_posSimplex_scale
     {α : Type*} [Fintype α] (i : α)
@@ -327,6 +352,7 @@ private theorem integral_posSimplex_scale
   symm
   rw [hi, smul_inv_smul₀ hc_pow]
 
+open scoped Classical in
 /-- Scaling a positive-simplex slice in the nonnegative integral. -/
 theorem lintegral_posSimplex_scale
     {α : Type*} [Fintype α] (i : α) (c : ℝ) (hc : 0 < c)
@@ -375,6 +401,7 @@ theorem lintegral_posSimplex_scale
 
 /- Helper theorems towards integral_stdSimplex_split_at -/
 
+open scoped Classical in
 /-- Equivalence of the nested-slice coordinate map and the directly scaled coordinate map. -/
 theorem stdSimplexCoordMap_split_eq (i j : ι) (hij : i ≠ j)
     (t : ℝ) (v : {q : ι // q ≠ i} → ℝ) (h_sum : ∑ q, v q = 1) :
@@ -426,6 +453,7 @@ theorem stdSimplexCoordMap_split_eq (i j : ι) (hij : i ≠ j)
     rw [congrFun hzrest ⟨⟨q, hqj⟩, hne⟩]
     rfl
 
+open scoped Classical in
 /-- Evaluates the inner sliced integral by reindexing the double-complement and scaling. -/
 theorem integral_posSimplex_inner_slice
     {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
@@ -458,7 +486,8 @@ theorem integral_posSimplex_inner_slice
     · congr <;> funext q <;> apply Subsingleton.elim
     · let _ : Nonempty {q : ι // q ≠ i} := ⟨jj⟩
       rw [integral_stdSimplex_eq_integral_freeCoords jj]
-      convert MeasureTheory.integral_congr_ae (μ := volume.restrict (stdSimplexFreeCoords jj)) ?_ using 1
+      convert MeasureTheory.integral_congr_ae (μ := volume.restrict (stdSimplexFreeCoords jj))
+          ?_ using 1
       · congr <;> funext q <;> apply Subsingleton.elim
       filter_upwards [] with x
       apply congrArg f
@@ -476,6 +505,7 @@ theorem integral_posSimplex_inner_slice
       exact stdSimplexCoordMap_split_eq i j hij t (stdSimplexCoordMap jj x)
         (sum_stdSimplexCoordMap jj x)
 
+open scoped Classical in
 /-- Evaluates a nonnegative inner sliced integral by reindexing the double complement and
 scaling. -/
 theorem lintegral_posSimplex_inner_slice
@@ -528,6 +558,7 @@ theorem lintegral_posSimplex_inner_slice
       exact stdSimplexCoordMap_split_eq i j hij t (stdSimplexCoordMap jj x)
         (sum_stdSimplexCoordMap jj x)
 
+open scoped Classical in
 /-- Tonelli reduction of a nonnegative integral over the standard simplex after separating one
 coordinate. Unlike `integral_stdSimplex_split_at`, no integrability hypothesis is required. -/
 public theorem lintegral_stdSimplex_split_at
@@ -560,6 +591,7 @@ public theorem lintegral_stdSimplex_split_at
     apply Subsingleton.elim
   · exact hf.comp (continuous_stdSimplexCoordMap j).measurable
 
+open scoped Classical in
 /-- Evaluates an integral over the standard simplex by separating out the `i`-th coordinate.
 This theorem provides the standard Fubini reduction (integration by slices) for the simplex.
 It expresses the integral of a function `f` over the $(k-1)$-simplex (where $k$ is `card ι`)
@@ -577,7 +609,8 @@ public theorem integral_stdSimplex_split_at
   ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι, f u ∂stdSimplexMeasure =
     ∫ t in Set.Icc (0 : ℝ) 1,
       ((1 - t) ^ (card ι - 2)) •
-      ∫ v in Convexity.StdSimplex.coordinateSet ℝ {j // j ≠ i}, f (stdSimplexCoordMap i (fun j ↦ (1 - t) * v j))
+      ∫ v in Convexity.StdSimplex.coordinateSet ℝ {j // j ≠ i},
+          f (stdSimplexCoordMap i (fun j ↦ (1 - t) * v j))
         ∂stdSimplexMeasure := by
   obtain ⟨j, hji⟩ := exists_ne i
   have hg : IntegrableOn (fun x => f (stdSimplexCoordMap j x))

@@ -23,9 +23,8 @@ are not yet supplied by this module.
 -/
 
 open Complex Set
-open scoped Classical
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- Scalar Taylor coefficients about one of the power-logarithm kernel. -/
@@ -57,7 +56,7 @@ the full unit polydisk, even at exceptional total parameters. -/
 theorem hasSum_regCarlsonLContinued (t : ℂ) (b : ι → ℂ)
     {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain)
     (hz1 : ‖fun i => z i - 1‖ < 1) :
-    HasSum (fun n => carlsonLCoeff n t * regCarlsonR n (fun i => z i - 1) b)
+    HasSum (fun n => carlsonLCoeff n t * regCarlsonRPolynomial n b (fun i => z i - 1))
       (regCarlsonLContinued t z hz b) :=
   (isRegCarlsonLContinuation_continued t hz).hasSum_taylor
     ((analyticOnNhd_carlsonLKernel t).mono ball_one_subset_slitPlane) hz1 b
@@ -65,7 +64,7 @@ theorem hasSum_regCarlsonLContinued (t : ℂ) (b : ι → ℂ)
 /-- Absolute convergence of the continued L-expansion. -/
 theorem summable_norm_regCarlsonLContinued_series (t : ℂ) (b : ι → ℂ)
     {z : ι → ℂ} (hz1 : ‖fun i => z i - 1‖ < 1) :
-    Summable (fun n => ‖carlsonLCoeff n t * regCarlsonR n (fun i => z i - 1) b‖) :=
+    Summable (fun n => ‖carlsonLCoeff n t * regCarlsonRPolynomial n b (fun i => z i - 1)‖) :=
   summable_norm_regCarlsonTaylorSeries
     ((analyticOnNhd_carlsonLKernel t).mono ball_one_subset_slitPlane) hz1 b
 
@@ -85,9 +84,9 @@ The `n = 0` term is zero by totalized division. -/
 theorem hasSum_regCarlsonLContinued_zero (b : ι → ℂ)
     {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain)
     (hz1 : ‖fun i => z i - 1‖ < 1) :
-    HasSum (fun n => (-(-1 : ℂ) ^ n / n) * regCarlsonR n (fun i => z i - 1) b)
+    HasSum (fun n => (-(-1 : ℂ) ^ n / n) * regCarlsonRPolynomial n b (fun i => z i - 1))
       (regCarlsonLContinued 0 z hz b) := by
   simpa only [carlsonLCoeff_exponent_zero] using hasSum_regCarlsonLContinued 0 b hz hz1
 
-end DirichletTransform
+end Carlson
 end

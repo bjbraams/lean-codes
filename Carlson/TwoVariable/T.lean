@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.TwoVariable.Basic
@@ -12,11 +16,11 @@ variables.  Later files may develop Carlson's singular limit in which one variab
 zero; special-function identifications do not belong here.
 -/
 
+open Dirichlet
 open Complex MeasureTheory ProbabilityTheory
-open scoped Classical
 @[expose] public noncomputable section CarlsonTwoVariable
 
-namespace DirichletTransform.TwoVariable
+namespace Carlson.TwoVariable
 
 /-- The canonical two-variable specialization of the native regularized T-integral. -/
 abbrev regTIntegral (b₀ b₁ x y : ℂ) : ℂ :=
@@ -78,8 +82,8 @@ theorem exists_isRegTContinuation {x y : ℂ} (hxy : TVariableDomain x y) :
 /-- The entire regularized two-variable T-continuation is unique. -/
 theorem IsRegTContinuation.eq {x y : ℂ} {G H : (Fin 2 → ℂ) → ℂ}
     (hG : IsRegTContinuation x y G) (hH : IsRegTContinuation x y H) : G = H :=
-  DirichletTransform.IsRegCarlsonTContinuation.eq hG hH
+  Carlson.IsRegCarlsonTContinuation.eq hG hH
 
-end DirichletTransform.TwoVariable
+end Carlson.TwoVariable
 
 end CarlsonTwoVariable

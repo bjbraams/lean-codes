@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.L.SlitContinuation
@@ -14,10 +18,10 @@ the entire node convex hull lies in the slit plane. Merely asking that each node
 avoid the cut would be insufficient. All statements allow empty index types.
 -/
 
+open Dirichlet
 open Complex ProbabilityTheory Set
-open scoped Classical
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- The slit L-function is the domain-aware continuation of the power-logarithm kernel. -/
@@ -63,5 +67,5 @@ theorem hasDerivAt_regCarlsonRIntegral_L_of_convexHull (t : ℂ) {b z : ι → �
   exact hasDerivAt_regCarlsonRSlit_L t b
     (fun i => hz (subset_convexHull ℝ (Set.range z) ⟨i, rfl⟩))
 
-end DirichletTransform
+end Carlson
 end

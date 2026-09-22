@@ -1,15 +1,28 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.TwoVariable.Basic
 public import Carlson.S.Series
 
-/-! # Two-variable S definitions -/
+/-!
+# Two-variable S definitions
+
+The two-node specializations of the native S-integrals and of the entire regularized S-series.
+
+## Main definitions
+
+* `Carlson.TwoVariable.regSIntegral`, `Carlson.TwoVariable.sIntegral`,
+  `Carlson.TwoVariable.regSSeries`.
+-/
 
 open Complex MeasureTheory ProbabilityTheory Filter Set
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform.TwoVariable
+namespace Carlson.TwoVariable
 
 /-- The canonical two-variable specialization of the native regularized Carlson S-integral. -/
 abbrev regSIntegral (b₀ b₁ z₀ z₁ : ℂ) : ℂ :=
@@ -23,4 +36,4 @@ abbrev sIntegral (b₀ b₁ z₀ z₁ : ℂ) : ℂ :=
 abbrev regSSeries (b₀ b₁ z₀ z₁ : ℂ) : ℂ :=
   regCarlsonSSeries (pair z₀ z₁) (pair b₀ b₁)
 
-end DirichletTransform.TwoVariable
+end Carlson.TwoVariable

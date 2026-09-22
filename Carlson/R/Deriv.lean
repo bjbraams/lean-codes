@@ -16,10 +16,10 @@ integral, and joint analyticity in the nodes for Carlson's Theorem 5.9-2 on the 
 parameter convergence region and right-half-plane node domain.
 -/
 
+open Dirichlet
 open Complex ProbabilityTheory
-open scoped Classical
 @[expose] public noncomputable section CarlsonR
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- For a fixed simplex point, Carlson's power kernel is analytic in all variables throughout
@@ -42,6 +42,7 @@ theorem analyticOnNhd_cpow_carlsonAffineForm (t : ℂ) (u : ι → ℝ)
     exact (differentiableAt_id.cpow_const hw)
   exact hpow.comp_of_eq haffine rfl
 
+open scoped Classical in
 /-- The coordinate derivative of Carlson's power kernel.  This is the pointwise form of
 Relation 5.9-6, equation (9). -/
 theorem hasDerivAt_cpow_carlsonAffineForm_update (t : ℂ) {z : ι → ℂ}
@@ -53,6 +54,7 @@ theorem hasDerivAt_cpow_carlsonAffineForm_update (t : ℂ) {z : ι → ℂ}
     (Complex.hasStrictDerivAt_cpow_const
       (carlsonAffineForm_mem_slitPlane hz hu)).hasDerivAt
 
+open scoped Classical in
 omit [Fintype ι] in
 /-- A sufficiently small closed ball around one coordinate of a point in the Carlson
 right-half-plane domain remains in that domain after updating that coordinate. -/
@@ -76,6 +78,7 @@ theorem update_mem_carlsonRVariableDomain_of_mem_closedBall
   · rw [Function.update_of_ne hji]
     exact hz j
 
+open scoped Classical in
 /-- Carlson's first differentiation formula, Relation 5.9-6, equation (9), for the native
 regularized `R` integral. -/
 theorem hasDerivAt_regCarlsonRIntegral_update
@@ -153,6 +156,7 @@ theorem analyticOnNhd_carlsonRIntegral (t : ℂ) {b : ι → ℂ}
   intro z hz
   exact analyticAt_const.mul (analyticOnNhd_regCarlsonRIntegral t hb z hz)
 
+open scoped Classical in
 /-- Euler's differential identity for the pointwise power kernel, corresponding to
 the second equation of Theorem 5.9-2. -/
 theorem sum_mul_deriv_cpow_carlsonAffineForm (t : ℂ) {z : ι → ℂ}
@@ -181,5 +185,5 @@ theorem sum_mul_deriv_cpow_carlsonAffineForm (t : ℂ) {z : ι → ℂ}
 
 /- The two differential identities of Theorem 5.9-2 are derived in `Carlson.R.Relations`. -/
 
-end DirichletTransform
+end Carlson
 end CarlsonR

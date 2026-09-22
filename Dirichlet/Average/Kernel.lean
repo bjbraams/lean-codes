@@ -18,11 +18,10 @@ the complex regularized integral.
 -/
 
 open Complex
-open scoped Classical
 
 @[expose] public noncomputable section CarlsonDirichletKernel
 
-namespace DirichletTransform
+namespace Dirichlet
 
 variable {ι : Type*} [Fintype ι]
 
@@ -103,6 +102,7 @@ lemma hasFDerivAt_carlsonSimplex (z : ι → ℂ) (u : ι → ℝ) :
   funext v
   exact (carlsonSimplexCLM_apply z v).symm
 
+open scoped Classical in
 /-- A coordinate tangent vector is sent to the difference of the corresponding nodes. -/
 lemma carlsonSimplexCLM_tangent (z : ι → ℂ) (i j : ι) :
     carlsonSimplexCLM z (Pi.single i 1 - Pi.single j 1) = z i - z j := by
@@ -122,6 +122,7 @@ under Carlson's affine form, including for empty index types. -/
 theorem mem_convexHull_range_iff_carlsonAffineForm (z : ι → ℂ) (x : ℂ) :
     x ∈ convexHull ℝ (Set.range z) ↔
       ∃ u : Convexity.StdSimplex ℝ ι, carlsonAffineForm z u.coordinates = x := by
+  classical
   constructor
   · intro hz
     obtain ⟨κ, _, w, y, hw₀, hw₁, hy, hsum⟩ :=
@@ -172,6 +173,6 @@ theorem zero_mem_convexHull_range_iff (z : ι → ℂ) :
       ∃ u : Convexity.StdSimplex ℝ ι, carlsonAffineForm z u.coordinates = 0 :=
   mem_convexHull_range_iff_carlsonAffineForm z 0
 
-end DirichletTransform
+end Dirichlet
 
 end CarlsonDirichletKernel

@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.R.Recurrence.Coefficients
@@ -18,10 +22,11 @@ the elementary-symmetric expansion, and beta/Gamma normalization. Analytic conti
 then removes the strip restriction. There are no admitted proofs in this file.
 -/
 
+open Dirichlet
 open Complex ProbabilityTheory
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section CarlsonR
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- The division-free, regularized residual of Carlson's fixed-parameter recurrence.
@@ -63,7 +68,8 @@ theorem analyticOnNhd_carlsonAssociatedRecurrenceResidual_parameters (a : ℂ)
   refine (analyticAt_carlsonAssociatedRecurrencePolynomial_eval analyticAt_const
     (hsum.sub analyticAt_const)
     (fun i ↦ (ContinuousLinearMap.proj i : (ι → ℂ) →L[ℂ] ℂ).analyticAt b) n z).mul ?_
-  have hpow : ContinuousOn (fun u ↦ carlsonAffineForm z u ^ (-a - n)) (Convexity.StdSimplex.coordinateSet ℝ ι) :=
+  have hpow : ContinuousOn (fun u ↦ carlsonAffineForm z u ^ (-a - n))
+      (Convexity.StdSimplex.coordinateSet ℝ ι) :=
     (continuous_carlsonAffineForm z).continuousOn.cpow_const
       (fun _ hu ↦ carlsonAffineForm_mem_slitPlane hz hu)
   exact (isOpen_mvBetaConvergent.analyticOn_iff_analyticOnNhd.mp
@@ -94,7 +100,8 @@ theorem carlsonAssociatedRecurrenceResidual_eq_zero_of_strip [Nonempty ι]
         (Complex.continuous_re.comp (continuous_const.sub continuous_id))).eventually_mem hc₀
       filter_upwards [hpos, hsum] with w hw hcw
       exact hstrip w c hc hw hcw
-    have heq := (analyticOnNhd_carlsonAssociatedRecurrenceResidual_exponent hc hz).eq_of_eventuallyEq
+    have heq := (analyticOnNhd_carlsonAssociatedRecurrenceResidual_exponent hc
+        hz).eq_of_eventuallyEq
       analyticOnNhd_const hlocal
     intro w
     exact congrFun heq w
@@ -103,7 +110,8 @@ theorem carlsonAssociatedRecurrenceResidual_eq_zero_of_strip [Nonempty ι]
     have hev : ∀ᶠ c : ι → ℂ in nhds (fun _ ↦ 2), ∀ i, 1 < (c i).re := by
       apply Filter.eventually_all.mpr
       intro i
-      exact (isOpen_lt continuous_const (Complex.continuous_re.comp (continuous_apply i))).eventually_mem
+      exact (isOpen_lt continuous_const (Complex.continuous_re.comp (continuous_apply
+          i))).eventually_mem
         (by norm_num)
     filter_upwards [hev] with c hc
     apply hlarge c (fun i ↦ lt_trans zero_lt_one (hc i)) _ a
@@ -111,7 +119,8 @@ theorem carlsonAssociatedRecurrenceResidual_eq_zero_of_strip [Nonempty ι]
       (f := fun _ : ι ↦ (1 : ℝ)) (g := fun i ↦ (c i).re)
       (fun i _ ↦ (hc i).le) (by obtain ⟨i⟩ := ‹Nonempty ι›; exact ⟨i, Finset.mem_univ i, hc i⟩)
     simpa using hsum
-  exact (analyticOnNhd_carlsonAssociatedRecurrenceResidual_parameters a hz).eqOn_of_preconnected_of_eventuallyEq
+  exact (analyticOnNhd_carlsonAssociatedRecurrenceResidual_parameters a
+      hz).eqOn_of_preconnected_of_eventuallyEq
     analyticOnNhd_const
     (by simpa using isPreconnected_dirichletConvergenceRegion (ι := ι) 0)
     (z₀ := fun _ ↦ 2) (by intro i; norm_num) hlocal hb
@@ -120,6 +129,7 @@ theorem carlsonAssociatedRecurrenceResidual_eq_zero_of_strip [Nonempty ι]
 def carlsonAssociatedRecurrenceKernel (a : ℂ) (b z : ι → ℂ) (w : ℂ) : ℂ :=
   w ^ a * ∏ i, (1 + w * z i) ^ (1 - b i)
 
+open scoped Classical in
 /-- The derivative of the ray primitive, with all complex powers factored out.
 The remaining factor is a polynomial in `w`; expanding it gives the elementary
 symmetric coefficients of Carlson's recurrence. -/
@@ -180,6 +190,7 @@ theorem tendsto_carlsonAssociatedRecurrenceKernel_zero
   unfold carlsonAssociatedRecurrenceKernel
   simpa [ha0] using (hp.fun_mul hg).tendsto
 
+open scoped Classical in
 /-- On the positive ray, the right-half-plane hypothesis supplies all branch
 conditions required by the factored derivative formula. -/
 theorem hasDerivAt_carlsonAssociatedRecurrenceKernel_ofReal
@@ -211,6 +222,7 @@ theorem tendsto_carlsonAssociatedRecurrenceKernel_atTop
     nsmul_eq_mul, mul_one, sub_re, natCast_re] at *
   linarith
 
+open scoped Classical in
 /-- Carlson's integration-by-parts calculation in the proof of Relation 8.4-1
 (pp. 245–246), with absolute integrability and endpoint limits justified.
 
@@ -301,6 +313,7 @@ theorem carlsonAssociatedRecurrenceResidual_eq_zero_in_strip [Nonempty ι]
     (ha : 0 < a.re)
     (ha' : (Fintype.card ι : ℝ) < ((∑ i, b i) - a).re) :
     carlsonAssociatedRecurrenceResidual a b z = 0 := by
+  classical
   let D : ℕ → ℂ := fun n => (a + n) * carlsonElementarySymmetric n z -
     ∑ i, b i * z i * (MvPolynomial.pderiv i (MvPolynomial.esymm ι ℂ n)).eval z
   let f : ℕ → ℝ → ℂ := fun n x => D n *
@@ -334,7 +347,8 @@ theorem carlsonAssociatedRecurrenceResidual_eq_zero_in_strip [Nonempty ι]
       (integral_carlsonAssociatedRecurrenceKernel_derivative_eq_zero hz ha ha')
   unfold carlsonAssociatedRecurrenceResidual
   simp_rw [Finset.sum_congr rfl (fun n hn =>
-    carlsonAssociatedRecurrence_term_eq_mellin (Nat.le_of_lt_succ (Finset.mem_range.mp hn)) hb hz ha ha')]
+    carlsonAssociatedRecurrence_term_eq_mellin (Nat.le_of_lt_succ (Finset.mem_range.mp hn))
+        hb hz ha ha')]
   rw [← Finset.mul_sum]
   change _ * (∑ n ∈ Finset.range (Fintype.card ι + 1),
     D n * mellin (carlsonRayProduct (fun i => -b i) z) (a + n)) = 0
@@ -346,7 +360,7 @@ theorem carlsonAssociatedRecurrenceResidual_eq_zero [Nonempty ι]
     (hb : b ∈ mvBetaConvergent) (hz : z ∈ carlsonRVariableDomain) :
     carlsonAssociatedRecurrenceResidual a b z = 0 :=
   carlsonAssociatedRecurrenceResidual_eq_zero_of_strip hz
-    (fun _ c hc hw hc' =>
+    (fun _ _ hc hw hc' =>
       carlsonAssociatedRecurrenceResidual_eq_zero_in_strip hc hz hw hc') a hb
 
 /-- Polynomial form of Relation 8.4-1, including the removable-singularity values
@@ -396,5 +410,5 @@ theorem sum_carlsonAssociatedRecurrenceCoeff_mul_rIntegral
       have hn' : n ≤ Fintype.card ι := Nat.le_of_lt_succ (Finset.mem_range.mp hn)
       rw [ha'eq, eval_carlsonAssociatedRecurrencePolynomial hn' hsum ha ha']
 
-end DirichletTransform
+end Carlson
 end CarlsonR

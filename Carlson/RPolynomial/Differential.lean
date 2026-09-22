@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.RPolynomial.Coefficients
@@ -13,11 +17,11 @@ The coordinate derivative identity is first obtained from the native Dirichlet i
 Joint analyticity of the finite Pochhammer sum then extends it to all parameters.
 -/
 
+open Dirichlet
 open Complex Finset ProbabilityTheory
-open scoped Classical
 
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- The Pochhammer numerator is jointly entire in its parameters and nodes. -/
@@ -45,6 +49,7 @@ private theorem analyticOnNhd_partial_carlsonRPolynomialNumerator
     (n : ℕ) (i : ι) (z : ι → ℂ) :
     AnalyticOnNhd ℂ (fun b => carlsonPartialDeriv i
       (carlsonRPolynomialNumerator n b) z) Set.univ := by
+  classical
   let F := fun p : (ι → ℂ) × (ι → ℂ) => carlsonRPolynomialNumerator n p.1 p.2
   have hF : AnalyticOnNhd ℂ F Set.univ := analyticOnNhd_carlsonRPolynomialNumerator_joint n
   have heq (b : ι → ℂ) : carlsonPartialDeriv i (carlsonRPolynomialNumerator n b) z =
@@ -59,6 +64,53 @@ private theorem analyticOnNhd_partial_carlsonRPolynomialNumerator
     analyticAt_id.prod analyticAt_const
   exact ((ContinuousLinearMap.apply ℂ ℂ (0, Pi.single i 1)).analyticAt _).comp
     (((hF _ (Set.mem_univ _)).fderiv).comp hmap)
+
+/-- On the integral convergence region, the numerator differentiation identity follows from
+differentiating the Dirichlet average of a power. -/
+private theorem carlsonPartialDeriv_carlsonRPolynomialNumerator_succ_of_mem_mvBetaConvergent
+    (n : ℕ) (i : ι) (b z : ι → ℂ) (hb : b ∈ mvBetaConvergent) :
+    carlsonPartialDeriv i (carlsonRPolynomialNumerator (n + 1) b) z =
+      (n + 1 : ℂ) * b i * carlsonRPolynomialNumerator n (addDirichletUnit b i) z := by
+  classical
+  let : Nonempty ι := ⟨i⟩
+  have hS : 0 < (∑ j, b j).re := by
+    change 0 < Complex.reCLM (∑ j, b j)
+    rw [map_sum]
+    exact sum_pos (fun j _ => hb j) univ_nonempty
+  have hG : Gamma ((∑ j, b j) + (n + 1 : ℕ)) ≠ 0 :=
+    Gamma_ne_zero_of_re_pos (by simp only [add_re, natCast_re]; positivity)
+  have hnum (w : ι → ℂ) : carlsonRPolynomialNumerator (n + 1) b w =
+      Gamma ((∑ j, b j) + (n + 1 : ℕ)) * regCarlsonRPolynomial (n + 1) b w := by
+    rw [regCarlsonRPolynomial_eq_numerator_mul_one_div_Gamma]
+    field_simp
+  have hfun : carlsonRPolynomialNumerator (n + 1) b = fun w =>
+      Gamma ((∑ j, b j) + (n + 1 : ℕ)) *
+        regCarlsonDirichletAverage b w (fun x => x ^ (n + 1)) := by
+    funext w
+    rw [hnum, regCarlsonDirichletAverage_pow _ _ hb]
+  rw [hfun, carlsonPartialDeriv, deriv_const_mul_field]
+  change Gamma _ * carlsonPartialDeriv i
+    (fun w => regCarlsonDirichletAverage b w (fun x => x ^ (n + 1))) z = _
+  have hpoly : AnalyticOnNhd ℂ (fun x : ℂ => x ^ (n + 1)) Set.univ := by
+    simpa only [Pi.pow_apply, id_eq] using! (analyticOnNhd_id (𝕜 := ℂ)).pow (n + 1)
+  rw [carlsonPartialDeriv_regCarlsonDirichletAverage_of_analyticOnNhd isOpen_univ
+    (convex_univ : Convex ℝ (Set.univ : Set ℂ)) hpoly
+    hb (Set.subset_univ _) i]
+  have hdp : deriv (fun x : ℂ => x ^ (n + 1)) = fun x => (n + 1 : ℂ) * x ^ n := by
+    funext x
+    simp
+  rw [hdp]
+  rw [regCarlsonDirichletAverage_const_mul,
+    regCarlsonDirichletAverage_pow _ _ (addDirichletUnit_mem_mvBetaConvergent hb i),
+    regCarlsonRPolynomial_eq_numerator_mul_one_div_Gamma]
+  have hs : (∑ j, addDirichletUnit b i j) + n = (∑ j, b j) + (n + 1 : ℕ) := by
+    simp only [addDirichletUnit, sum_update_of_mem (mem_univ i), Nat.cast_add, Nat.cast_one]
+    have H := sum_erase_add univ b (mem_univ i)
+    simp only [sdiff_singleton_eq_erase] at *
+    rw [← H]
+    ring
+  rw [hs]
+  field_simp
 
 /-- Differentiating a node lowers the degree and raises the corresponding parameter.
 The numerator formulation has no exceptional-parameter exclusions. -/
@@ -83,51 +135,12 @@ theorem carlsonPartialDeriv_carlsonRPolynomialNumerator_succ
     have H := (analyticOnNhd_carlsonRPolynomialNumerator_joint n
       (addDirichletUnit b i, z) (Set.mem_univ _)).comp_of_eq hmap rfl
     simpa only using! H
-  have heq := analyticOnNhd_eq_of_eqOn_mvBetaConvergent
-    (analyticOnNhd_partial_carlsonRPolynomialNumerator (n + 1) i z) hright (by
-      intro b hb
-      dsimp only
-      let : Nonempty ι := ⟨i⟩
-      have hS : 0 < (∑ j, b j).re := by
-        change 0 < Complex.reCLM (∑ j, b j)
-        rw [map_sum]
-        exact sum_pos (fun j _ => hb j) univ_nonempty
-      have hG : Gamma ((∑ j, b j) + (n + 1 : ℕ)) ≠ 0 :=
-        Gamma_ne_zero_of_re_pos (by simp only [add_re, natCast_re]; positivity)
-      have hnum (w : ι → ℂ) : carlsonRPolynomialNumerator (n + 1) b w =
-          Gamma ((∑ j, b j) + (n + 1 : ℕ)) * regCarlsonR (n + 1) w b := by
-        rw [regCarlsonR, regCarlsonRPolynomial_eq_numerator_mul_one_div_Gamma]
-        field_simp
-      have hfun : carlsonRPolynomialNumerator (n + 1) b = fun w =>
-          Gamma ((∑ j, b j) + (n + 1 : ℕ)) *
-            regCarlsonDirichletAverage b w (fun x => x ^ (n + 1)) := by
-        funext w
-        rw [hnum, regCarlsonDirichletAverage_pow _ _ hb]
-      rw [hfun, carlsonPartialDeriv, deriv_const_mul_field]
-      change Gamma _ * carlsonPartialDeriv i
-        (fun w => regCarlsonDirichletAverage b w (fun x => x ^ (n + 1))) z = _
-      have hpoly : AnalyticOnNhd ℂ (fun x : ℂ => x ^ (n + 1)) Set.univ := by
-        simpa only [Pi.pow_apply, id_eq] using! (analyticOnNhd_id (𝕜 := ℂ)).pow (n + 1)
-      rw [carlsonPartialDeriv_regCarlsonDirichletAverage_of_analyticOnNhd isOpen_univ
-        (convex_univ : Convex ℝ (Set.univ : Set ℂ)) hpoly
-        hb (Set.subset_univ _) i]
-      have hdp : deriv (fun x : ℂ => x ^ (n + 1)) = fun x => (n + 1 : ℂ) * x ^ n := by
-        funext x
-        simp
-      rw [hdp]
-      rw [regCarlsonDirichletAverage_const_mul,
-        regCarlsonDirichletAverage_pow _ _ (addDirichletUnit_mem_mvBetaConvergent hb i),
-        regCarlsonR, regCarlsonRPolynomial_eq_numerator_mul_one_div_Gamma]
-      have hs : (∑ j, addDirichletUnit b i j) + n = (∑ j, b j) + (n + 1 : ℕ) := by
-        simp only [addDirichletUnit, sum_update_of_mem (mem_univ i), Nat.cast_add, Nat.cast_one]
-        have H := sum_erase_add univ b (mem_univ i)
-        simp only [sdiff_singleton_eq_erase] at *
-        rw [← H]
-        ring
-      rw [hs]
-      field_simp)
-  exact congrFun heq b
+  apply congrFun (analyticOnNhd_eq_of_eqOn_mvBetaConvergent
+    (analyticOnNhd_partial_carlsonRPolynomialNumerator (n + 1) i z) hright ?_) b
+  intro b hb
+  exact carlsonPartialDeriv_carlsonRPolynomialNumerator_succ_of_mem_mvBetaConvergent n i b z hb
 
+open scoped Classical in
 /-- Derivative form of the coordinate differentiation identity. -/
 theorem hasDerivAt_carlsonRPolynomialNumerator_update_succ
     (n : ℕ) (i : ι) (b z : ι → ℂ) :
@@ -143,5 +156,5 @@ theorem hasDerivAt_carlsonRPolynomialNumerator_update_succ
   rw [← carlsonPartialDeriv_carlsonRPolynomialNumerator_succ n i b z]
   exact H.hasDerivAt
 
-end DirichletTransform
+end Carlson
 end

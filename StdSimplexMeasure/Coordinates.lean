@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Bastiaan J Braams.
+Authors: Bastiaan J Braams
 -/
 module
 
@@ -46,7 +46,6 @@ its computational formulas are used by the measure and integral theory.
 variable {ι : Type*} [Fintype ι]
 variable {R : Type*}
 
-open scoped Classical
 open Convexity
 
 section Ring
@@ -58,18 +57,12 @@ viewed as a plain set.  This is the carrier of Mathlib's `fintypeAffineCoords`. 
 abbrev stdSimplexAffineSet : Set (ι → R) :=
   fintypeAffineCoords ι R
 
-/-- Compatibility name for `Fintype.sum_eq_add_sum_subtype_ne`. -/
-theorem sum_eq_apply_add_sum_ne (u : ι → R) (i : ι) :
-    ∑ j, u j = u i + ∑ j : {j : ι // j ≠ i}, u j := by
-  classical
-  exact Fintype.sum_eq_add_sum_subtype_ne u i
-
 /-- The affine hyperplane `{x | ∑ j, x j = 1}` as an `AffineSubspace`. -/
 abbrev stdSimplexAffineSubspace : AffineSubspace R (ι → R) :=
   fintypeAffineCoords ι R
 
 /-- The elements of the affine subspace are exactly the elements of the affine set. -/
-@[simp] theorem mem_stdSimplexAffineSubspace_iff (x : ι → R) :
+theorem mem_stdSimplexAffineSubspace_iff (x : ι → R) :
     x ∈ stdSimplexAffineSubspace (R := R) ↔ x ∈ stdSimplexAffineSet := by
   rfl
 
@@ -77,11 +70,13 @@ section StandardAffineBasis
 
 variable [Nonempty ι]
 
+open scoped Classical in
 /-- The standard vertex indexed by `i`, regarded as a point of the affine coordinate
 hyperplane. -/
 def stdSimplexAffineVertex (i : ι) : fintypeAffineCoords ι R :=
   ⟨Pi.single i 1, mem_fintypeAffineCoords_iff_sum.mpr (by simp)⟩
 
+open scoped Classical in
 omit [Nonempty ι] in
 /-- The ambient coordinate of a standard affine vertex is a Kronecker delta. -/
 @[simp] theorem stdSimplexAffineVertex_apply (i j : ι) :
@@ -92,6 +87,7 @@ omit [Nonempty ι] in
 local instance : Nonempty (fintypeAffineCoords ι R) :=
   ⟨stdSimplexAffineVertex (Classical.choice ‹Nonempty ι›)⟩
 
+open scoped Classical in
 /-- Applying the inclusion of the affine coordinate hyperplane to a standard vertex gives
 the corresponding Kronecker-delta function. -/
 @[simp] theorem stdSimplexAffineVertex_subtype_apply (i j : ι) :
@@ -103,6 +99,7 @@ the corresponding Kronecker-delta function. -/
 theorem affineIndependent_stdSimplexAffineVertex :
     AffineIndependent R (V := (fintypeAffineCoords ι R).direction)
       (stdSimplexAffineVertex (ι := ι) (R := R)) := by
+  classical
   rw [affineIndependent_iff_eq_of_fintype_affineCombination_eq]
   intro w₁ w₂ hw₁ hw₂ h
   apply funext
@@ -121,6 +118,7 @@ theorem affineIndependent_stdSimplexAffineVertex :
 vertices with weights given by its ambient coordinates. -/
 theorem affineCombination_stdSimplexAffineVertex (u : fintypeAffineCoords ι R) :
     Finset.univ.affineCombination R (stdSimplexAffineVertex (ι := ι) (R := R)) u.1 = u := by
+  classical
   have hu : ∑ i, u.1 i = 1 := mem_fintypeAffineCoords_iff_sum.mp u.2
   apply Subtype.ext
   change (fintypeAffineCoords ι R).subtype
@@ -174,12 +172,14 @@ def stdSimplexCoordProj (i : ι) (u : ι → R) :
     {j : ι // j ≠ i} → R :=
   fun j => u j
 
+open scoped Classical in
 /-- Map from the free-coordinate space that omits coordinate `i` to `stdSimplexAffineSet`,
 constructed by pairing the recovered dependent coordinate with `x`, then applying the inverse of
 `Equiv.funSplitAt i R`. -/
 def stdSimplexCoordMap (i : ι) (x : {j : ι // j ≠ i} → R) : ι → R :=
   (Equiv.funSplitAt i R).symm (1 - ∑ j, x j, x)
 
+open scoped Classical in
 /-- The value of the dependent coordinate `i` is `1 - ∑ j, x j`. -/
 @[simp] theorem stdSimplexCoordMap_apply_self (i : ι) (x : {j : ι // j ≠ i} → R) :
     stdSimplexCoordMap i x i = 1 - ∑ j, x j := by
@@ -189,8 +189,10 @@ def stdSimplexCoordMap (i : ι) (x : {j : ι // j ≠ i} → R) : ι → R :=
 @[simp] theorem stdSimplexCoordMap_apply_of_ne (i j : ι) (h : j ≠ i)
     (x : {j : ι // j ≠ i} → R) :
     stdSimplexCoordMap i x j = x ⟨j, h⟩ := by
+  classical
   simp [stdSimplexCoordMap, h]
 
+open scoped Classical in
 /-- The coordinate map maps to `stdSimplexAffineSet`. -/
 @[simp] theorem sum_stdSimplexCoordMap (i : ι) (x : {j : ι // j ≠ i} → R) :
     ∑ j, stdSimplexCoordMap i x j = 1 := by
@@ -207,9 +209,11 @@ def stdSimplexCoordMap (i : ι) (x : {j : ι // j ≠ i} → R) : ι → R :=
 @[simp] theorem stdSimplexCoordProj_coordMap
     (i : ι) (x : {j : ι // j ≠ i} → R) :
     stdSimplexCoordProj i (stdSimplexCoordMap i x) = x := by
+  classical
   ext ⟨j, hj⟩
   simp [stdSimplexCoordProj, stdSimplexCoordMap, hj]
 
+open scoped Classical in
 /-- Applying the coordinate map after projecting recovers the vector on
 `stdSimplexAffineSet`. -/
 theorem stdSimplexCoordMap_coordProj
@@ -262,6 +266,7 @@ theorem stdSimplexCoordMap_comp_perm (i : ι) (σ : Equiv.Perm ι)
   change x ⟨σ j, _⟩ = stdSimplexCoordMap (σ i) x (σ j)
   rw [stdSimplexCoordMap_apply_of_ne (σ i) (σ j) (fun h => hj (σ.injective h))]
 
+open scoped Classical in
 /-- The linear part of the change of free coordinates induced by swapping the omitted
 coordinate `i` with a different coordinate `j`. -/
 def stdSimplexFreeCoordSwapLinear (i j : ι) (hij : i ≠ j) :
@@ -282,6 +287,7 @@ def stdSimplexFreeCoordSwapLinear (i j : ι) (hij : i ≠ j) :
       · simp [hq, Finset.mul_sum]
       · simp [hq] }
 
+open scoped Classical in
 /-- The sum of the coordinates after applying `stdSimplexFreeCoordSwapLinear` is the
 negative of the coordinate belonging to `j`. -/
 theorem sum_stdSimplexFreeCoordSwapLinear (i j : ι) (hij : i ≠ j)
@@ -303,6 +309,7 @@ theorem sum_stdSimplexFreeCoordSwapLinear (i j : ι) (hij : i ≠ j)
       rw [← hx]
       abel
 
+open scoped Classical in
 /-- The affine change of free coordinates induced by swapping `i` and `j` in the ambient
 coordinate space. -/
 def stdSimplexFreeCoordSwap (i j : ι) (hij : i ≠ j)
@@ -310,6 +317,7 @@ def stdSimplexFreeCoordSwap (i j : ι) (hij : i ≠ j)
   let ji : {q : ι // q ≠ i} := ⟨j, Ne.symm hij⟩
   (fun q => if q = ji then 1 else 0) + stdSimplexFreeCoordSwapLinear i j hij x
 
+open scoped Classical in
 /-- At the free coordinate corresponding to `j`, the coordinate swap stores the dependent
 coordinate recovered from `x`. -/
 @[simp] theorem stdSimplexFreeCoordSwap_apply_ji (i j : ι) (hij : i ≠ j)
@@ -323,8 +331,10 @@ swap. -/
 @[simp] theorem stdSimplexFreeCoordSwap_apply_of_ne (i j : ι) (hij : i ≠ j)
     {x : {q : ι // q ≠ i} → R} {q : {q : ι // q ≠ i}} (hq : q ≠ ⟨j, Ne.symm hij⟩) :
     stdSimplexFreeCoordSwap i j hij x q = x q := by
+  classical
   simp [stdSimplexFreeCoordSwap, stdSimplexFreeCoordSwapLinear, hq]
 
+open scoped Classical in
 /-- The sum of the coordinates after applying `stdSimplexFreeCoordSwap`. -/
 @[simp] theorem sum_stdSimplexFreeCoordSwap (i j : ι) (hij : i ≠ j)
     (x : {q : ι // q ≠ i} → R) :
@@ -333,11 +343,11 @@ swap. -/
   rw [Finset.sum_add_distrib, sum_stdSimplexFreeCoordSwapLinear]
   have hc : (∑ q : {q : ι // q ≠ i}, if q = (⟨j, Ne.symm hij⟩ : {q : ι // q ≠ i})
       then (1 : R) else 0) = 1 := by
-    simpa using Finset.sum_ite_eq' Finset.univ (⟨j, Ne.symm hij⟩ : {q : ι // q ≠ i})
-      (fun _ => (1 : R))
+    simp
   rw [hc]
   ring
 
+open scoped Classical in
 /-- Swapping `i` and `j` in ambient coordinates corresponds to
 `stdSimplexFreeCoordSwap` in the chart omitting `i`. -/
 theorem stdSimplexCoordMap_comp_freeCoordSwap (i j : ι) (hij : i ≠ j) :
@@ -394,8 +404,10 @@ section OrderedRing
 
 variable [CommRing R] [PartialOrder R] [IsOrderedRing R]
 
+open scoped Classical in
 /-- The filled `(card ι - 1)`-dimensional simplex of free coordinates corresponding to
-points of `Convexity.StdSimplex.coordinateSet R ι`. (Not to be confused with `Convexity.StdSimplex.coordinateSet R {j // j ≠ i}`.) -/
+points of `Convexity.StdSimplex.coordinateSet R ι`. (Not to be confused with
+`Convexity.StdSimplex.coordinateSet R {j // j ≠ i}`.) -/
 def stdSimplexFreeCoords (i : ι) :
     Set ({j : ι // j ≠ i} → R) :=
   {x | (∀ j, 0 ≤ x j) ∧ ∑ j, x j ≤ 1}
@@ -408,6 +420,7 @@ section OrderedRing
 
 variable [CommRing R] [PartialOrder R] [IsOrderedRing R]
 
+open scoped Classical in
 /-- Omitted-coordinate parametrization of Mathlib's intrinsic standard simplex.
 
 The forward map stores the reconstructed coordinates as finitely supported `weights`; the
@@ -432,7 +445,7 @@ def equivFreeCoords (i : ι) :
     ⟨stdSimplexCoordProj i (fun j ↦ s.weights j), by
       refine ⟨fun j ↦ s.nonneg j, ?_⟩
       have hs : ∑ j, s.weights j = 1 := by
-        simpa [Finsupp.sum_fintype] using s.total
+        simp
       rw [← hs, Fintype.sum_eq_add_sum_subtype_ne (fun j ↦ s.weights j) i]
       exact le_add_of_nonneg_left (s.nonneg i)⟩
   left_inv x := by
@@ -445,8 +458,9 @@ def equivFreeCoords (i : ι) :
     change stdSimplexCoordMap i (stdSimplexCoordProj i (fun q ↦ s.weights q)) j = s.weights j
     exact congrFun (stdSimplexCoordMap_coordProj i <|
       mem_fintypeAffineCoords_iff_sum.mpr <| by
-        simpa [Finsupp.sum_fintype] using s.total) j
+        simp) j
 
+open scoped Classical in
 /-- The weights of the intrinsic simplex point associated to free coordinates are the
 coordinates reconstructed by `stdSimplexCoordMap`. -/
 @[simp] theorem weights_equivFreeCoords_apply (i : ι)
@@ -454,6 +468,7 @@ coordinates reconstructed by `stdSimplexCoordMap`. -/
     (equivFreeCoords i x).weights j = stdSimplexCoordMap i x.1 j :=
   rfl
 
+open scoped Classical in
 /-- The inverse of `equivFreeCoords` drops the chosen coordinate from the weight function. -/
 @[simp] theorem coe_equivFreeCoords_symm_apply (i : ι) (s : StdSimplex R ι) :
     ((equivFreeCoords i).symm s : {j : ι // j ≠ i} → R) =
@@ -481,6 +496,7 @@ theorem isClosed_stdSimplexAffineSet :
 /-- The free-coordinate swap is continuous over the reals. -/
 theorem continuous_stdSimplexFreeCoordSwap (i j : ι) (hij : i ≠ j) :
     Continuous (stdSimplexFreeCoordSwap (R := ℝ) i j hij) := by
+  classical
   apply continuous_pi
   intro q
   unfold stdSimplexFreeCoordSwap stdSimplexFreeCoordSwapLinear
@@ -490,6 +506,7 @@ theorem continuous_stdSimplexFreeCoordSwap (i j : ι) (hij : i ≠ j) :
 /-- The real coordinate map is continuous. -/
 theorem continuous_stdSimplexCoordMap (i : ι) :
     Continuous (stdSimplexCoordMap (R := ℝ) i) := by
+  classical
   unfold stdSimplexCoordMap
   exact (Homeomorph.funSplitAt ℝ i).symm.continuous.comp
     (continuous_const.sub (continuous_finsetSum _ (fun j _ => continuous_apply j))

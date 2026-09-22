@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Pochhammer.Gamma
@@ -7,12 +11,37 @@ public import Mathlib.Algebra.MvPolynomial.PDeriv
 public import Mathlib.RingTheory.MvPolynomial.EulerIdentity
 public import Mathlib.Analysis.Analytic.Polynomial
 
-/-! # Coefficient algebra for Carlson's homogeneity recurrence -/
+/-!
+# Coefficient algebra for Carlson's homogeneity recurrence
+
+The coefficients `Aₙ` of Carlson's Relation 8.4-1, the homogeneity recurrence for associated
+R-functions, expressed through elementary symmetric polynomials of the nodes. The coefficients
+are given both in Carlson's displayed quotient form and as division-free polynomials that
+include the removable values at the exceptional parameters `a = 0` and `a' = card ι`. This
+module does not depend on the R-functions themselves.
+
+## Main definitions
+
+* `Carlson.carlsonElementarySymmetric`: the elementary symmetric polynomials of the nodes.
+* `Carlson.carlsonAssociatedRecurrenceCoeff`: Carlson's coefficient in quotient form.
+* `Carlson.carlsonAssociatedRecurrencePolynomial`: the division-free polynomial coefficient.
+
+## Main results
+
+* `Carlson.eval_carlsonAssociatedRecurrencePolynomial`: agreement of the two forms away from the
+  displayed denominators.
+* `Carlson.analyticAt_carlsonAssociatedRecurrencePolynomial_eval`: analytic dependence on the
+  parameters.
+
+## References
+
+* [Carl77] B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
+-/
 
 open Complex
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- The `n`th elementary symmetric polynomial evaluated at the Carlson variables. -/
@@ -47,6 +76,7 @@ theorem carlsonElementarySymmetric_euler (n : ℕ) (z : ι → ℂ) :
   have H := congrArg (MvPolynomial.eval z) hhom.sum_X_mul_pderiv
   simpa [carlsonElementarySymmetric, nsmul_eq_mul] using H
 
+open scoped Classical in
 /-- Differentiating the generating polynomial with respect to one Carlson variable. -/
 theorem carlsonElementarySymmetric_generating_pderiv (w : ℂ) (z : ι → ℂ) (i : ι) :
     w * (∏ j ∈ Finset.univ.erase i, (1 + w * z j)) =
@@ -66,6 +96,7 @@ theorem carlsonElementarySymmetric_generating_pderiv (w : ℂ) (z : ι → ℂ) 
   have H' := congrArg (MvPolynomial.eval z) H
   simpa [Derivation.leibniz, smul_eq_mul, mul_comm] using H'
 
+open scoped Classical in
 /-- The polynomial factor in the differentiated ray kernel, expanded as in (8.4-6). -/
 theorem carlsonAssociatedRecurrenceKernel_polynomial (a w : ℂ) (b z : ι → ℂ) :
     a * (∏ i, (1 + w * z i)) + w *
@@ -181,7 +212,8 @@ theorem carlsonAssociatedRecurrenceCoeff_zero [Nonempty ι]
   field_simp
 
 /-- The division-free polynomial coefficient in Carlson's recurrence for a nonempty index
-type, including its removable-singularity values. The endpoint formulas are used separately because the
+type, including its removable-singularity values. The endpoint formulas are used separately because
+the
 corresponding factors cancel against the expression involving the symmetric polynomial. -/
 def carlsonAssociatedRecurrencePolynomial
     (n : ℕ) (a a' : ℂ) (b : ι → ℂ) : MvPolynomial ι ℂ :=
@@ -221,7 +253,7 @@ theorem eval_carlsonAssociatedRecurrencePolynomial [Nonempty ι]
     have h := congrArg (Polynomial.eval w) (ascPochhammer_succ_left ℂ (m - 1))
     simpa only [Nat.sub_add_cancel hm, Polynomial.eval_mul, Polynomial.eval_X,
       Polynomial.eval_comp, Polynomial.eval_add, Polynomial.eval_one] using h
-  simp only [carlsonAssociatedRecurrencePolynomial, if_neg hn0, if_neg hnk,
+  simp only [carlsonAssociatedRecurrencePolynomial, ite_eq_right hn0, ite_eq_right hnk,
     map_mul, MvPolynomial.eval_C, map_sub, map_sum, MvPolynomial.eval_X,
     carlsonAssociatedRecurrenceCoeff, carlsonElementarySymmetric,
     hp n (Nat.pos_of_ne_zero hn0), hp (Fintype.card ι - n) (by omega)]
@@ -252,4 +284,4 @@ theorem analyticAt_carlsonAssociatedRecurrencePolynomial_eval
     exact Finset.analyticAt_fun_sum _ (fun i _ ↦
       ((hb i).mul analyticAt_const).mul analyticAt_const)
 
-end DirichletTransform
+end Carlson

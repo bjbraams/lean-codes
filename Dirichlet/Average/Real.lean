@@ -16,11 +16,10 @@ strictly positive real numbers and integration is against `dirichletMeasure`.
 -/
 
 open Complex MeasureTheory MeasureTheory.Measure ProbabilityTheory
-open scoped Classical
 
 @[expose] public noncomputable section RealCarlsonDirichletAverage
 
-namespace DirichletTransform
+namespace Dirichlet
 
 variable {ι : Type*} [Fintype ι]
 
@@ -37,6 +36,6 @@ theorem realCarlsonDirichletAverage_eq_integral [Nonempty ι]
           ∂stdSimplexMeasure :=
   integral_dirichletMeasure_complex hb _
 
-end DirichletTransform
+end Dirichlet
 
 end RealCarlsonDirichletAverage

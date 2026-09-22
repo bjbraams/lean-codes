@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Dirichlet.Average.ResolventContinuation
@@ -21,9 +25,8 @@ The multiply connected and Riemann-surface extensions are left open.
 -/
 
 open Complex MeasureTheory ProbabilityTheory Set Metric
-open scoped Classical
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Dirichlet
 variable {ι : Type*} [Fintype ι]
 
 /-- A circle surrounding all nodes avoids all their simplex affine combinations. -/
@@ -136,5 +139,5 @@ theorem continuedRegCarlsonCauchyRepresentation_eq_of_disks (n : ℕ)
   congrFun ((isRegCarlsonContinuation_continuedRegCarlsonCauchyRepresentation n hR hfR hzR).eq
     (isRegCarlsonContinuation_continuedRegCarlsonCauchyRepresentation n hS hfS hzS)) b
 
-end DirichletTransform
+end Dirichlet
 end

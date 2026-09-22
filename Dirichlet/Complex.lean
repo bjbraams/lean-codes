@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Bastiaan J Braams.
+Authors: Bastiaan J Braams
 -/
 module
 
@@ -35,11 +35,10 @@ open scoped Topology
 
 @[expose] public noncomputable section ComplexDirichlet
 
-namespace ProbabilityTheory
+namespace Dirichlet
 
 variable {ι : Type*} [Fintype ι]
 
-open scoped Classical
 
 /-- The regularized Dirichlet density with parameters `b` on `stdSimplexInterior`. For each
 fixed `u`, this is an entire function of `b`. -/
@@ -89,7 +88,8 @@ theorem regDirichletIntegral_normalization (b : ι → ℂ) (hb : b ∈ mvBetaCo
         Finset.prod_ne_zero_iff.mpr (fun i _ ↦ hgamma i)
       have hae := ae_zero_lt_of_mem_stdSimplex (ι := ι)
       have hfun :
-          regDirichletDensity b =ᵐ[stdSimplexMeasure.restrict (Convexity.StdSimplex.coordinateSet ℝ ι)]
+          regDirichletDensity b =ᵐ[stdSimplexMeasure.restrict (Convexity.StdSimplex.coordinateSet ℝ
+              ι)]
             fun u ↦ (∏ i, (u i : ℂ) ^ (b i - 1)) / ∏ i, Gamma (b i) := by
         have hmem := self_mem_ae_restrict
           (μ := stdSimplexMeasure) (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet
@@ -101,6 +101,16 @@ theorem regDirichletIntegral_normalization (b : ι → ℂ) (hb : b ∈ mvBetaCo
       rw [mvBeta]
       field_simp
 
+/-- The regularized Dirichlet density is integrable on its convergence domain, including
+an empty index type (whose simplex measure is zero). -/
+theorem integrableOn_regDirichletDensity (b : ι → ℂ) (hb : b ∈ mvBetaConvergent) :
+    IntegrableOn (regDirichletDensity b) (Convexity.StdSimplex.coordinateSet ℝ ι)
+      stdSimplexMeasure := by
+  unfold regDirichletDensity
+  simp_rw [Finset.prod_div_distrib]
+  exact ((Complex.integrableOn_mvBetaMonomial b hb).div_const
+    (∏ i, Gamma (b i))).indicator measurableSet_stdSimplexInterior
+
 /-- Continuous functions are integrable over the standard simplex with respect to the
 regularized Dirichlet density. -/
 theorem integrableOn_regDirichletDensity_mul
@@ -109,50 +119,9 @@ theorem integrableOn_regDirichletDensity_mul
     (hf : ContinuousOn f (Convexity.StdSimplex.coordinateSet ℝ ι)) :
     IntegrableOn
       (fun u => regDirichletDensity b u * f u)
-      (Convexity.StdSimplex.coordinateSet ℝ ι) stdSimplexMeasure := by
-  classical
-  cases isEmpty_or_nonempty ι with
-  | inl hι =>
-      let _ := hι
-      rw [stdSimplexMeasure_empty]
-      simpa [IntegrableOn] using
-        (integrable_zero_measure (f := fun u => regDirichletDensity b u * f u))
-  | inr hι =>
-    let _ := hι
-    let K := Convexity.StdSimplex.coordinateSet ℝ ι
-    obtain ⟨C, hC⟩ := bddAbove_def.mp
-      ((Convexity.StdSimplex.isCompact_coordinateSet ℝ ι).bddAbove_image hf.norm)
-    have hf_le : ∀ u ∈ K, ‖f u‖ ≤ max C 0 := by
-      intro u hu
-      exact (hC _ ⟨u, hu, rfl⟩).trans (le_max_left _ _)
-    have hmono := Complex.integrableOn_mvBetaMonomial b hb
-    have hgamma : IntegrableOn
-        (fun u : ι → ℝ ↦ (max C 0 / ∏ i, ‖Gamma (b i)‖) *
-          ‖∏ i, (u i : ℂ) ^ (b i - 1)‖) K stdSimplexMeasure :=
-      hmono.norm.const_mul _
-    apply Integrable.mono hgamma
-    · exact (measurable_regDirichletDensity b).aestronglyMeasurable.mul
-        (hf.aestronglyMeasurable (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet)
-    · filter_upwards [self_mem_ae_restrict (μ := stdSimplexMeasure)
-          (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet,
-          ae_zero_lt_of_mem_stdSimplex (ι := ι)] with u hu hupos
-      have hinter : u ∈ stdSimplexInterior := ⟨hu, hupos⟩
-      simp only [regDirichletDensity, Set.indicator_of_mem hinter, norm_mul, norm_prod,
-        norm_div]
-      have hden_pos : 0 < ∏ i, ‖Gamma (b i)‖ := Finset.prod_pos fun i _ ↦
-        norm_pos_iff.mpr (Gamma_ne_zero_of_re_pos (hb i))
-      simp only [Real.norm_eq_abs, abs_of_nonneg (le_max_right C 0),
-        abs_of_nonneg (norm_nonneg _)]
-      calc
-        (∏ i, ‖(u i : ℂ) ^ (b i - 1)‖ / ‖Gamma (b i)‖) * ‖f u‖ =
-            ‖f u‖ / (∏ i, ‖Gamma (b i)‖) *
-              ∏ i, ‖(u i : ℂ) ^ (b i - 1)‖ := by
-          rw [Finset.prod_div_distrib]
-          field_simp
-        _ ≤ (max C 0 / ∏ i, ‖Gamma (b i)‖) *
-              ∏ i, ‖(u i : ℂ) ^ (b i - 1)‖ := by
-          gcongr
-          exact hf_le u hu
+      (Convexity.StdSimplex.coordinateSet ℝ ι) stdSimplexMeasure :=
+  (integrableOn_regDirichletDensity b hb).mul_continuousOn hf
+    (Convexity.StdSimplex.isCompact_coordinateSet ℝ ι)
 
 /-- Integration of function `f` over the standard simplex with respect to the regularized
 Dirichlet density. This is the native, totalized Bochner integral, not its analytic
@@ -165,7 +134,8 @@ def regDirichletIntegral (b : ι → ℂ) (f : (ι → ℝ) → ℂ) : ℂ :=
 Outside the absolute-convergence domain this is a totalized Bochner integral, not an
 analytic continuation. -/
 def complexDirichletIntegral (b : ι → ℂ) (f : (ι → ℝ) → ℂ) : ℂ :=
-  ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι, complexDirichletDensity b u * f u ∂stdSimplexMeasure
+  ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι,
+      complexDirichletDensity b u * f u ∂stdSimplexMeasure
 
 /-- Native normalization and regularization differ by the Gamma factor of the total
 parameter. No assertion of analytic continuation is involved. -/
@@ -228,6 +198,6 @@ theorem regDirichletIntegral_congr
   dsimp only
   rw [hfg hu]
 
-end ProbabilityTheory
+end Dirichlet
 
 end ComplexDirichlet

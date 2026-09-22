@@ -20,12 +20,13 @@ specialization is in `Carlson.R.ZeroParameter`. The deletion statements use a
 nonempty remaining index type, the usual special-function setting.
 -/
 
+open Dirichlet
 open Complex Finset Polynomial
-open scoped Classical
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
+open scoped Classical in
 /-- A zero parameter makes the polynomial numerator independent of its node. -/
 theorem carlsonRPolynomialNumerator_update_of_param_zero (n : ℕ)
     {b : ι → ℂ} (z : ι → ℂ) (i : ι) (hbi : b i = 0) (w : ℂ) :
@@ -44,22 +45,25 @@ theorem carlsonRPolynomialNumerator_update_of_param_zero (n : ℕ)
       simp [hbi, hmi]
     simp [hp]
 
+open scoped Classical in
 /-- Regularized `R` polynomials do not depend on nodes with zero parameter. -/
-theorem regCarlsonR_update_of_param_zero (n : ℕ) {b : ι → ℂ}
+theorem regCarlsonRPolynomial_update_of_param_zero (n : ℕ) {b : ι → ℂ}
     (z : ι → ℂ) (i : ι) (hbi : b i = 0) (w : ℂ) :
-    regCarlsonR n (Function.update z i w) b = regCarlsonR n z b := by
-  simp only [regCarlsonR, regCarlsonRPolynomial_eq_numerator_mul_one_div_Gamma,
+    regCarlsonRPolynomial n b (Function.update z i w) = regCarlsonRPolynomial n b z := by
+  simp only [regCarlsonRPolynomial_eq_numerator_mul_one_div_Gamma,
     carlsonRPolynomialNumerator_update_of_param_zero n z i hbi w]
 
+open scoped Classical in
 /-- The entire regularized `S` function does not depend on a zero-parameter node. -/
 theorem regCarlsonSSeries_update_of_param_zero {b : ι → ℂ}
     (z : ι → ℂ) (i : ι) (hbi : b i = 0) (w : ℂ) :
     regCarlsonSSeries (Function.update z i w) b = regCarlsonSSeries z b := by
-  simp only [regCarlsonSSeries_eq_tsum_regCarlsonR,
-    regCarlsonR_update_of_param_zero _ z i hbi w]
+  simp only [regCarlsonSSeries_eq_tsum_regCarlsonRPolynomial,
+    regCarlsonRPolynomial_update_of_param_zero _ z i hbi w]
 
 private lemma aggregate_option_zero (k : ι) {b : Option ι → ℂ} (hb : b none = 0) :
     stdSimplexAggregate (fun o => o.elim k id) b = b ∘ some := by
+  classical
   ext j
   simp only [stdSimplexAggregate, FunOnFinite.linearMap_apply_apply,
     Finset.sum_filter, Fintype.sum_option, Option.elim_none, Option.elim_some, id_eq,
@@ -68,9 +72,9 @@ private lemma aggregate_option_zero (k : ι) {b : Option ι → ℂ} (hb : b non
 
 /-- Deleting a zero parameter from a regularized `R` polynomial. `Option ι`
 distinguishes the deleted coordinate from the nonempty set of remaining coordinates. -/
-theorem regCarlsonR_option_zero [Nonempty ι] (n : ℕ)
+theorem regCarlsonRPolynomial_option_zero [Nonempty ι] (n : ℕ)
     {b : Option ι → ℂ} (hb : b none = 0) (z : Option ι → ℂ) :
-    regCarlsonR n z b = regCarlsonR n (z ∘ some) (b ∘ some) := by
+    regCarlsonRPolynomial n b z = regCarlsonRPolynomial n (b ∘ some) (z ∘ some) := by
   let : DecidableEq (Option ι) := Classical.decEq _
   let k : ι := Classical.arbitrary ι
   let q : Option ι → ι := fun o => o.elim k id
@@ -78,8 +82,8 @@ theorem regCarlsonR_option_zero [Nonempty ι] (n : ℕ)
   have hz : Function.update z none (z (some k)) = (z ∘ some) ∘ q := by
     ext o
     cases o <;> simp [q]
-  have hupdate := regCarlsonR_update_of_param_zero n z none hb (z (some k))
-  have hagg := regCarlsonR_aggregate hq n (z ∘ some) b
+  have hupdate := regCarlsonRPolynomial_update_of_param_zero n z none hb (z (some k))
+  have hagg := regCarlsonRPolynomial_aggregate hq n (z ∘ some) b
   have hnodes := congrArg (fun w : Option ι → ℂ => regCarlsonRPolynomial n b w) hz
   have hparams := congrArg (fun c : ι → ℂ => regCarlsonRPolynomial n c (z ∘ some))
     (aggregate_option_zero k hb)
@@ -89,12 +93,13 @@ theorem regCarlsonR_option_zero [Nonempty ι] (n : ℕ)
 theorem regCarlsonSSeries_option_zero [Nonempty ι]
     {b : Option ι → ℂ} (hb : b none = 0) (z : Option ι → ℂ) :
     regCarlsonSSeries z b = regCarlsonSSeries (z ∘ some) (b ∘ some) := by
-  simp only [regCarlsonSSeries_eq_tsum_regCarlsonR, regCarlsonR_option_zero _ hb z]
+  simp only [regCarlsonSSeries_eq_tsum_regCarlsonRPolynomial,
+      regCarlsonRPolynomial_option_zero _ hb z]
 
 /-- Zero parameters may be deleted from any continued holomorphic average on a
 disk (Carlson, Corollary 6.3-2), including exceptional values of the total parameter
 in the regularized normalization. -/
-theorem IsRegCarlsonContinuation.option_zero [Nonempty ι]
+theorem _root_.Dirichlet.IsRegCarlsonContinuation.option_zero [Nonempty ι]
     {A : ℂ} {R : ℝ} {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f (Metric.ball A R))
     {z : Option ι → ℂ} (hz : ‖fun i => z i - A‖ < R)
     {G : (Option ι → ℂ) → ℂ} {H : (ι → ℂ) → ℂ}
@@ -108,8 +113,8 @@ theorem IsRegCarlsonContinuation.option_zero [Nonempty ι]
   unfold regCarlsonTaylorSeries
   apply tsum_congr
   intro n
-  rw [regCarlsonR_option_zero n hb]
+  rw [regCarlsonRPolynomial_option_zero n hb]
   rfl
 
-end DirichletTransform
+end Carlson
 end

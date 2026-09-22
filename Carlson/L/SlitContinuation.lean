@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.L.Continuation
@@ -14,10 +18,11 @@ is retained and agrees with this extension. No equality with a principal-power s
 integral is asserted for arbitrary slit-plane nodes.
 -/
 
+open Dirichlet
 open Complex Filter Set
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- The entire regularized L-function, defined by differentiating R in its exponent.
@@ -30,10 +35,13 @@ this is only Lean's totalized expression, not a claimed finite value. -/
 def carlsonLSlit (t : ℂ) (b z : ι → ℂ) : ℂ :=
   Gamma (∑ i, b i) * regCarlsonLSlit t b z
 
+/-- On the slit domain the regularized L-function is the exponent derivative of the regularized
+R-function. -/
 theorem hasDerivAt_regCarlsonRSlit_L (t : ℂ) (b : ι → ℂ) {z : ι → ℂ}
     (hz : z ∈ carlsonRSlitDomain) :
     HasDerivAt (fun s => regCarlsonRSlit s b z) (regCarlsonLSlit t b z) t :=
-  (analyticAt_regCarlsonRSlit_comp analyticAt_id analyticAt_const analyticAt_const hz).differentiableAt.hasDerivAt
+  (analyticAt_regCarlsonRSlit_comp analyticAt_id analyticAt_const analyticAt_const
+      hz).differentiableAt.hasDerivAt
 
 /-- Carlson (1987), (2.1): full joint holomorphy, with no parameter exceptions after
 Gamma regularization. The coordinates are exponent, parameters, then nodes. -/
@@ -41,6 +49,7 @@ theorem analyticOnNhd_regCarlsonLSlit_joint :
     AnalyticOnNhd ℂ (fun p : Option (ι ⊕ ι) → ℂ =>
       regCarlsonLSlit (p none) (fun i => p (some (.inl i))) (fun i => p (some (.inr i))))
       {p | (fun i => p (some (.inr i))) ∈ carlsonRSlitDomain} := by
+  classical
   have h := analyticOnNhd_regCarlsonRSlit_joint (ι := ι) |>.partialDeriv
     (isOpen_carlsonRSlitDomain.preimage (by fun_prop)) none
   have heq : SeveralComplexVariables.partialDeriv none
@@ -72,10 +81,13 @@ theorem analyticAt_regCarlsonLSlit_comp
       | inr i => exact (analyticAt_pi_iff.mp hz) i
   exact (analyticOnNhd_regCarlsonLSlit_joint (f p) hslit).comp_of_eq hf rfl
 
+/-- The regularized slit L-function is holomorphic in the nodes on the slit domain. -/
 theorem analyticOnNhd_regCarlsonLSlit (t : ℂ) (b : ι → ℂ) :
     AnalyticOnNhd ℂ (regCarlsonLSlit t b) carlsonRSlitDomain :=
   fun _ hz => analyticAt_regCarlsonLSlit_comp analyticAt_const analyticAt_const analyticAt_id hz
 
+/-- For fixed slit nodes the regularized slit L-function is jointly entire in the exponent and the
+Dirichlet parameters. -/
 theorem analyticOnNhd_regCarlsonLSlit_exponent_parameters {z : ι → ℂ}
     (hz : z ∈ carlsonRSlitDomain) :
     AnalyticOnNhd ℂ (fun p : Option ι → ℂ =>
@@ -86,6 +98,8 @@ theorem analyticOnNhd_regCarlsonLSlit_exponent_parameters {z : ι → ℂ}
   · exact analyticAt_pi_iff.mpr fun i =>
       (ContinuousLinearMap.proj (some i) : (Option ι → ℂ) →L[ℂ] ℂ).analyticAt p
 
+/-- Composition rule: the ordinary slit L-function is analytic along analytic exponent, parameter,
+and node maps, away from the poles of the total-parameter Gamma factor. -/
 theorem analyticAt_carlsonLSlit_comp
     {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
     {t : E → ℂ} {b z : E → ι → ℂ} {p : E}
@@ -101,22 +115,26 @@ theorem analyticAt_carlsonLSlit_comp
     simpa only [inv_inv] using h
   exact hgamma.mul (analyticAt_regCarlsonLSlit_comp ht hb hz hslit)
 
+/-- On the right-half-plane node domain the slit and continued regularized L-functions agree. -/
 theorem regCarlsonLSlit_eq_continued (t : ℂ) (b : ι → ℂ) {z : ι → ℂ}
     (hz : z ∈ carlsonRVariableDomain) :
     regCarlsonLSlit t b z = regCarlsonLContinued t z hz b := by
   unfold regCarlsonLSlit regCarlsonLContinued
   simp_rw [regCarlsonRSlit_eq_continued _ b hz]
 
+/-- On the native domain the regularized slit L-function is the regularized L-integral. -/
 theorem regCarlsonLSlit_eq_integral (t : ℂ) {b z : ι → ℂ}
     (hz : z ∈ carlsonRVariableDomain) (hb : b ∈ mvBetaConvergent) :
     regCarlsonLSlit t b z = regCarlsonLIntegral t b z := by
   rw [regCarlsonLSlit_eq_continued t b hz, regCarlsonLContinued_eq_integral t hz hb]
 
+/-- On the right-half-plane node domain the slit and continued ordinary L-functions agree. -/
 theorem carlsonLSlit_eq_continued (t : ℂ) (b : ι → ℂ) {z : ι → ℂ}
     (hz : z ∈ carlsonRVariableDomain) :
     carlsonLSlit t b z = carlsonLContinued t z hz b := by
   rw [carlsonLSlit, carlsonLContinued, regCarlsonLSlit_eq_continued t b hz]
 
+/-- On the native domain the ordinary slit L-function is the native L-integral. -/
 theorem carlsonLSlit_eq_integral (t : ℂ) {b z : ι → ℂ}
     (hz : z ∈ carlsonRVariableDomain) (hb : b ∈ mvBetaConvergent) :
     carlsonLSlit t b z = carlsonLIntegral t b z := by
@@ -136,10 +154,11 @@ theorem hasDerivAt_carlsonRSlit_L (t : ℂ) (b : ι → ℂ) {z : ι → ℂ}
     HasDerivAt (fun s => carlsonRSlit s b z) (carlsonLSlit t b z) t :=
   (hasDerivAt_regCarlsonRSlit_L t b hz).const_mul (Gamma (∑ i, b i))
 
+/-- With an empty index type the regularized slit L-function vanishes. -/
 @[simp] theorem regCarlsonLSlit_empty [IsEmpty ι] (t : ℂ) (b : ι → ℂ)
     {z : ι → ℂ} (hz : z ∈ carlsonRSlitDomain) : regCarlsonLSlit t b z = 0 := by
   unfold regCarlsonLSlit
   simp_rw [regCarlsonRSlit_eq_zero_of_isEmpty _ b hz]
   exact deriv_const t 0
 
-end DirichletTransform
+end Carlson

@@ -1,16 +1,36 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.TwoVariable.S.Basic
 public import Carlson.TwoVariable.R.Basic
 public import Carlson.R.Confluence
 
-/-! # The two-variable Carlson S-function -/
+/-!
+# The two-variable Carlson S-function
 
+Two-node specializations of the S-function results: agreement of the series continuation
+with the native integral, symmetry, the exponential translation law, and the confluence of
+R-integrals with growing natural exponents to the S-integral.
+
+## Main results
+
+* `Carlson.TwoVariable.regSSeries_eq_regSIntegral`, `Carlson.TwoVariable.regSSeries_add_const`.
+* `Carlson.TwoVariable.tendsto_regRIntegral_confluent`: confluence of R to S.
+
+## References
+
+* [Carl77] B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
+-/
+
+open Dirichlet
 open Complex Filter
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section CarlsonTwoVariable
-namespace DirichletTransform.TwoVariable
+namespace Carlson.TwoVariable
 
 /-- On the native convergence region, the two-variable S-series agrees with its Dirichlet
 integral. -/
@@ -49,5 +69,5 @@ theorem tendsto_regRIntegral_confluent (b₀ b₁ z₀ z₁ : ℂ)
   funext n
   congr 2
 
-end DirichletTransform.TwoVariable
+end Carlson.TwoVariable
 end CarlsonTwoVariable

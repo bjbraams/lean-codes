@@ -5,10 +5,10 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import Dirichlet.Transform
+public import Dirichlet.Transform.Basic
 public import Dirichlet.Average.Deriv
 public import Dirichlet.Average.Bridge
-public import SeveralComplexVariables.AnalyticUniqueness
+public import SeveralComplexVariables.RealUniqueness
 
 import Mathlib.Analysis.Analytic.Uniqueness
 
@@ -27,11 +27,10 @@ are developed in `Carlson.RPolynomial.PowerSeries`.
 -/
 
 open Complex MeasureTheory ProbabilityTheory
-open scoped Classical
 
 @[expose] public noncomputable section CarlsonDirichletAverage
 
-namespace DirichletTransform
+namespace Dirichlet
 
 variable {ι : Type*} [Fintype ι]
 
@@ -40,8 +39,7 @@ and agrees with the native regularized Dirichlet integral on its domain of absol
 convergence. -/
 def IsRegCarlsonContinuation (f : ℂ → ℂ) (z : ι → ℂ)
     (G : (ι → ℂ) → ℂ) : Prop :=
-  AnalyticOnNhd ℂ G Set.univ ∧
-    Set.EqOn G (fun b ↦ regCarlsonDirichletAverage b z f) mvBetaConvergent
+  IsRegDirichletContinuation (fun u => f (carlsonAffineForm z u)) G
 
 /-- Construct a regularized Carlson continuation from entire dependence on `b` and agreement
 with the native integral on the convergence region. -/
@@ -65,40 +63,11 @@ theorem IsRegCarlsonContinuation.eq_native {f : ℂ → ℂ} {z : ι → ℂ}
     G b = regCarlsonDirichletAverage b z f :=
   hG.2 hb
 
-/-- Two entire functions of the Dirichlet parameters that agree throughout the ordinary
-convergence region agree everywhere.  This is the common continuation step for the identities
-proved from Carlson's native integral. -/
-theorem analyticOnNhd_eq_of_eqOn_mvBetaConvergent
-    {G H : (ι → ℂ) → ℂ} (hG : AnalyticOnNhd ℂ G Set.univ)
-    (hH : AnalyticOnNhd ℂ H Set.univ) (hEq : Set.EqOn G H mvBetaConvergent) :
-    G = H := by
-  let b₀ : ι → ℂ := fun _ ↦ 1
-  have hb₀ : b₀ ∈ mvBetaConvergent := by
-    intro i
-    simp [b₀]
-  apply hG.eq_of_eventuallyEq hH (z₀ := b₀)
-  filter_upwards [isOpen_mvBetaConvergent.eventually_mem hb₀] with b hb
-  exact hEq hb
-
 /-- The entire regularized Carlson continuation, if it exists, is unique. -/
 theorem IsRegCarlsonContinuation.eq {f : ℂ → ℂ} {z : ι → ℂ}
     {G H : (ι → ℂ) → ℂ} (hG : IsRegCarlsonContinuation f z G)
-    (hH : IsRegCarlsonContinuation f z H) : G = H := by
-  apply analyticOnNhd_eq_of_eqOn_mvBetaConvergent hG.1 hH.1
-  intro b hb
-  exact (hG.2 hb).trans (hH.2 hb).symm
-
-/-- Two entire candidates which agree for every strictly positive real Dirichlet parameter
-agree globally.  This is the uniqueness principle used to lift probability identities without
-first proving them on the full complex convergence region. -/
-theorem analyticOnNhd_eq_of_eqOn_realDirichletDomain
-    {G H : (ι → ℂ) → ℂ} (hG : AnalyticOnNhd ℂ G Set.univ)
-    (hH : AnalyticOnNhd ℂ H Set.univ)
-    (hEq : ∀ b : ι → ℝ, b ∈ mvRealBetaDomain →
-      G (fun i ↦ (b i : ℂ)) = H (fun i ↦ (b i : ℂ))) : G = H := by
-  apply analyticOnNhd_eq_of_eqOn_posReal_pi hG hH
-  intro b hb
-  exact hEq b hb
+    (hH : IsRegCarlsonContinuation f z H) : G = H :=
+  IsRegDirichletContinuation.eq hG hH
 
 /-- An entire candidate can be recognized as a Carlson continuation by comparison on positive
 real parameters with any already established continuation. -/
@@ -134,7 +103,7 @@ theorem exists_isRegCarlsonContinuation
     {Ω : Set ℂ} (hΩopen : IsOpen Ω) (hΩconv : Convex ℝ Ω)
     {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f Ω) {z : ι → ℂ} (hz : Set.range z ⊆ Ω) :
     ∃ G, IsRegCarlsonContinuation f z G := by
-  apply exists_entire_regDirichletContinuation_of_contDiffNear
+  apply exists_isRegDirichletContinuation
   intro N
   have haffine : ContDiff ℝ N (fun u : ι → ℝ => carlsonAffineForm z u) := by
     unfold carlsonAffineForm
@@ -146,6 +115,6 @@ theorem exists_isRegCarlsonContinuation
   exact (hf.contDiffOn_of_completeSpace.restrict_scalars ℝ).comp haffine.contDiffOn
     (fun _ hu => hu)
 
-end DirichletTransform
+end Dirichlet
 
 end CarlsonDirichletAverage

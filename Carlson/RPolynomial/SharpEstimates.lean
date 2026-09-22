@@ -5,6 +5,7 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Pochhammer.Gamma
 public import Carlson.RPolynomial.Estimates
 public import Carlson.RPolynomial.Generating
 import Pochhammer.Vandermonde
@@ -20,9 +21,8 @@ of node norms. This distinction preserves the full Taylor disk in Section 6.3.
 -/
 
 open Complex Finset Polynomial Set
-open scoped Classical
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- Carlson 6.2-7(24), with independent nonnegative bounds for the parameter norms. -/
@@ -31,6 +31,7 @@ theorem norm_carlsonRPolynomialNumerator_le_pochhammer (n : ℕ) (b z : ι → �
     {r : ℝ} (hr : 0 ≤ r) (hz : ∀ i, ‖z i‖ ≤ r) :
     ‖carlsonRPolynomialNumerator n b z‖ ≤
       (ascPochhammer ℝ n).eval (∑ i, B i) * r ^ n := by
+  classical
   rw [carlsonRPolynomialNumerator_eq_sum_piAntidiag, carlsonGeneratingCoeff]
   have hp (m : ι → ℕ) (i : ι) :
       ‖(ascPochhammer ℂ (m i)).eval (b i)‖ ≤ (ascPochhammer ℝ (m i)).eval (B i) :=
@@ -68,28 +69,6 @@ theorem norm_carlsonRPolynomialNumerator_le_sum_norm (n : ℕ) (b z : ι → ℂ
       (ascPochhammer ℝ n).eval (∑ i, ‖b i‖) * r ^ n :=
   norm_carlsonRPolynomialNumerator_le_pochhammer n b z (fun _ => le_rfl) hr hz
 
-/-- Uniform factorial decay for reciprocal Gamma after sufficiently many shifts
-of the total parameter on a compact set. -/
-theorem exists_uniform_norm_invGamma_sum_add_nat {K : Set (ι → ℂ)} (hK : IsCompact K) :
-    ∃ m : ℕ, ∃ C : ℝ, 0 ≤ C ∧ ∀ b ∈ K, ∀ n : ℕ,
-      ‖(Gamma ((∑ i, b i) + (n + m)))⁻¹‖ ≤ C / n.factorial := by
-  have hS : Continuous (fun b : ι → ℂ => ∑ i, b i) := by fun_prop
-  obtain ⟨B, hB⟩ := hK.bddAbove_image hS.norm.continuousOn
-  obtain ⟨m, hm⟩ := exists_nat_gt (B + 1)
-  have hre (b : ι → ℂ) (hb : b ∈ K) : 1 ≤ ((∑ i, b i) + m).re := by
-    have hbnd := hB (mem_image_of_mem _ hb)
-    have hr := neg_le_of_abs_le (abs_re_le_norm (∑ i, b i))
-    simp only [add_re, natCast_re]
-    linarith
-  have hc : Continuous (fun b : ι → ℂ => (Gamma ((∑ i, b i) + m))⁻¹) :=
-    differentiable_one_div_Gamma.continuous.comp (hS.add continuous_const)
-  obtain ⟨C, hC⟩ := hK.bddAbove_image hc.norm.continuousOn
-  refine ⟨m, max C 0, le_max_right _ _, fun b hb n => ?_⟩
-  have h := (norm_invGamma_add_nat_le (hre b hb) n).trans
-    (div_le_div_of_nonneg_right ((hC (mem_image_of_mem _ hb)).trans (le_max_left C 0))
-      (by positivity))
-  simpa [Nat.cast_add, add_assoc, add_comm, add_left_comm] using h
-
 /-- A normally convergent majorant for the Taylor construction on compact parameter
 sets and bounded node vectors. The only radius restriction is `q * r < 1`. -/
 theorem exists_summable_norm_carlsonTaylor_bounded_variables
@@ -97,7 +76,7 @@ theorem exists_summable_norm_carlsonTaylor_bounded_variables
     {C q r : ℝ} (hC : 0 ≤ C) (hq : 0 ≤ q) (hr : 0 ≤ r) (hqr : q * r < 1)
     (ha : ∀ n, ‖a n‖ ≤ C * q ^ n) :
     ∃ M : ℕ → ℝ, Summable M ∧ ∀ n b, b ∈ K → ∀ z : ι → ℂ,
-      (∀ i, ‖z i‖ ≤ r) → ‖a n * regCarlsonR n z b‖ ≤ M n := by
+      (∀ i, ‖z i‖ ≤ r) → ‖a n * regCarlsonRPolynomial n b z‖ ≤ M n := by
   obtain ⟨B₀, hB₀⟩ := hK.bddAbove_image continuous_norm.continuousOn
   obtain ⟨B, hB⟩ := exists_nat_gt (max B₀ 0)
   have hbnd (b : ι → ℂ) (hb : b ∈ K) (i : ι) : ‖b i‖ ≤ (B : ℝ) :=
@@ -112,7 +91,8 @@ theorem exists_summable_norm_carlsonTaylor_bounded_variables
   have hS : Continuous (fun b : ι → ℂ => ∑ i, b i) := by fun_prop
   have hD (n : ℕ) : ∃ D : ℝ, 0 ≤ D ∧ ∀ b ∈ K,
       ‖(Gamma ((∑ i, b i) + n))⁻¹‖ ≤ D := by
-    have hc := differentiable_one_div_Gamma.continuous.comp (hS.add (continuous_const (y := (n : ℂ))))
+    have hc := differentiable_one_div_Gamma.continuous.comp (hS.add (continuous_const (y := (n :
+        ℂ))))
     obtain ⟨D, hD⟩ := hK.bddAbove_image hc.norm.continuousOn
     exact ⟨max D 0, le_max_right _ _, fun b hb =>
       (hD (mem_image_of_mem _ hb)).trans (le_max_left _ _)⟩
@@ -136,10 +116,10 @@ theorem exists_summable_norm_carlsonTaylor_bounded_variables
     apply (summable_nat_add_iff m).mp
     simpa [M, Nat.not_lt.mpr (Nat.le_add_left m _)] using htail
   refine ⟨M, hM, fun n b hb z hz => ?_⟩
-  have hraw : ‖a n * regCarlsonR n z b‖ ≤
+  have hraw : ‖a n * regCarlsonRPolynomial n b z‖ ≤
       C * (ascPochhammer ℝ n).eval (T : ℝ) * (q * r) ^ n *
         ‖(Gamma ((∑ i, b i) + n))⁻¹‖ := by
-    simp only [regCarlsonR, regCarlsonRPolynomial_eq_numerator_mul_one_div_Gamma, norm_mul]
+    simp only [regCarlsonRPolynomial_eq_numerator_mul_one_div_Gamma, norm_mul]
     calc
       _ ≤ C * q ^ n * (((ascPochhammer ℝ n).eval (T : ℝ) * r ^ n) *
           ‖(Gamma ((∑ i, b i) + n))⁻¹‖) := by
@@ -150,7 +130,7 @@ theorem exists_summable_norm_carlsonTaylor_bounded_variables
   by_cases hnm : n < m
   · refine hraw.trans ?_
     dsimp only [M]
-    rw [if_pos hnm]
+    rw [ite_eq_left hnm]
     apply mul_le_mul_of_nonneg_left (hD n b hb)
     rw [← Nat.cast_ascFactorial]
     positivity
@@ -166,9 +146,9 @@ theorem exists_summable_norm_carlsonTaylor_bounded_variables
       rw [← Nat.cast_ascFactorial]
       positivity
     _ = M (m + k) := by
-      simp only [M, Nat.not_lt.mpr (Nat.le_add_right m k), if_false,
+      simp only [M, Nat.not_lt.mpr (Nat.le_add_right m k), ite_false,
         Nat.add_sub_cancel_left, tail, ascPochhammer_add_eval, Nat.cast_add, pow_add]
       ring
 
-end DirichletTransform
+end Carlson
 end

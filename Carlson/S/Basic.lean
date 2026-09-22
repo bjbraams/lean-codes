@@ -1,16 +1,42 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Dirichlet.Average.Associated.Deriv
 public import Mathlib.Analysis.SpecialFunctions.ExpDeriv
 public import Mathlib.Analysis.Calculus.IteratedDeriv.Lemmas
 
-/-! # Native Carlson S-integrals -/
+/-!
+# Native Carlson S-integrals
 
+Carlson's confluent function `S(b, z)`, the Dirichlet average of the exponential, as a native
+simplex integral, together with its coordinate differentiation formula and Carlson's
+Theorem 5.8-2 identifying averages of iterated derivatives of the exponential.
+
+## Main definitions
+
+* `Carlson.regCarlsonSIntegral`: the regularized native integral `S(b, z) / Γ(∑ i, b i)`.
+* `Carlson.carlsonSIntegral`: the ordinary native integral.
+
+## Main results
+
+* `Carlson.carlsonPartialDeriv_regCarlsonSIntegral`: differentiation in a node raises the
+  corresponding parameter.
+* `Carlson.regCarlsonDirichletAverage_iteratedDeriv_exp`: Carlson's Theorem 5.8-2.
+
+## References
+
+* [Carl77] B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
+-/
+
+open Dirichlet
 open Complex MeasureTheory ProbabilityTheory Filter Set
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- The native regularized integral representing `S(b,z) / Γ(∑ i, b i)` when all Dirichlet
@@ -28,6 +54,7 @@ theorem analyticOnNhd_exp_carlsonAffineForm (u : ι → ℝ) :
   intro i _
   exact analyticAt_const.mul ((ContinuousLinearMap.proj (R := ℂ) i).analyticAt z)
 
+open scoped Classical in
 /-- Varying coordinate `i` of `z`, the derivative of the exponential Carlson kernel is the
 kernel multiplied by the simplex coordinate `u i`. -/
 theorem hasDerivAt_exp_carlsonAffineForm_update
@@ -37,6 +64,7 @@ theorem hasDerivAt_exp_carlsonAffineForm_update
   exact HasDerivAt.comp_carlsonAffineForm_update i
     (Complex.hasDerivAt_exp (carlsonAffineForm z u))
 
+open scoped Classical in
 /-- Coordinate differentiation of the native regularized `S` integral.  This is the
 specialization of Carlson's differentiation formula to the exponential kernel. -/
 theorem hasDerivAt_regCarlsonSIntegral_update
@@ -49,6 +77,7 @@ theorem hasDerivAt_regCarlsonSIntegral_update
       isOpen_univ convex_univ (fun _ _ => analyticAt_cexp) hb
       (Set.subset_univ (Set.range z)) i
 
+open scoped Classical in
 /-- Carlson's coordinate differentiation formula for the regularized native `S` integral:
 differentiation in `z i` raises the corresponding Dirichlet parameter. -/
 theorem carlsonPartialDeriv_regCarlsonSIntegral
@@ -59,12 +88,6 @@ theorem carlsonPartialDeriv_regCarlsonSIntegral
   exact (mul_regDirichletIntegral_addDirichletUnit hb i
     (fun u ↦ exp (carlsonAffineForm z u))).symm
 
-/-- Every iterated complex derivative of the exponential function is the exponential function
-itself. -/
-theorem iteratedDeriv_cexp_eq (n : ℕ) :
-    iteratedDeriv n exp = exp := by
-  simpa using iteratedDeriv_cexp_const_mul n 1
-
 /-- Carlson's Theorem 5.8-2 in regularized integral form: replacing the averaged exponential
 by any of its iterated derivatives does not change the `S` integral.  Carlson denotes the
 left-hand side by `S⁽ⁿ⁾` and writes `S⁽ⁿ⁾ = S`. -/
@@ -72,8 +95,8 @@ theorem regCarlsonDirichletAverage_iteratedDeriv_exp
     (n : ℕ) (b z : ι → ℂ) :
     regCarlsonDirichletAverage b z (iteratedDeriv n exp) =
       regCarlsonSIntegral b z := by
-  rw [iteratedDeriv_cexp_eq]
-  rfl
+  simpa [regCarlsonSIntegral] using
+    congrArg (regCarlsonDirichletAverage b z) (iteratedDeriv_cexp_const_mul n 1)
 
 /-- Carlson's native, unregularized `S` integral.  Its intended integral interpretation
 requires `b ∈ Complex.mvBetaConvergent`. -/
@@ -93,4 +116,4 @@ theorem carlsonDirichletAverage_iteratedDeriv_exp
   rw [regCarlsonDirichletAverage_iteratedDeriv_exp]
   rfl
 
-end DirichletTransform
+end Carlson

@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.R.SingleIntegral.Continuation
@@ -14,10 +18,11 @@ permanence of functional relations in the parameters and in the nodes. Theorem
 6.8-4's additional equal-parameter regularization remains a separate task.
 -/
 
+open Dirichlet
 open Complex MeasureTheory ProbabilityTheory
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 omit [Fintype ι] in
@@ -169,5 +174,5 @@ theorem regCarlsonRSlit_euler (t : ℂ) (b : ι → ℂ)
     regCarlsonRSlit_eq_continued _ b (carlsonRVariableDomain_inv hw)]
   exact regCarlsonRContinued_euler t b hw
 
-end DirichletTransform
+end Carlson
 end

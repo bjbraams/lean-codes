@@ -17,10 +17,10 @@ The three-node relation (3.3) and backward-shift relation (3.7) of Carlson
 differential identities (2.9) and (2.8) are stated for native integrals.
 -/
 
+open Dirichlet
 open Complex ProbabilityTheory
-open scoped Classical
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- The derivative kernel has an entire continuation expressed through L and R. -/
@@ -35,6 +35,7 @@ theorem isRegCarlsonContinuation_deriv_LKernel (t : ℂ) {z : ι → ℂ}
   rw [regCarlsonLContinued_eq_integral _ hz hb, regCarlsonRContinued_eq_integral _ hz hb]
   exact (regCarlsonDirichletAverage_deriv_LKernel t hb hz).symm
 
+open scoped Classical in
 /-- Equation (3.3), including coincident nodes and indices. -/
 theorem regCarlsonLContinued_three_node (t : ℂ) (b : ι → ℂ)
     {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain) (i j k : ι) :
@@ -45,6 +46,7 @@ theorem regCarlsonLContinued_three_node (t : ℂ) (b : ι → ℂ)
     ((analyticOnNhd_carlsonLKernel t).mono carlsonRightHalfPlane_subset_slitPlane)
     (Set.range_subset_iff.mpr hz) isOpen_carlsonRightHalfPlane b i j k
 
+open scoped Classical in
 /-- Equation (3.7), in pole-free regularized form. -/
 theorem regCarlsonLContinued_tangent_sub (t : ℂ) (b : ι → ℂ)
     {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain) (i j : ι) :
@@ -103,5 +105,5 @@ theorem sum_mul_carlsonPartialDeriv_regCarlsonLIntegral (t : ℂ) {b z : ι → 
   simp only [addDirichletUnit]
   ring
 
-end DirichletTransform
+end Carlson
 end

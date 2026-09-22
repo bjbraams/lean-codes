@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Bastiaan J Braams.
+Authors: Bastiaan J Braams
 -/
 module
 
@@ -377,7 +377,7 @@ theorem ascPochhammerTransform_injective :
     Function.Injective (ascPochhammerTransform R) := by
   intro p q hpq
   by_contra hne
-  letI : Nontrivial R :=
+  let : Nontrivial R :=
     Polynomial.Nontrivial.of_polynomial_ne hne
   have hpq0 : p - q ≠ 0 := sub_ne_zero.mpr hne
   have hmap :
@@ -392,10 +392,7 @@ theorem ascPochhammerTransform_injective :
   have hmem :
       (p - q).natDegree ∈ (p - q).support :=
     Polynomial.natDegree_mem_support_of_nonzero hpq0
-  have hcoeff :
-      (p - q).coeff (p - q).natDegree ≠ 0 := by
-    exact Polynomial.mem_support_iff.mp hmem
-  exact hcoeff hc
+  exact (Polynomial.mem_support_iff.mp hmem) hc
 
 /-- The linear equivalence of `Polynomial R` that sends `X ^ n` to the ascending Pochhammer
 polynomial `ascPochhammer R n`. -/

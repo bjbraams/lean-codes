@@ -14,11 +14,11 @@ public import Mathlib.Analysis.Analytic.Polynomial
 -/
 
 open Complex MeasureTheory ProbabilityTheory MeasureTheory.Measure Set Filter
-open scoped Classical Topology
+open scoped Topology
 
 @[expose] public noncomputable section
 
-namespace DirichletTransform
+namespace Dirichlet
 
 variable {ι : Type*} [Fintype ι]
 
@@ -83,10 +83,12 @@ theorem regDirichletIntegral_monomial_mul
   have hae := MeasureTheory.Measure.ae_zero_lt_of_mem_stdSimplex (ι := ι)
   have hfun :
       (fun u : ι → ℝ ↦ regDirichletDensity b u * ∏ i, (u i : ℂ) ^ m i)
-        =ᵐ[(MeasureTheory.Measure.stdSimplexMeasure (ι := ι)).restrict (Convexity.StdSimplex.coordinateSet ℝ ι)]
+        =ᵐ[(MeasureTheory.Measure.stdSimplexMeasure (ι := ι)).restrict
+            (Convexity.StdSimplex.coordinateSet ℝ ι)]
       fun u ↦ mvPochhammer b m * regDirichletDensity b' u := by
     have hmem := self_mem_ae_restrict
-      (μ := MeasureTheory.Measure.stdSimplexMeasure) (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet
+      (μ := MeasureTheory.Measure.stdSimplexMeasure)
+          (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet
     filter_upwards [hmem, hae] with u hu hupos
     have hinter : u ∈ stdSimplexInterior := ⟨hu, hupos⟩
     rw [regDirichletDensity, regDirichletDensity,
@@ -199,7 +201,6 @@ theorem analyticOnNhd_regDirichletMonomialTransform (m : ι → ℕ) :
       Complex.differentiable_one_div_Gamma) _ (Set.mem_univ _)
   exact hp.mul (hGammaInv.comp_of_eq hs rfl)
 
-set_option backward.isDefEq.respectTransparency false in
 /-- The regularized Dirichlet polynomial transform is entire in all Dirichlet parameters. -/
 theorem differentiable_regDirichletMvPolynomialTransform (p : MvPolynomial ι ℂ) :
     Differentiable ℂ (regDirichletMvPolynomialTransform p) := by
@@ -214,7 +215,6 @@ theorem differentiable_regDirichletMvPolynomialTransform (p : MvPolynomial ι �
     (differentiable_const _).mul
       (differentiable_regDirichletMonomialTransform (m : ι → ℕ))
 
-set_option backward.isDefEq.respectTransparency false in
 /-- The regularized Dirichlet transform of a multivariate polynomial is analytic in all
 Dirichlet parameters. -/
 theorem analyticOnNhd_regDirichletMvPolynomialTransform (p : MvPolynomial ι ℂ) :
@@ -226,6 +226,6 @@ theorem analyticOnNhd_regDirichletMvPolynomialTransform (p : MvPolynomial ι ℂ
   exact analyticAt_const.mul
     (analyticOnNhd_regDirichletMonomialTransform (m : ι → ℕ) b (Set.mem_univ b))
 
-end DirichletTransform
+end Dirichlet
 
 end

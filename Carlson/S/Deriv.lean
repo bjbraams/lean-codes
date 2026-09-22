@@ -1,20 +1,40 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.S.Analytic
 
-/-! # Differentiation of the entire Carlson S-function -/
+/-!
+# Differentiation of the entire Carlson S-function
 
+Carlson's node differentiation formula for the analytically continued S-function, obtained
+from the termwise differentiation of its exponential series.
+
+## Main results
+
+* `Carlson.carlsonPartialDeriv_regCarlsonSSeries`: differentiation in the node `z i` of the
+  continued S-function raises the parameter `b i`.
+
+## References
+
+* [Carl77] B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
+-/
+
+open Dirichlet
 open Complex MeasureTheory ProbabilityTheory Filter Set
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- Carlson's differentiation formula for the analytically continued `S` function. -/
 theorem carlsonPartialDeriv_regCarlsonSSeries (i : ι) (z b : ι → ℂ) :
     carlsonPartialDeriv i (fun z => regCarlsonSSeries z b) z =
       b i * regCarlsonSSeries z (addDirichletUnit b i) := by
+  classical
   let F := fun q : Sum ι ι → ℂ =>
     regCarlsonSSeries (fun j => q (.inr j)) (fun j => q (.inl j))
   have hF : AnalyticOnNhd ℂ F Set.univ := analyticOnNhd_regCarlsonSSeries_joint
@@ -26,7 +46,9 @@ theorem carlsonPartialDeriv_regCarlsonSSeries (i : ι) (z b : ι → ℂ) :
     congr 1
     funext w
     dsimp only [F]
-    congr 1 <;> funext j <;> simp
+    congr 1
+    funext j
+    simp
   have hleft : AnalyticOnNhd ℂ
       (fun b => carlsonPartialDeriv i (fun z => regCarlsonSSeries z b) z) Set.univ := by
     simp_rw [hpartial]
@@ -60,4 +82,4 @@ theorem carlsonPartialDeriv_regCarlsonSSeries (i : ι) (z b : ι → ℂ) :
       regCarlsonSSeries_eq_regCarlsonSIntegral z (addDirichletUnit_mem_mvBetaConvergent hb i)])
   exact congrFun heq b
 
-end DirichletTransform
+end Carlson

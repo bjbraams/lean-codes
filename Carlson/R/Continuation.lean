@@ -17,9 +17,10 @@ recovers the regularized R-polynomials at natural exponents. The node-domain hyp
 an explicit argument: no continuation in the nodes or across the power's branch cut is claimed.
 -/
 
+open Dirichlet
 open Complex ProbabilityTheory
 @[expose] public noncomputable section CarlsonR
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- A candidate is an entire regularized continuation of Carlson's `R_t` if it agrees with the
@@ -110,8 +111,8 @@ theorem IsRegCarlsonRContinuation.eq_continued {t : ℂ} {z : ι → ℂ}
 the Dirichlet parameters.  Thus the general R-function continuation extends, rather than
 replaces, the polynomial theory of Section 5.7. -/
 theorem isRegCarlsonRContinuation_natCast (n : ℕ) (z : ι → ℂ) :
-    IsRegCarlsonRContinuation (n : ℂ) z (regCarlsonR n z) := by
-  refine ⟨analyticOnNhd_regCarlsonR n z, ?_⟩
+    IsRegCarlsonRContinuation (n : ℂ) z (regCarlsonRPolynomial n · z) := by
+  refine ⟨analyticOnNhd_regCarlsonRPolynomial n z, ?_⟩
   intro b hb
   exact (regCarlsonRIntegral_natCast n z hb).symm
 
@@ -120,14 +121,14 @@ regularized R-polynomial. -/
 theorem IsRegCarlsonRContinuation.eq_regCarlsonR_natCast
     {n : ℕ} {z : ι → ℂ} {G : (ι → ℂ) → ℂ}
     (hG : IsRegCarlsonRContinuation (n : ℂ) z G) :
-    G = regCarlsonR n z :=
+    G = (regCarlsonRPolynomial n · z) :=
   hG.eq (isRegCarlsonRContinuation_natCast n z)
 
 /-- At natural exponents the selected continuation recovers the existing R-polynomial. -/
 theorem regCarlsonRContinued_natCast (n : ℕ) {z : ι → ℂ}
     (hz : z ∈ carlsonRVariableDomain) :
-    regCarlsonRContinued (n : ℂ) z hz = regCarlsonR n z :=
+    regCarlsonRContinued (n : ℂ) z hz = (regCarlsonRPolynomial n · z) :=
   (isRegCarlsonRContinuation_continued (n : ℂ) hz).eq_regCarlsonR_natCast
 
-end DirichletTransform
+end Carlson
 end CarlsonR

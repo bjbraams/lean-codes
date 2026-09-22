@@ -1,24 +1,37 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
+public import Pochhammer.Estimates
 public import Carlson.TwoVariable.Quadratic.Polynomial
 public import Carlson.TwoVariable.R
 public import Carlson.TwoVariable.QuadraticSeries
 
-/-! # Native integral quadratic transformations -/
+/-!
+# Native integral quadratic transformations
 
+Carlson's quadratic transformations 6.9-3 and 6.10-1 for the native two-variable R-integral,
+on a common domain where all integrals converge absolutely. The proofs expand both sides in
+R-polynomial series about equal nodes and compare coefficients.
+
+## Main results
+
+* `Carlson.TwoVariable.rIntegral_firstQuadratic`: Transformation 6.9-3 for the native integral.
+* `Carlson.TwoVariable.rIntegral_secondQuadratic`: Transformation 6.10-1 for the native integral.
+
+## References
+
+* [Carl77] B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
+-/
+
+open Dirichlet
 open Complex MeasureTheory ProbabilityTheory Filter Set
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform.TwoVariable
-
-private lemma pochhammer_ne_zero_of_re_pos {c : ℂ} (hc : 0 < c.re) (n : ℕ) :
-    (ascPochhammer ℂ n).eval c ≠ 0 := by
-  rw [Ne, ascPochhammer_eval_eq_zero_iff]
-  rintro ⟨k, _, hk⟩
-  have h := congrArg Complex.re hk
-  simp only [natCast_re, neg_re] at h
-  linarith
+namespace Carlson.TwoVariable
 
 private lemma Gamma_mul_regRPolynomial (n : ℕ) (p q x y : ℂ)
     (hc : 0 < (p + q).re) :
@@ -32,7 +45,7 @@ private lemma Gamma_mul_regRPolynomial (n : ℕ) (p q x y : ℂ)
     linarith
   have hG := Gamma_add_nat_div_Gamma_eq (n := n) (p + q) hreg
   have hG0 := Gamma_ne_zero_of_re_pos hc
-  have hp0 := pochhammer_ne_zero_of_re_pos hc n
+  have hp0 := ascPochhammer_eval_ne_zero_of_re_pos hc n
   have hG' : Gamma (p + q + n) =
       (ascPochhammer ℂ n).eval (p + q) * Gamma (p + q) :=
     (div_eq_iff hG0).mp hG
@@ -48,8 +61,8 @@ private lemma Gamma_mul_regRPolynomial_even_opposite
   rw [Gamma_mul_regRPolynomial _ _ _ _ _ hb,
     numerator₂_even_opposite, show β + β = 2 * β by ring,
     ascPochhammer_eval_double]
-  have hp := pochhammer_ne_zero_of_re_pos hβ n
-  have hq := pochhammer_ne_zero_of_re_pos (c := β + 1 / 2) (by
+  have hp := ascPochhammer_eval_ne_zero_of_re_pos hβ n
+  have hq := ascPochhammer_eval_ne_zero_of_re_pos (c := β + 1 / 2) (by
     simp only [add_re, div_ofNat_re, one_re]; linarith) n
   field_simp
 
@@ -101,7 +114,7 @@ private lemma rIntegral_firstQuadratic_near_one (t β w : ℂ)
       have H := ascPochhammer_eval_double (1 / 2 : ℂ) n
       norm_num [ascPochhammer_eval_one] at H ⊢
       exact H
-    have hhalf := pochhammer_ne_zero_of_re_pos (c := (1 / 2 : ℂ)) (by norm_num) n
+    have hhalf := ascPochhammer_eval_ne_zero_of_re_pos (c := (1 / 2 : ℂ)) (by norm_num) n
     have hsum : β + t + (1 / 2 - t) = β + 1 / 2 := by ring
     have hsingle : Gamma ((β + t) + (1 / 2 - t)) *
         regRPolynomial n (β + t) (1 / 2 - t) 0 (w ^ 2) =
@@ -165,33 +178,26 @@ private lemma hasSum_rIntegral_opposite (t β v : ℂ)
         (Gamma (β + β) * regRPolynomial (2 * m) β β v (-v)) by ring,
     Gamma_mul_regRPolynomial_even_opposite m (β := β) (hb 0)]
 
-/-- Carlson's double-series proof of 6.10-1 near equal nodes. -/
-private lemma rIntegral_secondQuadratic_near_one (t β : ℂ)
-    (hbleft : pair β β ∈ mvBetaConvergent)
-    (hbright : pair (2 * β + t) (1 / 2 - β - t) ∈ mvBetaConvergent) :
-    (fun w => rIntegral t β β ((1 - w) ^ 2) ((1 + w) ^ 2)) =ᶠ[𝓝 0]
-      (fun w => rIntegral t (2 * β + t) (1 / 2 - β - t) 1 (1 - w ^ 2)) := by
+/-- The even factorial through the half-integer Pochhammer symbol:
+`(2m)! = 4^m (1/2)_m m!`. -/
+private lemma factorial_two_mul_eq_pow_mul_ascPochhammer (m : ℕ) :
+    ((2 * m).factorial : ℂ) = 4 ^ m * (ascPochhammer ℂ m).eval (1 / 2) * (m.factorial : ℂ) := by
+  have H := ascPochhammer_eval_double (1 / 2 : ℂ) m
+  norm_num [ascPochhammer_eval_one] at H ⊢
+  exact H
+
+/-- Left side of 6.10-1 near equal nodes: the R-integral at `(1 - w)^2, (1 + w)^2` is the sum
+of the row sums of the quadratic double series. -/
+private lemma hasSum_rIntegral_secondQuadratic_rows (t β w : ℂ)
+    (hbleft : pair β β ∈ mvBetaConvergent) (hw : ‖w‖ < 1)
+    (hd : 0 < (1 + w ^ 2 : ℂ).re) (hv : ‖2 * w / (1 + w ^ 2)‖ < 1) :
+    HasSum (fun m => ∑' k, quadraticSeriesCoeff (-t) (β + 1 / 2) m k * w ^ (2 * (m + k)))
+      (rIntegral t β β ((1 - w) ^ 2) ((1 + w) ^ 2)) := by
   have hc : 0 < (β + 1 / 2).re := by
     have hβ := hbleft 0
     change 0 < β.re at hβ
     simp only [add_re, div_ofNat_re, one_re]
     linarith
-  have hc' : 1 / 2 ≤ (β + 1 / 2).re := by
-    have hβ := hbleft 0
-    change 0 < β.re at hβ
-    simp only [add_re, div_ofNat_re, one_re]
-    linarith
-  have hw : ∀ᶠ w : ℂ in 𝓝 0, ‖w‖ < 1 :=
-    continuous_norm.continuousAt.eventually_lt_const (by simp)
-  have hdcont : ContinuousAt (fun w : ℂ => (1 + w ^ 2 : ℂ).re) 0 := by fun_prop
-  have hd : ∀ᶠ w : ℂ in 𝓝 0, 0 < (1 + w ^ 2 : ℂ).re :=
-    hdcont.eventually_const_lt (by simp)
-  have hv : ∀ᶠ w : ℂ in 𝓝 0, ‖2 * w / (1 + w ^ 2)‖ < 1 :=
-    (show ContinuousAt (fun w : ℂ => ‖2 * w / (1 + w ^ 2)‖) 0 by
-      fun_prop (disch := norm_num)).eventually_lt_const (by simp)
-  have hs : ∀ᶠ w : ℂ in 𝓝 0, 4 * (‖-t‖ + 1) * ‖w‖ < 1 / 2 :=
-    (show ContinuousAt (fun w : ℂ => 4 * (‖-t‖ + 1) * ‖w‖) 0 by fun_prop).eventually_lt_const (by simp)
-  filter_upwards [hw, hd, hv, hs] with w hw hd hv hs
   let d := 1 + w ^ 2
   let v := 2 * w / d
   have hd0 : d ≠ 0 := ne_zero_of_re_pos hd
@@ -208,41 +214,47 @@ private lemma rIntegral_secondQuadratic_near_one (t β : ℂ)
   have hscale := rIntegral_smul_of_re_pos t β β (1 - v) (1 + v) hd hnodes
   rw [hx, hy] at hscale
   rw [← hscale] at H
-  have hrows : HasSum (fun m => ∑' k, quadraticSeriesCoeff (-t) (β + 1 / 2) m k *
-      w ^ (2 * (m + k))) (rIntegral t β β ((1 - w) ^ 2) ((1 + w) ^ 2)) := by
-    convert! H using 1
-    ext m
-    rw [(hasSum_quadraticSeries_row (-t) (β + 1 / 2) w m hw).tsum_eq]
-    change _ / d ^ (-t + (2 * m : ℕ)) = _
-    rw [cpow_add _ _ hd0, cpow_neg, cpow_natCast]
-    have hfac : ((2 * m).factorial : ℂ) =
-        4 ^ m * (ascPochhammer ℂ m).eval (1 / 2) * (m.factorial : ℂ) := by
-      have H := ascPochhammer_eval_double (1 / 2 : ℂ) m
-      norm_num [ascPochhammer_eval_one] at H ⊢
-      exact H
-    have hfactorial (n : ℕ) : (n.factorial : ℂ) ≠ 0 := by exact_mod_cast Nat.factorial_ne_zero n
-    rw [hfac]
-    dsimp [v]
-    rw [div_pow, mul_pow, show (2 : ℂ) ^ (2 * m) = 4 ^ m by rw [pow_mul]; norm_num]
-    field_simp [hd0, hfactorial, pochhammer_ne_zero_of_re_pos hc m,
-      pochhammer_ne_zero_of_re_pos (c := (1 / 2 : ℂ)) (by norm_num) m]
-    rw [mul_div_mul_right _ _ (pochhammer_ne_zero_of_re_pos (c := (1 / 2 : ℂ)) (by norm_num) m)]
-  have hsum : (2 * β + t) + (1 / 2 - β - t) = β + 1 / 2 := by ring
-  have hright : HasSum (fun n =>
+  convert! H using 1
+  ext m
+  rw [(hasSum_quadraticSeries_row (-t) (β + 1 / 2) w m hw).tsum_eq]
+  change _ / d ^ (-t + (2 * m : ℕ)) = _
+  rw [cpow_add _ _ hd0, cpow_neg, cpow_natCast]
+  have hfactorial (n : ℕ) : (n.factorial : ℂ) ≠ 0 := by exact_mod_cast Nat.factorial_ne_zero n
+  rw [factorial_two_mul_eq_pow_mul_ascPochhammer]
+  dsimp [v]
+  rw [div_pow, mul_pow, show (2 : ℂ) ^ (2 * m) = 4 ^ m by rw [pow_mul]; norm_num]
+  field_simp [hd0, hfactorial, ascPochhammer_eval_ne_zero_of_re_pos hc m,
+    ascPochhammer_eval_ne_zero_of_re_pos (c := (1 / 2 : ℂ)) (by norm_num) m]
+  rw [mul_div_mul_right _ _ (ascPochhammer_eval_ne_zero_of_re_pos (c := (1 / 2 : ℂ))
+      (by norm_num) m)]
+
+/-- Right side of 6.10-1 near equal nodes: the R-integral at `1, 1 - w^2` is a
+hypergeometric series in `w^2`. -/
+private lemma hasSum_rIntegral_secondQuadratic_right (t β w : ℂ)
+    (hbright : pair (2 * β + t) (1 / 2 - β - t) ∈ mvBetaConvergent) (hw : ‖w‖ < 1) :
+    HasSum (fun n =>
       ((ascPochhammer ℂ n).eval (-t) * (ascPochhammer ℂ n).eval (-t + 1 - (β + 1 / 2)) /
         ((ascPochhammer ℂ n).eval (β + 1 / 2) * n.factorial)) * w ^ (2 * n))
       (rIntegral t (2 * β + t) (1 / 2 - β - t) 1 (1 - w ^ 2)) := by
-    have H := (hasSum_regCarlsonRIntegral_near_one (-t)
-      (pair (2 * β + t) (1 / 2 - β - t)) (pair 0 (w ^ 2)) hbright (by
-        intro i; fin_cases i
-        · simp [pair]
-        · simpa [pair, norm_pow] using pow_lt_one₀ (norm_nonneg w) hw (by decide : 2 ≠ 0)
-      )).mul_left (Gamma ((2 * β + t) + (1 / 2 - β - t)))
-    have hnodes : (fun i => 1 - pair 0 (w ^ 2) i) = pair 1 (1 - w ^ 2) := by
-      ext i; fin_cases i <;> simp [pair]
-    simp only [hnodes, neg_neg] at H
-    convert! H using 1
-    ext n
+  have hsum : (2 * β + t) + (1 / 2 - β - t) = β + 1 / 2 := by ring
+  have hc : 0 < (β + 1 / 2).re := by
+    have h0 := hbright 0
+    have h1 := hbright 1
+    change 0 < (2 * β + t).re at h0
+    change 0 < (1 / 2 - β - t).re at h1
+    rw [← hsum, add_re]
+    exact add_pos h0 h1
+  have H := (hasSum_regCarlsonRIntegral_near_one (-t)
+    (pair (2 * β + t) (1 / 2 - β - t)) (pair 0 (w ^ 2)) hbright (by
+      intro i; fin_cases i
+      · simp [pair]
+      · simpa [pair, norm_pow] using pow_lt_one₀ (norm_nonneg w) hw (by decide : 2 ≠ 0)
+    )).mul_left (Gamma ((2 * β + t) + (1 / 2 - β - t)))
+  have hnodes : (fun i => 1 - pair 0 (w ^ 2) i) = pair 1 (1 - w ^ 2) := by
+    ext i; fin_cases i <;> simp [pair]
+  simp only [hnodes, neg_neg] at H
+  convert! H using 1
+  · ext n
     have hp : Gamma ((2 * β + t) + (1 / 2 - β - t)) *
         regRPolynomial n (2 * β + t) (1 / 2 - β - t) 0 (w ^ 2) =
         (ascPochhammer ℂ n).eval (1 / 2 - β - t) * (w ^ 2) ^ n /
@@ -251,9 +263,34 @@ private lemma rIntegral_secondQuadratic_near_one (t β : ℂ)
         ← carlsonRPolynomialNumerator₂_swap, numerator₂_zero_right]
     rw [show -t + 1 - (β + 1 / 2) = 1 / 2 - β - t by ring, pow_mul]
     linear_combination -(ascPochhammer ℂ n).eval (-t) / (n.factorial : ℂ) * hp
-    all_goals simp only [rIntegral, carlsonRIntegral, sum_pair]
-  rw [← hrows.tsum_eq, tsum_quadraticSeries_eq (-t) (β + 1 / 2) w hc' hs]
-  exact hright.tsum_eq
+  · simp only [rIntegral, carlsonRIntegral, sum_pair]
+
+/-- Carlson's double-series proof of 6.10-1 near equal nodes. -/
+private lemma rIntegral_secondQuadratic_near_one (t β : ℂ)
+    (hbleft : pair β β ∈ mvBetaConvergent)
+    (hbright : pair (2 * β + t) (1 / 2 - β - t) ∈ mvBetaConvergent) :
+    (fun w => rIntegral t β β ((1 - w) ^ 2) ((1 + w) ^ 2)) =ᶠ[𝓝 0]
+      (fun w => rIntegral t (2 * β + t) (1 / 2 - β - t) 1 (1 - w ^ 2)) := by
+  have hc' : 1 / 2 ≤ (β + 1 / 2).re := by
+    have hβ := hbleft 0
+    change 0 < β.re at hβ
+    simp only [add_re, div_ofNat_re, one_re]
+    linarith
+  have hw : ∀ᶠ w : ℂ in 𝓝 0, ‖w‖ < 1 :=
+    continuous_norm.continuousAt.eventually_lt_const (by simp)
+  have hdcont : ContinuousAt (fun w : ℂ => (1 + w ^ 2 : ℂ).re) 0 := by fun_prop
+  have hd : ∀ᶠ w : ℂ in 𝓝 0, 0 < (1 + w ^ 2 : ℂ).re :=
+    hdcont.eventually_const_lt (by simp)
+  have hv : ∀ᶠ w : ℂ in 𝓝 0, ‖2 * w / (1 + w ^ 2)‖ < 1 :=
+    (show ContinuousAt (fun w : ℂ => ‖2 * w / (1 + w ^ 2)‖) 0 by
+      fun_prop (disch := norm_num)).eventually_lt_const (by simp)
+  have hs : ∀ᶠ w : ℂ in 𝓝 0, 4 * (‖-t‖ + 1) * ‖w‖ < 1 / 2 :=
+    (show ContinuousAt (fun w : ℂ => 4 * (‖-t‖ + 1) * ‖w‖)
+        0 by fun_prop).eventually_lt_const (by simp)
+  filter_upwards [hw, hd, hv, hs] with w hw hd hv hs
+  rw [← (hasSum_rIntegral_secondQuadratic_rows t β w hbleft hw hd hv).tsum_eq,
+    tsum_quadraticSeries_eq (-t) (β + 1 / 2) w hc' hs]
+  exact (hasSum_rIntegral_secondQuadratic_right t β w hbright hw).tsum_eq
 
 private lemma rIntegral_firstQuadratic_of_normalized (t β x y : ℂ)
     (hbleft : pair β β ∈ mvBetaConvergent)
@@ -472,4 +509,4 @@ theorem rIntegral_secondQuadratic (t β x y : ℂ)
     simpa only [neg_sq, hA, hG] using
       rIntegral_secondQuadratic_of_re_pos t β (-x) (-y) hbleft hbright hz' hx hy
 
-end DirichletTransform.TwoVariable
+end Carlson.TwoVariable

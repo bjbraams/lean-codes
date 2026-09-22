@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.R.JointRecurrence
@@ -15,10 +19,10 @@ slit-plane nodes. It is a concrete instance of Carlson (1987), Theorem 3.1, not
 yet that theorem for an arbitrary list of associated shifts.
 -/
 
+open Dirichlet
 open Complex Set
-open scoped Classical
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- Differentiation of a parameter-polynomial R-relation. The exponent convention
@@ -64,4 +68,4 @@ theorem sum_carlsonAssociatedRecurrenceJointPolynomial_mul_lSlit
     (fun a => by simpa only [sub_eq_add_neg] using
       sum_carlsonAssociatedRecurrenceJointPolynomial_mul_rSlit a b hz) a
 
-end DirichletTransform
+end Carlson

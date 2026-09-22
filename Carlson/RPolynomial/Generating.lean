@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.RPolynomial.Estimates
@@ -17,12 +21,14 @@ This file develops [Carl77, Section 6.6].  The scalar binomial series
 in `Pochhammer.BinomialSeries`.
 -/
 
+open Dirichlet
 open Complex Filter Finset
-open scoped Classical Topology Nat
+open scoped Topology Nat
 @[expose] public noncomputable section CarlsonRPolynomial
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
+open scoped Classical in
 /-- The Pochhammer-weighted multinomial coefficient of total degree `n` on a finite
 index set. -/
 def carlsonGeneratingCoeff (s : Finset ι) (b z : ι → ℂ) (n : ℕ) : ℂ :=
@@ -35,6 +41,7 @@ def carlsonGeneratingCoeff (s : Finset ι) (b z : ι → ℂ) (n : ℕ) : ℂ :=
 theorem carlsonRPolynomialNumerator_eq_sum_piAntidiag (n : ℕ) (b z : ι → ℂ) :
     carlsonRPolynomialNumerator n b z =
       carlsonGeneratingCoeff (univ : Finset ι) b z n := by
+  classical
   rw [carlsonRPolynomialNumerator_eq_multinomial_sum]
   rfl
 
@@ -42,6 +49,8 @@ theorem carlsonRPolynomialNumerator_eq_sum_piAntidiag (n : ℕ) (b z : ι → �
 def carlsonRGeneratingKernel (b z : ι → ℂ) (t : ℂ) : ℂ :=
   ∏ i, 1 / (1 - t * z i) ^ (b i)
 
+open scoped Classical in
+omit [Fintype ι] in
 /-- One antidiagonal slice of the Cauchy product for a `cons` generating coefficient. -/
 theorem carlsonGeneratingCoeff_cons_antidiag {s : Finset ι} {i : ι} (hi : i ∉ s)
     (b z : ι → ℂ) (t : ℂ) {k l n : ℕ} (hkl : k + l = n) :
@@ -135,6 +144,8 @@ theorem carlsonGeneratingCoeff_cons_antidiag {s : Finset ι} {i : ι} (hi : i �
     ring
   · simp [sum_mul]
 
+open scoped Classical in
+omit [Fintype ι] in
 /-- Adjoining one Carlson coordinate corresponds to the Cauchy product of generating
 series. -/
 theorem carlsonGeneratingCoeff_cons {s : Finset ι} {i : ι} (hi : i ∉ s)
@@ -166,14 +177,17 @@ theorem carlsonGeneratingCoeff_cons {s : Finset ι} {i : ι} (hi : i ∉ s)
   · rw [sum_div, mul_comm _ (t ^ n), ← sum_mul, mul_comm]
   · simp [carlsonGeneratingCoeff]
 
+omit [Fintype ι] in
 /-- The empty generating series is the constant series `1`. -/
 theorem carlsonGeneratingCoeff_empty (b z : ι → ℂ) (n : ℕ) :
     carlsonGeneratingCoeff (∅ : Finset ι) b z n = if n = 0 then 1 else 0 := by
+  classical
   unfold carlsonGeneratingCoeff
   cases n with
   | zero => simp [Nat.multinomial_empty]
   | succ n => simp [piAntidiag_empty_of_ne_zero (Nat.succ_ne_zero n)]
 
+omit [Fintype ι] in
 /-- The generating series attached to a subset of the Carlson coordinates. -/
 theorem hasSum_carlsonGeneratingCoeff (s : Finset ι) (b z : ι → ℂ) (t : ℂ)
     (ht : ∀ i ∈ s, ‖t * z i‖ < 1) :
@@ -270,5 +284,5 @@ theorem summable_carlsonRPolynomialNumerator_div_factorial (b z : ι → ℂ) (t
 
 The theorem above records its parameter-robust numerator form. -/
 
-end DirichletTransform
+end Carlson
 end CarlsonRPolynomial

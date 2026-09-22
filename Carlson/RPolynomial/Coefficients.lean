@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.RPolynomial.Basic
@@ -12,10 +16,10 @@ public import Mathlib.Data.Nat.Choose.Multinomial
 Home for Carlson's Section 6.2: multi-index coefficients, zero specializations, and termination.
 -/
 
+open Dirichlet
 open Complex Finset
-open scoped Classical
 @[expose] public noncomputable section CarlsonRPolynomial
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- The coefficient form of the multinomial theorem for Carlson's homogeneous power
@@ -186,6 +190,7 @@ theorem regCarlsonRPolynomial_eq_numerator_mul_one_div_Gamma
   rw [hp]
   simp [regDirichletMvPolynomialTransform]
 
+open scoped Classical in
 /-- Reindexing the degree-`n` Finsupp antidiagonal along `Finsupp.equivFunOnFinite`. -/
 theorem map_equivFunOnFinite_piAntidiag_univ (n : ℕ) :
     (piAntidiag (univ : Finset ι) n).map
@@ -203,6 +208,7 @@ theorem map_equivFunOnFinite_piAntidiag_univ (n : ℕ) :
     refine ⟨(m : ι → ℕ), ⟨hsum, fun _ _ => mem_univ _⟩, ?_⟩
     exact Finsupp.equivFunOnFinite.symm_apply_apply m
 
+open scoped Classical in
 /-- The Pochhammer numerator is the complete degree-`n` multinomial expansion. -/
 theorem carlsonRPolynomialNumerator_eq_multinomial_sum (n : ℕ) (b z : ι → ℂ) :
     carlsonRPolynomialNumerator n b z =
@@ -267,8 +273,8 @@ theorem analyticAt_regCarlsonR_comp
     {x : E} {b z : E → ι → ℂ}
     (hb : ∀ i, AnalyticAt ℂ (fun y => b y i) x)
     (hz : ∀ i, AnalyticAt ℂ (fun y => z y i) x) (n : ℕ) :
-    AnalyticAt ℂ (fun y => regCarlsonR n (z y) (b y)) x := by
-  simp only [regCarlsonR, regCarlsonRPolynomial_eq_numerator_mul_one_div_Gamma,
+    AnalyticAt ℂ (fun y => regCarlsonRPolynomial n (b y) (z y)) x := by
+  simp only [regCarlsonRPolynomial_eq_numerator_mul_one_div_Gamma,
     carlsonRPolynomialNumerator_eq_multinomial_sum]
   apply AnalyticAt.mul
   · apply Finset.analyticAt_fun_sum
@@ -279,7 +285,8 @@ theorem analyticAt_regCarlsonR_comp
         (Set.mem_univ _)).comp (hb i))
   · have hsum : AnalyticAt ℂ (fun y => (∑ i, b y i) + n) x :=
       (Finset.analyticAt_fun_sum _ (fun i _ => hb i)).add analyticAt_const
-    exact (Complex.differentiable_one_div_Gamma.analyticAt (z := (∑ i, b x i) + n)).comp_of_eq hsum rfl
+    exact (Complex.differentiable_one_div_Gamma.analyticAt (z := (∑ i,
+        b x i) + n)).comp_of_eq hsum rfl
 
-end DirichletTransform
+end Carlson
 end CarlsonRPolynomial

@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.R.SlitJointAnalytic
@@ -15,10 +19,11 @@ the product slit plane. Joint holomorphy of a node derivative permits continuati
 first in the parameters, then in the nodes. No L-function theory is used.
 -/
 
+open Dirichlet
 open Complex Filter Set
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- A coordinate derivative of R is jointly holomorphic in all its arguments. -/
@@ -27,6 +32,7 @@ theorem analyticOnNhd_carlsonPartialDeriv_regCarlsonRSlit_joint (i : ι) :
       carlsonPartialDeriv i (regCarlsonRSlit (p none) (fun j => p (some (.inl j))))
         (fun j => p (some (.inr j))))
       {p | (fun j => p (some (.inr j))) ∈ carlsonRSlitDomain} := by
+  classical
   have h := analyticOnNhd_regCarlsonRSlit_joint (ι := ι) |>.partialDeriv
     (isOpen_carlsonRSlitDomain.preimage (by fun_prop)) (some (Sum.inr i))
   have heq : SeveralComplexVariables.partialDeriv (some (Sum.inr i))
@@ -44,6 +50,8 @@ theorem analyticOnNhd_carlsonPartialDeriv_regCarlsonRSlit_joint (i : ι) :
     simp [Function.update_apply]
   rwa [heq] at h
 
+/-- Composition rule for a node derivative of the regularized slit R-function along analytic
+exponent, parameter, and node maps. -/
 theorem analyticAt_carlsonPartialDeriv_regCarlsonRSlit_comp
     {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
     {t : E → ℂ} {b z : E → ι → ℂ} {p : E}
@@ -51,21 +59,22 @@ theorem analyticAt_carlsonPartialDeriv_regCarlsonRSlit_comp
     (hslit : z p ∈ carlsonRSlitDomain) (i : ι) :
     AnalyticAt ℂ (fun q => carlsonPartialDeriv i (regCarlsonRSlit (t q) (b q)) (z q)) p := by
   let f : E → Option (ι ⊕ ι) → ℂ := fun q k => k.elim (t q) (Sum.elim (b q) (z q))
-  have hf : AnalyticAt ℂ f p := by
-    apply analyticAt_pi_iff.mpr
-    intro k
+  suffices hf : AnalyticAt ℂ f p from
+    (analyticOnNhd_carlsonPartialDeriv_regCarlsonRSlit_joint i (f p) hslit).comp_of_eq hf rfl
+  apply analyticAt_pi_iff.mpr
+  intro k
+  cases k with
+  | none => exact ht
+  | some k =>
     cases k with
-    | none => exact ht
-    | some k =>
-      cases k with
-      | inl j => exact (analyticAt_pi_iff.mp hb) j
-      | inr j => exact (analyticAt_pi_iff.mp hz) j
-  exact (analyticOnNhd_carlsonPartialDeriv_regCarlsonRSlit_joint i (f p) hslit).comp_of_eq hf rfl
+    | inl j => exact (analyticAt_pi_iff.mp hb) j
+    | inr j => exact (analyticAt_pi_iff.mp hz) j
 
 private theorem partialDeriv_regCarlsonRSlit_of_right (t : ℂ) (b : ι → ℂ)
     {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain) (i : ι) :
     carlsonPartialDeriv i (regCarlsonRSlit t b) z =
       t * b i * regCarlsonRSlit (t - 1) (addDirichletUnit b i) z := by
+  classical
   have hz' := carlsonRVariableDomain_subset_slitDomain hz
   have hleft : AnalyticOnNhd ℂ (fun b => carlsonPartialDeriv i (regCarlsonRSlit t b) z) univ :=
     fun _ _ => analyticAt_carlsonPartialDeriv_regCarlsonRSlit_comp
@@ -102,6 +111,7 @@ theorem carlsonPartialDeriv_regCarlsonRSlit (t : ℂ) (b : ι → ℂ)
     {z : ι → ℂ} (hz : z ∈ carlsonRSlitDomain) (i : ι) :
     carlsonPartialDeriv i (regCarlsonRSlit t b) z =
       t * b i * regCarlsonRSlit (t - 1) (addDirichletUnit b i) z := by
+  classical
   have hleft : AnalyticOnNhd ℂ (carlsonPartialDeriv i (regCarlsonRSlit t b)) carlsonRSlitDomain :=
     (analyticOnNhd_regCarlsonRSlit t b).partialDeriv isOpen_carlsonRSlitDomain i
   have hright : AnalyticOnNhd ℂ (fun w =>
@@ -110,6 +120,7 @@ theorem carlsonPartialDeriv_regCarlsonRSlit (t : ℂ) (b : ι → ℂ)
   exact eqOn_carlsonRSlitDomain_of_eqOn_rightHalfPlane hleft hright
     (fun _ hw => partialDeriv_regCarlsonRSlit_of_right t b hw i) hz
 
+open scoped Classical in
 /-- The first derivative as a one-variable slice, without a convergence hypothesis. -/
 theorem hasDerivAt_regCarlsonRSlit_update (t : ℂ) (b : ι → ℂ)
     {z : ι → ℂ} (hz : z ∈ carlsonRSlitDomain) (i : ι) :
@@ -126,13 +137,15 @@ theorem carlsonPartialDeriv_carlsonPartialDeriv_regCarlsonRSlit
     carlsonPartialDeriv i (carlsonPartialDeriv j (regCarlsonRSlit t b)) z =
       t * b j * ((t - 1) * addDirichletUnit b j i *
         regCarlsonRSlit (t - 2) (addDirichletUnit (addDirichletUnit b j) i) z) := by
+  classical
   have heq : carlsonPartialDeriv j (regCarlsonRSlit t b) =ᶠ[nhds z]
       (fun w => t * b j * regCarlsonRSlit (t - 1) (addDirichletUnit b j) w) := by
     filter_upwards [isOpen_carlsonRSlitDomain.mem_nhds hz] with w hw
     exact carlsonPartialDeriv_regCarlsonRSlit t b hw j
   rw [carlsonPartialDeriv_eq_partialDeriv,
     SeveralComplexVariables.partialDeriv_congr heq i]
-  have h := (hasDerivAt_regCarlsonRSlit_update (t - 1) (addDirichletUnit b j) hz i).const_mul (t * b j)
+  have h := (hasDerivAt_regCarlsonRSlit_update (t - 1) (addDirichletUnit b j)
+      hz i).const_mul (t * b j)
   simpa only [SeveralComplexVariables.partialDeriv, show t - 1 - 1 = t - 2 by ring] using! h.deriv
 
 /-- The translation differential identity of Theorem 5.9-2 on the full domain. -/
@@ -159,6 +172,7 @@ theorem hasDerivAt_regCarlsonRSlit_translate (t : ℂ) (b z : ι → ℂ) {x : �
     (hx : (fun i => x + z i) ∈ carlsonRSlitDomain) :
     HasDerivAt (fun y => regCarlsonRSlit t b (fun i => y + z i))
       (t * regCarlsonRSlit (t - 1) b (fun i => x + z i)) x := by
+  classical
   have hd := (analyticOnNhd_regCarlsonRSlit t b _ hx).differentiableAt
   have hvec : HasDerivAt (fun y : ℂ => fun i => y + z i) (fun _ => 1) x :=
     hasDerivAt_pi.mpr fun i => (hasDerivAt_id x).add_const (z i)
@@ -176,4 +190,4 @@ theorem mul_carlsonPartialDeriv_add_mul_regCarlsonRSlit (t : ℂ) (b : ι → �
   rw [carlsonPartialDeriv_regCarlsonRSlit t b hz]
   linear_combination b i * regCarlsonRSlit_eq_addDirichletUnit t b hz i
 
-end DirichletTransform
+end Carlson

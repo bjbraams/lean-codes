@@ -14,10 +14,19 @@ public import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
 
 import StdSimplexMeasure.ProdSlices
 
-/-! # Solid simplex integration by coordinate sum -/
+/-!
+# Solid simplex integration by coordinate sum
+
+The pushforward of Lebesgue measure on a solid simplex along the coordinate-sum map: a
+nonnegative integral over the solid simplex of a function of the coordinate sum reduces to a
+one-dimensional integral with the power weight `s ^ (n - 1) / (n - 1)!`.
+
+## Main results
+
+* `lintegral_posSimplexFin_comp_sum`, `lintegral_posSimplex_comp_sum`.
+-/
 
 open MeasureTheory
-open scoped Classical
 
 @[expose] public noncomputable section
 
@@ -82,7 +91,86 @@ lemma lintegral_Icc_triangle_swap (r : ℝ) (_hr : 0 ≤ r)
   rw [hleft, hright]
   exact lintegral_lintegral_swap hG.aemeasurable
 
-/-- Pushing the positive `Fin n`-simplex forward under the coordinate-sum map. -/
+/-- Splitting the zeroth coordinate off a positive `Fin (n + 1)`-simplex: the integral of a
+function of the coordinate sum is an iterated integral over the zeroth coordinate `t` and the
+positive `Fin n`-simplex of radius `r - t`. -/
+theorem lintegral_posSimplexFin_succ_comp_sum (n : ℕ) (r : ℝ) (g : ℝ → ENNReal)
+    (hg : Measurable g) :
+    ∫⁻ x in posSimplexFin (n + 1) r, g (∑ i, x i) =
+      ∫⁻ t in Set.Icc (0 : ℝ) r, ∫⁻ y in posSimplexFin n (r - t), g (t + ∑ i, y i) := by
+  let e : (Fin (n + 1) → ℝ) ≃ᵐ ℝ × (Fin n → ℝ) :=
+    MeasurableEquiv.piFinSuccAbove (fun _ : Fin (n + 1) => ℝ) 0
+  let T := posSimplexFinSuccSlices n r
+  have hT : MeasurableSet T := measurableSet_posSimplexFinSuccSlices n r
+  have he : e '' posSimplexFin (n + 1) r = T := image_posSimplexFin_piFinSuccAbove n r
+  have hpre : e ⁻¹' T = posSimplexFin (n + 1) r :=
+    (Set.preimage_eq_iff_eq_image e.bijective).2 he.symm
+  have hmp := volume_preserving_piFinSuccAbove (fun _ : Fin (n + 1) => ℝ) 0
+  have hgT : Measurable fun p : ℝ × (Fin n → ℝ) => g (p.1 + ∑ i, p.2 i) := by
+    fun_prop
+  have hsum_e (p : ℝ × (Fin n → ℝ)) : ∑ i, e.symm p i = p.1 + ∑ i, p.2 i := by
+    have hp := e.apply_symm_apply p
+    have hp1 : e.symm p 0 = p.1 := congrArg Prod.fst hp
+    have hp2 : (fun i => e.symm p (Fin.succ i)) = p.2 := congrArg Prod.snd hp
+    rw [Fin.sum_univ_succ, hp1, hp2]
+  calc
+    ∫⁻ x in posSimplexFin (n + 1) r, g (∑ i, x i) = ∫⁻ x in e ⁻¹' T, g (∑ i, x i) := by
+      rw [hpre]
+    _ = ∫⁻ p in T, g (∑ i, e.symm p i) := by
+      refine Eq.trans ?_
+        (hmp.setLIntegral_comp_preimage_emb e.measurableEmbedding
+          (fun p => g (∑ i, e.symm p i)) T)
+      apply setLIntegral_congr_fun (hpre ▸ measurableSet_posSimplexFin (n + 1) r)
+      intro x _
+      congr 1
+      exact (e.symm_apply_apply x).symm
+    _ = ∫⁻ p in T, g (p.1 + ∑ i, p.2 i) := by
+      apply setLIntegral_congr_fun hT
+      intro p _
+      exact congrArg g (hsum_e p)
+    _ = ∫⁻ t, ∫⁻ y in Prod.mk t ⁻¹' T, g (t + ∑ i, y i) := by
+      rw [Measure.volume_eq_prod]
+      exact setLIntegral_prod_slices T hT _ hgT.aemeasurable
+    _ = _ := by
+      rw [← lintegral_indicator measurableSet_Icc]
+      apply lintegral_congr
+      intro t
+      by_cases ht : t ∈ Set.Icc (0 : ℝ) r
+      · rw [Set.indicator_of_mem ht, preimage_posSimplexFinSuccSlices_of_mem n r t ht]
+      · rw [Set.indicator_of_notMem ht,
+          preimage_posSimplexFinSuccSlices_eq_empty_of_not_mem n r t ht, setLIntegral_empty]
+
+/-- The positive `Fin 0`-simplex of nonnegative radius is a single point of mass one. -/
+theorem lintegral_posSimplexFin_zero_comp_sum {r : ℝ} (hr : 0 ≤ r) (g : ℝ → ENNReal) (t : ℝ) :
+    ∫⁻ y in posSimplexFin 0 r, g (t + ∑ i, y i) = g t := by
+  have huniv : posSimplexFin 0 r = Set.univ := by
+    ext y
+    simp [posSimplexFin, hr]
+  rw [huniv, Measure.restrict_univ, Measure.volume_pi_eq_dirac, lintegral_dirac]
+  simp
+
+/-- Translating the integration variable in a shifted beta-type integral. -/
+theorem lintegral_Icc_comp_add_left_mul_pow (g : ℝ → ENNReal) (hg : Measurable g) (m : ℕ)
+    (r t : ℝ) :
+    ∫⁻ σ in Set.Icc (0 : ℝ) (r - t), g (t + σ) * (ENNReal.ofReal σ ^ m / Nat.factorial m) =
+      ∫⁻ s in Set.Icc t r, g s * (ENNReal.ofReal (s - t) ^ m / Nat.factorial m) := by
+  have hmp' := measurePreserving_add_left (volume : Measure ℝ) t
+  have hpre : (fun σ : ℝ => t + σ) ⁻¹' Set.Icc t r = Set.Icc (0 : ℝ) (r - t) := by
+    ext σ
+    constructor
+    · intro h
+      simp only [Set.mem_preimage, Set.mem_Icc] at h ⊢
+      exact ⟨by linarith, by linarith⟩
+    · intro h
+      simp only [Set.mem_preimage, Set.mem_Icc] at h ⊢
+      exact ⟨by linarith, by linarith⟩
+  have := hmp'.setLIntegral_comp_preimage (s := Set.Icc t r) measurableSet_Icc
+    (f := fun s => g s * (ENNReal.ofReal (s - t) ^ m / Nat.factorial m)) (by fun_prop)
+  simpa [hpre] using this
+
+/-- Pushing the positive `Fin n`-simplex forward under the coordinate-sum map. The proof is an
+induction on `n`, splitting off the zeroth coordinate and integrating the inductive power
+weight over the triangle `0 ≤ t ≤ s ≤ r`. -/
 theorem lintegral_posSimplexFin_comp_sum (n : ℕ) (hn : 0 < n) (r : ℝ) (hr : 0 ≤ r)
     (g : ℝ → ENNReal) (hg : Measurable g) :
     ∫⁻ x in posSimplexFin n r, g (∑ i, x i) =
@@ -92,123 +180,43 @@ theorem lintegral_posSimplexFin_comp_sum (n : ℕ) (hn : 0 < n) (r : ℝ) (hr : 
   | zero =>
       exact (Nat.not_lt_zero _ hn).elim
   | succ n ih =>
-      let e : (Fin (n + 1) → ℝ) ≃ᵐ ℝ × (Fin n → ℝ) :=
-        MeasurableEquiv.piFinSuccAbove (fun _ : Fin (n + 1) => ℝ) 0
-      let T := posSimplexFinSuccSlices n r
-      have hT : MeasurableSet T := measurableSet_posSimplexFinSuccSlices n r
-      have he : e '' posSimplexFin (n + 1) r = T :=
-        image_posSimplexFin_piFinSuccAbove n r
-      have hpre : e ⁻¹' T = posSimplexFin (n + 1) r := by
-        exact (Set.preimage_eq_iff_eq_image e.bijective).2 he.symm
-      have hmp := volume_preserving_piFinSuccAbove
-        (fun _ : Fin (n + 1) => ℝ) 0
-      have hgT : Measurable fun p : ℝ × (Fin n → ℝ) => g (p.1 + ∑ i, p.2 i) := by
-        fun_prop
-      have hsum_e (p : ℝ × (Fin n → ℝ)) :
-          ∑ i, e.symm p i = p.1 + ∑ i, p.2 i := by
-        have hp := e.apply_symm_apply p
-        have hp1 : e.symm p 0 = p.1 := congrArg Prod.fst hp
-        have hp2 : (fun i => e.symm p (Fin.succ i)) = p.2 := congrArg Prod.snd hp
-        rw [Fin.sum_univ_succ, hp1, hp2]
-      calc
-        ∫⁻ x in posSimplexFin (n + 1) r, g (∑ i, x i) =
-            ∫⁻ x in e ⁻¹' T, g (∑ i, x i) := by rw [hpre]
-        _ = ∫⁻ p in T, g (∑ i, e.symm p i) := by
-          refine Eq.trans ?_
-            (hmp.setLIntegral_comp_preimage_emb e.measurableEmbedding
-              (fun p => g (∑ i, e.symm p i)) T)
-          apply setLIntegral_congr_fun (hpre ▸ measurableSet_posSimplexFin (n + 1) r)
-          intro x _
-          congr 1
-          exact (e.symm_apply_apply x).symm
-        _ = ∫⁻ p in T, g (p.1 + ∑ i, p.2 i) := by
-          apply setLIntegral_congr_fun hT
-          intro p _
-          exact congrArg g (hsum_e p)
-        _ = ∫⁻ t, ∫⁻ y in Prod.mk t ⁻¹' T, g (t + ∑ i, y i) := by
-          rw [Measure.volume_eq_prod]
-          exact setLIntegral_prod_slices T hT _ hgT.aemeasurable
-        _ = ∫⁻ t in Set.Icc (0 : ℝ) r,
-              ∫⁻ y in posSimplexFin n (r - t), g (t + ∑ i, y i) := by
-          rw [← lintegral_indicator measurableSet_Icc]
-          apply lintegral_congr
-          intro t
-          by_cases ht : t ∈ Set.Icc (0 : ℝ) r
-          · rw [Set.indicator_of_mem ht, preimage_posSimplexFinSuccSlices_of_mem n r t ht]
-          · rw [Set.indicator_of_notMem ht,
-              preimage_posSimplexFinSuccSlices_eq_empty_of_not_mem n r t ht, setLIntegral_empty]
-        _ = ∫⁻ s in Set.Icc (0 : ℝ) r,
-              g s * (ENNReal.ofReal s ^ n / Nat.factorial n) := by
-          cases n with
-          | zero =>
-              have hinner (t : ℝ) (ht : t ∈ Set.Icc (0 : ℝ) r) :
-                  ∫⁻ y in posSimplexFin 0 (r - t), g (t + ∑ i, y i) = g t := by
-                have hr't : 0 ≤ r - t := sub_nonneg.mpr ht.2
-                have huniv : posSimplexFin 0 (r - t) = Set.univ := by
-                  ext y
-                  simp [posSimplexFin, hr't]
-                rw [huniv, Measure.restrict_univ, Measure.volume_pi_eq_dirac, lintegral_dirac]
-                simp
-              apply setLIntegral_congr_fun measurableSet_Icc
-              intro t ht
-              change ∫⁻ y in posSimplexFin 0 (r - t), g (t + ∑ i, y i) =
-                g t * (ENNReal.ofReal t ^ 0 / Nat.factorial 0)
-              rw [hinner t ht]
-              simp
-          | succ m =>
-              have hn' : 0 < m + 1 := Nat.succ_pos _
-              have hinner (t : ℝ) (ht : t ∈ Set.Icc (0 : ℝ) r) :
-                  ∫⁻ y in posSimplexFin (m + 1) (r - t), g (t + ∑ i, y i) =
-                    ∫⁻ σ in Set.Icc (0 : ℝ) (r - t),
-                      g (t + σ) *
-                        (ENNReal.ofReal σ ^ m / Nat.factorial m) := by
-                have hr't : 0 ≤ r - t := sub_nonneg.mpr ht.2
-                simpa using ih hn' (r - t) hr't (fun σ => g (t + σ)) (by fun_prop)
-              have hshift (t : ℝ) (ht : t ∈ Set.Icc (0 : ℝ) r) :
-                  ∫⁻ σ in Set.Icc (0 : ℝ) (r - t),
-                      g (t + σ) *
-                        (ENNReal.ofReal σ ^ m / Nat.factorial m) =
-                    ∫⁻ s in Set.Icc t r,
-                      g s *
-                        (ENNReal.ofReal (s - t) ^ m / Nat.factorial m) := by
-                have hr't : 0 ≤ r - t := sub_nonneg.mpr ht.2
-                have hmp' := measurePreserving_add_left (volume : Measure ℝ) t
-                have hpre : (fun σ : ℝ => t + σ) ⁻¹' Set.Icc t r =
-                    Set.Icc (0 : ℝ) (r - t) := by
-                  ext σ
-                  constructor
-                  · intro h
-                    simp only [Set.mem_preimage, Set.mem_Icc] at h ⊢
-                    exact ⟨by linarith, by linarith⟩
-                  · intro h
-                    simp only [Set.mem_preimage, Set.mem_Icc] at h ⊢
-                    exact ⟨by linarith, by linarith⟩
-                have := hmp'.setLIntegral_comp_preimage (s := Set.Icc t r)
-                  measurableSet_Icc (f := fun s =>
-                    g s * (ENNReal.ofReal (s - t) ^ m / Nat.factorial m)) (by fun_prop)
-                simpa [hpre] using this
-              trans ∫⁻ t in Set.Icc (0 : ℝ) r, ∫⁻ s in Set.Icc t r,
-                  g s * (ENNReal.ofReal (s - t) ^ m / Nat.factorial m)
-              · apply setLIntegral_congr_fun measurableSet_Icc
-                intro t ht
-                exact (hinner t ht).trans (hshift t ht)
-              · have hF : Measurable (Function.uncurry fun t s : ℝ =>
-                    g s * (ENNReal.ofReal (s - t) ^ m / Nat.factorial m)) := by
-                  fun_prop
-                rw [lintegral_Icc_triangle_swap r hr _ hF]
-                apply setLIntegral_congr_fun measurableSet_Icc
-                intro s hs
-                have hs0 : 0 ≤ s := hs.1
-                have hinter := lintegral_Icc_sub_pow_div_factorial m s hs0
-                calc
-                  ∫⁻ t in Set.Icc (0 : ℝ) s,
-                      g s * (ENNReal.ofReal (s - t) ^ m / Nat.factorial m) =
-                      g s * ∫⁻ t in Set.Icc (0 : ℝ) s,
-                        ENNReal.ofReal (s - t) ^ m / Nat.factorial m := by
-                    rw [lintegral_const_mul]
-                    fun_prop
-                  _ = g s * (ENNReal.ofReal s ^ (m + 1) / Nat.factorial (m + 1)) := by
-                    rw [hinter]
+      rw [lintegral_posSimplexFin_succ_comp_sum n r g hg]
+      cases n with
+      | zero =>
+          apply setLIntegral_congr_fun measurableSet_Icc
+          intro t ht
+          change ∫⁻ y in posSimplexFin 0 (r - t), g (t + ∑ i, y i) =
+            g t * (ENNReal.ofReal t ^ 0 / Nat.factorial 0)
+          rw [lintegral_posSimplexFin_zero_comp_sum (sub_nonneg.mpr ht.2)]
+          simp
+      | succ m =>
+          change _ = ∫⁻ s in Set.Icc (0 : ℝ) r,
+            g s * (ENNReal.ofReal s ^ (m + 1) / Nat.factorial (m + 1))
+          have hinner (t : ℝ) (ht : t ∈ Set.Icc (0 : ℝ) r) :
+              ∫⁻ y in posSimplexFin (m + 1) (r - t), g (t + ∑ i, y i) =
+                ∫⁻ s in Set.Icc t r,
+                  g s * (ENNReal.ofReal (s - t) ^ m / Nat.factorial m) := by
+            rw [← lintegral_Icc_comp_add_left_mul_pow g hg m r t]
+            simpa using ih (Nat.succ_pos _) (r - t) (sub_nonneg.mpr ht.2)
+              (fun σ => g (t + σ)) (by fun_prop)
+          trans ∫⁻ t in Set.Icc (0 : ℝ) r, ∫⁻ s in Set.Icc t r,
+              g s * (ENNReal.ofReal (s - t) ^ m / Nat.factorial m)
+          · exact setLIntegral_congr_fun measurableSet_Icc hinner
+          · have hF : Measurable (Function.uncurry fun t s : ℝ =>
+                g s * (ENNReal.ofReal (s - t) ^ m / Nat.factorial m)) := by
+              fun_prop
+            rw [lintegral_Icc_triangle_swap r hr _ hF]
+            apply setLIntegral_congr_fun measurableSet_Icc
+            intro s hs
+            calc
+              ∫⁻ t in Set.Icc (0 : ℝ) s,
+                  g s * (ENNReal.ofReal (s - t) ^ m / Nat.factorial m) =
+                  g s * ∫⁻ t in Set.Icc (0 : ℝ) s,
+                    ENNReal.ofReal (s - t) ^ m / Nat.factorial m := by
+                rw [lintegral_const_mul]
+                fun_prop
+              _ = g s * (ENNReal.ofReal s ^ (m + 1) / Nat.factorial (m + 1)) := by
+                rw [lintegral_Icc_sub_pow_div_factorial m s hs.1]
 
 /-- Pushing an arbitrary finite-dimensional positive simplex forward under the coordinate-sum
 map. Requires a nonempty index type so that the exponent `card α - 1` is well-defined. -/

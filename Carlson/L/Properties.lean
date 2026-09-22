@@ -17,10 +17,10 @@ restriction on Dirichlet parameters. Positive real scaling preserves the
 principal branch and the right-half-plane node domain.
 -/
 
+open Dirichlet
 open Complex ProbabilityTheory
-open scoped Classical
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- Equation (2.4): equal nodes may be aggregated by any surjective partition. -/
@@ -84,7 +84,8 @@ theorem regCarlsonLContinued_const (t w : ℂ) (hw : w ∈ carlsonRightHalfPlane
 
 /-- The all-one node vector gives zero for every exponent and parameter. -/
 @[simp] theorem regCarlsonLContinued_one (t : ℂ) (b : ι → ℂ) :
-    regCarlsonLContinued t (fun _ : ι => 1) (fun _ => by norm_num [carlsonRightHalfPlane]) b = 0 := by
+    regCarlsonLContinued t (fun _ : ι => 1) (fun _ => by
+        norm_num [carlsonRightHalfPlane]) b = 0 := by
   simpa using regCarlsonLContinued_const t 1 (by norm_num [carlsonRightHalfPlane]) b
 
 /-- The empty-index native integral vanishes. -/
@@ -149,5 +150,5 @@ theorem regCarlsonLContinued_smul_of_pos (t : ℂ) (b : ι → ℂ)
     regCarlsonRContinued_eq_integral _ _ hb]
   exact regCarlsonLIntegral_smul_of_pos t hb hz ha
 
-end DirichletTransform
+end Carlson
 end

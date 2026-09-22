@@ -5,7 +5,11 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Algebra
+public import Analysis
+public import Topology
 public import Pochhammer
+public import ComplexAnalysis
 public import SeveralComplexVariables
 public import StdSimplexMeasure
 public import Dirichlet

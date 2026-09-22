@@ -25,11 +25,10 @@ in Chapter 6.
 -/
 
 open Complex MeasureTheory MeasureTheory.Measure ProbabilityTheory
-open scoped Classical
 
 @[expose] public noncomputable section CarlsonDirichletAverage
 
-namespace DirichletTransform
+namespace Dirichlet
 
 variable {ι : Type*} [Fintype ι]
 
@@ -73,7 +72,8 @@ does not change that affine form. -/
     Equiv.sum_comp σ (fun i ↦ (u i : ℂ) * z i)
 
 /-- The affine form of a constant parameter vector is constant on the standard simplex. -/
-theorem carlsonAffineForm_const {u : ι → ℝ} (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι) (w : ℂ) :
+theorem carlsonAffineForm_const {u : ι → ℝ} (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι)
+    (w : ℂ) :
     carlsonAffineForm (fun _ ↦ w) u = w := by
   rw [carlsonAffineForm, ← Finset.sum_mul]
   have hsum : ∑ i, (u i : ℂ) = 1 := by exact_mod_cast hu.2
@@ -139,8 +139,6 @@ theorem regCarlsonDirichletAverage_comp_affine (b z : ι → ℂ) (f : ℂ → �
   change f (a * carlsonAffineForm z u + t) =
     f (carlsonAffineForm (fun i ↦ a * z i + t) u)
   rw [carlsonAffineForm_affine hu]
-
-
 
 /-- On the standard simplex, Carlson's affine form is bounded by the sum of the norms of
 its variables. -/
@@ -212,6 +210,6 @@ theorem regCarlsonDirichletAverage_finsetSum {κ : Type*} {s : Finset κ}
   intro k hk
   exact integrableOn_regDirichletDensity_mul b hb (hf k hk)
 
-end DirichletTransform
+end Dirichlet
 
 end CarlsonDirichletAverage

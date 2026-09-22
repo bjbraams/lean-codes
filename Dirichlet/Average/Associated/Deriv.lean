@@ -1,19 +1,73 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Dirichlet.Average.Associated.Relations
 public import Dirichlet.Average.DifferentialOperators
 public import Dirichlet.Complex.Analytic
-public import SeveralComplexVariables.ParametricIntegral
+public import ComplexAnalysis.ParametricIntegral
 
-/-! # Differentiation of associated Dirichlet averages -/
+/-!
+# Differentiation of associated Dirichlet averages
+
+Differentiation under the integral sign for Carlson's Dirichlet averages: the derivative with
+respect to a node `z i` is the average of the derivative of the averaged function with the
+parameter `b i` raised by one and the total parameter raised by one (Carlson's relations 5.3-2
+and 5.6-1(5)), with iterated versions.
+
+## Main results
+
+* `Dirichlet.hasDerivAt_regCarlsonDirichletAverage_update_of_analyticOnNhd`: differentiation
+  under the average for a function holomorphic on a convex node domain.
+* `Dirichlet.carlsonPartialDeriv_regCarlsonDirichletAverage`: Carlson's 5.6-1(5) in regularized
+  form.
+* `Dirichlet.carlsonIteratedPartialDeriv_regCarlsonDirichletAverage`: iterated node derivatives.
+* `Dirichlet.carlsonPartialDeriv_carlsonDirichletAverage`: the ordinary normalization.
+
+## References
+
+* [Carl77] B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
+-/
 
 open Complex MeasureTheory ProbabilityTheory Filter Set
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Dirichlet
 variable {ι : Type*} [Fintype ι]
 
+/-- A function differentiable at every affine combination of the nodes is continuous on the
+simplex after composition with the affine form. -/
+theorem continuousOn_comp_carlsonAffineForm_of_hasDerivAt {f f' : ℂ → ℂ} (z : ι → ℂ)
+    (hf : ∀ u ∈ Convexity.StdSimplex.coordinateSet ℝ ι,
+      HasDerivAt f (f' (carlsonAffineForm z u)) (carlsonAffineForm z u)) :
+    ContinuousOn (fun u : ι → ℝ ↦ f (carlsonAffineForm z u))
+      (Convexity.StdSimplex.coordinateSet ℝ ι) := by
+  have hfon : ContinuousOn f
+      (carlsonAffineForm z '' Convexity.StdSimplex.coordinateSet ℝ ι) := by
+    intro y hy
+    obtain ⟨u, hu, rfl⟩ := hy
+    exact (hf u hu).continuousAt.continuousWithinAt
+  exact hfon.comp (continuous_carlsonAffineForm _).continuousOn (fun u hu ↦ ⟨u, hu, rfl⟩)
+
+/-- The dominating bound for the derivative kernel of a Carlson average: on the simplex each
+coordinate is at most one, and the derivative factor is bounded by `C`. -/
+private theorem norm_regDirichletDensity_mul_le {b : ι → ℂ} {i : ι} {g : (ι → ℝ) → ℂ} {C : ℝ}
+    {u : ι → ℝ} (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι) (hg : ‖g u‖ ≤ C) :
+    ‖regDirichletDensity b u * ((u i : ℂ) * g u)‖ ≤ C * ‖regDirichletDensity b u‖ := by
+  rw [norm_mul, norm_mul]
+  calc
+    ‖regDirichletDensity b u‖ * (‖(u i : ℂ)‖ * ‖g u‖) ≤
+        ‖regDirichletDensity b u‖ * (1 * C) := by
+      refine mul_le_mul_of_nonneg_left (mul_le_mul ?_ hg (norm_nonneg _) zero_le_one)
+        (norm_nonneg _)
+      simpa [Real.norm_eq_abs, abs_of_nonneg (hu.1 i)] using
+        (Convexity.StdSimplex.mem_Icc_of_mem_coordinateSet hu i).2
+    _ = C * ‖regDirichletDensity b u‖ := by ring
+
+open scoped Classical in
 /-- Differentiation under a regularized Carlson average under a local uniform bound for the
 derivative on the affine combinations met by the simplex. -/
 theorem hasDerivAt_regCarlsonDirichletAverage_update_of_bound
@@ -32,7 +86,8 @@ theorem hasDerivAt_regCarlsonDirichletAverage_update_of_bound
         (fun u ↦ (u i : ℂ) * f' (carlsonAffineForm z u)))
       (z i) := by
   let μ : Measure (ι → ℝ) :=
-    (MeasureTheory.Measure.stdSimplexMeasure (ι := ι)).restrict (Convexity.StdSimplex.coordinateSet ℝ ι)
+    (MeasureTheory.Measure.stdSimplexMeasure (ι := ι)).restrict (Convexity.StdSimplex.coordinateSet
+        ℝ ι)
   let F : ℂ → (ι → ℝ) → ℂ := fun w u ↦
     regDirichletDensity b u * f (carlsonAffineForm (Function.update z i w) u)
   let F' : ℂ → (ι → ℝ) → ℂ := fun w u ↦
@@ -42,14 +97,8 @@ theorem hasDerivAt_regCarlsonDirichletAverage_update_of_bound
   have hzi : z i ∈ s := mem_of_mem_nhds hs
   have hf_comp (w : ℂ) (hw : w ∈ s) :
       ContinuousOn (fun u : ι → ℝ ↦
-        f (carlsonAffineForm (Function.update z i w) u)) (Convexity.StdSimplex.coordinateSet ℝ ι) := by
-    have hfon : ContinuousOn f
-        (carlsonAffineForm (Function.update z i w) '' Convexity.StdSimplex.coordinateSet ℝ ι) := by
-      intro y hy
-      obtain ⟨u, hu, rfl⟩ := hy
-      exact (hf w hw u hu).continuousAt.continuousWithinAt
-    exact hfon.comp (continuous_carlsonAffineForm _).continuousOn
-      (fun u hu ↦ ⟨u, hu, rfl⟩)
+        f (carlsonAffineForm (Function.update z i w) u)) (Convexity.StdSimplex.coordinateSet ℝ ι) :=
+    continuousOn_comp_carlsonAffineForm_of_hasDerivAt _ (hf w hw)
   have hF_meas : ∀ᶠ w in nhds (z i), AEStronglyMeasurable (F w) μ := by
     filter_upwards [hs] with w hw
     exact (integrableOn_regDirichletDensity_mul b hb
@@ -74,35 +123,17 @@ theorem hasDerivAt_regCarlsonDirichletAverage_update_of_bound
     simpa [F', μ] using
       (integrableOn_regDirichletDensity_mul b hb hcont).1
   have hbound_int : Integrable bound μ := by
-    have hdens : Integrable (fun u ↦ regDirichletDensity b u) μ := by
-      change IntegrableOn (fun u ↦ regDirichletDensity b u)
-        (Convexity.StdSimplex.coordinateSet ℝ ι) MeasureTheory.Measure.stdSimplexMeasure
-      simpa only [mul_one] using integrableOn_regDirichletDensity_mul b hb
-        (continuousOn_const : ContinuousOn (fun _ : ι → ℝ ↦ (1 : ℂ))
-          (Convexity.StdSimplex.coordinateSet ℝ ι))
+    have hdens : Integrable (fun u ↦ regDirichletDensity b u) μ :=
+      integrableOn_regDirichletDensity b hb
     exact hdens.norm.const_mul C
   have hbound : ∀ᵐ u ∂μ, ∀ w ∈ s, ‖F' w u‖ ≤ bound u := by
     filter_upwards [self_mem_ae_restrict
       (μ := MeasureTheory.Measure.stdSimplexMeasure)
       (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet] with u hu
     intro w hw
-    simp only [F', bound, norm_mul]
-    calc
-      ‖regDirichletDensity b u‖ *
-          (‖(u i : ℂ)‖ * ‖f' (carlsonAffineForm (Function.update z i w) u)‖)
-          ≤ ‖regDirichletDensity b u‖ * (1 * C) := by
-            apply mul_le_mul_of_nonneg_left _ (norm_nonneg _)
-            apply mul_le_mul
-            · simpa [Real.norm_eq_abs, abs_of_nonneg (hu.1 i)] using
-                (show u i ≤ 1 by
-                  calc
-                    u i ≤ ∑ j, u j := Finset.single_le_sum
-                      (fun j _ ↦ hu.1 j) (Finset.mem_univ i)
-                    _ = 1 := hu.2)
-            · exact hf'_bound w hw u hu
-            · exact norm_nonneg _
-            · norm_num
-      _ = C * ‖regDirichletDensity b u‖ := by ring
+    simp only [F', bound]
+    exact norm_regDirichletDensity_mul_le
+      (g := fun u ↦ f' (carlsonAffineForm (Function.update z i w) u)) hu (hf'_bound w hw u hu)
   have hdiff : ∀ᵐ u ∂μ, ∀ w ∈ s, HasDerivAt (F · u) (F' w u) w := by
     filter_upwards [self_mem_ae_restrict
       (μ := MeasureTheory.Measure.stdSimplexMeasure)
@@ -116,6 +147,7 @@ theorem hasDerivAt_regCarlsonDirichletAverage_update_of_bound
       hbound hbound_int hdiff |>.2
   simpa [regCarlsonDirichletAverage, regDirichletIntegral, F, F', μ] using h
 
+open scoped Classical in
 /-- Differentiation under a regularized Carlson average when the derivative of the
 univariate function is globally bounded. -/
 theorem hasDerivAt_regCarlsonDirichletAverage_update
@@ -133,7 +165,7 @@ theorem hasDerivAt_regCarlsonDirichletAverage_update
   intro w hw u hu
   exact hf'_bound _
 
-set_option maxHeartbeats 1000000 in
+open scoped Classical in
 /-- Differentiation under a regularized Carlson average when the averaged function is
 holomorphic on a convex neighborhood of all the nodes. -/
 theorem hasDerivAt_regCarlsonDirichletAverage_update_of_analyticOnNhd
@@ -149,11 +181,8 @@ theorem hasDerivAt_regCarlsonDirichletAverage_update_of_analyticOnNhd
   let K : Set ℂ := convexHull ℝ (Set.range z)
   have hKcompact : IsCompact K := (Set.finite_range z).isCompact_convexHull ℝ
   have hKΩ : K ⊆ Ω := convexHull_min hz hΩconv
-  obtain ⟨δ, hδ, hδΩ, C, hCnonneg, hC⟩ :=
-    hf.exists_cthickening_deriv_bound hΩopen hKcompact hKΩ
-  have hderivCont : ContinuousOn (deriv f) Ω := hf.deriv.continuousOn
+  obtain ⟨δ, hδ, hδΩ⟩ := hKcompact.exists_cthickening_subset_open hΩopen hKΩ
   let s : Set ℂ := Metric.ball (z i) δ
-  have hs : s ∈ nhds (z i) := Metric.ball_mem_nhds _ hδ
   have hnear {w : ℂ} (hw : w ∈ s) {u : ι → ℝ} (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι) :
       carlsonAffineForm (Function.update z i w) u ∈ Metric.cthickening δ K := by
     have hbase : carlsonAffineForm z u ∈ K := carlsonAffineForm_mem_convexHull z hu
@@ -163,17 +192,30 @@ theorem hasDerivAt_regCarlsonDirichletAverage_update_of_analyticOnNhd
     rw [carlsonAffineForm_update, dist_eq_norm]
     simp only [add_sub_cancel_left]
     rw [norm_mul, norm_real, Real.norm_eq_abs, abs_of_nonneg (hu.1 i)]
-    exact (mul_le_of_le_one_left (norm_nonneg _) (Convexity.StdSimplex.mem_Icc_of_mem_coordinateSet hu i).2).trans hwi.le
-  apply hasDerivAt_regCarlsonDirichletAverage_update_of_bound hb i hs
-  · intro w hw u hu
-    exact (hf _ (hδΩ (hnear hw hu))).differentiableAt.hasDerivAt
-  · intro w hw
-    exact hderivCont.mono fun q hq => by
-      obtain ⟨u, hu, rfl⟩ := hq
-      exact hδΩ (hnear hw hu)
-  · intro w hw u hu
-    exact hC _ (hnear hw hu)
+    exact (mul_le_of_le_one_left (norm_nonneg _)
+        (Convexity.StdSimplex.mem_Icc_of_mem_coordinateSet hu i).2).trans hwi.le
+  have haffine : Continuous
+      (fun p : ℂ × (ι → ℝ) => carlsonAffineForm (Function.update z i p.1) p.2) := by
+    unfold carlsonAffineForm
+    fun_prop
+  have hmap : MapsTo
+      (fun p : ℂ × (ι → ℝ) => carlsonAffineForm (Function.update z i p.1) p.2)
+      (s ×ˢ Convexity.StdSimplex.coordinateSet ℝ ι) Ω :=
+    fun _ hp => hδΩ (hnear hp.1 hp.2)
+  have h := hasDerivAt_integral_mul_of_continuousOn_compact
+    (F := fun w u => f (carlsonAffineForm (Function.update z i w) u))
+    (F' := fun w u => (u i : ℂ) * deriv f (carlsonAffineForm (Function.update z i w) u))
+    (Convexity.StdSimplex.isCompact_coordinateSet ℝ ι)
+    (integrableOn_regDirichletDensity b hb) Metric.isOpen_ball (Metric.mem_ball_self hδ)
+    (hf.continuousOn.comp haffine.continuousOn hmap)
+    ((by fun_prop : Continuous (fun p : ℂ × (ι → ℝ) => (p.2 i : ℂ))).continuousOn.mul
+      (hf.deriv.continuousOn.comp haffine.continuousOn hmap))
+    (fun w hw u hu => by
+      simpa using HasDerivAt.comp_carlsonAffineForm_update i
+        (hf _ (hδΩ (hnear hw hu))).differentiableAt.hasDerivAt)
+  simpa only [regCarlsonDirichletAverage, regDirichletIntegral, Function.update_eq_self] using h
 
+open scoped Classical in
 /-- **Carlson 5.3-2, first-order form.** For a function holomorphic on a convex node domain,
 differentiation with respect to node `i` raises the corresponding Dirichlet parameter. -/
 theorem carlsonPartialDeriv_regCarlsonDirichletAverage_of_analyticOnNhd
@@ -189,6 +231,7 @@ theorem carlsonPartialDeriv_regCarlsonDirichletAverage_of_analyticOnNhd
   exact (mul_regDirichletIntegral_addDirichletUnit hb i
     (fun u => deriv f (carlsonAffineForm z u))).symm
 
+open scoped Classical in
 /-- Regularized form of Carlson's relation 5.6-1(5): differentiating with respect to `z i`
 produces the associated average with parameter `b i` increased by one. -/
 theorem carlsonPartialDeriv_regCarlsonDirichletAverage
@@ -247,6 +290,7 @@ private lemma iteratedDirichletShiftCoeff_mul_regDirichletIntegral
       simp only [List.map_cons, List.prod_cons]
       ring
 
+open scoped Classical in
 omit [Fintype ι] in
 /-- Updating one node to another point of the node domain preserves containment of the node
 range in that domain. -/
@@ -260,7 +304,6 @@ private lemma range_update_subset {Ω : Set ℂ} {z : ι → ℂ}
     simpa using hw
   · simpa [hji] using hz (Set.mem_range_self j)
 
-set_option maxHeartbeats 1000000 in
 /-- An iterated node derivative is an average with successively shifted parameters and the
 corresponding iterated derivative of the averaged function. -/
 private lemma carlsonIteratedPartialDeriv_eq_iteratedShift
@@ -273,6 +316,7 @@ private lemma carlsonIteratedPartialDeriv_eq_iteratedShift
       iteratedDirichletShiftCoeff is b *
         regCarlsonDirichletAverage (iteratedAddDirichletUnit is b) z
           (iteratedDeriv is.length f) := by
+  classical
   induction is generalizing z with
   | nil => simp [carlsonIteratedPartialDeriv, iteratedDirichletShiftCoeff,
       iteratedAddDirichletUnit]
@@ -317,6 +361,7 @@ theorem carlsonIteratedPartialDeriv_regCarlsonDirichletAverage
   exact iteratedDirichletShiftCoeff_mul_regDirichletIntegral is hb
     (fun u => iteratedDeriv is.length f (carlsonAffineForm z u))
 
+open scoped Classical in
 /-- The unregularized coordinate derivative on a convex domain of holomorphy.
 Unlike the globally bounded derivative specialization, this applies to general holomorphic
 kernels, including exponentials and powers on their branch domains. -/
@@ -345,6 +390,7 @@ theorem carlsonPartialDeriv_carlsonDirichletAverage_of_analyticOnNhd
         regCarlsonDirichletAverage (addDirichletUnit b i) z (deriv f))
   field_simp [hc]
 
+open scoped Classical in
 /-- Carlson's relation 5.6-1(5) in its original normalization.  The coefficient is the
 weight `b i / ∑ j, b j`. -/
 theorem carlsonPartialDeriv_carlsonDirichletAverage [Nonempty ι]
@@ -370,4 +416,4 @@ theorem carlsonPartialDeriv_carlsonDirichletAverage [Nonempty ι]
     (b i / c) * (c * Gamma c * regCarlsonDirichletAverage (addDirichletUnit b i) z f')
   field_simp [hc]
 
-end DirichletTransform
+end Dirichlet

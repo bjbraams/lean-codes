@@ -21,7 +21,7 @@ public import Carlson.R.SlitContinuation
 public import Carlson.R.SlitJointAnalytic
 public import Carlson.R.SlitIntegral
 public import Carlson.R.RayKernel
-public import Carlson.R.Contour
+public import Carlson.R.ContourKernel
 public import Carlson.R.EulerTransform
 public import Carlson.R.IntegralEvaluation
 public import Carlson.R.SmallVariable

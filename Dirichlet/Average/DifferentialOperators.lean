@@ -28,15 +28,15 @@ The integral differentiation formulas in
 
 @[expose] public noncomputable section CarlsonDirichletAverage
 
-namespace DirichletTransform
+namespace Dirichlet
 
 open Complex
-open scoped Classical
 
 variable {ι : Type*} [Fintype ι]
 
 /-! ## Pointwise differentiation of the averaging kernel -/
 
+open scoped Classical in
 /-- Updating one parameter of Carlson's affine form changes its value by the corresponding
 simplex coordinate times the change in that parameter. -/
 theorem carlsonAffineForm_update (z : ι → ℂ) (u : ι → ℝ) (i : ι) (w : ℂ) :
@@ -58,6 +58,7 @@ theorem carlsonAffineForm_update (z : ι → ℂ) (u : ι → ℝ) (i : ι) (w :
       rw [Finset.sum_add_distrib]
       simp
 
+open scoped Classical in
 /-- As a function of one variable `z i`, Carlson's affine form has derivative `u i`. -/
 theorem hasDerivAt_carlsonAffineForm_update (z : ι → ℂ) (u : ι → ℝ) (i : ι) :
     HasDerivAt (fun w ↦ carlsonAffineForm (Function.update z i w) u) (u i : ℂ) (z i) := by
@@ -67,9 +68,10 @@ theorem hasDerivAt_carlsonAffineForm_update (z : ι → ℂ) (u : ι → ℝ) (i
   · simpa only [Pi.add_apply, id_eq] using carlsonAffineForm_update z u i w
   · ring
 
+open scoped Classical in
 /-- Differentiating a composed Carlson kernel with respect to `z i` introduces the factor
 `u i`.  This is the pointwise identity underlying Carlson's formula (5.3-2). -/
-theorem HasDerivAt.comp_carlsonAffineForm_update {f : ℂ → ℂ} {f' : ℂ}
+theorem _root_.HasDerivAt.comp_carlsonAffineForm_update {f : ℂ → ℂ} {f' : ℂ}
     {z : ι → ℂ} {u : ι → ℝ} (i : ι)
     (hf : HasDerivAt f f' (carlsonAffineForm z u)) :
     HasDerivAt (fun w ↦ f (carlsonAffineForm (Function.update z i w) u))
@@ -82,12 +84,14 @@ theorem HasDerivAt.comp_carlsonAffineForm_update {f : ℂ → ℂ} {f' : ℂ}
 
 /-! ## Differential operators -/
 
+open scoped Classical in
 /-- The partial derivative in the Carlson variable `z i`, defined by updating that coordinate
 while holding all other coordinates fixed. -/
 def carlsonPartialDeriv (i : ι)
     (G : (ι → ℂ) → ℂ) (z : ι → ℂ) : ℂ :=
   deriv (fun w ↦ G (Function.update z i w)) (z i)
 
+open scoped Classical in
 omit [Fintype ι] in
 /-- Carlson's coordinate derivative is the scalar specialization of the SCV derivative. -/
 theorem carlsonPartialDeriv_eq_partialDeriv (i : ι) (G : (ι → ℂ) → ℂ) :
@@ -128,6 +132,7 @@ def carlsonIteratedPartialDeriv : List ι → ((ι → ℂ) → ℂ) → (ι →
   | [], G, z => G z
   | i :: is, G, z => carlsonPartialDeriv i (fun w => carlsonIteratedPartialDeriv is G w) z
 
+open scoped Classical in
 omit [Fintype ι] in
 /-- Carlson and SCV use the same order convention for repeated coordinate differentiation. -/
 theorem carlsonIteratedPartialDeriv_eq_iteratedPartialDeriv (is : List ι)
@@ -144,6 +149,7 @@ theorem carlsonIteratedPartialDeriv_eq_iteratedPartialDeriv (is : List ι)
 theorem carlsonIteratedPartialDeriv_perm {U : Set (ι → ℂ)} {G : (ι → ℂ) → ℂ}
     (hG : AnalyticOnNhd ℂ G U) (hU : IsOpen U) {is js : List ι} (h : is.Perm js) :
     Set.EqOn (carlsonIteratedPartialDeriv is G) (carlsonIteratedPartialDeriv js G) U := by
+  classical
   simp only [carlsonIteratedPartialDeriv_eq_iteratedPartialDeriv]
   exact SeveralComplexVariables.iteratedPartialDeriv_perm hG hU h
 
@@ -182,7 +188,8 @@ def carlsonTotalDeriv (G : (ι → ℂ) → ℂ) (z : ι → ℂ) : ℂ :=
 averaged function, because simplex coordinates sum to one. -/
 theorem carlsonTotalDeriv_comp_carlsonAffineForm
     {f : ℂ → ℂ} {f' : ℂ} {z : ι → ℂ} {u : ι → ℝ}
-    (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι) (hf : HasDerivAt f f' (carlsonAffineForm z u)) :
+    (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι)
+        (hf : HasDerivAt f f' (carlsonAffineForm z u)) :
     carlsonTotalDeriv (fun z => f (carlsonAffineForm z u)) z = f' := by
   simp_rw [carlsonTotalDeriv, carlsonPartialDeriv_comp_carlsonAffineForm _ hf,
     ← Finset.sum_mul]
@@ -249,6 +256,6 @@ theorem carlsonEulerPoissonOperator_comp_carlsonAffineForm
     carlsonPartialDeriv_comp_carlsonAffineForm j (hf (carlsonAffineForm z u)),
     carlsonPartialDeriv_comp_carlsonAffineForm i (hf (carlsonAffineForm z u))]
 
-end DirichletTransform
+end Dirichlet
 
 end CarlsonDirichletAverage

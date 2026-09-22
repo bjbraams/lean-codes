@@ -6,8 +6,8 @@ Authors: Bastiaan J Braams
 module
 
 public import Dirichlet.Average.Basic
-public import SeveralComplexVariables.CauchyDerivatives
-public import SeveralComplexVariables.ParametricIntegral
+public import ComplexAnalysis.CauchyDerivatives
+public import ComplexAnalysis.ParametricIntegral
 public import Mathlib.Analysis.Calculus.Deriv.ZPow
 public import Mathlib.Analysis.Complex.CauchyIntegral
 public import Mathlib.MeasureTheory.Integral.Prod
@@ -35,11 +35,10 @@ remains to be proved.
 -/
 
 open Complex MeasureTheory ProbabilityTheory Metric
-open scoped Classical
 
 @[expose] public noncomputable section CarlsonCauchyAverage
 
-namespace DirichletTransform
+namespace Dirichlet
 
 variable {ι : Type*} [Fintype ι]
 
@@ -109,10 +108,8 @@ theorem hasDerivAt_regCarlsonResolvent (n : ℕ) {b : ι → ℂ}
     HasDerivAt (regCarlsonResolvent n b z)
       (-((n : ℂ) + 1) * regCarlsonResolvent (n + 1) b z s) s := by
   have hd : IntegrableOn (regDirichletDensity b)
-      (Convexity.StdSimplex.coordinateSet ℝ ι) MeasureTheory.Measure.stdSimplexMeasure := by
-    simpa only [mul_one] using integrableOn_regDirichletDensity_mul b hb
-      (continuousOn_const : ContinuousOn (fun _ : ι → ℝ => (1 : ℂ))
-        (Convexity.StdSimplex.coordinateSet ℝ ι))
+      (Convexity.StdSimplex.coordinateSet ℝ ι) MeasureTheory.Measure.stdSimplexMeasure :=
+    integrableOn_regDirichletDensity b hb
   have h := hasDerivAt_integral_mul_of_continuousOn_compact
     (F := fun w u => carlsonCauchyKernel n z u w)
     (F' := fun w u => -((n : ℂ) + 1) * carlsonCauchyKernel (n + 1) z u w)
@@ -190,9 +187,8 @@ theorem circleIntegral_regDirichletIntegral
   let K := Convexity.StdSimplex.coordinateSet ℝ ι
   let μ := MeasureTheory.Measure.stdSimplexMeasure (ι := ι)
   have hK : IsCompact K := Convexity.StdSimplex.isCompact_coordinateSet ℝ ι
-  have hd : IntegrableOn (regDirichletDensity b) K μ := by
-    simpa only [mul_one] using integrableOn_regDirichletDensity_mul b hb
-      (continuousOn_const : ContinuousOn (fun _ : ι → ℝ => (1 : ℂ)) K)
+  have hd : IntegrableOn (regDirichletDensity b) K μ :=
+    integrableOn_regDirichletDensity b hb
   have hbase : IntegrableOn (fun p : ℝ × (ι → ℝ) => regDirichletDensity b p.2)
       (Set.Icc 0 (2 * Real.pi) ×ˢ K) (volume.prod μ) := by
     rw [IntegrableOn, ← Measure.prod_restrict]
@@ -276,6 +272,6 @@ theorem regCarlsonDirichletAverage_eq_cauchyRepresentation
   simpa [regCarlsonCauchyRepresentation] using
     regCarlsonDirichletAverage_iteratedDeriv_eq_circleIntegral 0 hb z hR hf hz
 
-end DirichletTransform
+end Dirichlet
 
 end CarlsonCauchyAverage

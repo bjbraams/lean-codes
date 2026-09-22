@@ -1,0 +1,15 @@
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
+module
+
+public import Algebra.LinearDependence
+
+/-!
+# General algebra support
+
+Denominator closure of submodules over an integral domain and denominator-cleared
+linear dependence. Declarations extend the `Submodule` API and depend only on Mathlib.
+-/

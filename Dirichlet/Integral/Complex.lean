@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Bastiaan J Braams.
+Authors: Bastiaan J Braams
 -/
 module
 
@@ -17,7 +17,7 @@ several-complex-variable analyticity or continuation.
 -/
 
 open Complex Fintype Filter MeasureTheory MeasureTheory.Measure
-open scoped Topology Classical
+open scoped Topology
 
 @[expose] public noncomputable section
 
@@ -58,9 +58,11 @@ theorem integrableOn_mvBetaMonomial
             intro i _
             exact (Complex.continuous_ofReal.comp (continuous_apply i)).continuousOn.cpow_const
               (fun _ hu ↦ ofReal_mem_slitPlane.2 (hu.2 i))
-          · exact (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet.inter hPopen.measurableSet
+          · exact (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet.inter
+              hPopen.measurableSet
         · filter_upwards [self_mem_ae_restrict (μ := stdSimplexMeasure)
-              ((Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet.inter hPopen.measurableSet)] with u hu
+              ((Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet.inter
+                  hPopen.measurableSet)] with u hu
           simp only [Set.mem_inter_iff] at hu
           simp only [norm_prod]
           apply le_of_eq
@@ -89,6 +91,7 @@ theorem integrableOn_mvBetaMonomial_mul_log
       (fun u : ι → ℝ ↦
         (∏ j, (u j : ℂ) ^ (b j - 1)) * Complex.log (u i : ℂ))
       (Convexity.StdSimplex.coordinateSet ℝ ι) stdSimplexMeasure := by
+  classical
   let _ : Nonempty ι := ⟨i⟩
   let δ : ℝ := (b i).re / 2
   have hδ : 0 < δ := half_pos (hb i)
@@ -163,6 +166,7 @@ theorem integrableOn_mvBetaMonomial_mul_log
         simpa [abs_mul, mul_comm,
           abs_of_pos (Real.rpow_pos_of_pos hui _)] using hlog.le
 
+open scoped Classical in
 /-- A simplex slice separates a complex Dirichlet monomial into its distinguished-coordinate,
 radial, and lower-dimensional factors. -/
 theorem prod_cpow_stdSimplexCoordMap_scale
@@ -203,10 +207,116 @@ theorem prod_cpow_stdSimplexCoordMap_scale
   push_cast
   ring
 
+/-- The simplex integral of the complex Dirichlet monomial on a singleton index type. -/
+theorem mvBeta_eq_integral_of_unique [Unique ι] {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) :
+    mvBeta b = ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι, ∏ i,
+        (u i : ℂ) ^ (b i - 1) ∂stdSimplexMeasure := by
+  classical
+  rw [mvBeta, stdSimplexMeasure_unique, MeasureTheory.setIntegral_dirac]
+  have hG : Gamma (b default) ≠ 0 := Gamma_ne_zero_of_re_pos (hb default)
+  simp [hG, Convexity.StdSimplex.coordinateSet]
+
+open scoped Classical in
+/-- The inner integral of a simplex slice of the complex Dirichlet monomial: the distinguished
+coordinate and the radial factor come out, leaving the lower-dimensional monomial integral. -/
+theorem integral_mvBetaMonomial_slice (i : ι) (b : ι → ℂ) {t : ℝ}
+    (ht : t ∈ Set.Ico (0 : ℝ) 1) :
+    (∫ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
+      ∏ k, ((stdSimplexCoordMap i (fun q ↦ (1 - t) * v q) k : ℝ) : ℂ) ^ (b k - 1)
+        ∂stdSimplexMeasure) =
+      ((t : ℂ) ^ (b i - 1) * (1 - t : ℂ) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1))) *
+        ∫ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
+          ∏ q, (v q : ℂ) ^ (b q - 1) ∂stdSimplexMeasure := by
+  rw [← MeasureTheory.integral_const_mul]
+  apply setIntegral_congr_fun (Convexity.StdSimplex.isClosed_coordinateSet ℝ _).measurableSet
+  intro v hv
+  exact prod_cpow_stdSimplexCoordMap_scale i b ht hv
+
+open scoped Classical in
+/-- The Jacobian power of a simplex slice merges with the radial factor of the complex Dirichlet
+monomial into a single principal power of `1 - t`. -/
+theorem cpow_natCast_mul_cpow_sum_sub_one [Nontrivial ι] (i : ι) (b : ι → ℂ) {t : ℝ}
+    (ht : t ∈ Set.Ico (0 : ℝ) 1) :
+    (1 - t : ℂ) ^ ((Fintype.card ι - 2 : ℕ) : ℂ) *
+        ((t : ℂ) ^ (b i - 1) * (1 - t : ℂ) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1))) =
+      (t : ℂ) ^ (b i - 1) * (1 - t : ℂ) ^ ((∑ q : {j : ι // j ≠ i}, b q) - 1) := by
+  have hcard_rest : Fintype.card {j : ι // j ≠ i} = Fintype.card ι - 1 := by
+    rw [Fintype.card_subtype_compl, Fintype.card_subtype_eq]
+  have hcard_two : 2 ≤ Fintype.card ι := Fintype.one_lt_card
+  have hexp : ((Fintype.card ι - 2 : ℕ) : ℂ) + (∑ q : {j : ι // j ≠ i}, (b q - 1)) =
+      (∑ q : {j : ι // j ≠ i}, b q) - 1 := by
+    have hcast_rest : (Fintype.card {j : ι // j ≠ i} : ℂ) = (Fintype.card ι : ℂ) - 1 := by
+      rw [hcard_rest, Nat.cast_sub (by omega)]
+      norm_num
+    have hcast_two : ((Fintype.card ι - 2 : ℕ) : ℂ) = (Fintype.card ι : ℂ) - 2 := by
+      rw [Nat.cast_sub hcard_two]
+      norm_num
+    simp only [Finset.sum_sub_distrib, Finset.sum_const, Finset.card_univ, nsmul_eq_mul, mul_one]
+    rw [hcast_rest, hcast_two]
+    ring
+  have hbase : (1 - (t : ℂ)) ≠ 0 := by
+    intro hz
+    apply ht.2.ne
+    exact_mod_cast (sub_eq_zero.mp hz).symm
+  calc
+    (1 - t : ℂ) ^ ((Fintype.card ι - 2 : ℕ) : ℂ) *
+        ((t : ℂ) ^ (b i - 1) * (1 - t : ℂ) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1))) =
+        (t : ℂ) ^ (b i - 1) * ((1 - t : ℂ) ^ ((Fintype.card ι - 2 : ℕ) : ℂ) *
+          (1 - t : ℂ) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1))) := by ring
+    _ = _ := by rw [← Complex.cpow_add _ _ hbase, hexp]
+
+open scoped Classical in
+/-- The induction step for the complex Dirichlet monomial integral: slicing off the coordinate
+`i` reduces the integral over a nontrivial simplex to the integral over the simplex of the
+remaining coordinates, whose value is supplied as a hypothesis. -/
+theorem mvBeta_eq_integral_of_subtype [Nontrivial ι] (i : ι) {b : ι → ℂ}
+    (hb : b ∈ mvBetaConvergent)
+    (hih : mvBeta (fun q : {j : ι // j ≠ i} => b q) =
+      ∫ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
+        ∏ q, (v q : ℂ) ^ (b q - 1) ∂stdSimplexMeasure) :
+    mvBeta b = ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι, ∏ i,
+        (u i : ℂ) ^ (b i - 1) ∂stdSimplexMeasure := by
+  have hrest_nonempty : Nonempty {j : ι // j ≠ i} := by
+    obtain ⟨j, hji⟩ := exists_ne i
+    exact ⟨⟨j, hji⟩⟩
+  have hc : 0 < (∑ q : {j : ι // j ≠ i}, b q).re := by
+    change 0 < Complex.reCLM (∑ q : {j : ι // j ≠ i}, b q)
+    rw [map_sum Complex.reCLM (fun q : {j : ι // j ≠ i} => b q) Finset.univ]
+    exact Finset.sum_pos (fun q _ => hb q) Finset.univ_nonempty
+  rw [integral_stdSimplex_split_at i _ (integrableOn_mvBetaMonomial b hb)]
+  have houter : ∀ᵐ t ∂volume.restrict (Set.Icc (0 : ℝ) 1),
+      ((1 - t) ^ (Fintype.card ι - 2)) •
+          (∫ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
+            ∏ k, ((stdSimplexCoordMap i (fun q ↦ (1 - t) * v q) k : ℝ) : ℂ) ^ (b k - 1)
+              ∂stdSimplexMeasure) =
+        ((t : ℂ) ^ (b i - 1) * (1 - t : ℂ) ^ ((∑ q : {j : ι // j ≠ i}, b q) - 1)) *
+          mvBeta (fun q : {j : ι // j ≠ i} => b q) := by
+    filter_upwards [ae_restrict_of_ae (Ico_ae_eq_Icc (μ := volume) (a := (0 : ℝ)) (b := 1)),
+      ae_restrict_mem (μ := volume) measurableSet_Icc] with t heq htIcc
+    have ht : t ∈ Set.Ico (0 : ℝ) 1 := heq.mpr htIcc
+    rw [integral_mvBetaMonomial_slice i b ht, ← hih, Complex.real_smul, Complex.ofReal_pow,
+      ← Complex.cpow_natCast, ← mul_assoc]
+    push_cast
+    rw [cpow_natCast_mul_cpow_sum_sub_one i b ht]
+  rw [integral_congr_ae houter, integral_mul_const]
+  have hbeta : (∫ t in Set.Icc (0 : ℝ) 1,
+      (t : ℂ) ^ (b i - 1) * (1 - t : ℂ) ^ ((∑ q : {j : ι // j ≠ i}, b q) - 1)) =
+        betaIntegral (b i) (∑ q : {j : ι // j ≠ i}, b q) := by
+    rw [betaIntegral, intervalIntegral.integral_of_le zero_le_one, integral_Icc_eq_integral_Ioc]
+  rw [hbeta, betaIntegral_eq_Gamma_mul_div _ _ (hb i) hc]
+  have hGc : Gamma (∑ q : {j : ι // j ≠ i}, b q) ≠ 0 := Gamma_ne_zero_of_re_pos hc
+  have hGsum : Gamma (b i + ∑ q : {j : ι // j ≠ i}, b q) ≠ 0 :=
+    Gamma_ne_zero_of_re_pos (by simpa using add_pos (hb i) hc)
+  dsimp only [mvBeta]
+  rw [Fintype.prod_eq_mul_prod_subtype_ne _ i, Fintype.sum_eq_add_sum_subtype_ne b i]
+  field_simp [hGc, hGsum]
+
 /-- The absolutely convergent simplex integral representation of the multivariate Beta
-function. -/
+function. The proof is a strong induction on the number of coordinates, slicing off one
+coordinate at a time. -/
 theorem mvBeta_eq_integral {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) :
-    mvBeta b = ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι, ∏ i, (u i : ℂ) ^ (b i - 1) ∂stdSimplexMeasure := by
+    mvBeta b = ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι, ∏ i,
+        (u i : ℂ) ^ (b i - 1) ∂stdSimplexMeasure := by
   classical
   induction hn : Fintype.card ι using Nat.strong_induction_on generalizing ι with
   | h n ih =>
@@ -218,119 +328,15 @@ theorem mvBeta_eq_integral {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) :
           let _ := hι
           cases subsingleton_or_nontrivial ι with
           | inl hsub =>
-              let : Unique ι :=
-                ⟨⟨Classical.choice hι⟩, fun a => hsub.elim _ _⟩
-              rw [mvBeta, stdSimplexMeasure_unique, MeasureTheory.setIntegral_dirac]
-              have hG : Gamma (b default) ≠ 0 := Gamma_ne_zero_of_re_pos (hb default)
-              simp [hG, Convexity.StdSimplex.coordinateSet]
+              let : Unique ι := ⟨⟨Classical.choice hι⟩, fun a => hsub.elim _ _⟩
+              exact mvBeta_eq_integral_of_unique hb
           | inr hnontrivial =>
               let _ := hnontrivial
               let i : ι := Classical.choice hι
-              let b' : {j : ι // j ≠ i} → ℂ := fun j => b j
-              have hb' : b' ∈ mvBetaConvergent := fun j => hb j
               have hcard : Fintype.card {j : ι // j ≠ i} < n := by
                 rw [← hn, Fintype.card_subtype_compl, Fintype.card_subtype_eq]
                 exact Nat.sub_one_lt (Fintype.card_pos_iff.mpr hι).ne'
-              have hih := ih _ hcard (ι := {j : ι // j ≠ i}) hb'
-              rw [integral_stdSimplex_split_at i _ (integrableOn_mvBetaMonomial b hb)]
-              let c : ℂ := ∑ q : {j : ι // j ≠ i}, b q
-              have hrest_nonempty : Nonempty {j : ι // j ≠ i} := by
-                obtain ⟨j, hji⟩ := exists_ne i
-                exact ⟨⟨j, hji⟩⟩
-              have hc : 0 < c.re := by
-                dsimp only [c]
-                change 0 < Complex.reCLM (∑ q : {j : ι // j ≠ i}, b q)
-                rw [map_sum Complex.reCLM b' Finset.univ]
-                exact Finset.sum_pos (fun q _ => hb q) Finset.univ_nonempty
-              have hinner : ∀ t ∈ Set.Ico (0 : ℝ) 1,
-                  (∫ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
-                    ∏ k, ((stdSimplexCoordMap i (fun q ↦ (1 - t) * v q) k : ℝ) : ℂ) ^
-                      (b k - 1) ∂stdSimplexMeasure) =
-                    (t : ℂ) ^ (b i - 1) *
-                      (1 - t : ℂ) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1)) * mvBeta b' := by
-                intro t ht
-                calc
-                  _ = ∫ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
-                      ((t : ℂ) ^ (b i - 1) *
-                        (1 - t : ℂ) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1))) *
-                        ∏ q, (v q : ℂ) ^ (b q - 1) ∂stdSimplexMeasure := by
-                          apply setIntegral_congr_fun (Convexity.StdSimplex.isClosed_coordinateSet ℝ _).measurableSet
-                          intro v hv
-                          exact prod_cpow_stdSimplexCoordMap_scale i b ht hv
-                  _ = ((t : ℂ) ^ (b i - 1) *
-                        (1 - t : ℂ) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1))) *
-                      ∫ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
-                        ∏ q, (v q : ℂ) ^ (b q - 1) ∂stdSimplexMeasure := by
-                          rw [MeasureTheory.integral_const_mul]
-                  _ = _ := by rw [← hih rfl]
-              have hcard_rest : Fintype.card {j : ι // j ≠ i} = Fintype.card ι - 1 := by
-                rw [Fintype.card_subtype_compl, Fintype.card_subtype_eq]
-              have hcard_two : 2 ≤ Fintype.card ι := Fintype.one_lt_card
-              have hexp : ((Fintype.card ι - 2 : ℕ) : ℂ) +
-                  (∑ q : {j : ι // j ≠ i}, (b q - 1)) = c - 1 := by
-                have hcast_rest : (Fintype.card {j : ι // j ≠ i} : ℂ) =
-                    (Fintype.card ι : ℂ) - 1 := by
-                  rw [hcard_rest, Nat.cast_sub (by omega)]
-                  norm_num
-                have hcast_two : ((Fintype.card ι - 2 : ℕ) : ℂ) =
-                    (Fintype.card ι : ℂ) - 2 := by
-                  rw [Nat.cast_sub hcard_two]
-                  norm_num
-                simp only [Finset.sum_sub_distrib, Finset.sum_const, Finset.card_univ,
-                  nsmul_eq_mul, mul_one, c]
-                rw [hcast_rest, hcast_two]
-                ring
-              have houter : ∀ᵐ t ∂volume.restrict (Set.Icc (0 : ℝ) 1),
-                  ((1 - t) ^ (Fintype.card ι - 2)) •
-                      (∫ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
-                        ∏ k, ((stdSimplexCoordMap i
-                          (fun q ↦ (1 - t) * v q) k : ℝ) : ℂ) ^ (b k - 1)
-                          ∂stdSimplexMeasure) =
-                    ((t : ℂ) ^ (b i - 1) * (1 - t : ℂ) ^ (c - 1)) * mvBeta b' := by
-                filter_upwards [ae_restrict_of_ae
-                    (Ico_ae_eq_Icc (μ := volume) (a := (0 : ℝ)) (b := 1)),
-                  ae_restrict_mem (μ := volume) measurableSet_Icc] with t heq htIcc
-                have ht : t ∈ Set.Ico (0 : ℝ) 1 := heq.mpr htIcc
-                rw [hinner t ht]
-                have hbase : ((1 - t : ℝ) : ℂ) ≠ 0 :=
-                  Complex.ofReal_ne_zero.mpr (sub_ne_zero.mpr ht.2.ne')
-                have hbase' : (1 - (t : ℂ)) ≠ 0 := by
-                  intro hz
-                  apply ht.2.ne
-                  exact_mod_cast (sub_eq_zero.mp hz).symm
-                rw [Complex.real_smul, Complex.ofReal_pow, ← Complex.cpow_natCast]
-                push_cast
-                calc
-                  ((1 - t : ℂ) ^ ((Fintype.card ι - 2 : ℕ) : ℂ) *
-                      (((t : ℂ) ^ (b i - 1) *
-                        (1 - t : ℂ) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1))) *
-                          mvBeta b')) =
-                      (t : ℂ) ^ (b i - 1) *
-                        ((1 - t : ℂ) ^ ((Fintype.card ι - 2 : ℕ) : ℂ) *
-                          (1 - t : ℂ) ^
-                            (∑ q : {j : ι // j ≠ i}, (b q - 1))) * mvBeta b' := by ring
-                  _ = _ := by
-                    rw [← Complex.cpow_add _ _ hbase', hexp]
-              rw [integral_congr_ae houter]
-              rw [integral_mul_const]
-              have hbeta :
-                  (∫ t in Set.Icc (0 : ℝ) 1,
-                    (t : ℂ) ^ (b i - 1) * (1 - t : ℂ) ^ (c - 1)) =
-                    betaIntegral (b i) c := by
-                rw [betaIntegral, intervalIntegral.integral_of_le zero_le_one,
-                  integral_Icc_eq_integral_Ioc]
-              rw [hbeta, betaIntegral_eq_Gamma_mul_div _ _ (hb i) hc]
-              have hGc : Gamma c ≠ 0 := Gamma_ne_zero_of_re_pos hc
-              have hGsum : Gamma (b i + c) ≠ 0 :=
-                Gamma_ne_zero_of_re_pos (by simpa using add_pos (hb i) hc)
-              have hGc' : Gamma (∑ q : {j : ι // j ≠ i}, b q) ≠ 0 := by
-                simpa [c] using hGc
-              have hGsum' : Gamma (b i + ∑ q : {j : ι // j ≠ i}, b q) ≠ 0 := by
-                simpa [c] using hGsum
-              dsimp only [mvBeta, b', c]
-              rw [Fintype.prod_eq_mul_prod_subtype_ne _ i,
-                Fintype.sum_eq_add_sum_subtype_ne b i]
-              field_simp [hGc', hGsum']
+              exact mvBeta_eq_integral_of_subtype i hb (ih _ hcard (fun j => hb j) rfl)
 
 end Complex
 

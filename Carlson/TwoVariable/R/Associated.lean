@@ -1,16 +1,38 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.TwoVariable.Basic
 public import Carlson.R.SlitRecurrence
 public import Carlson.R.SlitDeriv
 
-/-! # Two-variable associated R-relations -/
+/-!
+# Two-variable associated R-relations
 
+Contiguous relations, the mixed node derivative and the three-term recurrence for the two-node
+R-function on the full slit domain, with division-free coefficients. These are the two-variable
+forms of Carlson's associated-function relations used by the L-function article.
+
+## Main results
+
+* `Carlson.TwoVariable.regCarlsonRSlit_pair_contiguous`,
+  `Carlson.TwoVariable.regCarlsonRSlit_pair_contiguous_last`: contiguous relations.
+* `Carlson.TwoVariable.regCarlsonRSlit_pair_three_term`: the three-term recurrence.
+
+## References
+
+* [Carl77] B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
+* [Carl87] B. C. Carlson, *Dirichlet averages of `x^t log x`*, SIAM J. Math. Anal. 18 (1987).
+-/
+
+open Dirichlet
 open Complex MeasureTheory ProbabilityTheory Filter Set
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform.TwoVariable
+namespace Carlson.TwoVariable
 
 /-- The first two-node contiguous R-relation, without parameter denominators. -/
 theorem regCarlsonRSlit_pair_contiguous (t u v : ℂ) {x y : ℂ}
@@ -72,11 +94,12 @@ theorem regCarlsonRSlit_pair_three_term (t u v : ℂ) {x y : ℂ}
       ((u + t) * x + (v + t) * y) * regCarlsonRSlit t (pair u v) (pair x y) +
       t * x * y * regCarlsonRSlit (t - 1) (pair u v) (pair x y) = 0 := by
   have he₂ : (MvPolynomial.esymm (Fin 2) ℂ 2).eval (pair x y) = x * y := by
-    simpa [carlsonElementarySymmetric, Fin.prod_univ_two] using carlsonElementarySymmetric_card (pair x y)
+    simpa [carlsonElementarySymmetric,
+        Fin.prod_univ_two] using carlsonElementarySymmetric_card (pair x y)
   have h := sum_carlsonAssociatedRecurrencePolynomial_mul_rSlit (-t - 1) (pair u v) hz
   norm_num [Finset.sum_range_succ, carlsonAssociatedRecurrencePolynomial,
     MvPolynomial.esymm_one, Fin.sum_univ_two, he₂, pair_zero, pair_one] at h
   ring_nf at h ⊢
   linear_combination h
 
-end DirichletTransform.TwoVariable
+end Carlson.TwoVariable

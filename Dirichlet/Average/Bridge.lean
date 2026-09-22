@@ -17,11 +17,10 @@ complex Carlson integral.
 -/
 
 open Complex MeasureTheory ProbabilityTheory
-open scoped Classical
 
 @[expose] public noncomputable section CarlsonDirichletBridge
 
-namespace DirichletTransform
+namespace Dirichlet
 
 variable {ι : Type*} [Fintype ι]
 
@@ -33,6 +32,6 @@ theorem regCarlsonDirichletAverage_ofReal [Nonempty ι]
       realCarlsonDirichletAverage b z f / Gamma (∑ i, (b i : ℂ)) := by
   exact regDirichletIntegral_ofReal hb (fun u ↦ f (carlsonAffineForm z u))
 
-end DirichletTransform
+end Dirichlet
 
 end CarlsonDirichletBridge

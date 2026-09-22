@@ -5,6 +5,7 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import ComplexAnalysis.Pow
 public import Carlson.R.Deriv
 public import Dirichlet.Average.Associated
 
@@ -18,12 +19,13 @@ All three algebraic associated relations are also extended to arbitrary complex 
 parameters for `regCarlsonRContinued`. Node derivatives are still stated for the native integral.
 -/
 
+open Dirichlet
 open Complex MeasureTheory ProbabilityTheory
-open scoped Classical
 @[expose] public noncomputable section CarlsonR
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
+open scoped Classical in
 /-- Carlson's first associated-function relation 5.9-5, in regularized form.  Gamma
 regularization absorbs Carlson's weights and leaves the coefficients `b i`. -/
 theorem regCarlsonRIntegral_eq_sum_update_add_one (t : ℂ) {b z : ι → ℂ}
@@ -37,6 +39,7 @@ theorem regCarlsonRIntegral_eq_sum_update_add_one (t : ℂ) {b z : ι → ℂ}
   simpa only [regCarlsonRIntegral, addDirichletUnit] using
     regCarlsonDirichletAverage_eq_sum_addDirichletUnit hb z (fun w => w ^ t) hpow
 
+open scoped Classical in
 /-- Carlson's second associated-function relation 5.9-5, in regularized form. -/
 theorem regCarlsonRIntegral_add_one_eq_sum_mul_update (t : ℂ) {b z : ι → ℂ}
     (hb : b ∈ mvBetaConvergent) (hz : z ∈ carlsonRVariableDomain) :
@@ -58,7 +61,8 @@ theorem regCarlsonRIntegral_add_one_eq_sum_mul_update (t : ℂ) {b z : ι → �
               ring
       _ = z i * regDirichletIntegral b
           (fun u ↦ (u i : ℂ) * carlsonAffineForm z u ^ t) := by
-            rw [mul_regDirichletIntegral_update_add_one hb]
+            rw [show Function.update b i (b i + 1) = addDirichletUnit b i from rfl,
+              mul_regDirichletIntegral_addDirichletUnit hb]
       _ = regDirichletIntegral b
           (fun u ↦ z i * ((u i : ℂ) * carlsonAffineForm z u ^ t)) := by
             have hfun :
@@ -135,6 +139,7 @@ theorem regCarlsonRIntegral_tangent (t : ℂ) {b z : ι → ℂ}
 
 private lemma sum_addDirichletUnit_mul (b : ι → ℂ) (i : ι) (f : ι → ℂ) :
     ∑ j, addDirichletUnit b i j * f j = (∑ j, b j * f j) + f i := by
+  classical
   have hterm (j : ι) : addDirichletUnit b i j * f j =
       b j * f j + if j = i then f i else 0 := by
     by_cases hji : j = i <;> simp [addDirichletUnit, hji, add_mul]
@@ -305,17 +310,6 @@ theorem regCarlsonRContinued_eq_addDirichletUnit (t : ℂ) (b : ι → ℂ)
     regCarlsonRContinued_eq_integral (t - 1) hz (addDirichletUnit_mem_mvBetaConvergent hc i)]
   exact regCarlsonRIntegral_eq_update_add_one t hc hz i
 
-/-- Positive-real scaling commutes with the principal complex power. -/
-theorem ofReal_pos_mul_cpow (t w : ℂ) {a : ℝ} (ha : 0 < a) (hw : w ≠ 0) :
-    ((a : ℂ) * w) ^ t = (a : ℂ) ^ t * w ^ t := by
-  have hloga : log (a : ℂ) = (Real.log a : ℂ) := by
-    simpa using (log_ofReal_mul ha (x := 1) one_ne_zero)
-  rw [cpow_def_of_ne_zero (mul_ne_zero (Complex.ofReal_ne_zero.mpr ha.ne') hw)]
-  rw [mul_comm (a : ℂ) w, log_mul_ofReal a ha w hw, add_mul, exp_add]
-  rw [cpow_def_of_ne_zero (Complex.ofReal_ne_zero.mpr ha.ne')]
-  rw [cpow_def_of_ne_zero hw]
-  rw [hloga]
-
 /-- Pointwise homogeneity of Carlson's power kernel for positive real scaling. -/
 theorem cpow_carlsonAffineForm_smul (t : ℂ) {a : ℝ} (ha : 0 < a)
     {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain) {u : ι → ℝ}
@@ -356,19 +350,6 @@ theorem carlsonRIntegral_smul_of_pos (t : ℂ) {b z : ι → ℂ}
   rw [regCarlsonRIntegral_smul_of_pos t hz ha]
   ring
 
-/-- Two factors in the right half-plane have compatible principal logarithms. -/
-theorem mul_cpow_of_re_pos {a w : ℂ} (ha : 0 < a.re) (hw : 0 < w.re) (t : ℂ) :
-    (a * w) ^ t = a ^ t * w ^ t := by
-  have ha0 := slitPlane_ne_zero (carlsonRightHalfPlane_subset_slitPlane ha)
-  have hw0 := slitPlane_ne_zero (carlsonRightHalfPlane_subset_slitPlane hw)
-  have haarg := abs_lt.mp (abs_arg_lt_pi_div_two_iff.mpr (Or.inl ha))
-  have hwarg := abs_lt.mp (abs_arg_lt_pi_div_two_iff.mpr (Or.inl hw))
-  have hlog : log (a * w) = log a + log w :=
-    Complex.log_mul ha0 hw0 ⟨by linarith [haarg.1, hwarg.1],
-      by linarith [haarg.2, hwarg.2]⟩
-  rw [cpow_def_of_ne_zero (mul_ne_zero ha0 hw0), cpow_def_of_ne_zero ha0,
-    cpow_def_of_ne_zero hw0, hlog, add_mul, exp_add]
-
 /-- Complex homogeneity on the right half-plane, with explicit principal-branch control.
 The scaled variables need not themselves be in the right half-plane. -/
 theorem regCarlsonRIntegral_smul_of_re_pos (t : ℂ) {a : ℂ} (ha : 0 < a.re)
@@ -396,5 +377,5 @@ theorem carlsonRIntegral_smul_of_re_pos (t : ℂ) {a : ℂ} (ha : 0 < a.re)
   rw [regCarlsonRIntegral_smul_of_re_pos t ha hz]
   ring
 
-end DirichletTransform
+end Carlson
 end CarlsonR

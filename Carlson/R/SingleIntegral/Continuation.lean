@@ -1,14 +1,35 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.R.SingleIntegral.UnitInterval
 
-/-! # Unit-interval representation at arbitrary Dirichlet parameters -/
+/-!
+# Unit-interval representation at arbitrary Dirichlet parameters
 
+The beta-weighted unit-interval integral of Carlson's Theorem 6.8-1 obeys the parameter-raising
+relation of the R-function even where the simplex integral no longer converges. Consequently
+the unit-interval representation holds, with the Gamma factor of the total parameter, for the
+continued R-function at all Dirichlet parameters in the convergence strip of the beta weight.
+
+## Main results
+
+* `Carlson.carlsonRUnitIntervalIntegral_eq_gamma_mul_continued`: the unit-interval
+  representation of the parameter-continued R-function.
+
+## References
+
+* [Carl77] B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
+-/
+
+open Dirichlet
 open Complex MeasureTheory ProbabilityTheory Filter Set
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- The unit-interval kernel obeys parameter raising even outside the simplex
@@ -20,6 +41,7 @@ private theorem carlsonRUnitIntervalIntegral_raise
     carlsonRUnitIntervalIntegral a a' b z =
       carlsonRUnitIntervalIntegral a (a' + 1) (addDirichletUnit b i) z +
         z i * carlsonRUnitIntervalIntegral (a + 1) a' (addDirichletUnit b i) z := by
+  classical
   let μ : Measure ℝ := volume.restrict (Set.Ioo 0 1)
   let K := singleIntegralKernel (addDirichletUnit b i) z
   have hint (v w : ℂ) (hv : 0 < v.re) (hw : 0 < w.re) :
@@ -77,6 +99,7 @@ theorem carlsonRUnitIntervalIntegral_eq_gamma_mul_continued
     (hsum : a + a' = ∑ i, b i) (hz : z ∈ carlsonRVariableDomain) :
     carlsonRUnitIntervalIntegral a a' b z =
       (Gamma a * Gamma a') * regCarlsonRContinued (-a) z hz b := by
+  classical
   have hraise (n : ι → ℕ) : ∀ (a a' : ℂ) (b : ι → ℂ),
       0 < a.re → 0 < a'.re → a + a' = ∑ i, b i →
       (fun i => b i + n i) ∈ mvBetaConvergent →
@@ -128,4 +151,4 @@ theorem carlsonRUnitIntervalIntegral_eq_gamma_mul_continued
     simp only [add_re, natCast_re]
     linarith)
 
-end DirichletTransform
+end Carlson

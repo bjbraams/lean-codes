@@ -16,10 +16,10 @@ coefficients therefore introduce no exceptional parameter values. This file
 extends the native integral proof by permanence of functional relations.
 -/
 
+open Dirichlet
 open Complex Set
-open scoped Classical
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι] [Nonempty ι]
 
 /-- Carlson 8.4-1 for the continued regularized R-function, with arbitrary
@@ -47,5 +47,5 @@ theorem sum_carlsonAssociatedRecurrencePolynomial_mul_rContinued
     simp_rw [regCarlsonRContinued_eq_integral (-a - _) hz hc]
     exact carlsonAssociatedRecurrenceResidual_eq_zero a hc hz
 
-end DirichletTransform
+end Carlson
 end

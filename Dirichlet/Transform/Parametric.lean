@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Dirichlet.Transform
@@ -13,11 +17,12 @@ can therefore be used jointly, rather than independently for each auxiliary para
 -/
 
 open Complex MeasureTheory MeasureTheory.Measure ProbabilityTheory Set Filter Metric
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Dirichlet
 variable {ι κ : Type*} [Fintype ι] [Fintype κ]
 
+open scoped Classical in
 /-- A tangential derivative in the complexified simplex coordinates, leaving the
 auxiliary parameter block fixed. -/
 def complexSimplexTangentDeriv (j i : ι)
@@ -29,6 +34,7 @@ theorem analyticOnNhd_complexSimplexTangentDeriv
     {W : Set ((κ → ℂ) × (ι → ℂ))} {H : ((κ → ℂ) × (ι → ℂ)) → ℂ}
     (hH : AnalyticOnNhd ℂ H W) (j i : ι) :
     AnalyticOnNhd ℂ (complexSimplexTangentDeriv j i H) W := by
+  classical
   unfold complexSimplexTangentDeriv
   exact (ContinuousLinearMap.apply ℂ ℂ
     ((0, Pi.single j 1 - Pi.single i 1) : (κ → ℂ) × (ι → ℂ))).comp_analyticOnNhd hH.fderiv
@@ -54,6 +60,7 @@ theorem complexSimplexTangentDeriv_eq_real
     (hu : (z, fun i => (u i : ℂ)) ∈ W) (j i : ι) :
     complexSimplexTangentDeriv j i H (z, fun k => (u k : ℂ)) =
       stdSimplexTangentDeriv j i (fun v => H (z, fun k => (v k : ℂ))) u := by
+  classical
   let e : (ι → ℝ) →L[ℝ] (ι → ℂ) := ContinuousLinearMap.pi
     (fun k => Complex.ofRealCLM.comp (ContinuousLinearMap.proj k))
   have hd := ((hH _ hu).differentiableAt.hasFDerivAt.restrictScalars ℝ).comp u
@@ -71,6 +78,7 @@ theorem complexSimplexTangentDeriv_eq_real
     (fderiv ℂ H (z, fun k => (u k : ℂ))) (0, e (stdSimplexTangentVector j i))
   rw [heV]
 
+open scoped Classical in
 /-- Tangential parameter shifts, retaining a jointly holomorphic kernel. -/
 def shiftedComplexKernelIntegral (i : ι) : List {j : ι // j ≠ i} →
     (((κ → ℂ) × (ι → ℂ)) → ℂ) → ((ι → ℂ) × (κ → ℂ)) → ℂ
@@ -87,6 +95,7 @@ theorem analyticOnNhd_shiftedComplexKernelIntegral
     (hW : ∀ z ∈ U, ∀ u ∈ Convexity.StdSimplex.coordinateSet ℝ ι,
       (z, fun i => (u i : ℂ)) ∈ W) (i : ι) (l : List {j : ι // j ≠ i}) :
     AnalyticOnNhd ℂ (shiftedComplexKernelIntegral i l H) (shiftRegion i l ×ˢ U) := by
+  classical
   induction l generalizing H with
   | nil =>
       apply (analyticOnNhd_regDirichletIntegral_kernel_joint hU hH hW).mono
@@ -115,6 +124,7 @@ theorem shiftedComplexKernelIntegral_eq
     {b : ι → ℂ} (hb : ∀ k, (l.length : ℝ) + 2 < (b k).re) :
     shiftedComplexKernelIntegral i l H (b, z) =
       regDirichletIntegral b (fun u => H (z, fun k => (u k : ℂ))) := by
+  classical
   induction l generalizing H b with
   | nil => rfl
   | cons j l ih =>
@@ -169,7 +179,9 @@ theorem exists_joint_regDirichletContinuation_kernel
     ∃ F : ((ι → ℂ) × (κ → ℂ)) → ℂ,
       AnalyticOnNhd ℂ F (dirichletConvergenceRegion N ×ˢ U) ∧
       ∀ z ∈ U, Set.EqOn (fun b => F (b, z))
-        (fun b => regDirichletIntegral b (fun u => H (z, fun i => (u i : ℂ)))) mvBetaConvergent := by
+        (fun b => regDirichletIntegral b (fun u => H (z,
+            fun i => (u i : ℂ)))) mvBetaConvergent := by
+  classical
   rcases isEmpty_or_nonempty ι with hι | hι
   · refine ⟨fun _ => 0, analyticOnNhd_const, ?_⟩
     intro z hz b hb
@@ -199,23 +211,14 @@ theorem exists_joint_regDirichletContinuation_kernel
     intro p hp
     apply Finset.analyticAt_fun_sum
     intro i _
-    have hbi : p.1 + Pi.single i (M : ℂ) ∈ shiftRegion i (shiftList i N) := by
-      constructor
-      · simp only [shiftList_length, Pi.add_apply, Pi.single_eq_same, add_re, natCast_re]
-        have hi := hp.1 i
-        dsimp [M, L]
-        push_cast
-        linarith
-      · intro j
-        simp only [Pi.add_apply, Pi.single_eq_of_ne j.property, add_zero, shiftList_count]
-        have hj := hp.1 j
-        linarith
     have hpoly : AnalyticAt ℂ (fun p : (ι → ℂ) × (κ → ℂ) =>
         (ascPochhammer ℂ M).eval (p.1 i)) p :=
       ((AnalyticOnNhd.eval_polynomial (𝕜 := ℂ) (ascPochhammer ℂ M)) _ (mem_univ _)).comp_of_eq
-        (((ContinuousLinearMap.proj i : (ι → ℂ) →L[ℂ] ℂ).analyticAt p.1).comp_of_eq analyticAt_fst rfl) rfl
+        (((ContinuousLinearMap.proj i : (ι → ℂ)
+            →L[ℂ] ℂ).analyticAt p.1).comp_of_eq analyticAt_fst rfl) rfl
     exact hpoly.mul (((analyticOnNhd_shiftedComplexKernelIntegral hU hJ hVK i (shiftList i N))
-      (p.1 + Pi.single i (M : ℂ), p.2) ⟨hbi, hp.2⟩).comp_of_eq
+      (p.1 + Pi.single i (M : ℂ), p.2)
+        ⟨add_single_mem_shiftRegion_shiftList hp.1 i, hp.2⟩).comp_of_eq
         ((analyticAt_fst.add analyticAt_const).prod analyticAt_snd) rfl)
   refine ⟨F, hF, ?_⟩
   intro z hz
@@ -226,19 +229,13 @@ theorem exists_joint_regDirichletContinuation_kernel
   have hf := contDiffNearStdSimplex_complexKernel hWo hH z (hW z hz) 0
   have hnative := isOpen_mvBetaConvergent.analyticOn_iff_analyticOnNhd.mp
     (regDirichletIntegral_analyticOn hf.continuousOn)
-  let b₀ : ι → ℂ := fun _ => (L + 3 : ℕ)
-  have hb₀ : b₀ ∈ mvBetaConvergent := by intro i; simp [b₀]; positivity
+  have hb₀ : (fun _ : ι => ((L + 3 : ℕ) : ℂ)) ∈ mvBetaConvergent := by
+    intro i
+    simp
+    positivity
   apply hFb.eqOn_of_preconnected_of_eventuallyEq hnative
     (by simpa using isPreconnected_dirichletConvergenceRegion (ι := ι) 0) hb₀
-  have hev : ∀ᶠ b : ι → ℂ in nhds b₀, ∀ i, (L : ℝ) + 2 < (b i).re := by
-    apply Filter.eventually_all.mpr
-    intro i
-    apply (isOpen_lt (continuous_const : Continuous fun _ : ι → ℂ => (L : ℝ) + 2)
-      (Complex.continuous_re.comp (continuous_apply i))).eventually_mem
-    dsimp [b₀]
-    simp only [Nat.cast_add, Nat.cast_ofNat]
-    linarith
-  filter_upwards [hev] with b hb
+  filter_upwards [eventually_forall_lt_re_nhds_natCast L] with b hb
   have hbpos : b ∈ mvBetaConvergent := by
     intro i
     have := hb i
@@ -250,17 +247,8 @@ theorem exists_joint_regDirichletContinuation_kernel
   apply Finset.sum_congr rfl
   intro i _
   congr 1
-  apply shiftedComplexKernelIntegral_eq hV hJ z (hVK z hz) i (shiftList i N)
-  intro k
-  rw [shiftList_length]
-  by_cases hki : k = i
-  · subst k
-    simp only [Pi.add_apply, Pi.single_eq_same, add_re, natCast_re]
-    have := hb i
-    have := Nat.cast_nonneg (α := ℝ) M
-    change (L : ℝ) + 2 < (b i).re + M
-    linarith
-  · simpa only [Pi.add_apply, Pi.single_eq_of_ne hki, add_zero] using hb k
+  exact shiftedComplexKernelIntegral_eq hV hJ z (hVK z hz) i (shiftList i N)
+    (forall_length_add_two_lt_re_add_single i hb)
 
 /-- The finite shift constructions glue to a continuation entire in the Dirichlet
 parameters and jointly holomorphic with the auxiliary parameters. -/
@@ -273,7 +261,9 @@ theorem exists_entire_joint_regDirichletContinuation_kernel
     ∃ F : ((ι → ℂ) × (κ → ℂ)) → ℂ,
       AnalyticOnNhd ℂ F (univ ×ˢ U) ∧
       ∀ z ∈ U, Set.EqOn (fun b => F (b, z))
-        (fun b => regDirichletIntegral b (fun u => H (z, fun i => (u i : ℂ)))) mvBetaConvergent := by
+        (fun b => regDirichletIntegral b (fun u => H (z,
+            fun i => (u i : ℂ)))) mvBetaConvergent := by
+  classical
   choose Φ hΦ using fun N => exists_joint_regDirichletContinuation_kernel N hU hWo hH hW
   have hexists (b : ι → ℂ) : ∃ N, b ∈ dirichletConvergenceRegion N := by
     choose n hn using fun i => exists_nat_gt (-(b i).re)
@@ -311,5 +301,5 @@ theorem exists_entire_joint_regDirichletContinuation_kernel
     exact ((hΦ N).2 q.2 hq.2 hb).trans ((hΦ (order q.1)).2 q.2 hq.2 hb).symm
   exact heq hqm
 
-end DirichletTransform
+end Dirichlet
 end

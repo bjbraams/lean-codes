@@ -19,10 +19,10 @@ native integrals are distinguished from their analytic continuations in `b`.
   550–565, equations (1.2), (1.3), (2.2), and (2.4).
 -/
 
+open Dirichlet
 open Complex ProbabilityTheory
-open scoped Classical
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- The power-logarithm kernel whose Dirichlet average is Carlson's `L_t`. -/
@@ -42,6 +42,7 @@ theorem hasDerivAt_regCarlsonRIntegral_L (t : ℂ) {b z : ι → ℂ}
     HasDerivAt (fun s => regCarlsonRIntegral s b z) (regCarlsonLIntegral t b z) t :=
   hasDerivAt_regCarlsonRIntegral_exponent t hb hz
 
+/-- The unregularized native L-integral is the exponent derivative of the native R-integral. -/
 theorem hasDerivAt_carlsonRIntegral_L (t : ℂ) {b z : ι → ℂ}
     (hb : b ∈ mvBetaConvergent) (hz : z ∈ carlsonRVariableDomain) :
     HasDerivAt (fun s => carlsonRIntegral s b z) (carlsonLIntegral t b z) t :=
@@ -62,5 +63,5 @@ theorem regCarlsonLIntegral_perm (t : ℂ) (b z : ι → ℂ) (σ : Equiv.Perm �
     regCarlsonLIntegral t (b ∘ σ) (z ∘ σ) = regCarlsonLIntegral t b z :=
   regCarlsonDirichletAverage_perm b z (carlsonLKernel t) σ
 
-end DirichletTransform
+end Carlson
 end

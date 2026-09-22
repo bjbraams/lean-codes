@@ -20,10 +20,10 @@ right-half-plane node interface. `Carlson.L.SlitContinuation` extends it to the 
 product slit plane and proves joint holomorphy in all arguments.
 -/
 
+open Dirichlet
 open Complex ProbabilityTheory
-open scoped Classical
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- The exponent derivative of the entire regularized R-continuation. -/
@@ -40,7 +40,8 @@ theorem hasDerivAt_regCarlsonRContinued_L (t : ℂ) (b : ι → ℂ)
     {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain) :
     HasDerivAt (fun s => regCarlsonRContinued s z hz b)
       (regCarlsonLContinued t z hz b) t :=
-  (analyticAt_regCarlsonRContinued_comp hz analyticAt_id analyticAt_const).differentiableAt.hasDerivAt
+  (analyticAt_regCarlsonRContinued_comp hz analyticAt_id
+      analyticAt_const).differentiableAt.hasDerivAt
 
 /-- Joint entireness in the exponent and the Dirichlet parameters, including
 nonpositive integral parameters and totals. -/
@@ -48,6 +49,7 @@ theorem analyticOnNhd_regCarlsonLContinued_exponent_parameters {z : ι → ℂ}
     (hz : z ∈ carlsonRVariableDomain) :
     AnalyticOnNhd ℂ (fun p : Option ι → ℂ =>
       regCarlsonLContinued (p none) z hz (fun i => p (some i))) Set.univ := by
+  classical
   have h := (analyticOnNhd_regCarlsonRContinued_exponent_parameters hz).partialDeriv
     isOpen_univ none
   have heq : SeveralComplexVariables.partialDeriv none
@@ -74,6 +76,7 @@ theorem analyticAt_regCarlsonLContinued_comp
   exact (analyticOnNhd_regCarlsonLContinued_exponent_parameters hz (g p)
     (Set.mem_univ _)).comp hg
 
+/-- The continued regularized L-function is entire in the Dirichlet parameters. -/
 theorem analyticOnNhd_regCarlsonLContinued (t : ℂ) {z : ι → ℂ}
     (hz : z ∈ carlsonRVariableDomain) :
     AnalyticOnNhd ℂ (regCarlsonLContinued t z hz) Set.univ :=
@@ -95,15 +98,16 @@ theorem isRegCarlsonLContinuation_continued (t : ℂ) {z : ι → ℂ}
     fun _ hb => regCarlsonLContinued_eq_integral t hz hb⟩
 
 /-- Any entire continuation of the native L-integral is the selected L-function. -/
-theorem IsRegCarlsonContinuation.eq_regCarlsonLContinued {t : ℂ} {z : ι → ℂ}
+theorem _root_.Dirichlet.IsRegCarlsonContinuation.eq_regCarlsonLContinued {t : ℂ} {z : ι → ℂ}
     {G : (ι → ℂ) → ℂ} (hG : IsRegCarlsonContinuation (carlsonLKernel t) z G)
     (hz : z ∈ carlsonRVariableDomain) : G = regCarlsonLContinued t z hz :=
   hG.eq (isRegCarlsonLContinuation_continued t hz)
 
+/-- On the convergence region the continued L-function is the native L-integral. -/
 theorem carlsonLContinued_eq_integral (t : ℂ) {b z : ι → ℂ}
     (hz : z ∈ carlsonRVariableDomain) (hb : b ∈ mvBetaConvergent) :
     carlsonLContinued t z hz b = carlsonLIntegral t b z := by
   simp only [carlsonLContinued, carlsonLIntegral, regCarlsonLContinued_eq_integral t hz hb]
 
-end DirichletTransform
+end Carlson
 end

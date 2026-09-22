@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.L.SlitDeriv
@@ -11,10 +15,11 @@ Joint holomorphy of the second node derivatives permits continuation first in th
 parameters and then in the nodes. Equal indices and coincident nodes are included.
 -/
 
+open Dirichlet
 open Complex Filter Set
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 private theorem analyticOnNhd_secondPartial_regCarlsonLSlit_joint (i j : ι) :
@@ -23,6 +28,7 @@ private theorem analyticOnNhd_secondPartial_regCarlsonLSlit_joint (i j : ι) :
         (regCarlsonLSlit (p none) (fun k => p (some (.inl k)))))
         (fun k => p (some (.inr k))))
       {p | (fun k => p (some (.inr k))) ∈ carlsonRSlitDomain} := by
+  classical
   have h := (analyticOnNhd_carlsonPartialDeriv_regCarlsonLSlit_joint j).partialDeriv
     (isOpen_carlsonRSlitDomain.preimage (by fun_prop)) (some (Sum.inr i))
   have heq : SeveralComplexVariables.partialDeriv (some (Sum.inr i))
@@ -58,7 +64,8 @@ theorem analyticAt_carlsonEulerPoissonOperator_regCarlsonLSlit_comp
       cases k with
       | inl k => exact (analyticAt_pi_iff.mp hb) k
       | inr k => exact (analyticAt_pi_iff.mp hz) k
-  have hsecond := (analyticOnNhd_secondPartial_regCarlsonLSlit_joint i j (f p) hslit).comp_of_eq hf rfl
+  have hsecond := (analyticOnNhd_secondPartial_regCarlsonLSlit_joint i j (f p)
+      hslit).comp_of_eq hf rfl
   have hfirst (k : ι) := analyticAt_carlsonPartialDeriv_regCarlsonLSlit_comp ht hb hz hslit k
   exact ((((analyticAt_pi_iff.mp hz) i).sub ((analyticAt_pi_iff.mp hz) j)).mul hsecond |>.add
     (((analyticAt_pi_iff.mp hb) i).mul (hfirst j))).sub
@@ -67,6 +74,7 @@ theorem analyticAt_carlsonEulerPoissonOperator_regCarlsonLSlit_comp
 private theorem eulerPoisson_regCarlsonLSlit_of_native (t : ℂ) {b z : ι → ℂ}
     (hb : b ∈ mvBetaConvergent) (hz : z ∈ carlsonRVariableDomain) (i j : ι) :
     carlsonEulerPoissonOperator i j b z (regCarlsonLSlit t b) = 0 := by
+  classical
   have hfirst (k : ι) {w : ι → ℂ} (hw : w ∈ carlsonRVariableDomain) :
       carlsonPartialDeriv k (regCarlsonLSlit t b) w =
         carlsonPartialDeriv k (regCarlsonLIntegral t b) w := by
@@ -88,15 +96,18 @@ theorem carlsonEulerPoissonOperator_regCarlsonLSlit (t : ℂ) (b : ι → ℂ)
     carlsonEulerPoissonOperator i j b z (regCarlsonLSlit t b) = 0 := by
   have hright {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain) :
       carlsonEulerPoissonOperator i j b z (regCarlsonLSlit t b) = 0 := by
-    have ha : AnalyticOnNhd ℂ (fun b => carlsonEulerPoissonOperator i j b z (regCarlsonLSlit t b)) univ :=
+    have ha : AnalyticOnNhd ℂ (fun b => carlsonEulerPoissonOperator i j b z (regCarlsonLSlit t b))
+        univ :=
       fun _ _ => analyticAt_carlsonEulerPoissonOperator_regCarlsonLSlit_comp
-        analyticAt_const analyticAt_id analyticAt_const (carlsonRVariableDomain_subset_slitDomain hz) i j
+        analyticAt_const analyticAt_id analyticAt_const (carlsonRVariableDomain_subset_slitDomain
+            hz) i j
     exact congrFun (analyticOnNhd_eq_of_eqOn_mvBetaConvergent ha analyticOnNhd_const
       (fun _ hb => eulerPoisson_regCarlsonLSlit_of_native t hb hz i j)) b
   have ha : AnalyticOnNhd ℂ (fun z => carlsonEulerPoissonOperator i j b z (regCarlsonLSlit t b))
       carlsonRSlitDomain := fun _ hz => analyticAt_carlsonEulerPoissonOperator_regCarlsonLSlit_comp
         analyticAt_const analyticAt_const analyticAt_id hz i j
-  exact eqOn_carlsonRSlitDomain_of_eqOn_rightHalfPlane ha analyticOnNhd_const (fun _ hw => hright hw) hz
+  exact eqOn_carlsonRSlitDomain_of_eqOn_rightHalfPlane ha analyticOnNhd_const (fun _ hw => hright
+      hw) hz
 
 /-- The ordinary normalization satisfies the same homogeneous PDE wherever it represents
 the ordinary function; the identity also holds for Lean's totalization at Gamma poles. -/
@@ -108,4 +119,4 @@ theorem carlsonEulerPoissonOperator_carlsonLSlit (t : ℂ) (b : ι → ℂ)
   rw [carlsonEulerPoissonOperator_const_mul,
     carlsonEulerPoissonOperator_regCarlsonLSlit t b hz i j, mul_zero]
 
-end DirichletTransform
+end Carlson

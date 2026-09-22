@@ -7,14 +7,27 @@ module
 
 public import Pochhammer.BetaIntegral
 
-/-! # The real multivariate beta function -/
+/-!
+# The real multivariate beta function
+
+The real multivariate beta function `∏ i, Γ(b i) / Γ(∑ i, b i)` for positive real parameters,
+used to normalize the Dirichlet probability distribution.
+
+## Main definitions
+
+* `ProbabilityTheory.mvRealBeta`: the real multivariate beta function.
+* `ProbabilityTheory.mvRealBetaDomain`: parameter vectors with all coordinates positive.
+
+## Main results
+
+* `ProbabilityTheory.mvRealBeta_pos`: positivity on the parameter domain.
+-/
 
 @[expose] public noncomputable section
 
 namespace ProbabilityTheory
 
 open Real
-open scoped Classical
 
 variable {ι : Type*} [Fintype ι]
 

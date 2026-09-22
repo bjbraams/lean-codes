@@ -17,10 +17,10 @@ particular, the inhomogeneous lowering relation requires no division by a
 parameter or exponent. The proofs differentiate the corresponding R-identities.
 -/
 
+open Dirichlet
 open Complex ProbabilityTheory
-open scoped Classical
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- Equation (3.1), after Gamma regularization. -/
@@ -94,5 +94,5 @@ theorem regCarlsonLContinued_euler (t : ℂ) (b : ι → ℂ)
   convert h.unique hd using 1
   ring
 
-end DirichletTransform
+end Carlson
 end

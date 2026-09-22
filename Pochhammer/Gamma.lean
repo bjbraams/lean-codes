@@ -100,7 +100,7 @@ and independent of simplex measures or Carlson functions.
 
 open Complex
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Complex
 
 /-- Carlson's set `U`: complex numbers that are not nonpositive integers, equivalently the
 finite points at which the Gamma function has no pole. -/
@@ -143,7 +143,46 @@ theorem norm_invGamma_add_nat_le {s : ℂ} (hs : 1 ≤ s.re) (n : ℕ) :
     calc
       ‖s + n‖⁻¹ * ‖(Gamma (s + n))⁻¹‖ ≤ (n + 1 : ℝ)⁻¹ * (‖(Gamma s)⁻¹‖ / n.factorial) := by
         exact mul_le_mul (inv_anti₀ (by positivity) hnorm) ih (norm_nonneg _) (by positivity)
-      _ = _ := by simp only [Nat.factorial_succ, Nat.cast_mul, Nat.cast_succ, div_eq_mul_inv, mul_inv_rev]; ring
+      _ = _ := by
+          simp only [Nat.factorial_succ, Nat.cast_mul, Nat.cast_succ, div_eq_mul_inv,
+            mul_inv_rev]; ring
 
+end Complex
 
-end DirichletTransform
+namespace Complex
+open Set
+public noncomputable section
+
+/-- Reciprocal Gamma has uniform factorial decay after a common natural shift on any
+compact set of complex arguments. -/
+theorem exists_uniform_norm_invGamma_add_nat {K : Set ℂ} (hK : IsCompact K) :
+    ∃ m : ℕ, ∃ C : ℝ, 0 ≤ C ∧ ∀ b ∈ K, ∀ n : ℕ,
+      ‖(Gamma (b + (n + m)))⁻¹‖ ≤ C / n.factorial := by
+  obtain ⟨B, hB⟩ := hK.bddAbove_image continuous_id.norm.continuousOn
+  obtain ⟨m, hm⟩ := exists_nat_gt (B + 1)
+  have hre (b : ℂ) (hb : b ∈ K) : 1 ≤ (b + m).re := by
+    have hbnd : ‖b‖ ≤ B := hB (mem_image_of_mem _ hb)
+    have hr := neg_le_of_abs_le (abs_re_le_norm b)
+    simp only [add_re, natCast_re]
+    linarith
+  have hc : Continuous (fun b : ℂ => (Gamma (b + m))⁻¹) :=
+    differentiable_one_div_Gamma.continuous.comp (continuous_id.add continuous_const)
+  obtain ⟨C, hC⟩ := hK.bddAbove_image hc.norm.continuousOn
+  refine ⟨m, max C 0, le_max_right _ _, fun b hb n => ?_⟩
+  have h := (Complex.norm_invGamma_add_nat_le (hre b hb) n).trans
+    (div_le_div_of_nonneg_right ((hC (mem_image_of_mem _ hb)).trans (le_max_left C 0))
+      (by positivity))
+  simpa [Nat.cast_add, add_assoc, add_comm, add_left_comm] using h
+
+/-- Uniform factorial decay for reciprocal Gamma after sufficiently many shifts
+of the total parameter on a compact set. -/
+theorem exists_uniform_norm_invGamma_sum_add_nat {ι : Type*} [Fintype ι]
+    {K : Set (ι → ℂ)} (hK : IsCompact K) :
+    ∃ m : ℕ, ∃ C : ℝ, 0 ≤ C ∧ ∀ b ∈ K, ∀ n : ℕ,
+      ‖(Gamma ((∑ i, b i) + (n + m)))⁻¹‖ ≤ C / n.factorial := by
+  have hS : Continuous (fun b : ι → ℂ => ∑ i, b i) := by fun_prop
+  obtain ⟨m, C, hC, hbound⟩ := exists_uniform_norm_invGamma_add_nat (hK.image hS)
+  exact ⟨m, C, hC, fun b hb n => hbound _ (Set.mem_image_of_mem _ hb) n⟩
+
+end
+end Complex

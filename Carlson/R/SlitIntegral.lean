@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.R.SlitJointAnalytic
@@ -19,10 +23,10 @@ agreement: the convex hull may meet the cut. The general simply connected
 continuation theorem for arbitrary scalar kernels is still separate work.
 -/
 
+open Dirichlet
 open Complex ProbabilityTheory Set Metric
-open scoped Classical
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- The slit R-function satisfies the general-average characterization, with
@@ -79,5 +83,5 @@ theorem regCarlsonRSlit_eq_circleIntegral (t : ℂ) (b : ι → ℂ)
     (n := 0) (f := fun w : ℂ => w ^ t) hR (hp.diffContOnCl_ball hD) hz b
   simpa only [Nat.factorial_zero, Nat.cast_one, one_mul] using h
 
-end DirichletTransform
+end Carlson
 end

@@ -21,7 +21,6 @@ is `1 / (card ι - 1)!`. Empty and singleton index types are included explicitly
 -/
 
 open MeasureTheory MeasureTheory.Measure
-open scoped Classical
 @[expose] public noncomputable section
 namespace Convexity.StdSimplex
 variable {ι : Type*} [Fintype ι]
@@ -37,11 +36,13 @@ theorem map_coordinates_coordinateMeasure :
       stdSimplexMeasure.restrict (coordinateSet ℝ ι) := by
   rw [coordinateMeasure, measurableEmbedding_coordinates.map_comap, range_coordinates]
 
+/-- The coordinate map carries the intrinsic measure to the restricted ambient measure. -/
 theorem measurePreserving_coordinates :
     MeasurePreserving coordinates (coordinateMeasure (ι := ι))
       (stdSimplexMeasure.restrict (coordinateSet ℝ ι)) :=
   ⟨measurableEmbedding_coordinates.measurable, map_coordinates_coordinateMeasure⟩
 
+/-- The intrinsic measure of a set is the ambient measure of its coordinate image. -/
 theorem coordinateMeasure_apply (s : Set (StdSimplex ℝ ι)) :
     coordinateMeasure s = stdSimplexMeasure (coordinates '' s) :=
   measurableEmbedding_coordinates.comap_apply _ _
@@ -52,16 +53,19 @@ instance : IsFiniteMeasure (coordinateMeasure (ι := ι)) := by
     infer_instance
   exact Measure.isFiniteMeasure_of_map measurableEmbedding_coordinates.measurable.aemeasurable
 
+/-- The total intrinsic mass is `1 / (card ι - 1)!` for a nonempty index type. -/
 @[simp] theorem coordinateMeasure_univ [Nonempty ι] :
     coordinateMeasure (Set.univ : Set (StdSimplex ℝ ι)) =
       1 / (Nat.factorial (Fintype.card ι - 1) : ENNReal) := by
   rw [coordinateMeasure_apply, Set.image_univ, range_coordinates, stdSimplexMeasure_stdSimplex]
 
+/-- With an empty index type the intrinsic measure is zero. -/
 @[simp] theorem coordinateMeasure_empty [IsEmpty ι] :
     coordinateMeasure (ι := ι) = 0 := by
   simp [coordinateMeasure, stdSimplexMeasure_empty]
 
-@[simp] theorem coordinateMeasure_univ_unique [Unique ι] :
+/-- On a singleton index type the intrinsic simplex has total mass one. -/
+theorem coordinateMeasure_univ_unique [Unique ι] :
     coordinateMeasure (Set.univ : Set (StdSimplex ℝ ι)) = 1 := by simp
 
 /-- Integrating an ambient function over the intrinsic simplex is precisely the

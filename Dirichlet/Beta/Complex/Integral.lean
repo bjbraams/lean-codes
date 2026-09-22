@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Bastiaan J Braams.
+Authors: Bastiaan J Braams
 -/
 module
 
@@ -17,7 +17,28 @@ import StdSimplexMeasure.FiniteDimensionalHyperplane
 import StdSimplexMeasure.PiSnoc
 import StdSimplexMeasure.ProdSlices
 
-/-! # Solid-simplex integral evaluation of multivariate beta -/
+/-!
+# Solid-simplex integral evaluation of multivariate beta
+
+The DLMF integrals 5.14.1 and 5.14.2: the multivariate beta function is the integral over the
+solid standard simplex of the monomial `∏ i, x i ^ (b i - 1)`, with or without the factor
+`(1 - ∑ i, x i) ^ (b₀ - 1)` for the slack coordinate. The evaluation proceeds by slicing off one
+coordinate at a time with the measurable equivalence `MeasurableEquiv.piFinSnoc`.
+
+## Main definitions
+
+* `Complex.mvBetaSimplex`: the solid standard simplex in `Fin n → ℝ`.
+* `Complex.mvBetaIntegral`, `Complex.mvBetaIntegralOne`: the two solid-simplex integrals.
+
+## Main results
+
+* `Complex.mvBetaIntegral_eq_mvBeta`: DLMF 5.14.2.
+* `Complex.mvBetaIntegralOne_eq_mvBeta`: DLMF 5.14.1.
+
+## References
+
+* [DLMF] NIST Digital Library of Mathematical Functions, Section 5.14.
+-/
 
 open Fintype
 
@@ -214,7 +235,7 @@ private theorem integrable_mvBetaIntegrand_snoc_slice {n : ℕ} {b₀ : ℂ}
           Fin.sum_univ_castSucc, Fin.prod_univ_castSucc,
           Fin.snoc_last, Fin.snoc_castSucc]
         push_cast
-        ring
+        ring_nf
       · have hnmem : (y, t) ∉ piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ) ⁻¹' mvBetaSimplex (n + 1) := by
           rw [piFinSnoc_preimage_mvBetaSimplex]
           exact fun h => ht h.2
@@ -252,12 +273,131 @@ private theorem integral_mvBetaIntegrand_snoc_slice {n : ℕ} {b₀ : ℂ}
     simp only [mvBetaIntegrand, piFinSnoc_apply, Fin.sum_univ_castSucc, Fin.prod_univ_castSucc,
       Fin.snoc_last, Fin.snoc_castSucc]
     push_cast
-    ring
+    ring_nf
   rw [integral_Icc_eq_integral_Ioc, ← intervalIntegral.integral_of_le hs0]
   simp_rw [hmul]
   rw [intervalIntegral.integral_const_mul,
     betaIntegral_scaled (b (Fin.last n)) b₀ hs]
   ring_nf
+
+/-- The Beta integrand after adjoining the last coordinate, in product coordinates. -/
+private theorem mvBetaIntegrand_piFinSnoc {n : ℕ} (b₀ : ℂ) (b : Fin (n + 1) → ℂ)
+    (y : Fin n → ℝ) (t : ℝ) :
+    mvBetaIntegrand b₀ b (piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ) (y, t)) =
+      ((1 - ∑ i, y i - t : ℝ) : ℂ) ^ (b₀ - 1) *
+        ((t : ℂ) ^ (b (Fin.last n) - 1) * ∏ i, (y i : ℂ) ^ (b i.castSucc - 1)) := by
+  simp [mvBetaIntegrand, piFinSnoc_apply, Fin.sum_univ_castSucc, Fin.prod_univ_castSucc]
+  ring_nf
+
+/-- The norm integral of the adjoined Beta integrand over the slice `{t | (y, t) ∈ simplex}`,
+for `y` off the hyperplane `∑ i, y i = 1`: it is the one-dimensional Beta norm integral times
+the norm of the lower-dimensional integrand, or zero outside the lower simplex. -/
+private theorem integral_norm_mvBetaIntegrand_snoc_slice {n : ℕ} (b₀ : ℂ)
+    (b : Fin (n + 1) → ℂ) {y : Fin n → ℝ} (hsum : ∑ i, y i ≠ (1 : ℝ)) :
+    (∫ t, ‖(piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ) ⁻¹' mvBetaSimplex (n + 1)).indicator
+        (mvBetaIntegrand b₀ b ∘ piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ)) (y, t)‖) =
+      (mvBetaSimplex n).indicator (fun y =>
+        (∫ t in (0 : ℝ)..1, ‖(t : ℂ) ^ (b (Fin.last n) - 1) * (1 - (t : ℂ)) ^ (b₀ - 1)‖) *
+          ‖((1 - ∑ i, y i : ℝ) : ℂ) ^ (b₀ + b (Fin.last n) - 1) *
+            ∏ i, (y i : ℂ) ^ (b i.castSucc - 1)‖) y := by
+  have hR := piFinSnoc_preimage_mvBetaSimplex n
+  by_cases hy : y ∈ mvBetaSimplex n
+  · have hs : 0 < 1 - ∑ i, y i :=
+      lt_of_le_of_ne (sub_nonneg.mpr hy.2) (fun h => hsum (by linarith [h]))
+    have hscale := integral_norm_betaKernel_scaled (b (Fin.last n)) b₀ hs
+    have hs0 : 0 ≤ 1 - ∑ i, y i := le_of_lt hs
+    have hfun : (fun t =>
+        ‖(piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ) ⁻¹' mvBetaSimplex (n + 1)).indicator
+          (mvBetaIntegrand b₀ b ∘ piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ)) (y, t)‖) =
+        (Set.Icc 0 (1 - ∑ i, y i)).indicator (fun t =>
+          ‖∏ i, (y i : ℂ) ^ (b i.castSucc - 1)‖ *
+            ‖(t : ℂ) ^ (b (Fin.last n) - 1) *
+              ((1 - ∑ i, y i - t : ℝ) : ℂ) ^ (b₀ - 1)‖) := by
+      funext t
+      by_cases ht : t ∈ Set.Icc 0 (1 - ∑ i, y i)
+      · have hmem : (y, t) ∈ piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ) ⁻¹' mvBetaSimplex (n + 1) := by
+          rw [hR]; exact ⟨hy, ht⟩
+        rw [Set.indicator_of_mem hmem, Set.indicator_of_mem ht]
+        simp only [Function.comp_apply, mvBetaIntegrand_piFinSnoc, norm_mul]
+        ring
+      · have hnmem : (y, t) ∉ piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ) ⁻¹' mvBetaSimplex (n + 1) := by
+          rw [hR]; exact fun h => ht h.2
+        simp [Set.indicator_of_notMem hnmem, Set.indicator_of_notMem ht]
+    have hI :
+        ∫ t, ‖(piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ) ⁻¹' mvBetaSimplex (n + 1)).indicator
+            (mvBetaIntegrand b₀ b ∘ piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ)) (y, t)‖ =
+          ‖∏ i, (y i : ℂ) ^ (b i.castSucc - 1)‖ *
+            ∫ t in (0 : ℝ)..(1 - ∑ i, y i),
+              ‖(t : ℂ) ^ (b (Fin.last n) - 1) *
+                (((1 - ∑ i, y i : ℝ) : ℂ) - t) ^ (b₀ - 1)‖ := by
+      rw [hfun, integral_indicator measurableSet_Icc, intervalIntegral.integral_of_le hs0,
+        ← integral_const_mul, integral_Icc_eq_integral_Ioc]
+      apply setIntegral_congr_fun measurableSet_Ioc
+      intro t _
+      simp only [ofReal_sub]
+    have hf'eq : ‖((1 - ∑ i, y i : ℝ) : ℂ) ^ (b₀ + b (Fin.last n) - 1) *
+          ∏ i, (y i : ℂ) ^ (b i.castSucc - 1)‖ =
+        (1 - ∑ i, y i : ℝ) ^ ((b₀ + b (Fin.last n)).re - 1) *
+          ‖∏ i, (y i : ℂ) ^ (b i.castSucc - 1)‖ := by
+      rw [norm_mul, norm_cpow_eq_rpow_re_of_pos hs, sub_re, add_re, one_re]
+    rw [hI, hscale, Set.indicator_of_mem hy, hf'eq]
+    simp only [add_re]
+    ring_nf
+  · have h0 : ∀ t,
+        (piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ) ⁻¹' mvBetaSimplex (n + 1)).indicator
+          (mvBetaIntegrand b₀ b ∘ piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ)) (y, t) = 0 := by
+      intro t
+      apply Set.indicator_of_notMem
+      rw [hR]
+      exact fun h => hy h.1
+    simp [h0, Set.indicator_of_notMem hy, integral_zero]
+
+/-- Integrability of the lower-dimensional Beta integrand implies integrability after adjoining
+the last coordinate; the norm integral is evaluated slice by slice. -/
+private theorem integrableOn_mvBetaIntegrand_snoc_of_integrableOn {n : ℕ} {b₀ : ℂ}
+    {b : Fin (n + 1) → ℂ} (hb₀ : 0 < b₀.re) (hbl : 0 < (b (Fin.last n)).re)
+    (hprev : IntegrableOn
+      (mvBetaIntegrand (b₀ + b (Fin.last n)) (fun i : Fin n => b i.castSucc))
+      (mvBetaSimplex n)) :
+    IntegrableOn (mvBetaIntegrand b₀ b ∘ piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ))
+      (piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ) ⁻¹' mvBetaSimplex (n + 1)) volume := by
+  have hfmeas : Measurable (mvBetaIntegrand b₀ b) := by
+    simpa only [mvBetaIntegrand] using measurable_mvBetaIntegrand b₀ b
+  have hmp := volume_preserving_piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ)
+  have hRmeas : MeasurableSet (piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ) ⁻¹' mvBetaSimplex (n + 1)) :=
+    hmp.measurable (measurableSet_mvBetaSimplex _)
+  have hslice (y : Fin n → ℝ) :
+      Integrable fun t : ℝ =>
+        (piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ) ⁻¹' mvBetaSimplex (n + 1)).indicator
+          (mvBetaIntegrand b₀ b ∘ piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ)) (y, t) :=
+    integrable_mvBetaIntegrand_snoc_slice hb₀ hbl y
+  rw [Measure.volume_eq_prod]
+  have hASM : AEStronglyMeasurable
+      ((piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ) ⁻¹' mvBetaSimplex (n + 1)).indicator
+        (mvBetaIntegrand b₀ b ∘ piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ)))
+      (volume.prod volume) :=
+    (hfmeas.comp hmp.measurable).aestronglyMeasurable.indicator hRmeas
+  refine (integrable_indicator_iff hRmeas).1 ?_
+  rw [integrable_prod_iff hASM]
+  refine ⟨Filter.Eventually.of_forall hslice, ?_⟩
+  -- The inner norm integral is the scaled Beta norm integral times the inductive integrand.
+  have hsum0 : ∀ᵐ (y : Fin n → ℝ), ∑ i, y i ≠ (1 : ℝ) := by
+    cases n with
+    | zero => simp
+    | succ n =>
+        simpa [ae_iff] using
+          Measure.volume_setOf_fin_sum_eq (Nat.succ_pos n) (1 : ℝ)
+  have hEq :
+      (fun y => ∫ t, ‖(piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ) ⁻¹' mvBetaSimplex (n + 1)).indicator
+          (mvBetaIntegrand b₀ b ∘ piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ)) (y, t)‖) =ᵐ[volume]
+        (mvBetaSimplex n).indicator (fun y =>
+          (∫ t in (0 : ℝ)..1, ‖(t : ℂ) ^ (b (Fin.last n) - 1) * (1 - (t : ℂ)) ^ (b₀ - 1)‖) *
+            ‖((1 - ∑ i, y i : ℝ) : ℂ) ^ (b₀ + b (Fin.last n) - 1) *
+              ∏ i, (y i : ℂ) ^ (b i.castSucc - 1)‖) := by
+    filter_upwards [hsum0] with y hsum
+    exact integral_norm_mvBetaIntegrand_snoc_slice b₀ b hsum
+  exact (integrable_congr hEq).mpr
+    ((integrable_indicator_iff (measurableSet_mvBetaSimplex n)).mpr (hprev.norm.const_mul _))
 
 /-- Integrability of the solid-simplex Dirichlet monomial, together with DLMF 5.14.2. -/
 private theorem mvBetaIntegral_eq_mvBeta_aux {n : ℕ} {b₀ : ℂ} {b : Fin n → ℂ}
@@ -289,124 +429,18 @@ private theorem mvBetaIntegral_eq_mvBeta_aux {n : ℕ} {b₀ : ℂ} {b : Fin n �
       set f' : (Fin n → ℝ) → ℂ := fun y =>
         ((1 - ∑ i, y i : ℝ) : ℂ) ^ (b₀ + b (Fin.last n) - 1) *
           ∏ i, (y i : ℂ) ^ (b i.castSucc - 1)
-      have hfmeas : Measurable f := by
-        simpa only [f, mvBetaIntegrand] using measurable_mvBetaIntegrand b₀ b
       have hmp := volume_preserving_piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ)
       have hme := (piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ)).measurableEmbedding
       have hR := piFinSnoc_preimage_mvBetaSimplex n
-      have hRmeas : MeasurableSet (piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ) ⁻¹' mvBetaSimplex (n + 1)) :=
-        hmp.measurable (measurableSet_mvBetaSimplex _)
-      have hf_comp : ∀ y t,
-          f (piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ) (y, t)) =
-            ((1 - ∑ i, y i - t : ℝ) : ℂ) ^ (b₀ - 1) *
-              ((t : ℂ) ^ (b (Fin.last n) - 1) *
-                ∏ i, (y i : ℂ) ^ (b i.castSucc - 1)) := by
-        intro y t
-        simp [f, mvBetaIntegrand, piFinSnoc_apply, Fin.sum_univ_castSucc,
-          Fin.prod_univ_castSucc]
-        ring
-      have hslice (y : Fin n → ℝ) :
-          Integrable fun t : ℝ =>
-            (piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ) ⁻¹' mvBetaSimplex (n + 1)).indicator (f ∘ piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ)) (y, t) := by
-        change Integrable fun t : ℝ =>
-          (piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ) ⁻¹' mvBetaSimplex (n + 1)).indicator
-            (mvBetaIntegrand b₀ b ∘ piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ)) (y, t)
-        exact integrable_mvBetaIntegrand_snoc_slice hb₀ hbl y
-      have hfR : IntegrableOn (f ∘ piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ))
-          (piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ) ⁻¹' mvBetaSimplex (n + 1)) volume := by
-        rw [Measure.volume_eq_prod]
-        have hASM : AEStronglyMeasurable
-            ((piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ) ⁻¹' mvBetaSimplex (n + 1)).indicator (f ∘ piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ)))
-            (volume.prod volume) :=
-          (hfmeas.comp hmp.measurable).aestronglyMeasurable.indicator hRmeas
-        refine (integrable_indicator_iff hRmeas).1 ?_
-        rw [integrable_prod_iff hASM]
-        refine ⟨Filter.Eventually.of_forall hslice, ?_⟩
-        -- The inner-norm integral is controlled by the inductive integrand.
-        let C : ℝ :=
-          ∫ t in (0 : ℝ)..1, ‖(t : ℂ) ^ (b (Fin.last n) - 1) * (1 - (t : ℂ)) ^ (b₀ - 1)‖
-        have hbound : Integrable fun y : Fin n → ℝ =>
-            ∫ t : ℝ, ‖(piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ) ⁻¹' mvBetaSimplex (n + 1)).indicator
-              (f ∘ piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ)) (y, t)‖ := by
-          have hf'n : IntegrableOn (fun y => ‖f' y‖) (mvBetaSimplex n) := ih'.1.norm
-          have hsum0 : ∀ᵐ (y : Fin n → ℝ), ∑ i, y i ≠ (1 : ℝ) := by
-            cases n with
-            | zero => simp
-            | succ n =>
-                simpa [ae_iff] using
-                  Measure.volume_setOf_fin_sum_eq (Nat.succ_pos n) (1 : ℝ)
-          have hcoord0 : ∀ᵐ (y : Fin n → ℝ), ∀ i : Fin n, y i ≠ 0 := by
-            have h := measure_iUnion_null fun i : Fin n =>
-              Measure.volume_setOf_eval_eq i (0 : ℝ)
-            rw [ae_iff]
-            convert h
-            ext y
-            simp
-          have hEq :
-              (fun y => ∫ t, ‖(piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ) ⁻¹' mvBetaSimplex (n + 1)).indicator
-                  (f ∘ piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ)) (y, t)‖) =ᵐ[volume]
-                (mvBetaSimplex n).indicator (fun y => C * ‖f' y‖) := by
-            filter_upwards [hsum0, hcoord0] with y hsum hcoord
-            by_cases hy : y ∈ mvBetaSimplex n
-            · have hs : 0 < 1 - ∑ i, y i :=
-                lt_of_le_of_ne (sub_nonneg.mpr hy.2) (fun h => hsum (by linarith [h]))
-              have hscale := integral_norm_betaKernel_scaled (b (Fin.last n)) b₀ hs
-              have hs0 : 0 ≤ 1 - ∑ i, y i := le_of_lt hs
-              have hfun : (fun t =>
-                  ‖(piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ) ⁻¹' mvBetaSimplex (n + 1)).indicator
-                    (f ∘ piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ)) (y, t)‖) =
-                  (Set.Icc 0 (1 - ∑ i, y i)).indicator (fun t =>
-                    ‖∏ i, (y i : ℂ) ^ (b i.castSucc - 1)‖ *
-                      ‖(t : ℂ) ^ (b (Fin.last n) - 1) *
-                        ((1 - ∑ i, y i - t : ℝ) : ℂ) ^ (b₀ - 1)‖) := by
-                funext t
-                by_cases ht : t ∈ Set.Icc 0 (1 - ∑ i, y i)
-                · have hmem : (y, t) ∈ piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ) ⁻¹' mvBetaSimplex (n + 1) := by
-                    rw [hR]; exact ⟨hy, ht⟩
-                  rw [Set.indicator_of_mem hmem, Set.indicator_of_mem ht]
-                  simp only [Function.comp_apply, hf_comp, norm_mul]
-                  ring
-                · have hnmem : (y, t) ∉ piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ) ⁻¹' mvBetaSimplex (n + 1) := by
-                    rw [hR]; exact fun h => ht h.2
-                  simp [Set.indicator_of_notMem hnmem, Set.indicator_of_notMem ht]
-              have hI :
-                  ∫ t, ‖(piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ) ⁻¹' mvBetaSimplex (n + 1)).indicator
-                      (f ∘ piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ)) (y, t)‖ =
-                    ‖∏ i, (y i : ℂ) ^ (b i.castSucc - 1)‖ *
-                      ∫ t in (0 : ℝ)..(1 - ∑ i, y i),
-                        ‖(t : ℂ) ^ (b (Fin.last n) - 1) *
-                          (((1 - ∑ i, y i : ℝ) : ℂ) - t) ^ (b₀ - 1)‖ := by
-                rw [hfun, integral_indicator measurableSet_Icc, intervalIntegral.integral_of_le hs0,
-                  ← integral_const_mul, integral_Icc_eq_integral_Ioc]
-                apply setIntegral_congr_fun measurableSet_Ioc
-                intro t _
-                simp only [ofReal_sub]
-              have hf'eq : ‖f' y‖ =
-                  (1 - ∑ i, y i : ℝ) ^ ((b₀ + b (Fin.last n)).re - 1) *
-                    ‖∏ i, (y i : ℂ) ^ (b i.castSucc - 1)‖ := by
-                simp only [f', norm_mul]
-                rw [norm_cpow_eq_rpow_re_of_pos hs, sub_re, add_re, one_re]
-              rw [hI, hscale, Set.indicator_of_mem hy, hf'eq]
-              simp only [C, add_re]
-              ring
-            · have h0 : ∀ t,
-                  (piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ) ⁻¹' mvBetaSimplex (n + 1)).indicator
-                    (f ∘ piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ)) (y, t) = 0 := by
-                intro t
-                apply Set.indicator_of_notMem
-                rw [hR]
-                exact fun h => hy h.1
-              simp [h0, Set.indicator_of_notMem hy, integral_zero]
-          exact (integrable_congr hEq).mpr
-            ((integrable_indicator_iff (measurableSet_mvBetaSimplex n)).mpr (hf'n.const_mul C))
-        exact hbound
+      have hfR := integrableOn_mvBetaIntegrand_snoc_of_integrableOn hb₀ hbl ih'.1
       have hfΔ : IntegrableOn f (mvBetaSimplex (n + 1)) :=
         (hmp.integrableOn_comp_preimage hme).1 hfR
       refine ⟨hfΔ, ?_⟩
       have hFubini :=
         (hmp.setIntegral_preimage_emb hme f (mvBetaSimplex (n + 1))).symm
       have hprod :
-          ∫ p in piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ) ⁻¹' mvBetaSimplex (n + 1), f (piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ) p) =
+          ∫ p in piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ) ⁻¹' mvBetaSimplex (n + 1),
+              f (piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ) p) =
             ∫ y in mvBetaSimplex n, ∫ t in Set.Icc 0 (1 - ∑ i, y i),
               f (piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ) (y, t)) := by
         rw [hR]

@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.RPolynomial.Coefficients
@@ -13,19 +17,19 @@ The underlying Chu–Vandermonde identity for `ascPochhammer` is `ascPochhammer_
 `Pochhammer.Vandermonde`.
 -/
 
+open Dirichlet
 open Complex
-open scoped Classical
 @[expose] public noncomputable section CarlsonRPolynomial
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- Carlson's binomial translation formula for R-polynomials on the native convergence
 domain; this is the polynomial identity in [Carl77, Section 6.4]. -/
-theorem regCarlsonR_add_const_of_mem_mvBetaConvergent (n : ℕ) (a : ℂ) (z : ι → ℂ)
+theorem regCarlsonRPolynomial_add_const_of_mem_mvBetaConvergent (n : ℕ) (a : ℂ) (z : ι → ℂ)
     {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) :
-    regCarlsonR n (fun i => z i + a) b =
+    regCarlsonRPolynomial n b (fun i => z i + a) =
       ∑ m ∈ Finset.range (n + 1),
-        (Nat.choose n m : ℂ) * a ^ (n - m) * regCarlsonR m z b := by
+        (Nat.choose n m : ℂ) * a ^ (n - m) * regCarlsonRPolynomial m b z := by
   rw [← regCarlsonDirichletAverage_pow n _ hb]
   calc
     regCarlsonDirichletAverage b (fun i => z i + a) (fun w => w ^ n) =
@@ -49,7 +53,7 @@ theorem regCarlsonR_add_const_of_mem_mvBetaConvergent (n : ℕ) (a : ℂ) (z : �
       exact (continuous_const.mul
         ((continuous_carlsonAffineForm z).pow m)).continuousOn
     _ = ∑ m ∈ Finset.range (n + 1),
-          (Nat.choose n m : ℂ) * a ^ (n - m) * regCarlsonR m z b := by
+          (Nat.choose n m : ℂ) * a ^ (n - m) * regCarlsonRPolynomial m b z := by
       apply Finset.sum_congr rfl
       intro m hm
       rw [regCarlsonDirichletAverage_const_mul,
@@ -57,17 +61,17 @@ theorem regCarlsonR_add_const_of_mem_mvBetaConvergent (n : ℕ) (a : ℂ) (z : �
 
 /-- Carlson's binomial translation identity on the full parameter space. Gamma
 regularization removes every exclusion on the total parameter. -/
-theorem regCarlsonR_add_const (n : ℕ) (a : ℂ) (z b : ι → ℂ) :
-    regCarlsonR n (fun i => z i + a) b =
+theorem regCarlsonRPolynomial_add_const (n : ℕ) (a : ℂ) (z b : ι → ℂ) :
+    regCarlsonRPolynomial n b (fun i => z i + a) =
       ∑ m ∈ Finset.range (n + 1),
-        (Nat.choose n m : ℂ) * a ^ (n - m) * regCarlsonR m z b := by
+        (Nat.choose n m : ℂ) * a ^ (n - m) * regCarlsonRPolynomial m b z := by
   apply congrFun (analyticOnNhd_eq_of_eqOn_mvBetaConvergent
-    (analyticOnNhd_regCarlsonR n _) ?_ ?_) b
+    (analyticOnNhd_regCarlsonRPolynomial n _) ?_ ?_) b
   · intro c _
     exact Finset.analyticAt_fun_sum _ fun m _ =>
-      analyticAt_const.mul (analyticOnNhd_regCarlsonR m z c (Set.mem_univ c))
+      analyticAt_const.mul (analyticOnNhd_regCarlsonRPolynomial m z c (Set.mem_univ c))
   · intro c hc
-    exact regCarlsonR_add_const_of_mem_mvBetaConvergent n a z hc
+    exact regCarlsonRPolynomial_add_const_of_mem_mvBetaConvergent n a z hc
 
-end DirichletTransform
+end Carlson
 end CarlsonRPolynomial

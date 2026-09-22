@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.RPolynomial.Binomial
@@ -15,10 +19,10 @@ The Pochhammer reflection identity used in the book's proof is
 `Complex.ascPochhammer_eval_split_reflection` in `Pochhammer.Gamma`.
 -/
 
+open Dirichlet
 open Complex Finset
-open scoped Classical
 @[expose] public noncomputable section CarlsonRPolynomial
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- Scaling all Carlson variables scales their degree-`n` polynomial kernel by `a ^ n`. -/
@@ -28,11 +32,13 @@ theorem eval_carlsonPowerPolynomial_smul (n : ℕ) (a : ℂ) (z x : ι → ℂ) 
   rw [carlsonPowerPolynomial_smul]
   simp
 
+open scoped Classical in
 /-- Carlson's transformed Dirichlet parameters for degree `n`, with `i` chosen as the
 distinguished coordinate in Relation 6.5-3. -/
 def carlsonRTransformParameters (n : ℕ) (i : ι) (b : ι → ℂ) : ι → ℂ :=
   Function.update b i (1 - (∑ j, b j) - n)
 
+open scoped Classical in
 /-- Carlson's transformed variables for Relation 6.5-3.  The distinguished variable stays
 fixed and every other variable is replaced by its difference from that variable. -/
 def carlsonRTransformVariables (i : ι) (z : ι → ℂ) : ι → ℂ :=
@@ -55,6 +61,7 @@ symbol, by the multinomial Chu–Vandermonde identity. -/
 theorem carlsonRPolynomialNumerator_const (n : ℕ) (b : ι → ℂ) (w : ℂ) :
     carlsonRPolynomialNumerator n b (fun _ => w) =
       (ascPochhammer ℂ n).eval (∑ i, b i) * w ^ n := by
+  classical
   rw [carlsonRPolynomialNumerator_eq_multinomial_sum, ascPochhammer_eval_sum univ b n]
   rw [sum_mul]
   refine sum_congr rfl fun m hm => ?_
@@ -65,6 +72,7 @@ theorem carlsonRPolynomialNumerator_const (n : ℕ) (b : ι → ℂ) (w : ℂ) :
   rw [hpow]
   ring
 
+open scoped Classical in
 /-- A numerator with just one nonzero node is a single Pochhammer symbol. -/
 theorem carlsonRPolynomialNumerator_single (n : ℕ) (i : ι) (b : ι → ℂ) (w : ℂ) :
     carlsonRPolynomialNumerator n b (Pi.single i w) =
@@ -96,6 +104,7 @@ theorem carlsonRPolynomialNumerator_single (n : ℕ) (i : ι) (b : ι → ℂ) (
     · simp
   rw [hprod, mul_comm]
 
+open scoped Classical in
 omit [Fintype ι] in
 private lemma carlsonRTransformVariables_update {i j : ι} (hji : j ≠ i)
     (z : ι → ℂ) (w : ℂ) :
@@ -114,6 +123,7 @@ private lemma carlsonRTransformParameters_addDirichletUnit
     (n : ℕ) {i j : ι} (hji : j ≠ i) (b : ι → ℂ) :
     carlsonRTransformParameters n i (addDirichletUnit b j) =
       addDirichletUnit (carlsonRTransformParameters (n + 1) i b) j := by
+  classical
   have hs : (∑ k, addDirichletUnit b j k) = (∑ k, b k) + 1 := by
     simp only [addDirichletUnit, sum_update_of_mem (mem_univ j), sdiff_singleton_eq_erase]
     rw [← sum_erase_add univ b (mem_univ j)]
@@ -130,6 +140,7 @@ private lemma carlsonRTransformParameters_addDirichletUnit
       simp [carlsonRTransformParameters, addDirichletUnit, hji]
     · simp [carlsonRTransformParameters, addDirichletUnit, hki, hkj]
 
+open scoped Classical in
 /-- If changing any coordinate other than `i` leaves a function unchanged, it agrees
 with its value at the constant vector whose entries are `z i`. -/
 private lemma eq_const_of_update_eq (f : (ι → ℂ) → ℂ) (i : ι)
@@ -159,6 +170,7 @@ private lemma eq_const_of_update_eq (f : (ι → ℂ) → ℂ) (i : ι)
   · intro k hk
     exact (mem_erase.mp hk).1
 
+open scoped Classical in
 /-- Division-free form of Carlson's multivariate linear transformation 6.5-3.
 
 Using the Pochhammer numerator avoids hypotheses excluding exceptional parameters.  Carlson's
@@ -229,5 +241,5 @@ theorem carlsonRPolynomialNumerator_transform (n : ℕ) (i : ι) (b z : ι → �
 /- The two-variable transformations 6.5-1 are specializations of
 `carlsonRPolynomialNumerator_transform`. -/
 
-end DirichletTransform
+end Carlson
 end CarlsonRPolynomial

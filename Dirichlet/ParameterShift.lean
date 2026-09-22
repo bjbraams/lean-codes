@@ -1,16 +1,36 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Dirichlet.Complex
 
-/-! # Unit shifts of Dirichlet parameters and their integral identities -/
+/-!
+# Unit shifts of Dirichlet parameters and their integral identities
+
+Raising one Dirichlet parameter by one multiplies the regularized density by the corresponding
+simplex coordinate. This is the integral form of the parameter-shift relations underlying
+Carlson's associated functions.
+
+## Main definitions
+
+* `Dirichlet.addDirichletUnit`: the parameter vector with coordinate `i` raised by one.
+
+## Main results
+
+* `Dirichlet.mul_regDirichletDensity_addDirichletUnit`: the density identity.
+* `Dirichlet.mul_regDirichletIntegral_addDirichletUnit`: the integral identity.
+-/
 
 open Complex MeasureTheory ProbabilityTheory Filter Set
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Dirichlet
 variable {ι : Type*} [Fintype ι]
 
+open scoped Classical in
 /-- The Dirichlet parameter vector obtained by increasing coordinate `i` by one. -/
 def addDirichletUnit (b : ι → ℂ) (i : ι) : ι → ℂ :=
   Function.update b i (b i + 1)
@@ -18,6 +38,7 @@ def addDirichletUnit (b : ι → ℂ) (i : ι) : ι → ℂ :=
 /-- A unit parameter shift increases the total parameter by one. -/
 @[simp] theorem sum_addDirichletUnit (b : ι → ℂ) (i : ι) :
     ∑ j, addDirichletUnit b i j = (∑ j, b j) + 1 := by
+  classical
   unfold addDirichletUnit
   rw [Fintype.sum_eq_add_sum_subtype_ne (Function.update b i (b i + 1)) i,
     Fintype.sum_eq_add_sum_subtype_ne b i]
@@ -43,6 +64,7 @@ theorem mul_regDirichletDensity_addDirichletUnit {b : ι → ℂ}
     (hb : b ∈ mvBetaConvergent) (i : ι) (u : ι → ℝ) :
     b i * regDirichletDensity (addDirichletUnit b i) u =
       (u i : ℂ) * regDirichletDensity b u := by
+  classical
   classical
   by_cases hu : u ∈ stdSimplexInterior
   · rw [regDirichletDensity, Set.indicator_of_mem hu]
@@ -87,19 +109,4 @@ theorem mul_regDirichletIntegral_addDirichletUnit {b : ι → ℂ}
   rw [← mul_assoc, mul_regDirichletDensity_addDirichletUnit hb]
   ring
 
-/-- Compatibility spelling for the density-shift lemma used by the earlier `R`-function
-development. -/
-theorem mul_regDirichletDensity_update_add_one {b : ι → ℂ}
-    (hb : b ∈ mvBetaConvergent) (i : ι) (u : ι → ℝ) :
-    b i * regDirichletDensity (Function.update b i (b i + 1)) u =
-      (u i : ℂ) * regDirichletDensity b u := by
-  simpa [addDirichletUnit] using mul_regDirichletDensity_addDirichletUnit hb i u
-
-/-- Compatibility spelling for the integral parameter-shift lemma. -/
-theorem mul_regDirichletIntegral_update_add_one {b : ι → ℂ}
-    (hb : b ∈ mvBetaConvergent) (i : ι) (f : (ι → ℝ) → ℂ) :
-    b i * regDirichletIntegral (Function.update b i (b i + 1)) f =
-      regDirichletIntegral b (fun u ↦ (u i : ℂ) * f u) := by
-  simpa [addDirichletUnit] using mul_regDirichletIntegral_addDirichletUnit hb i f
-
-end DirichletTransform
+end Dirichlet

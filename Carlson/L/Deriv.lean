@@ -17,10 +17,10 @@ analyticity and the Euler–Poisson system are instances of the general Dirichle
 average theorems, not independent integration-by-parts proofs.
 -/
 
+open Dirichlet
 open Complex ProbabilityTheory
-open scoped Classical
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- The power-logarithm kernel is holomorphic on the principal slit plane. -/
@@ -106,5 +106,5 @@ theorem carlsonPartialDeriv_regCarlsonLIntegral (t : ℂ) {b z : ι → ℂ}
       hb (Set.range_subset_iff.mpr hz),
     regCarlsonDirichletAverage_deriv_LKernel t (addDirichletUnit_mem_mvBetaConvergent hb i) hz]
 
-end DirichletTransform
+end Carlson
 end

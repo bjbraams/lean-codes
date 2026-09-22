@@ -1,15 +1,37 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.TwoVariable.RPolynomial
 public import Pochhammer.Identities
 
-/-! # Differential and contiguous identities for two-variable Carlson polynomials -/
+/-!
+# Differential and contiguous identities for two-variable Carlson polynomials
 
+Homogeneity, node derivatives, and contiguous relations for the explicit Pochhammer numerator
+of the two-variable Carlson R-polynomial. All identities are division-free and hold at every
+complex parameter, including the exceptional values.
+
+## Main results
+
+* `Carlson.TwoVariable.hasDerivAt_carlsonRPolynomialNumerator₂_left`,
+  `Carlson.TwoVariable.hasDerivAt_carlsonRPolynomialNumerator₂_right`: node derivatives shift the
+  corresponding parameter.
+* `Carlson.TwoVariable.carlsonRPolynomialNumerator₂_contiguous`: a contiguous relation
+  transferring one unit between the parameters.
+
+## References
+
+* [Carl77] B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
+-/
+
+open Dirichlet
 open Complex Polynomial Finset
-open scoped Classical
 @[expose] public noncomputable section
-namespace DirichletTransform.TwoVariable
+namespace Carlson.TwoVariable
 
 /-- Homogeneity of the two-variable Pochhammer numerator, including exceptional parameters. -/
 theorem carlsonRPolynomialNumerator₂_smul (n : ℕ) (p q c x y : ℂ) :
@@ -69,6 +91,8 @@ theorem hasDerivAt_carlsonRPolynomialNumerator₂_left (n : ℕ) (p q x y : ℂ)
   ext i
   fin_cases i <;> simp [pair]
 
+/-- Differentiating the two-variable Pochhammer numerator in its second node shifts the second
+parameter. -/
 theorem hasDerivAt_carlsonRPolynomialNumerator₂_right (n : ℕ) (p q x y : ℂ) :
     HasDerivAt (fun w => carlsonRPolynomialNumerator₂ (n + 1) p q x w)
       ((n + 1 : ℂ) * q * carlsonRPolynomialNumerator₂ n p (q + 1) x y) y := by
@@ -140,5 +164,5 @@ theorem carlsonRPolynomialNumerator₂_contiguous (n : ℕ) (p q x y : ℂ) :
     (p + q + (ij.1 : ℂ) + ij.2) * (ascPochhammer ℂ ij.1).eval (p + 1) *
       (ascPochhammer ℂ ij.2).eval (q - 1) * x ^ (ij.1 + 1) * y ^ ij.2 * hc
 
-end DirichletTransform.TwoVariable
+end Carlson.TwoVariable
 end

@@ -20,10 +20,10 @@ case `L_{-1}(1,1;x,y)` is Carlson (1987), (8.8). Its undivided identity includes
 coincident nodes; the diagonal value is supplied separately.
 -/
 
+open Dirichlet
 open Complex ProbabilityTheory
-open scoped Classical
 @[expose] public noncomputable section
-namespace DirichletTransform.TwoVariable
+namespace Carlson.TwoVariable
 
 /-- The two-variable native regularized L-integral. -/
 abbrev regLIntegral (t b₀ b₁ x y : ℂ) : ℂ :=
@@ -55,7 +55,7 @@ theorem sub_mul_regAverage_deriv {f : ℂ → ℂ}
     (hf : AnalyticOnNhd ℂ f carlsonRightHalfPlane) (x y : ℂ)
     (hz : pair x y ∈ carlsonRVariableDomain) :
     (x - y) * regCarlsonDirichletAverage (pair 1 1) (pair x y) (deriv f) = f x - f y := by
-  have h := carlsonDividedDifference_sub isOpen_carlsonRightHalfPlane
+  have h := carlsonDividedDifference_sub
     convex_carlsonRightHalfPlane hf (Fin.elim0 : Fin 0 → ℂ)
     (by rintro _ ⟨i, _⟩; exact Fin.elim0 i) (hz 0) (hz 1)
   have hp : Fin.snoc (Fin.snoc (Fin.elim0 : Fin 0 → ℂ) x) y = pair x y := by
@@ -142,5 +142,5 @@ theorem regCarlsonLSlit_pair_contiguous (t u v : ℂ) {x y : ℂ}
   simp only [Fin.sum_univ_two, pair_zero, pair_one, hu] at h₀ h₁
   linear_combination h₁ - y * h₀
 
-end DirichletTransform.TwoVariable
+end Carlson.TwoVariable
 end

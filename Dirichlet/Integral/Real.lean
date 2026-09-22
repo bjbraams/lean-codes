@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Bastiaan J Braams.
+Authors: Bastiaan J Braams
 -/
 module
 
@@ -15,11 +15,10 @@ import all StdSimplexMeasure.Measure.Basic
 
 Shared analytic foundations for the real probability distribution and complex Dirichlet
 integrals. No Dirichlet probability measure is constructed or imported here.
-The historical `ProbabilityTheory` declaration names are retained for compatibility.
 -/
 
 open Real MeasureTheory MeasureTheory.Measure
-open scoped ENNReal Classical
+open scoped ENNReal
 
 @[expose] public noncomputable section
 
@@ -27,6 +26,7 @@ namespace ProbabilityTheory
 
 variable {ι : Type*} [Fintype ι]
 
+open scoped Classical in
 /-- Scaling the free coordinates in a simplex slice separates a Dirichlet monomial into its
 distinguished-coordinate factor, radial factor, and lower-dimensional monomial. -/
 private theorem prod_rpow_stdSimplexCoordMap_scale
@@ -55,13 +55,130 @@ private theorem prod_rpow_stdSimplexCoordMap_scale
   rw [Finset.prod_mul_distrib, ← Real.rpow_sum_of_pos (sub_pos.mpr ht.2)]
   ring
 
+/-- The nonnegative Dirichlet monomial integral on a singleton index type: the simplex is a
+single point of mass one. -/
+theorem lintegral_dirichletMonomial_of_unique [Unique ι] {b : ι → ℝ}
+    (hb : b ∈ mvRealBetaDomain) :
+    ∫⁻ u in Convexity.StdSimplex.coordinateSet ℝ ι, ENNReal.ofReal (∏ i,
+        u i ^ (b i - 1)) ∂stdSimplexMeasure =
+      ENNReal.ofReal (mvRealBeta b) := by
+  classical
+  rw [stdSimplexMeasure_unique, MeasureTheory.setLIntegral_dirac]
+  have hG : Gamma (b default) ≠ 0 := ne_of_gt (Gamma_pos_of_pos (hb default))
+  simp [mvRealBeta, hG, Convexity.StdSimplex.coordinateSet]
 
+open scoped Classical in
+/-- The inner integral of a simplex slice of the nonnegative Dirichlet monomial: the
+distinguished coordinate and the radial factor come out, leaving the lower-dimensional
+monomial integral. -/
+theorem lintegral_dirichletMonomial_slice (i : ι) (b : ι → ℝ) {t : ℝ}
+    (ht : t ∈ Set.Ico (0 : ℝ) 1) :
+    (∫⁻ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
+      ENNReal.ofReal (∏ k, stdSimplexCoordMap i (fun q ↦ (1 - t) * v q) k ^ (b k - 1))
+        ∂stdSimplexMeasure) =
+      ENNReal.ofReal (t ^ (b i - 1) * (1 - t) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1))) *
+        ∫⁻ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
+          ENNReal.ofReal (∏ q, v q ^ (b q - 1)) ∂stdSimplexMeasure := by
+  calc
+    _ = ∫⁻ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
+        ENNReal.ofReal ((t ^ (b i - 1) * (1 - t) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1))) *
+          ∏ q : {j : ι // j ≠ i}, v q ^ (b q - 1)) ∂stdSimplexMeasure := by
+      apply setLIntegral_congr_fun (Convexity.StdSimplex.isClosed_coordinateSet ℝ _).measurableSet
+      intro v hv
+      change ENNReal.ofReal
+        (∏ k, stdSimplexCoordMap i (fun q ↦ (1 - t) * v q) k ^ (b k - 1)) = _
+      rw [prod_rpow_stdSimplexCoordMap_scale i b ht hv]
+    _ = _ := by
+      rw [← lintegral_const_mul]
+      · apply lintegral_congr
+        intro v
+        rw [← ENNReal.ofReal_mul (mul_nonneg
+          (Real.rpow_nonneg ht.1 _) (Real.rpow_nonneg (sub_nonneg.mpr ht.2.le) _))]
+      · fun_prop
+
+open scoped Classical in
+/-- The Jacobian power of a simplex slice merges with the radial factor of the Dirichlet
+monomial into a single power of `1 - t`. -/
+theorem pow_mul_rpow_sum_sub_one [Nontrivial ι] (i : ι) (b : ι → ℝ) {t : ℝ}
+    (ht : t ∈ Set.Ico (0 : ℝ) 1) :
+    (1 - t) ^ (Fintype.card ι - 2) *
+        (t ^ (b i - 1) * (1 - t) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1))) =
+      t ^ (b i - 1) * (1 - t) ^ ((∑ q : {j : ι // j ≠ i}, b q) - 1) := by
+  have hcard_rest : Fintype.card {j : ι // j ≠ i} = Fintype.card ι - 1 := by
+    rw [Fintype.card_subtype_compl, Fintype.card_subtype_eq]
+  have hcard_two : 2 ≤ Fintype.card ι := Fintype.one_lt_card
+  have hexp : (Fintype.card ι - 2 : ℝ) + (∑ q : {j : ι // j ≠ i}, (b q - 1)) =
+      (∑ q : {j : ι // j ≠ i}, b q) - 1 := by
+    have hcast_rest : (Fintype.card {j : ι // j ≠ i} : ℝ) = (Fintype.card ι : ℝ) - 1 := by
+      rw [hcard_rest, Nat.cast_sub (by omega)]
+      norm_num
+    simp only [Finset.sum_sub_distrib, Finset.sum_const, Finset.card_univ, nsmul_eq_mul, mul_one]
+    rw [hcast_rest]
+    ring
+  have hcast_d : ((Fintype.card ι - 2 : ℕ) : ℝ) = (Fintype.card ι : ℝ) - 2 := by
+    rw [Nat.cast_sub hcard_two]
+    norm_num
+  calc
+    (1 - t) ^ (Fintype.card ι - 2) *
+        (t ^ (b i - 1) * (1 - t) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1))) =
+        t ^ (b i - 1) *
+          ((1 - t) ^ (Fintype.card ι - 2) * (1 - t) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1))) := by
+      ring
+    _ = t ^ (b i - 1) *
+        (1 - t) ^ ((Fintype.card ι - 2 : ℕ) + (∑ q : {j : ι // j ≠ i}, (b q - 1))) := by
+      rw [← Real.rpow_natCast, ← Real.rpow_add (sub_pos.mpr ht.2)]
+    _ = _ := by rw [hcast_d, hexp]
+
+open scoped Classical in
+/-- The induction step for the nonnegative Dirichlet monomial integral: slicing off the
+coordinate `i` reduces the integral over a nontrivial simplex to the integral over the simplex
+of the remaining coordinates, whose value is supplied as a hypothesis. -/
+theorem lintegral_dirichletMonomial_eq_mvRealBeta_of_subtype [Nontrivial ι] (i : ι)
+    {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain)
+    (hih : ∫⁻ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
+        ENNReal.ofReal (∏ q, v q ^ (b q - 1)) ∂stdSimplexMeasure =
+      ENNReal.ofReal (mvRealBeta fun q : {j : ι // j ≠ i} => b q)) :
+    ∫⁻ u in Convexity.StdSimplex.coordinateSet ℝ ι, ENNReal.ofReal (∏ i,
+        u i ^ (b i - 1)) ∂stdSimplexMeasure =
+      ENNReal.ofReal (mvRealBeta b) := by
+  have hrest_nonempty : Nonempty {j : ι // j ≠ i} := by
+    obtain ⟨j, hji⟩ := exists_ne i
+    exact ⟨⟨j, hji⟩⟩
+  have hc : 0 < ∑ q : {j : ι // j ≠ i}, b q :=
+    Finset.sum_pos (fun q _ => hb q) Finset.univ_nonempty
+  rw [lintegral_stdSimplex_split_at i _ (by fun_prop)]
+  have houter : ∀ᵐ t ∂volume.restrict (Set.Icc (0 : ℝ) 1),
+      ENNReal.ofReal ((1 - t) ^ (Fintype.card ι - 2)) *
+          (∫⁻ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
+            ENNReal.ofReal (∏ k, stdSimplexCoordMap i (fun q ↦ (1 - t) * v q) k ^ (b k - 1))
+              ∂stdSimplexMeasure) =
+        ENNReal.ofReal (mvRealBeta fun q : {j : ι // j ≠ i} => b q) *
+          ENNReal.ofReal (t ^ (b i - 1) * (1 - t) ^ ((∑ q : {j : ι // j ≠ i}, b q) - 1)) := by
+    filter_upwards [ae_restrict_of_ae (Ico_ae_eq_Icc (μ := volume) (a := (0 : ℝ)) (b := 1)),
+      ae_restrict_mem (μ := volume) measurableSet_Icc] with t heq htIcc
+    have ht : t ∈ Set.Ico (0 : ℝ) 1 := heq.mpr htIcc
+    rw [lintegral_dirichletMonomial_slice i b ht, hih, ← mul_assoc,
+      ← ENNReal.ofReal_mul (pow_nonneg (sub_nonneg.mpr ht.2.le) _),
+      pow_mul_rpow_sum_sub_one i b ht, mul_comm]
+  rw [lintegral_congr_ae houter, lintegral_const_mul' _ _ ENNReal.ofReal_ne_top,
+    ← ofReal_integral_eq_lintegral_ofReal (integrableOn_Icc_rpow_mul_one_sub_rpow (hb i) hc)]
+  · rw [integral_Icc_rpow_mul_one_sub_rpow (hb i) hc, mul_comm,
+      ← ENNReal.ofReal_mul (le_of_lt (beta_pos (hb i) hc))]
+    congr 1
+    dsimp only [mvRealBeta]
+    rw [Fintype.prod_eq_mul_prod_subtype_ne _ i, Fintype.sum_eq_add_sum_subtype_ne b i, beta]
+    have hGc : Gamma (∑ q : {j : ι // j ≠ i}, b q) ≠ 0 := ne_of_gt (Gamma_pos_of_pos hc)
+    field_simp
+  · filter_upwards [ae_restrict_mem (μ := volume) measurableSet_Icc] with t ht
+    exact mul_nonneg (Real.rpow_nonneg ht.1 _) (Real.rpow_nonneg (sub_nonneg.mpr ht.2) _)
 
 /-- The nonnegative Dirichlet monomial integral, used to establish integrability before passing
-to the Bochner integral. -/
+to the Bochner integral. The proof is a strong induction on the number of coordinates, slicing
+off one coordinate at a time. -/
 theorem lintegral_dirichletMonomial_eq_mvRealBeta {b : ι → ℝ}
     (hb : b ∈ mvRealBetaDomain) :
-    ∫⁻ u in Convexity.StdSimplex.coordinateSet ℝ ι, ENNReal.ofReal (∏ i, u i ^ (b i - 1)) ∂stdSimplexMeasure =
+    ∫⁻ u in Convexity.StdSimplex.coordinateSet ℝ ι, ENNReal.ofReal (∏ i,
+        u i ^ (b i - 1)) ∂stdSimplexMeasure =
       ENNReal.ofReal (mvRealBeta b) := by
   classical
   induction hn : Fintype.card ι using Nat.strong_induction_on generalizing ι with
@@ -74,127 +191,16 @@ theorem lintegral_dirichletMonomial_eq_mvRealBeta {b : ι → ℝ}
           let _ := hι
           cases subsingleton_or_nontrivial ι with
           | inl hsub =>
-              let : Unique ι :=
-                ⟨⟨Classical.choice hι⟩, fun a => hsub.elim _ _⟩
-              rw [stdSimplexMeasure_unique, MeasureTheory.setLIntegral_dirac]
-              have hG : Gamma (b default) ≠ 0 := ne_of_gt (Gamma_pos_of_pos (hb default))
-              simp [mvRealBeta, hG, Convexity.StdSimplex.coordinateSet]
+              let : Unique ι := ⟨⟨Classical.choice hι⟩, fun a => hsub.elim _ _⟩
+              exact lintegral_dirichletMonomial_of_unique hb
           | inr hnontrivial =>
               let _ := hnontrivial
               let i : ι := Classical.choice hι
-              let b' : {j : ι // j ≠ i} → ℝ := fun j => b j
-              have hb' : b' ∈ mvRealBetaDomain := fun j => hb j
               have hcard : Fintype.card {j : ι // j ≠ i} < n := by
                 rw [← hn, Fintype.card_subtype_compl, Fintype.card_subtype_eq]
                 exact Nat.sub_one_lt (Fintype.card_pos_iff.mpr hι).ne'
-              have hih := ih _ hcard (ι := {j : ι // j ≠ i}) hb'
-              rw [lintegral_stdSimplex_split_at i _ (by fun_prop)]
-              have hinner : ∀ t ∈ Set.Ico (0 : ℝ) 1,
-                  (∫⁻ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
-                    ENNReal.ofReal
-                      (∏ k, stdSimplexCoordMap i (fun q ↦ (1 - t) * v q) k ^
-                        (b k - 1)) ∂stdSimplexMeasure) =
-                    ENNReal.ofReal
-                      (t ^ (b i - 1) *
-                        (1 - t) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1))) *
-                      ENNReal.ofReal (mvRealBeta b') := by
-                intro t ht
-                calc
-                  _ = ∫⁻ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
-                      ENNReal.ofReal
-                        ((t ^ (b i - 1) *
-                          (1 - t) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1))) *
-                            ∏ q : {j : ι // j ≠ i}, v q ^ (b q - 1))
-                          ∂stdSimplexMeasure := by
-                        apply setLIntegral_congr_fun (Convexity.StdSimplex.isClosed_coordinateSet ℝ _).measurableSet
-                        intro v hv
-                        change ENNReal.ofReal
-                          (∏ k, stdSimplexCoordMap i (fun q ↦ (1 - t) * v q) k ^
-                            (b k - 1)) = _
-                        rw [prod_rpow_stdSimplexCoordMap_scale i b ht hv]
-                  _ = ENNReal.ofReal
-                        (t ^ (b i - 1) *
-                          (1 - t) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1))) *
-                      ∫⁻ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
-                        ENNReal.ofReal (∏ q, v q ^ (b q - 1))
-                          ∂stdSimplexMeasure := by
-                        rw [← lintegral_const_mul]
-                        · apply lintegral_congr
-                          intro v
-                          rw [← ENNReal.ofReal_mul (mul_nonneg
-                            (Real.rpow_nonneg ht.1 _) (Real.rpow_nonneg (sub_nonneg.mpr ht.2.le) _))]
-                        · fun_prop
-                  _ = _ := by rw [hih rfl]
-              have hrest_nonempty : Nonempty {j : ι // j ≠ i} := by
-                obtain ⟨j, hji⟩ := exists_ne i
-                exact ⟨⟨j, hji⟩⟩
-              let c : ℝ := ∑ q : {j : ι // j ≠ i}, b q
-              have hc : 0 < c := Finset.sum_pos (fun q _ => hb q) Finset.univ_nonempty
-              have houter : ∀ᵐ t ∂volume.restrict (Set.Icc (0 : ℝ) 1),
-                  ENNReal.ofReal ((1 - t) ^ (Fintype.card ι - 2)) *
-                      (∫⁻ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
-                        ENNReal.ofReal
-                          (∏ k, stdSimplexCoordMap i (fun q ↦ (1 - t) * v q) k ^
-                            (b k - 1)) ∂stdSimplexMeasure) =
-                    ENNReal.ofReal (t ^ (b i - 1) * (1 - t) ^ (c - 1)) *
-                      ENNReal.ofReal (mvRealBeta b') := by
-                filter_upwards [ae_restrict_of_ae
-                    (Ico_ae_eq_Icc (μ := volume) (a := (0 : ℝ)) (b := 1)),
-                  ae_restrict_mem (μ := volume) measurableSet_Icc] with t heq htIcc
-                have ht : t ∈ Set.Ico (0 : ℝ) 1 := heq.mpr htIcc
-                rw [hinner t ht]
-                have hcard_rest : Fintype.card {j : ι // j ≠ i} = Fintype.card ι - 1 := by
-                  rw [Fintype.card_subtype_compl, Fintype.card_subtype_eq]
-                have hcard_two : 2 ≤ Fintype.card ι := Fintype.one_lt_card
-                have hexp : (Fintype.card ι - 2 : ℝ) +
-                    (∑ q : {j : ι // j ≠ i}, (b q - 1)) = c - 1 := by
-                  have hcast_rest : (Fintype.card {j : ι // j ≠ i} : ℝ) =
-                      (Fintype.card ι : ℝ) - 1 := by
-                    rw [hcard_rest, Nat.cast_sub (by omega)]
-                    norm_num
-                  simp only [Finset.sum_sub_distrib, Finset.sum_const, Finset.card_univ,
-                    nsmul_eq_mul, mul_one, c]
-                  rw [hcast_rest]
-                  ring
-                have hcast_d : ((Fintype.card ι - 2 : ℕ) : ℝ) =
-                    (Fintype.card ι : ℝ) - 2 := by
-                  rw [Nat.cast_sub hcard_two]
-                  norm_num
-                rw [← mul_assoc,
-                  ← ENNReal.ofReal_mul (pow_nonneg (sub_nonneg.mpr ht.2.le) _)]
-                congr 1
-                apply congrArg ENNReal.ofReal
-                calc
-                  (1 - t) ^ (Fintype.card ι - 2) *
-                      (t ^ (b i - 1) *
-                        (1 - t) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1))) =
-                      t ^ (b i - 1) *
-                        ((1 - t) ^ (Fintype.card ι - 2) *
-                          (1 - t) ^ (∑ q : {j : ι // j ≠ i}, (b q - 1))) := by ring
-                  _ = t ^ (b i - 1) *
-                      (1 - t) ^ ((Fintype.card ι - 2 : ℕ) +
-                        (∑ q : {j : ι // j ≠ i}, (b q - 1))) := by
-                        rw [← Real.rpow_natCast,
-                          ← Real.rpow_add (sub_pos.mpr ht.2)]
-                  _ = _ := by rw [hcast_d, hexp]
-              rw [lintegral_congr_ae houter]
-              simp_rw [mul_comm _ (ENNReal.ofReal (mvRealBeta b'))]
-              rw [lintegral_const_mul' (ENNReal.ofReal (mvRealBeta b')) _ ENNReal.ofReal_ne_top]
-              rw [← ofReal_integral_eq_lintegral_ofReal
-                (integrableOn_Icc_rpow_mul_one_sub_rpow (hb i) hc)]
-              · rw [integral_Icc_rpow_mul_one_sub_rpow (hb i) hc]
-                rw [mul_comm, ← ENNReal.ofReal_mul (le_of_lt (beta_pos (hb i) hc))]
-                congr 1
-                dsimp only [mvRealBeta, b', c]
-                rw [Fintype.prod_eq_mul_prod_subtype_ne _ i,
-                  Fintype.sum_eq_add_sum_subtype_ne b i]
-                rw [beta]
-                have hGc : Gamma (∑ q : {j : ι // j ≠ i}, b q) ≠ 0 :=
-                  ne_of_gt (Gamma_pos_of_pos hc)
-                field_simp
-              · filter_upwards [ae_restrict_mem (μ := volume) measurableSet_Icc] with t ht
-                exact mul_nonneg (Real.rpow_nonneg ht.1 _)
-                  (Real.rpow_nonneg (sub_nonneg.mpr ht.2) _)
+              exact lintegral_dirichletMonomial_eq_mvRealBeta_of_subtype i hb
+                (ih _ hcard (fun j => hb j) rfl)
 
 /-- The integral representation of `mvRealBeta`. -/
 theorem mvRealBeta_eq_integral {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain) :

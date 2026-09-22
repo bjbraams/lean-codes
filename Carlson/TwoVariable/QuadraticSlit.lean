@@ -1,6 +1,11 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
+public import ComplexAnalysis.HalfPlane
 public import Carlson.TwoVariable.QuadraticContinuation
 public import Carlson.R.SlitJointAnalytic
 
@@ -19,29 +24,11 @@ on larger domains still require separate analysis. The finer equal-parameter
 normalization and its L-function transformations are not extended by this file.
 -/
 
+open Dirichlet
 open Complex ProbabilityTheory Set Filter
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform.TwoVariable
-
-/-- A product of two right-half-plane numbers avoids the principal branch cut. -/
-theorem mul_mem_slitPlane_of_re_pos {x y : ℂ} (hx : 0 < x.re) (hy : 0 < y.re) :
-    x * y ∈ slitPlane := by
-  apply mem_slitPlane_iff.mpr
-  by_cases hi : (x * y).im = 0
-  · left
-    have hid : x.re * (x * y).re = y.re * (x.re ^ 2 + x.im ^ 2) - x.im * (x * y).im := by
-      simp only [mul_re, mul_im]
-      ring
-    rw [hi, mul_zero, sub_zero] at hid
-    have hp : 0 < y.re * (x.re ^ 2 + x.im ^ 2) :=
-      mul_pos hy (add_pos_of_pos_of_nonneg (sq_pos_of_pos hx) (sq_nonneg _))
-    exact (mul_pos_iff_of_pos_left hx).mp (hid.symm ▸ hp)
-  · exact Or.inr hi
-
-/-- Squaring a right-half-plane number can leave that half-plane but not the slit plane. -/
-theorem sq_mem_slitPlane_of_re_pos {x : ℂ} (hx : 0 < x.re) : x ^ 2 ∈ slitPlane := by
-  simpa only [pow_two] using mul_mem_slitPlane_of_re_pos hx hx
+namespace Carlson.TwoVariable
 
 /-- The two transformed mean squares stay on the principal slit branch. -/
 theorem meanSquares_mem_slitDomain {x y : ℂ} (hx : 0 < x.re) (hy : 0 < y.re) :
@@ -166,5 +153,5 @@ theorem regRSlit_secondQuadratic (t β x y : ℂ) (hx : 0 < x.re) (hy : 0 < y.re
     rw [regCarlsonRSlit_eq_continued _ _ hw.2.1, regCarlsonRSlit_eq_continued _ _ hw.2.2]
     exact regRContinued_secondQuadratic t β (w 0) (w 1) hw.2
 
-end DirichletTransform.TwoVariable
+end Carlson.TwoVariable
 end

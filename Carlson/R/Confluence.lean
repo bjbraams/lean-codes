@@ -24,10 +24,11 @@ Mathlib's theorem `Complex.tendsto_one_add_div_pow_exp`.
   Academic Press, 1977.
 -/
 
+open Dirichlet
 open Complex MeasureTheory MeasureTheory.Measure ProbabilityTheory Filter
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section CarlsonR
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- The Carlson variables which coalesce at `1` in the confluence limit `R → S`. -/
@@ -107,9 +108,8 @@ theorem tendsto_regCarlsonRIntegral_confluent (b z : ι → ℂ)
   let f : (ι → ℝ) → ℂ := fun u ↦
     regDirichletDensity b u * exp (carlsonAffineForm z u)
   have hdens : IntegrableOn (fun u ↦ regDirichletDensity b u)
-      (Convexity.StdSimplex.coordinateSet ℝ ι) stdSimplexMeasure := by
-    simpa using integrableOn_regDirichletDensity_mul b hb (continuousOn_const :
-      ContinuousOn (fun _ : ι → ℝ ↦ (1 : ℂ)) (Convexity.StdSimplex.coordinateSet ℝ ι))
+      (Convexity.StdSimplex.coordinateSet ℝ ι) stdSimplexMeasure :=
+    integrableOn_regDirichletDensity b hb
   have hbound : Integrable (fun u ↦ C * ‖regDirichletDensity b u‖) μ :=
     hdens.norm.const_mul C
   have hmeas : ∀ n, AEStronglyMeasurable (F n) μ := by
@@ -142,5 +142,5 @@ theorem tendsto_carlsonRIntegral_confluent (b z : ι → ℂ)
   simpa [carlsonRIntegral, carlsonSIntegral] using
     tendsto_const_nhds.mul (tendsto_regCarlsonRIntegral_confluent b z hb)
 
-end DirichletTransform
+end Carlson
 end CarlsonR

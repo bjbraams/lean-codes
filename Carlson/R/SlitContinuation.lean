@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.R.SingleIntegral.Continuation
@@ -17,10 +21,11 @@ Uniqueness is on the slit domain, not on the arbitrary values of a total Lean fu
 outside that domain. This file does not assert the contour representation (6.8-7).
 -/
 
+open Dirichlet
 open Complex Filter
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- A holomorphic extension in the nodes of the existing parameter continuation. -/
@@ -41,6 +46,7 @@ theorem eqOn_carlsonRSlitDomain_of_eqOn_rightHalfPlane
   filter_upwards [isOpen_carlsonRVariableDomain.mem_nhds hone] with z hz
   exact hFG hz
 
+/-- Two slit continuations of the same R-function agree on the slit domain. -/
 theorem IsCarlsonRSlitContinuation.eqOn {t : ℂ} {b : ι → ℂ} {F G : (ι → ℂ) → ℂ}
     (hF : IsCarlsonRSlitContinuation t b F) (hG : IsCarlsonRSlitContinuation t b G) :
     Set.EqOn F G carlsonRSlitDomain :=
@@ -128,14 +134,17 @@ theorem exists_carlsonRSlitContinuation (t : ℂ) (b : ι → ℂ) :
 def regCarlsonRSlit (t : ℂ) (b z : ι → ℂ) : ℂ :=
   (exists_carlsonRSlitContinuation t b).choose z
 
+/-- The chosen regularized slit R-function is a slit continuation. -/
 theorem isCarlsonRSlitContinuation_regCarlsonRSlit (t : ℂ) (b : ι → ℂ) :
     IsCarlsonRSlitContinuation t b (regCarlsonRSlit t b) :=
   (exists_carlsonRSlitContinuation t b).choose_spec
 
+/-- The regularized slit R-function is holomorphic in the nodes on the slit domain. -/
 theorem analyticOnNhd_regCarlsonRSlit (t : ℂ) (b : ι → ℂ) :
     AnalyticOnNhd ℂ (regCarlsonRSlit t b) carlsonRSlitDomain :=
   (isCarlsonRSlitContinuation_regCarlsonRSlit t b).1
 
+/-- On the right-half-plane node domain the slit and continued regularized R-functions agree. -/
 theorem regCarlsonRSlit_eq_continued (t : ℂ) (b : ι → ℂ) {z : ι → ℂ}
     (hz : z ∈ carlsonRVariableDomain) :
     regCarlsonRSlit t b z = regCarlsonRContinued t z hz b :=
@@ -146,6 +155,7 @@ Gamma factor. At those poles this definition is only Lean's totalized expression
 def carlsonRSlit (t : ℂ) (b z : ι → ℂ) : ℂ :=
   Gamma (∑ i, b i) * regCarlsonRSlit t b z
 
+/-- The ordinary slit R-function is holomorphic in the nodes on the slit domain. -/
 theorem analyticOnNhd_carlsonRSlit (t : ℂ) (b : ι → ℂ) :
     AnalyticOnNhd ℂ (carlsonRSlit t b) carlsonRSlitDomain :=
   fun z hz => analyticAt_const.mul (analyticOnNhd_regCarlsonRSlit t b z hz)
@@ -157,6 +167,7 @@ theorem regCarlsonRSlit_eq_integral (t : ℂ) {b z : ι → ℂ}
     regCarlsonRSlit t b z = regCarlsonRIntegral t b z := by
   rw [regCarlsonRSlit_eq_continued t b hz, regCarlsonRContinued_eq_integral t hz hb]
 
+/-- On the native domain the ordinary slit R-function is the native R-integral. -/
 theorem carlsonRSlit_eq_integral (t : ℂ) {b z : ι → ℂ}
     (hb : b ∈ mvBetaConvergent) (hz : z ∈ carlsonRVariableDomain) :
     carlsonRSlit t b z = carlsonRIntegral t b z := by
@@ -212,4 +223,4 @@ theorem regCarlsonRSlit_eq_zero_of_isEmpty [IsEmpty ι] (t : ℂ) (b : ι → �
   rw [regCarlsonRSlit_eq_sum_addDirichletUnit t b hz]
   simp
 
-end DirichletTransform
+end Carlson

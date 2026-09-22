@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Bastiaan J Braams.
+Authors: Bastiaan J Braams
 -/
 module
 
@@ -12,12 +12,9 @@ public import StdSimplexMeasure.IntrinsicMeasure
 # The positive-coordinate interior of the standard simplex
 
 The definition and measurability result are independent of Dirichlet parameters.
-The historical `ProbabilityTheory` declaration names are retained for compatibility.
 -/
 
 @[expose] public noncomputable section
-
-namespace ProbabilityTheory
 
 variable {ι : Type*} [Fintype ι]
 
@@ -41,7 +38,8 @@ theorem measurableSet_stdSimplexInterior :
 /-- Permuting coordinates preserves the positive-coordinate simplex interior. -/
 theorem mem_stdSimplexInterior_perm (σ : Equiv.Perm ι) (u : ι → ℝ) :
     (u ∘ σ) ∈ stdSimplexInterior ↔ u ∈ stdSimplexInterior := by
-  have hsimp : (u ∘ σ) ∈ Convexity.StdSimplex.coordinateSet ℝ ι ↔ u ∈ Convexity.StdSimplex.coordinateSet ℝ ι := by
+  have hsimp : (u ∘ σ)
+      ∈ Convexity.StdSimplex.coordinateSet ℝ ι ↔ u ∈ Convexity.StdSimplex.coordinateSet ℝ ι := by
     change u ∈ (fun v ↦ v ∘ σ) ⁻¹' Convexity.StdSimplex.coordinateSet ℝ ι ↔ _
     rw [preimage_stdSimplex_perm]
   constructor
@@ -62,11 +60,38 @@ theorem ae_mem_stdSimplexInterior :
   | inr hι =>
       let _ := hι
       filter_upwards [MeasureTheory.self_mem_ae_restrict
-        (μ := MeasureTheory.Measure.stdSimplexMeasure) (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet,
+        (μ := MeasureTheory.Measure.stdSimplexMeasure)
+            (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet,
         MeasureTheory.Measure.ae_zero_lt_of_mem_stdSimplex (ι := ι)] with u hu hp
       exact ⟨hu, hp⟩
 
-end ProbabilityTheory
+/-- Under `x ↦ ![x, 1 - x]`, the relative interior of the two-coordinate simplex
+corresponds to the open unit interval. -/
+@[simp] theorem mem_stdSimplexInterior_fin_two (x : ℝ) :
+    (![x, 1 - x] : Fin 2 → ℝ) ∈ stdSimplexInterior ↔
+      0 < x ∧ x < 1 := by
+  constructor
+  · intro h
+    constructor
+    · simpa using h.2 (0 : Fin 2)
+    · have h1 : 0 < 1 - x := by
+        simpa using h.2 (1 : Fin 2)
+      exact sub_pos.mp h1
+  · rintro ⟨hx0, hx1⟩
+    constructor
+    · change
+        (∀ i : Fin 2, 0 ≤ (![x, 1 - x] : Fin 2 → ℝ) i) ∧
+          ∑ i : Fin 2, (![x, 1 - x] : Fin 2 → ℝ) i = 1
+      constructor
+      · rw [Fin.forall_fin_two]
+        constructor
+        · simpa using hx0.le
+        · simpa using (sub_pos.mpr hx1).le
+      · simp
+    · rw [Fin.forall_fin_two]
+      constructor
+      · simpa using hx0
+      · simpa using sub_pos.mpr hx1
 
 namespace Convexity.StdSimplex
 variable {ι : Type*} [Fintype ι]
@@ -74,16 +99,18 @@ variable {ι : Type*} [Fintype ι]
 /-- The positive-coordinate interior as a set of intrinsic simplex points. -/
 def positiveInterior : Set (StdSimplex ℝ ι) := {s | ∀ i, 0 < s.weights i}
 
+/-- The positive-coordinate interior is open in the intrinsic simplex. -/
 theorem isOpen_positiveInterior : IsOpen (positiveInterior (ι := ι)) := by
   have hset : positiveInterior (ι := ι) =
-      ⋂ i, {s : StdSimplex ℝ ι | 0 < s.coordinates i} := by ext; simp [positiveInterior, coordinates]
+      ⋂ i, {s : StdSimplex ℝ ι | 0 < s.coordinates i} := by
+          ext; simp [positiveInterior, coordinates]
   rw [hset]
   exact isOpen_iInter_of_finite (fun i => isOpen_lt continuous_const
     ((continuous_apply i).comp continuous_coordinates))
 
 /-- The intrinsic interior has exactly the existing ambient positive-coordinate image. -/
 theorem image_coordinates_positiveInterior :
-    coordinates '' positiveInterior (ι := ι) = ProbabilityTheory.stdSimplexInterior := by
+    coordinates '' positiveInterior (ι := ι) = stdSimplexInterior := by
   ext u
   constructor
   · rintro ⟨s, hs, rfl⟩
@@ -93,7 +120,7 @@ theorem image_coordinates_positiveInterior :
 
 /-- Almost every intrinsic point has strictly positive coordinates. -/
 theorem ae_mem_positiveInterior : ∀ᵐ s ∂(coordinateMeasure (ι := ι)), s ∈ positiveInterior := by
-  have h := ProbabilityTheory.ae_mem_stdSimplexInterior (ι := ι)
+  have h := ae_mem_stdSimplexInterior (ι := ι)
   rw [← map_coordinates_coordinateMeasure,
     measurableEmbedding_coordinates.ae_map_iff] at h
   exact h.mono (fun _ hs => hs.2)

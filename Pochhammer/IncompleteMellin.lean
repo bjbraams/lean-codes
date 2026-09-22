@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Bastiaan J Braams.
+Authors: Bastiaan J Braams
 -/
 module
 
@@ -188,19 +188,22 @@ def mellinPeanoRemainder (N : ℕ) (a : ℝ) (K : ℝ → ℂ) (t : ℝ) : ℂ :
   else
     (t ^ N : ℝ)⁻¹ • (K t - taylorWithinEval K (N - 1) (Icc (0 : ℝ) a) 0 t)
 
+/-- Taylor expansion of the kernel at zero with the Peano remainder normalized by `t ^ N`. -/
 theorem eq_taylor_add_mellinPeanoRemainder {N : ℕ} (hN : 0 < N) {a : ℝ}
     {K : ℝ → ℂ} {t : ℝ} (ht : t ∈ Icc (0 : ℝ) a) :
     K t = taylorWithinEval K (N - 1) (Icc 0 a) 0 t +
       (t ^ N : ℝ) • mellinPeanoRemainder N a K t := by
   by_cases ht0 : t = 0
   · subst t
-    rw [taylorWithinEval_self, mellinPeanoRemainder, if_pos rfl]
+    rw [taylorWithinEval_self, mellinPeanoRemainder, ite_eq_left rfl]
     simp [zero_pow hN.ne']
   · simp only [mellinPeanoRemainder, ht0, ↓reduceIte]
     have hne : t ^ N ≠ 0 := pow_ne_zero N ht0
     rw [← smul_assoc, smul_eq_mul, mul_inv_cancel₀ hne, one_smul]
     abel
 
+/-- The Taylor polynomial of order `N` is the Taylor polynomial of order `N - 1` plus its top
+term. -/
 theorem taylorWithinEval_succ_pred {N : ℕ} (hN : 0 < N) (K : ℝ → ℂ) (a x : ℝ) :
     taylorWithinEval K N (Icc (0 : ℝ) a) 0 x =
       taylorWithinEval K (N - 1) (Icc 0 a) 0 x +
@@ -230,7 +233,7 @@ theorem continuousOn_mellinPeanoRemainder {N : ℕ} (hN : 0 < N) {a : ℝ} (ha :
       intro x hx
       have hx0 : x ≠ 0 := hx.2
       have hxN : x ^ N ≠ 0 := pow_ne_zero N hx0
-      rw [mellinPeanoRemainder, if_neg hx0, taylorWithinEval_succ_pred hN K a]
+      rw [mellinPeanoRemainder, ite_eq_right hx0, taylorWithinEval_succ_pred hN K a]
       simp only [smul_sub, smul_add]
       have hcancel :
           (x ^ N)⁻¹ • (((N.factorial : ℝ)⁻¹ * x ^ N) •
@@ -255,7 +258,8 @@ theorem continuousOn_mellinPeanoRemainder {N : ℕ} (hN : 0 < N) {a : ℝ} (ha :
       have hevent :
           (fun x =>
               (x ^ N)⁻¹ • (K x - taylorWithinEval K N (Icc 0 a) 0 x) +
-                (N.factorial : ℝ)⁻¹ • iteratedDerivWithin N K (Icc 0 a) 0) =ᶠ[nhdsWithin 0 (Icc 0 a \ {0})]
+                (N.factorial : ℝ)⁻¹ • iteratedDerivWithin N K (Icc 0 a) 0)
+                    =ᶠ[nhdsWithin 0 (Icc 0 a \ {0})]
             mellinPeanoRemainder N a K := by
         filter_upwards [self_mem_nhdsWithin] with x hx
         exact (heq x hx).symm
@@ -391,6 +395,7 @@ theorem regIncompleteMellin_add {α : ℂ} {a : ℝ} (hα : 0 < α.re) (ha : 0 �
     exact integral_add hintK hintL
   rw [hadd, mul_add]
 
+/-- The regularized incomplete Mellin transform is homogeneous in the kernel. -/
 theorem regIncompleteMellin_const_mul {α : ℂ} {a : ℝ} {K : ℝ → ℂ} (c : ℂ) :
     regIncompleteMellin α a (fun t => c * K t) = c * regIncompleteMellin α a K := by
   unfold regIncompleteMellin
@@ -416,7 +421,7 @@ theorem regIncompleteMellin_mul_pow {α : ℂ} {a : ℝ} (hα : 0 < α.re) (_ha 
     have hne : (t : ℂ) ≠ 0 := ofReal_ne_zero.mpr ht0
     rw [← mul_assoc, ← cpow_natCast, ← cpow_add _ _ hne]
     congr 1
-    ring
+    ring_nf
   unfold regIncompleteMellin
   rw [integral_congr_ae hfun, one_div_Gamma_eq_ascPochhammer_mul_one_div_Gamma_add_nat α k]
   ring_nf

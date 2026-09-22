@@ -5,10 +5,40 @@ The foundational developments are intended as potential Mathlib contributions.
 
 ## Organization
 
-There are five main directories.
+There are nine main directories.
+
+- `Algebra/`.
+General submodule and linear-dependence support.
+
+- `Topology/`.
+General compactness, path, graph, semicontinuity, and Baire-theorem support.
+
+- `Analysis/`.
+General normed-space, functional-analysis, Taylor-estimate, and integration support,
+including the Gamma integral with a complex Laplace parameter.
 
 - `Pochhammer/`.
 Support codes. Simplex-independent Pochhammer, gamma/beta and complex-power operations.
+
+- `ComplexAnalysis/`.
+Single-variable complex analysis: holomorphic branches, Banach-valued primitives and
+Cauchy theory on simply connected open domains, integer-valued curve indices with local
+constancy, exterior vanishing and circle normalization; Jordan contours, separation,
+Cauchy formulas and exhaustions for injective holomorphic disk images; Laurent theory,
+residue calculations, the disk argument principle, Rouché's theorem and Hurwitz's theorems;
+Montel compactness, Vitali convergence from an interior accumulation point, and
+Casorati–Weierstrass with isolated-singularity classification;
+subharmonic functions, planar Cauchy transforms, removability, injectivity,
+divided differences with coincident nodes, Newton–Taylor formulas, and repeated segment integrals.
+The deformation theory includes Cauchy's theorem for continuous homotopies with
+differentiable, integrable boundary paths, index invariance for continuous based
+homotopies of `C¹` loops, and continuous logarithm tracking. Moving-endpoint identities
+pass to improper limits when the endpoint-track integrals vanish. Uniform tail
+bounds and explicit power-decay estimates provide convergence criteria.
+Exterior-path support proves escape to infinity and endpoint formulas for exact integrals;
+general pullback and improper-integration results live in `Analysis`.
+Montel and Vitali share function-space and compactness foundations with SCV through
+`Analysis.Holomorphic`; `ComplexAnalysis` has no SCV dependency.
 
 - `SeveralComplexVariables/`.
 Support codes and more for simplex-independent several-complex-variable analysis.
@@ -18,16 +48,30 @@ Coordinates, aggregation, measure, integration, smooth simplex functions, and mo
 
 - `Dirichlet/`.
 Real and complex beta functions, Dirichlet measures and densities, moments, averages, and analytic continuation.
+`Dirichlet.Transform.Basic` supplies the unique entire regularized transform of a
+smooth simplex kernel. Its structural laws and auxiliary-parameter differentiation
+are independent of Carlson's affine substitution; Carlson averages specialize this
+interface.
 
 - `Carlson/`.
 R-polynomials, R/L/S/T functions, and two-variable specializations.
 
 Dependencies flow from the support libraries and simplex foundations to
 `Dirichlet`, then to `Carlson`. The simplex foundation never imports either
-application layer; `Dirichlet` never imports `Carlson`. The two support libraries
-never import the simplex or application layers.
+application layer; `Dirichlet` never imports `Carlson`. The support libraries never
+import the application layers. The divided-difference and repeated-integral modules
+in `ComplexAnalysis` use general simplex integration from `StdSimplexMeasure`;
+the other support modules remain independent of the simplex foundation.
 
-Each directory has a matching umbrella module. `Main.lean` imports all five.
+`Algebra`, `Analysis`, and `Topology` depend only on Mathlib. `ComplexAnalysis` builds on them;
+`SeveralComplexVariables` uses all three foundations. The support libraries extend the
+corresponding Mathlib namespaces (`Complex`, `MeasureTheory`, `Submodule`, and so on) and
+several-variable theory uses the `SeveralComplexVariables` namespace. The real Dirichlet
+distribution lives in `ProbabilityTheory`; complex Dirichlet densities, transforms and
+averages live in `Dirichlet`; Carlson's special functions live in `Carlson` and
+`Carlson.TwoVariable`.
+
+Each directory has a matching umbrella module. `Main.lean` imports all nine.
 See the [module structure guide](STRUCTURE.md) for the finer topic splits and import paths.
 
 ## Registry statement
@@ -35,10 +79,10 @@ See the [module structure guide](STRUCTURE.md) for the finer topic splits and im
 [comparator.json](comparator.json) selects **10 Carlson and Dirichlet-average
 continuation theorems and one R-function construction** for the proposed Palomar
 snapshot. [Statement.lean](Statement.lean) and [Solution.lean](Solution.lean)
-remain unchanged: they contain these claims and 11 additional foundational
+retain the same theorem statements: they contain these claims and 11 additional foundational
 theorems. Those supporting theorems are no longer separately selected for
 registration. The statement module's broader description of its contents is
-not the current Comparator selection. Keeping these declarations and all five
+not the current Comparator selection. Keeping these declarations and the project
 libraries does not presume that their supporting theory is already in Mathlib.
 
 Solution connects the statements to project proofs and never imports the
@@ -108,6 +152,14 @@ permanence of functional relations and the slit continuation of Section 6.8.
 Arbitrary branch components, multiply connected or Riemann-surface continuation,
 general nonconvex simply connected average continuation, the contour formula
 6.8-7, and complete coverage of the L article are not claimed.
+
+Work toward Carlson's 1969 nonconvex-domain construction now includes
+Gamma-regularized Euler integrals with joint entire continuation, normalized
+holomorphic logarithms for admissible exterior paths, and continuation of the
+resulting compactified kernels. The straight-path kernel agrees with the
+existing slit-plane resolvent. Independence of curved exterior paths, the
+generalized Cauchy representation, and construction of suitable contours on
+arbitrary simply connected domains remain unfinished.
 
 ## References
 

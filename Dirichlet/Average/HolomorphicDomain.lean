@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Dirichlet.Average.JointContinuation
@@ -23,9 +27,9 @@ collision diagonals) and to Riemann surfaces are left open.
 -/
 
 open Complex ProbabilityTheory Set Filter Metric
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Dirichlet
 variable {ι : Type*} [Fintype ι]
 
 /-- A joint continuation on a possibly nonconvex holomorphy domain. Native
@@ -36,12 +40,6 @@ def IsJointRegCarlsonContinuationOn (D : Set ℂ) (f : ℂ → ℂ)
     ∀ z, convexHull ℝ (Set.range z) ⊆ D →
       Set.EqOn (fun b => G (b, z))
         (fun b => regCarlsonDirichletAverage b z f) mvBetaConvergent
-
-/-- A finite tuple of points in an open scalar domain varies in an open set. -/
-theorem isOpen_carlsonNodeDomain {D : Set ℂ} (hD : IsOpen D) :
-    IsOpen {z : ι → ℂ | Set.range z ⊆ D} := by
-  simp only [Set.range_subset_iff, Set.ofPred_forall]
-  exact isOpen_iInter_of_finite fun i => hD.preimage (continuous_apply i)
 
 /-- Native-compatible node tuples recover the previous fixed-node predicate. -/
 theorem IsJointRegCarlsonContinuationOn.isRegCarlsonContinuation
@@ -124,6 +122,7 @@ theorem exists_isJointRegCarlsonContinuationOn_iUnion
       IsJointRegCarlsonContinuationOn (U n) f F) :
     ∃ G : ((ι → ℂ) × (ι → ℂ)) → ℂ,
       IsJointRegCarlsonContinuationOn (⋃ n, U n) f G := by
+  classical
   choose F hF using hF
   have hcompat (n m : ℕ) (p : (ι → ℂ) × (ι → ℂ))
       (hn : Set.range p.2 ⊆ U n) (hm : Set.range p.2 ⊆ U m) : F n p = F m p := by
@@ -136,7 +135,7 @@ theorem exists_isJointRegCarlsonContinuationOn_iUnion
       (hp : Set.range p.2 ⊆ U n) : G p = F n p := by
     have h : ∃ m, Set.range p.2 ⊆ U m := ⟨n, hp⟩
     dsimp only [G]
-    rw [dif_pos h]
+    rw [dite_eq_left h]
     exact hcompat h.choose n p h.choose_spec hp
   refine ⟨G, ?_, ?_⟩
   · intro p hp
@@ -154,5 +153,5 @@ theorem exists_isJointRegCarlsonContinuationOn_iUnion
     rw [heq n (b, z) ((subset_convexHull ℝ (Set.range z)).trans hn)]
     exact (hF n).2 z hn hb
 
-end DirichletTransform
+end Dirichlet
 end

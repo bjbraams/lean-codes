@@ -1,7 +1,11 @@
 /- Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bastiaan J Braams -/
+import Algebra
+import Analysis
+import Topology
 import Pochhammer
+import ComplexAnalysis
 import SeveralComplexVariables
 import StdSimplexMeasure
 import Dirichlet
@@ -10,12 +14,13 @@ import Carlson
 /-!
 # Proved counterparts of Statement.lean
 
-This module imports all five mathematical libraries, never Statement.
+This module imports all nine mathematical libraries, never Statement.
 Comparator compares the PalomarSnapshot declarations in these two independent
 environments. The elementary definitions are intentionally repeated verbatim;
 each theorem below points to an existing project proof. See PALOMAR.md.
 -/
 
+open Dirichlet
 open Complex MeasureTheory Set
 open scoped Classical Topology Matrix
 noncomputable section
@@ -74,7 +79,7 @@ theorem holomorphic_analytic {E F : Type*} [NormedAddCommGroup E] [NormedSpace �
     [FiniteDimensional ℂ E] [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
     {U : Set E} {f : E → F} (hf : DifferentiableOn ℂ f U) (hU : IsOpen U) :
     AnalyticOnNhd ℂ f U := by
-  exact hf.analyticOnNhd_finiteDimensional hU
+  exact hf.analyticOnNhd_of_finiteDimensional hU
 
 /-- Joint continuity and separate holomorphy imply joint analyticity (not Hartogs without continuity). -/
 theorem osgood {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
@@ -132,13 +137,13 @@ theorem joint_average_continuation {D : Set ℂ} (hD : IsOpen D) (hconv : Convex
     ∃ G : ((ι → ℂ) × (ι → ℂ)) → ℂ,
       AnalyticOnNhd ℂ G {p | Set.range p.2 ⊆ D} ∧
       ∀ z, Set.range z ⊆ D → ∀ b, (∀ i, 0 < (b i).re) → G (b, z) = average b z f := by
-  obtain ⟨G, hG, hnative⟩ := DirichletTransform.exists_joint_isRegCarlsonContinuation hD hconv hf (ι := ι)
+  obtain ⟨G, hG, hnative⟩ := Dirichlet.exists_joint_isRegCarlsonContinuation hD hconv hf (ι := ι)
   exact ⟨G, hG, fun z hz b hb => (hnative z hz).eq_native hb⟩
 
 /-- Gamma-regularized Carlson R on the principal slit domain.
 The solution supplies its construction; r_joint and r_native fix its mathematical meaning. -/
 def regR {ι : Type*} [Fintype ι] (t : ℂ) (b z : ι → ℂ) : ℂ :=
-  DirichletTransform.regCarlsonRSlit t b z
+  Carlson.regCarlsonRSlit t b z
 
 /-- Gamma-regularized Carlson L is the exponent derivative of the same R-function. -/
 abbrev regL (t : ℂ) (b z : ι → ℂ) : ℂ := deriv (fun s => regR s b z) t
@@ -148,56 +153,56 @@ theorem r_joint :
     AnalyticOnNhd ℂ (fun p : Option (ι ⊕ ι) → ℂ =>
       regR (p none) (fun i => p (some (.inl i))) (fun i => p (some (.inr i))))
       {p | ∀ i, p (some (.inr i)) ∈ slitPlane} := by
-  exact DirichletTransform.analyticOnNhd_regCarlsonRSlit_joint
+  exact Carlson.analyticOnNhd_regCarlsonRSlit_joint
 
 /-- R equals its native power average when the entire node convex hull stays in the slit plane. -/
 theorem r_native (t : ℂ) {b z : ι → ℂ} (hb : ∀ i, 0 < (b i).re)
     (hz : convexHull ℝ (Set.range z) ⊆ slitPlane) :
     regR t b z = average b z (fun w => w ^ t) := by
-  exact DirichletTransform.regCarlsonRSlit_eq_integral_of_convexHull t hb hz
+  exact Carlson.regCarlsonRSlit_eq_integral_of_convexHull t hb hz
 
 /-- Carlson 6.8-3: Euler inversion on all slit-plane nodes and all complex parameters. -/
 theorem r_euler (t : ℂ) (b : ι → ℂ) {z : ι → ℂ} (hz : ∀ i, z i ∈ slitPlane) :
     regR t b z = (∏ i, z i ^ (-b i)) * regR (-(∑ i, b i) - t) b (fun i => (z i)⁻¹) := by
-  exact DirichletTransform.regCarlsonRSlit_euler t b hz
+  exact Carlson.regCarlsonRSlit_euler t b hz
 
 /-- Euler–Poisson on the full slit domain, including repeated indices and coincident nodes. -/
 theorem r_euler_poisson (t : ℂ) (b : ι → ℂ) {z : ι → ℂ} (hz : ∀ i, z i ∈ slitPlane) (i j : ι) :
     (z i - z j) * coordDeriv i (coordDeriv j (regR t b)) z +
       b i * coordDeriv j (regR t b) z - b j * coordDeriv i (regR t b) z = 0 := by
-  exact DirichletTransform.carlsonEulerPoissonOperator_regCarlsonRSlit t b hz i j
+  exact Carlson.carlsonEulerPoissonOperator_regCarlsonRSlit t b hz i j
 
 /-- First quadratic transformation (6.9): all t, beta, with positive-real-part unsquared variables. -/
 theorem r_first_quadratic (t β x y : ℂ) (hx : 0 < x.re) (hy : 0 < y.re) :
     regR (2 * t) ![β, β] ![x, y] =
       ((2 : ℂ) ^ (1 - 2 * β) * (Real.sqrt Real.pi : ℂ) * (Gamma β)⁻¹) *
         regR t ![β + t, 1 / 2 - t] ![((x + y) / 2) ^ 2, x * y] := by
-  exact DirichletTransform.TwoVariable.regRSlit_firstQuadratic t β x y hx hy
+  exact Carlson.TwoVariable.regRSlit_firstQuadratic t β x y hx hy
 
 /-- Second quadratic transformation (6.10): squared and transformed nodes need not have positive real parts. -/
 theorem r_second_quadratic (t β x y : ℂ) (hx : 0 < x.re) (hy : 0 < y.re) :
     regR t ![β, β] ![x ^ 2, y ^ 2] =
       ((2 : ℂ) ^ (1 - 2 * β) * (Real.sqrt Real.pi : ℂ) * (Gamma β)⁻¹) *
         regR t ![2 * β + t, 1 / 2 - β - t] ![((x + y) / 2) ^ 2, x * y] := by
-  exact DirichletTransform.TwoVariable.regRSlit_secondQuadratic t β x y hx hy
+  exact Carlson.TwoVariable.regRSlit_secondQuadratic t β x y hx hy
 
 /-- Carlson 1987, (2.1): L is jointly holomorphic on the same full parameter and slit-node domain. -/
 theorem l_joint :
     AnalyticOnNhd ℂ (fun p : Option (ι ⊕ ι) → ℂ =>
       regL (p none) (fun i => p (some (.inl i))) (fun i => p (some (.inr i))))
       {p | ∀ i, p (some (.inr i)) ∈ slitPlane} := by
-  exact DirichletTransform.analyticOnNhd_regCarlsonLSlit_joint
+  exact Carlson.analyticOnNhd_regCarlsonLSlit_joint
 
 /-- L equals the native power-logarithm average on the hull-admissible slit domain. -/
 theorem l_native (t : ℂ) {b z : ι → ℂ} (hb : ∀ i, 0 < (b i).re)
     (hz : convexHull ℝ (Set.range z) ⊆ slitPlane) :
     regL t b z = average b z (fun w => w ^ t * log w) := by
-  exact DirichletTransform.regCarlsonLSlit_eq_integral_of_convexHull t hb hz
+  exact Carlson.regCarlsonLSlit_eq_integral_of_convexHull t hb hz
 
 /-- The exponent derivative of R exists and equals L for all complex parameters and slit nodes. -/
 theorem l_exponent_derivative (t : ℂ) (b : ι → ℂ) {z : ι → ℂ} (hz : ∀ i, z i ∈ slitPlane) :
     HasDerivAt (fun s => regR s b z) (regL t b z) t := by
-  exact DirichletTransform.hasDerivAt_regCarlsonRSlit_L t b hz
+  exact Carlson.hasDerivAt_regCarlsonRSlit_L t b hz
 
 end PalomarSnapshot
 end

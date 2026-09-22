@@ -1,4 +1,8 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import Carlson.R.SlitPlane
@@ -7,18 +11,39 @@ public import Carlson.RPolynomial.Basic
 public import Mathlib.Analysis.SpecialFunctions.Gamma.Beta
 public import Pochhammer.Gamma
 public import Pochhammer.BinomialSeries
-public import SeveralComplexVariables.ParametricIntegral
 public import Carlson.RPolynomial.PowerSeries
 public import Carlson.R.Deriv
 public import Carlson.R.Relations
 public import Carlson.RPolynomial.Generating
 
-/-! # Unit-interval kernel and near-one series representation -/
+/-!
+# Unit-interval kernel and near-one series representation
 
+The beta-weighted unit-interval integral of Carlson's single-integral representation
+(Theorem 6.8-1), and the R-polynomial series expansion of the regularized R-integral near the
+all-one node vector, which identifies the two in a polydisc around that point.
+
+## Main definitions
+
+* `Carlson.carlsonRUnitIntervalIntegral`: the unit-interval integral with beta weight.
+
+## Main results
+
+* `Carlson.hasSum_regCarlsonRIntegral_near_one`: the R-polynomial expansion of the regularized
+  R-integral near the all-one node vector.
+* `Carlson.carlsonRUnitIntervalIntegral_eq_of_norm_one_sub_lt_one`: Carlson's single-integral
+  identity in that polydisc.
+
+## References
+
+* [Carl77] B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
+-/
+
+open Dirichlet
 open Complex MeasureTheory ProbabilityTheory Filter Set
-open scoped Classical Topology
+open scoped Topology
 @[expose] public noncomputable section
-namespace DirichletTransform
+namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- The beta-weighted unit-interval integral in Carlson's single-integral representation. -/
@@ -71,8 +96,47 @@ private lemma hasSum_singleIntegral_kernel
   rw [Complex.cpow_neg]
   exact (one_div _).symm
 
+/-- A beta kernel times a power of the variable is a beta kernel with shifted first exponent. -/
+private lemma betaKernel_mul_pow_eq {a a' : ℂ} (c : ℂ) (n : ℕ) {u : ℝ} (hu : u ∈ Set.Ioo 0 1) :
+    (u : ℂ) ^ (a - 1) * (1 - u : ℂ) ^ (a' - 1) * (c * (u : ℂ) ^ n) =
+      c * ((u : ℂ) ^ (a + n - 1) * (1 - u : ℂ) ^ (a' - 1)) := by
+  have hu0 : (u : ℂ) ≠ 0 := ofReal_ne_zero.mpr hu.1.ne'
+  calc
+    (u : ℂ) ^ (a - 1) * (1 - u : ℂ) ^ (a' - 1) * (c * (u : ℂ) ^ n) =
+        c * (((u : ℂ) ^ (a - 1) * (u : ℂ) ^ n) * (1 - u : ℂ) ^ (a' - 1)) := by ring
+    _ = c * ((u : ℂ) ^ ((a - 1) + n) * (1 - u : ℂ) ^ (a' - 1)) := by
+      rw [← Complex.cpow_natCast, Complex.cpow_add _ _ hu0]
+    _ = c * ((u : ℂ) ^ (a + n - 1) * (1 - u : ℂ) ^ (a' - 1)) := by
+      congr 3
+      ring
+
+/-- A beta kernel times a monomial is integrable on the open unit interval. -/
+private lemma integrable_betaKernel_mul_pow {a a' : ℂ} (ha : 0 < a.re) (ha' : 0 < a'.re)
+    (c : ℂ) (n : ℕ) :
+    Integrable (fun u : ℝ => (u : ℂ) ^ (a - 1) * (1 - u : ℂ) ^ (a' - 1) * (c * (u : ℂ) ^ n))
+      (volume.restrict (Set.Ioo 0 1)) := by
+  have han : 0 < (a + n).re := by simp only [add_re, natCast_re]; positivity
+  have hbase : IntegrableOn (fun u : ℝ => (u : ℂ) ^ (a + n - 1) * (1 - u : ℂ) ^ (a' - 1))
+      (Set.Ioo 0 1) volume :=
+    (intervalIntegrable_iff_integrableOn_Ioo_of_le zero_le_one).mp (betaIntegral_convergent han ha')
+  exact (hbase.const_mul c).congr <| by
+    filter_upwards [self_mem_ae_restrict measurableSet_Ioo] with u hu
+    exact (betaKernel_mul_pow_eq c n hu).symm
+
+/-- Integrating a beta kernel against a monomial gives a beta integral with shifted first
+exponent. -/
+private lemma integral_betaKernel_mul_pow {a a' : ℂ} (c : ℂ) (n : ℕ) :
+    ∫ u in Set.Ioo (0 : ℝ) 1, (u : ℂ) ^ (a - 1) * (1 - u : ℂ) ^ (a' - 1) * (c * (u : ℂ) ^ n) =
+      c * betaIntegral (a + n) a' := by
+  rw [betaIntegral, intervalIntegral.integral_of_le zero_le_one,
+    ← Measure.restrict_congr_set Ioo_ae_eq_Ioc, ← integral_const_mul]
+  apply integral_congr_ae
+  filter_upwards [self_mem_ae_restrict measurableSet_Ioo] with u hu
+  exact betaKernel_mul_pow_eq c n hu
+
 /-- Near the all-one Carlson variable, the unit-interval integral is the termwise beta
-integral of the generating series for the R-polynomials. -/
+integral of the generating series for the R-polynomials. The proof integrates the generating
+series term by term, dominated by the beta kernel times the summable coefficient norms. -/
 private lemma hasSum_carlsonRUnitIntervalIntegral
     (a a' : ℂ) (b y : ι → ℂ) (ha : 0 < a.re) (ha' : 0 < a'.re)
     (hy : ∀ i, ‖y i‖ < 1) :
@@ -80,61 +144,27 @@ private lemma hasSum_carlsonRUnitIntervalIntegral
       carlsonRPolynomialNumerator n b y / (n.factorial : ℂ) *
         betaIntegral (a + n) a')
       (carlsonRUnitIntervalIntegral a a' b (fun i => 1 - y i)) := by
-  let μ : Measure ℝ := volume.restrict (Set.Ioo 0 1)
-  let K : ℝ → ℂ := fun u =>
-    (u : ℂ) ^ (a - 1) * (1 - u : ℂ) ^ (a' - 1)
-  let A : ℕ → ℂ := fun n =>
-    carlsonRPolynomialNumerator n b y / (n.factorial : ℂ)
+  let K : ℝ → ℂ := fun u => (u : ℂ) ^ (a - 1) * (1 - u : ℂ) ^ (a' - 1)
+  let A : ℕ → ℂ := fun n => carlsonRPolynomialNumerator n b y / (n.factorial : ℂ)
   let F : ℕ → ℝ → ℂ := fun n u => K u * (A n * (u : ℂ) ^ n)
-  let f : ℝ → ℂ := fun u => K u * ∏ i, (1 - (u : ℂ) * y i) ^ (-b i)
-  let M : ℕ → ℝ := fun n => ‖A n‖
-  let B : ℕ → ℝ → ℝ := fun n u => M n * ‖K u‖
+  let B : ℕ → ℝ → ℝ := fun n u => ‖A n‖ * ‖K u‖
   have hAsum : Summable A := by
-    simpa [A] using summable_carlsonRPolynomialNumerator_div_factorial b y 1
-      (by simpa using hy)
-  have hM : Summable M := by simpa [M] using hAsum.norm
-  have hKint : Integrable K μ := by
-    change IntegrableOn (fun u : ℝ =>
-      (u : ℂ) ^ (a - 1) * (1 - u : ℂ) ^ (a' - 1)) (Set.Ioo 0 1) volume
-    exact (intervalIntegrable_iff_integrableOn_Ioo_of_le zero_le_one).mp
-      (betaIntegral_convergent ha ha')
-  have hterm_point (n : ℕ) {u : ℝ} (hu : u ∈ Set.Ioo 0 1) :
-      F n u = A n *
-        ((u : ℂ) ^ (a + n - 1) * (1 - u : ℂ) ^ (a' - 1)) := by
-    have hu0 : (u : ℂ) ≠ 0 := ofReal_ne_zero.mpr hu.1.ne'
-    simp only [F, K]
-    calc
-      (u : ℂ) ^ (a - 1) * (1 - u : ℂ) ^ (a' - 1) * (A n * (u : ℂ) ^ n) =
-          A n * (((u : ℂ) ^ (a - 1) * (u : ℂ) ^ n) *
-            (1 - u : ℂ) ^ (a' - 1)) := by ring
-      _ = A n * ((u : ℂ) ^ ((a - 1) + n) * (1 - u : ℂ) ^ (a' - 1)) := by
-        rw [← Complex.cpow_natCast, Complex.cpow_add _ _ hu0]
-      _ = A n * ((u : ℂ) ^ (a + n - 1) * (1 - u : ℂ) ^ (a' - 1)) := by
-        congr 3
-        ring
-  have hFint (n : ℕ) : Integrable (F n) μ := by
-    have han : 0 < (a + n).re := by simp only [add_re, natCast_re]; positivity
-    have hbase : IntegrableOn (fun u : ℝ =>
-        (u : ℂ) ^ (a + n - 1) * (1 - u : ℂ) ^ (a' - 1))
-        (Set.Ioo 0 1) volume :=
-      (intervalIntegrable_iff_integrableOn_Ioo_of_le zero_le_one).mp
-        (betaIntegral_convergent han ha')
-    exact (hbase.const_mul (A n)).congr <| by
-      filter_upwards [self_mem_ae_restrict measurableSet_Ioo] with u hu
-      exact (hterm_point n hu).symm
-  have hBsum : ∀ᵐ u ∂μ, Summable fun n => B n u := by
+    simpa [A] using summable_carlsonRPolynomialNumerator_div_factorial b y 1 (by simpa using hy)
+  have hKint : Integrable K (volume.restrict (Set.Ioo 0 1)) :=
+    (intervalIntegrable_iff_integrableOn_Ioo_of_le zero_le_one).mp (betaIntegral_convergent ha ha')
+  have hBsum : ∀ᵐ u ∂(volume.restrict (Set.Ioo 0 1)), Summable fun n => B n u := by
     filter_upwards with u
-    exact hM.mul_right _
-  have hBint : Integrable (fun u => ∑' n, B n u) μ := by
-    have heq : (fun u => ∑' n, B n u) = fun u => (∑' n, M n) * ‖K u‖ := by
+    exact hAsum.norm.mul_right _
+  have hBint : Integrable (fun u => ∑' n, B n u) (volume.restrict (Set.Ioo 0 1)) := by
+    have heq : (fun u => ∑' n, B n u) = fun u => (∑' n, ‖A n‖) * ‖K u‖ := by
       funext u
       simp only [B]
       rw [tsum_mul_right]
     rw [heq]
     exact hKint.norm.const_mul _
-  have hbound (n : ℕ) : ∀ᵐ u ∂μ, ‖F n u‖ ≤ B n u := by
+  have hbound (n : ℕ) : ∀ᵐ u ∂(volume.restrict (Set.Ioo 0 1)), ‖F n u‖ ≤ B n u := by
     filter_upwards [self_mem_ae_restrict measurableSet_Ioo] with u hu
-    simp only [F, B, M, norm_mul]
+    simp only [F, B, norm_mul]
     have hu_norm : ‖(u : ℂ)‖ ≤ 1 := by
       simp only [norm_real, Real.norm_eq_abs, abs_of_pos hu.1]
       exact hu.2.le
@@ -143,23 +173,16 @@ private lemma hasSum_carlsonRUnitIntervalIntegral
       ‖K u‖ * (‖A n‖ * ‖(u : ℂ)‖ ^ n) ≤ ‖K u‖ * (‖A n‖ * 1 ^ n) := by
         gcongr
       _ = ‖A n‖ * ‖K u‖ := by ring
-  have hlim : ∀ᵐ u ∂μ, HasSum (fun n => F n u) (f u) := by
+  have hlim : ∀ᵐ u ∂(volume.restrict (Set.Ioo 0 1)),
+      HasSum (fun n => F n u) (K u * ∏ i, (1 - (u : ℂ) * y i) ^ (-b i)) := by
     filter_upwards [self_mem_ae_restrict measurableSet_Ioo] with u hu
     exact (hasSum_singleIntegral_kernel b y hu.1.le hu.2.le hy).mul_left (K u)
   have hseries := hasSum_integral_of_dominated_convergence B
-    (fun n => (hFint n).aestronglyMeasurable) hbound hBsum hBint hlim
-  have hterm (n : ℕ) : ∫ u, F n u ∂μ = A n * betaIntegral (a + n) a' := by
-    rw [betaIntegral, intervalIntegral.integral_of_le zero_le_one,
-      ← Measure.restrict_congr_set Ioo_ae_eq_Ioc]
-    rw [← integral_const_mul]
-    apply integral_congr_ae
-    filter_upwards [self_mem_ae_restrict measurableSet_Ioo] with u hu
-    exact hterm_point n hu
-  have hfun : (fun n => ∫ u, F n u ∂μ) =
-      fun n => A n * betaIntegral (a + n) a' := funext hterm
-  rw [hfun] at hseries
+    (fun n => (integrable_betaKernel_mul_pow ha ha' (A n) n).aestronglyMeasurable) hbound hBsum
+    hBint hlim
+  simp only [integral_betaKernel_mul_pow] at hseries
   convert hseries using 1
-  unfold carlsonRUnitIntervalIntegral f K μ
+  unfold carlsonRUnitIntervalIntegral K
   apply integral_congr_ae
   filter_upwards [self_mem_ae_restrict measurableSet_Ioo] with u hu
   congr 1
@@ -168,15 +191,12 @@ private lemma hasSum_carlsonRUnitIntervalIntegral
   congr 1
   ring
 
-
-
-set_option maxHeartbeats 2000000 in
 /-- The regularized R-integral has its R-polynomial expansion near the all-one variable. -/
 theorem hasSum_regCarlsonRIntegral_near_one
     (a : ℂ) (b y : ι → ℂ) (hb : b ∈ mvBetaConvergent)
     (hy : ∀ i, ‖y i‖ < 1) :
     HasSum (fun n : ℕ =>
-      (ascPochhammer ℂ n).eval a / (n.factorial : ℂ) * regCarlsonR n y b)
+      (ascPochhammer ℂ n).eval a / (n.factorial : ℂ) * regCarlsonRPolynomial n b y)
       (regCarlsonRIntegral (-a) b (fun i => 1 - y i)) := by
   let coeff : ℕ → ℂ := fun n =>
     (-1 : ℂ) ^ n * ((ascPochhammer ℂ n).eval a / (n.factorial : ℂ))
@@ -231,11 +251,11 @@ theorem hasSum_regCarlsonRIntegral_near_one
     funext i
     simp [shiftCarlsonVariables]
   have hterms : (fun n => coeff n *
-      regCarlsonR n (shiftCarlsonVariables 1 (fun i => 1 - y i)) b) =
+      regCarlsonRPolynomial n b (shiftCarlsonVariables 1 (fun i => 1 - y i))) =
       fun n => (ascPochhammer ℂ n).eval a / (n.factorial : ℂ) *
-        regCarlsonR n y b := by
+        regCarlsonRPolynomial n b y := by
     funext n
-    rw [hshift, regCarlsonR_smul_of_mem_mvBetaConvergent n (-1) y hb]
+    rw [hshift, regCarlsonRPolynomial_smul_of_mem_mvBetaConvergent n (-1) y hb]
     simp only [coeff]
     ring_nf
     rw [show n * 2 = 2 * n by omega, pow_mul]
@@ -266,13 +286,8 @@ lemma carlsonRUnitIntervalIntegral_eq_of_norm_one_sub_lt_one
       carlsonRPolynomialNumerator n b y / (n.factorial : ℂ) *
         betaIntegral (a + n) a') =
       fun n => (betaIntegral a a' * Gamma (∑ i, b i)) *
-        ((ascPochhammer ℂ n).eval a / (n.factorial : ℂ) * regCarlsonR n y b) := by
+        ((ascPochhammer ℂ n).eval a / (n.factorial : ℂ) * regCarlsonRPolynomial n b y) := by
     funext n
-    change carlsonRPolynomialNumerator n b y / (n.factorial : ℂ) *
-        betaIntegral (a + n) a' =
-      (betaIntegral a a' * Gamma (∑ i, b i)) *
-        ((ascPochhammer ℂ n).eval a / (n.factorial : ℂ) *
-          regCarlsonRPolynomial n b y)
     rw [regCarlsonRPolynomial_eq_numerator_mul_one_div_Gamma]
     rw [← hsum]
     rw [betaIntegral_add_nat_left a a' n ha ha']
@@ -281,4 +296,4 @@ lemma carlsonRUnitIntervalIntegral_eq_of_norm_one_sub_lt_one
   exact hunit.unique (by
     simpa [carlsonRIntegral, mul_assoc] using hr)
 
-end DirichletTransform
+end Carlson
