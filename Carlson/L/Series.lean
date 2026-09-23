@@ -53,16 +53,16 @@ theorem ball_one_subset_slitPlane : Metric.ball (1 : ℂ) 1 ⊆ slitPlane := by
 
 /-- The continued L-function has the R-polynomial Taylor representation on
 the full unit polydisk, even at exceptional total parameters. -/
-theorem hasSum_regCarlsonLContinued (t : ℂ) (b : ι → ℂ)
+theorem hasSum_regCarlsonL (t : ℂ) (b : ι → ℂ)
     {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain)
     (hz1 : ‖fun i => z i - 1‖ < 1) :
     HasSum (fun n => carlsonLCoeff n t * regCarlsonRPolynomial n b (fun i => z i - 1))
-      (regCarlsonLContinued t z hz b) :=
-  (isRegCarlsonLContinuation_continued t hz).hasSum_taylor
+      (regCarlsonL t b z) :=
+  (isRegCarlsonLContinuation_regCarlsonL t hz).hasSum_taylor
     ((analyticOnNhd_carlsonLKernel t).mono ball_one_subset_slitPlane) hz1 b
 
 /-- Absolute convergence of the continued L-expansion. -/
-theorem summable_norm_regCarlsonLContinued_series (t : ℂ) (b : ι → ℂ)
+theorem summable_norm_regCarlsonL_series (t : ℂ) (b : ι → ℂ)
     {z : ι → ℂ} (hz1 : ‖fun i => z i - 1‖ < 1) :
     Summable (fun n => ‖carlsonLCoeff n t * regCarlsonRPolynomial n b (fun i => z i - 1)‖) :=
   summable_norm_regCarlsonTaylorSeries
@@ -81,12 +81,12 @@ theorem carlsonLCoeff_exponent_zero (n : ℕ) :
 
 /-- Equation (5.8), with the sign absorbed into the coefficients of `z - 1`.
 The `n = 0` term is zero by totalized division. -/
-theorem hasSum_regCarlsonLContinued_zero (b : ι → ℂ)
+theorem hasSum_regCarlsonL_zero (b : ι → ℂ)
     {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain)
     (hz1 : ‖fun i => z i - 1‖ < 1) :
     HasSum (fun n => (-(-1 : ℂ) ^ n / n) * regCarlsonRPolynomial n b (fun i => z i - 1))
-      (regCarlsonLContinued 0 z hz b) := by
-  simpa only [carlsonLCoeff_exponent_zero] using hasSum_regCarlsonLContinued 0 b hz hz1
+      (regCarlsonL 0 b z) := by
+  simpa only [carlsonLCoeff_exponent_zero] using hasSum_regCarlsonL 0 b hz hz1
 
 end Carlson
 end

@@ -41,7 +41,7 @@ private theorem analyticOnNhd_regCarlsonSTerm_joint (n : ℕ) :
       (Nat.factorial n : ℂ)⁻¹ * regCarlsonRPolynomial n (fun i => q (.inl i)) (fun i => q (.inr i)))
       Set.univ := by
   intro q _
-  exact analyticAt_const.mul (analyticAt_regCarlsonR_comp
+  exact analyticAt_const.mul (analyticAt_regCarlsonRPolynomial_comp
     (b := fun q : Sum ι ι → ℂ => fun i => q (.inl i))
     (z := fun q : Sum ι ι → ℂ => fun i => q (.inr i)) (x := q)
     (fun i => (ContinuousLinearMap.proj (R := ℂ) (.inl i)).analyticAt q)

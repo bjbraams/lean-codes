@@ -7,6 +7,7 @@ module
 
 public import ComplexAnalysis.Pow
 public import Carlson.ZeroParameter
+public import Carlson.R.Explicit
 
 /-!
 # Zero-parameter deletion for the continued R-function
@@ -24,15 +25,15 @@ variable {ι : Type*} [Fintype ι]
 
 /-- Carlson's zero-parameter deletion for the general continued R-function.
 The exponent and remaining Dirichlet parameters are arbitrary complex numbers. -/
-theorem regCarlsonRContinued_option_zero [Nonempty ι] (t : ℂ)
+theorem regCarlsonR_option_zero [Nonempty ι] (t : ℂ)
     {b : Option ι → ℂ} (hb : b none = 0)
     {z : Option ι → ℂ} (hz : z ∈ carlsonRVariableDomain) :
-    regCarlsonRContinued t z hz b =
-      regCarlsonRContinued t (z ∘ some) (fun i => hz (some i)) (b ∘ some) := by
+    regCarlsonR t b z =
+      regCarlsonR t (b ∘ some) (z ∘ some) := by
   obtain ⟨A, hA, hzA⟩ := exists_pos_real_center_norm_sub_lt hz
   exact IsRegCarlsonContinuation.option_zero (analyticOnNhd_cpow_ball_ofReal t A) hzA
-    (isRegCarlsonRContinuation_continued t hz)
-    (isRegCarlsonRContinuation_continued t (fun i => hz (some i))) hb
+    (isRegCarlsonRContinuation_regCarlsonR t hz)
+    (isRegCarlsonRContinuation_regCarlsonR t (fun i => hz (some i))) hb
 
 end Carlson
 end

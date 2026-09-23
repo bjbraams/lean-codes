@@ -5,7 +5,7 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import ComplexAnalysis.DividedDifference
+public import StdSimplexMeasure.Complex.DividedDifference
 
 /-!
 # Newton and Taylor formulas with exact remainders

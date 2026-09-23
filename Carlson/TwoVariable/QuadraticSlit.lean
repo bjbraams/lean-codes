@@ -7,7 +7,7 @@ module
 
 public import ComplexAnalysis.HalfPlane
 public import Carlson.TwoVariable.QuadraticContinuation
-public import Carlson.R.SlitJointAnalytic
+public import Carlson.R.Explicit
 
 /-!
 # Quadratic transformations with slit-plane transformed nodes
@@ -86,18 +86,18 @@ private theorem analyticAt_meanSquares (w : Fin 2 → ℂ) :
 /-- First quadratic transformation, with no restriction on the real parts of
 the transformed mean squares and no Dirichlet-parameter exclusions. -/
 theorem regRSlit_firstQuadratic (t β x y : ℂ) (hx : 0 < x.re) (hy : 0 < y.re) :
-    regCarlsonRSlit (2 * t) (pair β β) (pair x y) =
-      quadraticGammaRatio β * regCarlsonRSlit t (pair (β + t) (1 / 2 - t))
+    regCarlsonR (2 * t) (pair β β) (pair x y) =
+      quadraticGammaRatio β * regCarlsonR t (pair (β + t) (1 / 2 - t))
         (pair (arithmeticMeanSq x y) (geometricMeanSq x y)) := by
-  let F := fun w : Fin 2 → ℂ => regCarlsonRSlit (2 * t) (pair β β) w
+  let F := fun w : Fin 2 → ℂ => regCarlsonR (2 * t) (pair β β) w
   let G := fun w : Fin 2 → ℂ => quadraticGammaRatio β *
-    regCarlsonRSlit t (pair (β + t) (1 / 2 - t))
+    regCarlsonR t (pair (β + t) (1 / 2 - t))
       (pair (arithmeticMeanSq (w 0) (w 1)) (geometricMeanSq (w 0) (w 1)))
   have hF : AnalyticOnNhd ℂ F carlsonRVariableDomain :=
-    (analyticOnNhd_regCarlsonRSlit _ _).mono carlsonRVariableDomain_subset_slitDomain
+    (analyticOnNhd_regCarlsonR _ _).mono carlsonRVariableDomain_subset_slitDomain
   have hG : AnalyticOnNhd ℂ G carlsonRVariableDomain := by
     intro w hw
-    exact analyticAt_const.mul (analyticAt_regCarlsonRSlit_comp
+    exact analyticAt_const.mul (analyticAt_regCarlsonR_comp
       analyticAt_const analyticAt_const (analyticAt_meanSquares w)
       (meanSquares_mem_slitDomain (hw 0) (hw 1)))
   have heq := hF.eqOn_of_preconnected_of_eventuallyEq hG
@@ -107,26 +107,24 @@ theorem regRSlit_firstQuadratic (t β x y : ℂ) (hx : 0 < x.re) (hy : 0 < y.re)
   · exact heq (show pair x y ∈ carlsonRVariableDomain by
       intro i; fin_cases i <;> assumption)
   · filter_upwards [eventually_quadraticDomains_one] with w hw
-    change regCarlsonRSlit (2 * t) (pair β β) w = _
+    change regCarlsonR (2 * t) (pair β β) w = _
     conv_lhs => rw [← pair_eta w]
-    rw [regCarlsonRSlit_eq_continued _ _ hw.1.1]
-    change _ = quadraticGammaRatio β * regCarlsonRSlit t _ _
-    rw [regCarlsonRSlit_eq_continued _ _ hw.1.2]
-    exact regRContinued_firstQuadratic t β (w 0) (w 1) hw.1
+    change _ = quadraticGammaRatio β * regCarlsonR t _ _
+    exact regCarlsonR_pair_firstQuadratic t β (w 0) (w 1) hw.1
 
 /-- Second quadratic transformation on the whole positive-real-part square-root
 domain. The squared input nodes and both transformed nodes may have negative real parts. -/
 theorem regRSlit_secondQuadratic (t β x y : ℂ) (hx : 0 < x.re) (hy : 0 < y.re) :
-    regCarlsonRSlit t (pair β β) (pair (x ^ 2) (y ^ 2)) =
-      quadraticGammaRatio β * regCarlsonRSlit t (pair (2 * β + t) (1 / 2 - β - t))
+    regCarlsonR t (pair β β) (pair (x ^ 2) (y ^ 2)) =
+      quadraticGammaRatio β * regCarlsonR t (pair (2 * β + t) (1 / 2 - β - t))
         (pair (arithmeticMeanSq x y) (geometricMeanSq x y)) := by
-  let F := fun w : Fin 2 → ℂ => regCarlsonRSlit t (pair β β) (pair ((w 0) ^ 2) ((w 1) ^ 2))
+  let F := fun w : Fin 2 → ℂ => regCarlsonR t (pair β β) (pair ((w 0) ^ 2) ((w 1) ^ 2))
   let G := fun w : Fin 2 → ℂ => quadraticGammaRatio β *
-    regCarlsonRSlit t (pair (2 * β + t) (1 / 2 - β - t))
+    regCarlsonR t (pair (2 * β + t) (1 / 2 - β - t))
       (pair (arithmeticMeanSq (w 0) (w 1)) (geometricMeanSq (w 0) (w 1)))
   have hF : AnalyticOnNhd ℂ F carlsonRVariableDomain := by
     intro w hw
-    apply analyticAt_regCarlsonRSlit_comp analyticAt_const analyticAt_const
+    apply analyticAt_regCarlsonR_comp analyticAt_const analyticAt_const
     · apply analyticAt_pi_iff.mpr
       intro i
       fin_cases i
@@ -138,7 +136,7 @@ theorem regRSlit_secondQuadratic (t β x y : ℂ) (hx : 0 < x.re) (hy : 0 < y.re
       · exact sq_mem_slitPlane_of_re_pos (hw 1)
   have hG : AnalyticOnNhd ℂ G carlsonRVariableDomain := by
     intro w hw
-    exact analyticAt_const.mul (analyticAt_regCarlsonRSlit_comp
+    exact analyticAt_const.mul (analyticAt_regCarlsonR_comp
       analyticAt_const analyticAt_const (analyticAt_meanSquares w)
       (meanSquares_mem_slitDomain (hw 0) (hw 1)))
   have heq := hF.eqOn_of_preconnected_of_eventuallyEq hG
@@ -148,10 +146,9 @@ theorem regRSlit_secondQuadratic (t β x y : ℂ) (hx : 0 < x.re) (hy : 0 < y.re
   · exact heq (show pair x y ∈ carlsonRVariableDomain by
       intro i; fin_cases i <;> assumption)
   · filter_upwards [eventually_quadraticDomains_one] with w hw
-    change regCarlsonRSlit t (pair β β) (pair ((w 0) ^ 2) ((w 1) ^ 2)) =
-      quadraticGammaRatio β * regCarlsonRSlit t _ _
-    rw [regCarlsonRSlit_eq_continued _ _ hw.2.1, regCarlsonRSlit_eq_continued _ _ hw.2.2]
-    exact regRContinued_secondQuadratic t β (w 0) (w 1) hw.2
+    change regCarlsonR t (pair β β) (pair ((w 0) ^ 2) ((w 1) ^ 2)) =
+      quadraticGammaRatio β * regCarlsonR t _ _
+    exact regCarlsonR_pair_secondQuadratic t β (w 0) (w 1) hw.2
 
 end Carlson.TwoVariable
 end

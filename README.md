@@ -73,6 +73,11 @@ averages live in `Dirichlet`; Carlson's special functions live in `Carlson` and
 
 Each directory has a matching umbrella module. `Main.lean` imports all nine.
 See the [module structure guide](STRUCTURE.md) for the finer topic splits and import paths.
+A mathematical synopsis addressed to mathematicians, in dependency order and marking what is
+new relative to Mathlib, is in three parts: [SYNOPSIS.md](SYNOPSIS.md) (support libraries,
+simplex measure, one complex variable), [SYNOPSIS_SCV.md](SYNOPSIS_SCV.md) (several complex
+variables) and [SYNOPSIS_CARLSON.md](SYNOPSIS_CARLSON.md) (Dirichlet averages and Carlson's
+functions).
 
 ## Registry statement
 

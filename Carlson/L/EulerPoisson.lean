@@ -22,20 +22,20 @@ open scoped Topology
 namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
-private theorem analyticOnNhd_secondPartial_regCarlsonLSlit_joint (i j : ι) :
+private theorem analyticOnNhd_secondPartial_regCarlsonL_joint (i j : ι) :
     AnalyticOnNhd ℂ (fun p : Option (ι ⊕ ι) → ℂ =>
       carlsonPartialDeriv i (carlsonPartialDeriv j
-        (regCarlsonLSlit (p none) (fun k => p (some (.inl k)))))
+        (regCarlsonL (p none) (fun k => p (some (.inl k)))))
         (fun k => p (some (.inr k))))
       {p | (fun k => p (some (.inr k))) ∈ carlsonRSlitDomain} := by
   classical
-  have h := (analyticOnNhd_carlsonPartialDeriv_regCarlsonLSlit_joint j).partialDeriv
+  have h := (analyticOnNhd_carlsonPartialDeriv_regCarlsonL_joint j).partialDeriv
     (isOpen_carlsonRSlitDomain.preimage (by fun_prop)) (some (Sum.inr i))
   have heq : SeveralComplexVariables.partialDeriv (some (Sum.inr i))
       (fun p : Option (ι ⊕ ι) → ℂ => carlsonPartialDeriv j
-        (regCarlsonLSlit (p none) (fun k => p (some (.inl k)))) (fun k => p (some (.inr k)))) =
+        (regCarlsonL (p none) (fun k => p (some (.inl k)))) (fun k => p (some (.inr k)))) =
       (fun p => carlsonPartialDeriv i (carlsonPartialDeriv j
-        (regCarlsonLSlit (p none) (fun k => p (some (.inl k))))) (fun k => p (some (.inr k)))) := by
+        (regCarlsonL (p none) (fun k => p (some (.inl k))))) (fun k => p (some (.inr k)))) := by
     funext p
     change deriv _ _ = deriv _ _
     congr 1
@@ -47,13 +47,13 @@ private theorem analyticOnNhd_secondPartial_regCarlsonLSlit_joint (i j : ι) :
   rwa [heq] at h
 
 /-- The entire Euler–Poisson expression is jointly holomorphic in all its arguments. -/
-theorem analyticAt_carlsonEulerPoissonOperator_regCarlsonLSlit_comp
+theorem analyticAt_carlsonEulerPoissonOperator_regCarlsonL_comp
     {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
     {t : E → ℂ} {b z : E → ι → ℂ} {p : E}
     (ht : AnalyticAt ℂ t p) (hb : AnalyticAt ℂ b p) (hz : AnalyticAt ℂ z p)
     (hslit : z p ∈ carlsonRSlitDomain) (i j : ι) :
     AnalyticAt ℂ (fun q => carlsonEulerPoissonOperator i j (b q) (z q)
-      (regCarlsonLSlit (t q) (b q))) p := by
+      (regCarlsonL (t q) (b q))) p := by
   let f : E → Option (ι ⊕ ι) → ℂ := fun q k => k.elim (t q) (Sum.elim (b q) (z q))
   have hf : AnalyticAt ℂ f p := by
     apply analyticAt_pi_iff.mpr
@@ -64,24 +64,24 @@ theorem analyticAt_carlsonEulerPoissonOperator_regCarlsonLSlit_comp
       cases k with
       | inl k => exact (analyticAt_pi_iff.mp hb) k
       | inr k => exact (analyticAt_pi_iff.mp hz) k
-  have hsecond := (analyticOnNhd_secondPartial_regCarlsonLSlit_joint i j (f p)
+  have hsecond := (analyticOnNhd_secondPartial_regCarlsonL_joint i j (f p)
       hslit).comp_of_eq hf rfl
-  have hfirst (k : ι) := analyticAt_carlsonPartialDeriv_regCarlsonLSlit_comp ht hb hz hslit k
+  have hfirst (k : ι) := analyticAt_carlsonPartialDeriv_regCarlsonL_comp ht hb hz hslit k
   exact ((((analyticAt_pi_iff.mp hz) i).sub ((analyticAt_pi_iff.mp hz) j)).mul hsecond |>.add
     (((analyticAt_pi_iff.mp hb) i).mul (hfirst j))).sub
       (((analyticAt_pi_iff.mp hb) j).mul (hfirst i))
 
-private theorem eulerPoisson_regCarlsonLSlit_of_native (t : ℂ) {b z : ι → ℂ}
+private theorem eulerPoisson_regCarlsonL_of_native (t : ℂ) {b z : ι → ℂ}
     (hb : b ∈ mvBetaConvergent) (hz : z ∈ carlsonRVariableDomain) (i j : ι) :
-    carlsonEulerPoissonOperator i j b z (regCarlsonLSlit t b) = 0 := by
+    carlsonEulerPoissonOperator i j b z (regCarlsonL t b) = 0 := by
   classical
   have hfirst (k : ι) {w : ι → ℂ} (hw : w ∈ carlsonRVariableDomain) :
-      carlsonPartialDeriv k (regCarlsonLSlit t b) w =
+      carlsonPartialDeriv k (regCarlsonL t b) w =
         carlsonPartialDeriv k (regCarlsonLIntegral t b) w := by
     apply SeveralComplexVariables.partialDeriv_congr
     filter_upwards [isOpen_carlsonRVariableDomain.mem_nhds hw] with v hv
-    exact regCarlsonLSlit_eq_integral t hv hb
-  have hsecond : carlsonPartialDeriv i (carlsonPartialDeriv j (regCarlsonLSlit t b)) z =
+    exact regCarlsonL_eq_regCarlsonLIntegral t hb hv
+  have hsecond : carlsonPartialDeriv i (carlsonPartialDeriv j (regCarlsonL t b)) z =
       carlsonPartialDeriv i (carlsonPartialDeriv j (regCarlsonLIntegral t b)) z := by
     apply SeveralComplexVariables.partialDeriv_congr
     filter_upwards [isOpen_carlsonRVariableDomain.mem_nhds hz] with w hw
@@ -91,32 +91,32 @@ private theorem eulerPoisson_regCarlsonLSlit_of_native (t : ℂ) {b z : ι → �
   exact carlsonEulerPoissonOperator_regCarlsonLIntegral t hb hz i j
 
 /-- Carlson (1987), (2.7), without convergence restrictions or node-separation assumptions. -/
-theorem carlsonEulerPoissonOperator_regCarlsonLSlit (t : ℂ) (b : ι → ℂ)
+theorem carlsonEulerPoissonOperator_regCarlsonL (t : ℂ) (b : ι → ℂ)
     {z : ι → ℂ} (hz : z ∈ carlsonRSlitDomain) (i j : ι) :
-    carlsonEulerPoissonOperator i j b z (regCarlsonLSlit t b) = 0 := by
+    carlsonEulerPoissonOperator i j b z (regCarlsonL t b) = 0 := by
   have hright {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain) :
-      carlsonEulerPoissonOperator i j b z (regCarlsonLSlit t b) = 0 := by
-    have ha : AnalyticOnNhd ℂ (fun b => carlsonEulerPoissonOperator i j b z (regCarlsonLSlit t b))
+      carlsonEulerPoissonOperator i j b z (regCarlsonL t b) = 0 := by
+    have ha : AnalyticOnNhd ℂ (fun b => carlsonEulerPoissonOperator i j b z (regCarlsonL t b))
         univ :=
-      fun _ _ => analyticAt_carlsonEulerPoissonOperator_regCarlsonLSlit_comp
+      fun _ _ => analyticAt_carlsonEulerPoissonOperator_regCarlsonL_comp
         analyticAt_const analyticAt_id analyticAt_const (carlsonRVariableDomain_subset_slitDomain
             hz) i j
     exact congrFun (analyticOnNhd_eq_of_eqOn_mvBetaConvergent ha analyticOnNhd_const
-      (fun _ hb => eulerPoisson_regCarlsonLSlit_of_native t hb hz i j)) b
-  have ha : AnalyticOnNhd ℂ (fun z => carlsonEulerPoissonOperator i j b z (regCarlsonLSlit t b))
-      carlsonRSlitDomain := fun _ hz => analyticAt_carlsonEulerPoissonOperator_regCarlsonLSlit_comp
+      (fun _ hb => eulerPoisson_regCarlsonL_of_native t hb hz i j)) b
+  have ha : AnalyticOnNhd ℂ (fun z => carlsonEulerPoissonOperator i j b z (regCarlsonL t b))
+      carlsonRSlitDomain := fun _ hz => analyticAt_carlsonEulerPoissonOperator_regCarlsonL_comp
         analyticAt_const analyticAt_const analyticAt_id hz i j
   exact eqOn_carlsonRSlitDomain_of_eqOn_rightHalfPlane ha analyticOnNhd_const (fun _ hw => hright
       hw) hz
 
 /-- The ordinary normalization satisfies the same homogeneous PDE wherever it represents
 the ordinary function; the identity also holds for Lean's totalization at Gamma poles. -/
-theorem carlsonEulerPoissonOperator_carlsonLSlit (t : ℂ) (b : ι → ℂ)
+theorem carlsonEulerPoissonOperator_carlsonL (t : ℂ) (b : ι → ℂ)
     {z : ι → ℂ} (hz : z ∈ carlsonRSlitDomain) (i j : ι) :
-    carlsonEulerPoissonOperator i j b z (carlsonLSlit t b) = 0 := by
+    carlsonEulerPoissonOperator i j b z (carlsonL t b) = 0 := by
   change carlsonEulerPoissonOperator i j b z
-    (fun w => Gamma (∑ k, b k) * regCarlsonLSlit t b w) = 0
+    (fun w => Gamma (∑ k, b k) * regCarlsonL t b w) = 0
   rw [carlsonEulerPoissonOperator_const_mul,
-    carlsonEulerPoissonOperator_regCarlsonLSlit t b hz i j, mul_zero]
+    carlsonEulerPoissonOperator_regCarlsonL t b hz i j, mul_zero]
 
 end Carlson

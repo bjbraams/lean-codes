@@ -6,7 +6,7 @@ Authors: Bastiaan J Braams
 module
 
 public import ComplexAnalysis.Pow
-public import Carlson.R.SingleIntegral.Continuation
+public import Carlson.R.Explicit
 
 /-!
 # Positive-ray representation and its change of variables
@@ -23,8 +23,8 @@ the unit-interval form through the reciprocal translation `s ↦ (s + 1)⁻¹`.
 * `Carlson.carlsonRPositiveRayIntegral_eq_unitInterval`: the change of variables between the two
   representations.
 * `Carlson.carlsonRPositiveRayIntegral_eq`: Carlson's Theorem 6.8-1 in positive-ray form.
-* `Carlson.carlsonRPositiveRayIntegral_eq_gamma_mul_continued`: the positive-ray representation
-  of the parameter-continued R-function.
+* `Carlson.carlsonRPositiveRayIntegral_eq_gamma_mul_regCarlsonR`: the positive-ray
+  representation of the R-function at all Dirichlet parameters.
 
 ## References
 
@@ -213,14 +213,14 @@ theorem carlsonRPositiveRayIntegral_eq
 
 /-- The positive-ray representation with no individual Dirichlet-parameter
 restrictions; only the two endpoint convergence conditions remain. -/
-theorem carlsonRPositiveRayIntegral_eq_gamma_mul_continued
+theorem carlsonRPositiveRayIntegral_eq_gamma_mul_regCarlsonR
     {a a' : ℂ} {b z : ι → ℂ}
     (ha : 0 < a.re) (ha' : 0 < a'.re)
     (hsum : a + a' = ∑ i, b i) (hz : z ∈ carlsonRVariableDomain) :
     carlsonRPositiveRayIntegral a b z =
-      (Gamma a * Gamma a') * regCarlsonRContinued (-a') z hz b := by
+      (Gamma a * Gamma a') * regCarlsonR (-a') b z := by
   rw [carlsonRPositiveRayIntegral_eq_unitInterval hsum hz,
-    carlsonRUnitIntervalIntegral_eq_gamma_mul_continued ha' ha
-      (by simpa [add_comm] using hsum) hz, mul_comm (Gamma a')]
+    carlsonRUnitIntervalIntegral_eq_gamma_mul_regCarlsonR ha' ha (by simpa [add_comm] using hsum)
+        (carlsonRVariableDomain_subset_slitDomain hz), mul_comm (Gamma a')]
 
 end Carlson

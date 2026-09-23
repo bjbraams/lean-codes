@@ -8,7 +8,7 @@ module
 public import Analysis.Deriv
 public import Carlson.TwoVariable.EqualParameter
 public import Carlson.TwoVariable.ParameterSymmetry
-public import Carlson.L.SlitContinuation
+public import Carlson.L.Continuation
 
 /-!
 # Differentiating the quadratic transformations
@@ -129,51 +129,41 @@ theorem equalLContinued_eq_integral (t β x y : ℂ)
   exact mul_div_cancel₀ _ (Gamma_ne_zero_of_re_pos hc)
 
 /-- Compatibility does not require cancelling the Gamma ratio. -/
-theorem regCarlsonLContinued_pair_eq (t β x y : ℂ)
+theorem regCarlsonL_pair_eq (t β x y : ℂ)
     (hz : pair x y ∈ carlsonRVariableDomain) :
-    regCarlsonLContinued t (pair x y) hz (pair β β) =
+    regCarlsonL t (pair β β) (pair x y) =
       quadraticGammaRatio β * regEqualLContinued t x y hz β := by
-  have heq : (fun s => regCarlsonRContinued s (pair x y) hz (pair β β)) =
+  have heq : (fun s => regCarlsonR s (pair β β) (pair x y)) =
       (fun s => quadraticGammaRatio β * regEqualRContinued s x y hz β) :=
-    funext fun s => regCarlsonRContinued_pair_eq s β x y hz
-  have h := (hasDerivAt_regCarlsonRContinued_L t (pair β β) hz)
+    funext fun s => regCarlsonR_pair_eq s β x y hz
+  have h := (hasDerivAt_regCarlsonR_L t (pair β β) (carlsonRVariableDomain_subset_slitDomain hz))
   rw [heq] at h
   exact h.unique ((hasDerivAt_regEqualRContinued_L t β x y hz).const_mul _)
 
-/-- Slit-interface compatibility on the node domain of the equal-parameter family. -/
-theorem regCarlsonLSlit_pair_eq (t β x y : ℂ)
-    (hz : pair x y ∈ carlsonRVariableDomain) :
-    regCarlsonLSlit t (pair β β) (pair x y) =
-      quadraticGammaRatio β * regEqualLContinued t x y hz β := by
-  rw [regCarlsonLSlit_eq_continued t (pair β β) hz,
-    regCarlsonLContinued_pair_eq t β x y hz]
-
 /-- The missing term when the exponent and the Dirichlet parameters both vary.
 The parameter sum `u + v` stays fixed along this derivative. -/
-def regRParameterTransfer (t u v x y : ℂ)
-    (hz : pair x y ∈ carlsonRVariableDomain) : ℂ :=
-  deriv (fun s => regCarlsonRContinued t (pair x y) hz (pair (u + s) (v - s))) 0
+def regRParameterTransfer (t u v x y : ℂ) : ℂ :=
+  deriv (fun s => regCarlsonR t (pair (u + s) (v - s)) (pair x y)) 0
 
 /-- Carlson (1987), (2.12), normalized at the first node. The ratio may lie outside
 the right half-plane, so the transformed L-function uses its slit continuation. -/
 theorem regRParameterTransfer_eq_L (t u v x y : ℂ)
     (hz : pair x y ∈ carlsonRVariableDomain) :
-    regRParameterTransfer t u v x y hz =
-      x ^ t * regCarlsonLSlit (-v) (pair (u + v + t) (-t)) (pair 1 (y / x)) := by
+    regRParameterTransfer t u v x y =
+      x ^ t * regCarlsonL (-v) (pair (u + v + t) (-t)) (pair 1 (y / x)) := by
   have hs : pair 1 (y / x) ∈ carlsonRSlitDomain := by
     intro i; fin_cases i
     · simp [pair]
     · exact div_mem_slitPlane_of_re_pos (hz 1) (hz 0)
-  have heq : (fun s => regCarlsonRContinued t (pair x y) hz (pair (u + s) (v - s))) =
-      (fun s => x ^ t * regCarlsonRSlit (s - v) (pair (u + v + t) (-t)) (pair 1 (y / x))) := by
+  have heq : (fun s => regCarlsonR t (pair (u + s) (v - s)) (pair x y)) =
+      (fun s => x ^ t * regCarlsonR (s - v) (pair (u + v + t) (-t)) (pair 1 (y / x))) := by
     funext s
-    have h := regCarlsonRSlit_parameterInterchange t (u + s) (v - s) (hz 0) (hz 1)
+    have h := regCarlsonR_parameterInterchange t (u + s) (v - s) (hz 0) (hz 1)
     simp only [pair_zero, pair_one] at h
-    rw [regCarlsonRSlit_eq_continued t _ hz,
-      show u + s + (v - s) + t = u + v + t by ring,
+    rw [show u + s + (v - s) + t = u + v + t by ring,
       show -(v - s) = s - v by ring] at h
     exact h
-  have h := ((hasDerivAt_regCarlsonRSlit_L (-v) (pair (u + v + t) (-t)) hs).comp_of_eq 0
+  have h := ((hasDerivAt_regCarlsonR_L (-v) (pair (u + v + t) (-t)) hs).comp_of_eq 0
     ((hasDerivAt_id 0).sub_const v) (by simp)).const_mul (x ^ t)
   rw [regRParameterTransfer, heq]
   simpa using h.deriv
@@ -181,35 +171,35 @@ theorem regRParameterTransfer_eq_L (t u v x y : ℂ)
 /-- Carlson (1987), second form of (2.12), normalized at the last node. -/
 theorem regRParameterTransfer_eq_neg_L (t u v x y : ℂ)
     (hz : pair x y ∈ carlsonRVariableDomain) :
-    regRParameterTransfer t u v x y hz =
-      -(y ^ t * regCarlsonLSlit (-u) (pair (-t) (u + v + t)) (pair (x / y) 1)) := by
+    regRParameterTransfer t u v x y =
+      -(y ^ t * regCarlsonL (-u) (pair (-t) (u + v + t)) (pair (x / y) 1)) := by
   have hs : pair (x / y) 1 ∈ carlsonRSlitDomain := by
     intro i; fin_cases i
     · exact div_mem_slitPlane_of_re_pos (hz 0) (hz 1)
     · simp [pair]
-  have heq : (fun s => regCarlsonRContinued t (pair x y) hz (pair (u + s) (v - s))) =
-      (fun s => y ^ t * regCarlsonRSlit (-u - s) (pair (-t) (u + v + t)) (pair (x / y) 1)) := by
+  have heq : (fun s => regCarlsonR t (pair (u + s) (v - s)) (pair x y)) =
+      (fun s => y ^ t * regCarlsonR (-u - s) (pair (-t) (u + v + t)) (pair (x / y) 1)) := by
     funext s
-    have h := regCarlsonRSlit_parameterInterchange_last t (u + s) (v - s) (hz 0) (hz 1)
+    have h := regCarlsonR_parameterInterchange_last t (u + s) (v - s) (hz 0) (hz 1)
     simp only [pair_zero, pair_one] at h
-    rw [regCarlsonRSlit_eq_continued t _ hz,
-      show u + s + (v - s) + t = u + v + t by ring,
+    rw [show u + s + (v - s) + t = u + v + t by ring,
       show -(u + s) = -u - s by ring] at h
     exact h
-  have h := ((hasDerivAt_regCarlsonRSlit_L (-u) (pair (-t) (u + v + t)) hs).comp_of_eq 0
+  have h := ((hasDerivAt_regCarlsonR_L (-u) (pair (-t) (u + v + t)) hs).comp_of_eq 0
     ((hasDerivAt_const 0 (-u)).sub (hasDerivAt_id 0)) (by simp)).const_mul (y ^ t)
   rw [regRParameterTransfer, heq]
   simpa using h.deriv
 
 /-- Chain rule for the exponent and a sum-preserving parameter transfer. -/
-theorem deriv_regRContinued_exponent_transfer (t u v x y : ℂ)
+theorem deriv_regCarlsonR_exponent_transfer (t u v x y : ℂ)
     (hz : pair x y ∈ carlsonRVariableDomain) :
-    deriv (fun s => regCarlsonRContinued s (pair x y) hz (pair (u + s) (v - s))) t =
-      regCarlsonLContinued t (pair x y) hz (pair (u + t) (v - t)) +
-        regRParameterTransfer t (u + t) (v - t) x y hz := by
+    deriv (fun s => regCarlsonR s (pair (u + s) (v - s)) (pair x y)) t =
+      regCarlsonL t (pair (u + t) (v - t)) (pair x y) +
+        regRParameterTransfer t (u + t) (v - t) x y := by
   have ha : AnalyticAt ℂ (fun p : ℂ × ℂ =>
-      regCarlsonRContinued p.1 (pair x y) hz (pair (u + p.2) (v - p.2))) (t, t) := by
-    apply analyticAt_regCarlsonRContinued_comp hz analyticAt_fst
+      regCarlsonR p.1 (pair (u + p.2) (v - p.2)) (pair x y)) (t, t) := by
+    refine analyticAt_regCarlsonR_comp analyticAt_fst ?_ analyticAt_const
+      (carlsonRVariableDomain_subset_slitDomain hz)
     apply analyticAt_pi_iff.mpr
     intro i
     fin_cases i
@@ -217,10 +207,11 @@ theorem deriv_regRContinued_exponent_transfer (t u v x y : ℂ)
     · exact analyticAt_const.sub analyticAt_snd
   rw [deriv_diagonal ha.differentiableAt]
   congr 1
-  let g : ℂ → ℂ := fun s => regCarlsonRContinued t (pair x y) hz (pair (u + s) (v - s))
+  let g : ℂ → ℂ := fun s => regCarlsonR t (pair (u + s) (v - s)) (pair x y)
   have hg : DifferentiableAt ℂ g t := by
     apply AnalyticAt.differentiableAt
-    apply analyticAt_regCarlsonRContinued_comp hz analyticAt_const
+    refine analyticAt_regCarlsonR_comp analyticAt_const ?_ analyticAt_const
+      (carlsonRVariableDomain_subset_slitDomain hz)
     apply analyticAt_pi_iff.mpr
     intro i
     fin_cases i
@@ -234,38 +225,35 @@ theorem deriv_regRContinued_exponent_transfer (t u v x y : ℂ)
 theorem regEqualLContinued_firstQuadratic_deriv (t β x y : ℂ)
     (hz : FirstQuadraticDomain x y) :
     2 * regEqualLContinued (2 * t) x y hz.1 β =
-      regCarlsonLContinued t (pair (arithmeticMeanSq x y) (geometricMeanSq x y)) hz.2
-        (pair (β + t) (1 / 2 - t)) +
+      regCarlsonL t (pair (β + t) (1 / 2 - t)) (pair (arithmeticMeanSq x y) (geometricMeanSq x y)) +
       regRParameterTransfer t (β + t) (1 / 2 - t)
-        (arithmeticMeanSq x y) (geometricMeanSq x y) hz.2 := by
+        (arithmeticMeanSq x y) (geometricMeanSq x y) := by
   have h := (hasDerivAt_regEqualRContinued_L (2 * t) β x y hz.1).comp t
     ((hasDerivAt_id t).const_mul 2)
   have heq : (fun s => regEqualRContinued (2 * s) x y hz.1 β) =
-      (fun s => regCarlsonRContinued s
-        (pair (arithmeticMeanSq x y) (geometricMeanSq x y)) hz.2
-        (pair (β + s) (1 / 2 - s))) :=
+      (fun s => regCarlsonR s (pair (β + s) (1 / 2 - s)) (pair (arithmeticMeanSq x y)
+          (geometricMeanSq x y))) :=
     funext fun s => regEqualRContinued_firstQuadratic s β x y hz
   have hd := h.deriv
   change deriv (fun s => regEqualRContinued (2 * s) x y hz.1 β) t = _ at hd
-  rw [heq, deriv_regRContinued_exponent_transfer] at hd
+  rw [heq, deriv_regCarlsonR_exponent_transfer _ _ _ _ _ hz.2] at hd
   simpa [mul_comm] using hd.symm
 
 /-- Second quadratic identity with the full parameter-derivative correction. -/
 theorem regEqualLContinued_secondQuadratic_deriv (t β x y : ℂ)
     (hz : SecondQuadraticDomain x y) :
     regEqualLContinued t (x ^ 2) (y ^ 2) hz.1 β =
-      regCarlsonLContinued t (pair (arithmeticMeanSq x y) (geometricMeanSq x y)) hz.2
-        (pair (2 * β + t) (1 / 2 - β - t)) +
+      regCarlsonL t (pair (2 * β + t) (1 / 2 - β - t)) (pair (arithmeticMeanSq x y)
+          (geometricMeanSq x y)) +
       regRParameterTransfer t (2 * β + t) (1 / 2 - β - t)
-        (arithmeticMeanSq x y) (geometricMeanSq x y) hz.2 := by
+        (arithmeticMeanSq x y) (geometricMeanSq x y) := by
   have heq : (fun s => regEqualRContinued s (x ^ 2) (y ^ 2) hz.1 β) =
-      (fun s => regCarlsonRContinued s
-        (pair (arithmeticMeanSq x y) (geometricMeanSq x y)) hz.2
-        (pair (2 * β + s) (1 / 2 - β - s))) :=
+      (fun s => regCarlsonR s (pair (2 * β + s) (1 / 2 - β - s)) (pair (arithmeticMeanSq x y)
+          (geometricMeanSq x y))) :=
     funext fun s => regEqualRContinued_secondQuadratic s β x y hz
   change deriv (fun s => regEqualRContinued s (x ^ 2) (y ^ 2) hz.1 β) t = _
   rw [heq]
-  exact deriv_regRContinued_exponent_transfer t (2 * β) (1 / 2 - β)
+  exact deriv_regCarlsonR_exponent_transfer t (2 * β) (1 / 2 - β)
     (arithmeticMeanSq x y) (geometricMeanSq x y) hz.2
 
 /-- Carlson (1987), (6.4), for all complex parameters, retaining removable values.
@@ -273,15 +261,14 @@ The second L-term is evaluated at the slit-plane ratio `A / G`. -/
 theorem regEqualLContinued_firstQuadratic (t β x y : ℂ)
     (hz : FirstQuadraticDomain x y) :
     2 * regEqualLContinued (2 * t) x y hz.1 β =
-      regCarlsonLSlit t (pair (β + t) (1 / 2 - t))
+      regCarlsonL t (pair (β + t) (1 / 2 - t))
         (pair (arithmeticMeanSq x y) (geometricMeanSq x y)) -
-      geometricMeanSq x y ^ t * regCarlsonLSlit (-(β + t))
+      geometricMeanSq x y ^ t * regCarlsonL (-(β + t))
         (pair (-t) (β + 1 / 2 + t))
         (pair (arithmeticMeanSq x y / geometricMeanSq x y) 1) := by
   have h := regEqualLContinued_firstQuadratic_deriv t β x y hz
-  rw [regRParameterTransfer_eq_neg_L,
+  rw [regRParameterTransfer_eq_neg_L _ _ _ _ _ hz.2,
     show β + t + (1 / 2 - t) + t = β + 1 / 2 + t by ring] at h
-  rw [regCarlsonLSlit_eq_continued t _ hz.2]
   simpa only [sub_eq_add_neg] using h
 
 /-- Carlson (1987), (6.5) with the first forms of (6.6) and (6.7), for all
@@ -289,15 +276,14 @@ complex parameters. No Gamma factor is cancelled in this normalization. -/
 theorem regEqualLContinued_secondQuadratic (t β x y : ℂ)
     (hz : SecondQuadraticDomain x y) :
     regEqualLContinued t (x ^ 2) (y ^ 2) hz.1 β =
-      regCarlsonLSlit t (pair (2 * β + t) (1 / 2 - β - t))
+      regCarlsonL t (pair (2 * β + t) (1 / 2 - β - t))
         (pair (arithmeticMeanSq x y) (geometricMeanSq x y)) -
-      geometricMeanSq x y ^ t * regCarlsonLSlit (-(2 * β + t))
+      geometricMeanSq x y ^ t * regCarlsonL (-(2 * β + t))
         (pair (-t) (β + 1 / 2 + t))
         (pair (arithmeticMeanSq x y / geometricMeanSq x y) 1) := by
   have h := regEqualLContinued_secondQuadratic_deriv t β x y hz
-  rw [regRParameterTransfer_eq_neg_L,
+  rw [regRParameterTransfer_eq_neg_L _ _ _ _ _ hz.2,
     show 2 * β + t + (1 / 2 - β - t) + t = β + 1 / 2 + t by ring] at h
-  rw [regCarlsonLSlit_eq_continued t _ hz.2]
   simpa only [sub_eq_add_neg] using h
 
 /-- The first quadratic transformation in ordinary normalization. Its finite-function
@@ -306,14 +292,14 @@ identity also holds for the totalized values at genuine poles. -/
 theorem equalLContinued_firstQuadratic (t β x y : ℂ)
     (hz : FirstQuadraticDomain x y) :
     2 * equalLContinued (2 * t) x y hz.1 β =
-      carlsonLSlit t (pair (β + t) (1 / 2 - t))
+      carlsonL t (pair (β + t) (1 / 2 - t))
         (pair (arithmeticMeanSq x y) (geometricMeanSq x y)) -
-      geometricMeanSq x y ^ t * carlsonLSlit (-(β + t))
+      geometricMeanSq x y ^ t * carlsonL (-(β + t))
         (pair (-t) (β + 1 / 2 + t))
         (pair (arithmeticMeanSq x y / geometricMeanSq x y) 1) := by
   have h := congrArg (fun w => Gamma (β + 1 / 2) * w)
     (regEqualLContinued_firstQuadratic t β x y hz)
-  simp only [equalLContinued, carlsonLSlit, sum_pair]
+  simp only [equalLContinued, carlsonL, sum_pair]
   rw [show β + t + (1 / 2 - t) = β + 1 / 2 by ring,
     show -t + (β + 1 / 2 + t) = β + 1 / 2 by ring]
   linear_combination h
@@ -323,26 +309,26 @@ genuine-pole convention as `equalLContinued_firstQuadratic`. -/
 theorem equalLContinued_secondQuadratic (t β x y : ℂ)
     (hz : SecondQuadraticDomain x y) :
     equalLContinued t (x ^ 2) (y ^ 2) hz.1 β =
-      carlsonLSlit t (pair (2 * β + t) (1 / 2 - β - t))
+      carlsonL t (pair (2 * β + t) (1 / 2 - β - t))
         (pair (arithmeticMeanSq x y) (geometricMeanSq x y)) -
-      geometricMeanSq x y ^ t * carlsonLSlit (-(2 * β + t))
+      geometricMeanSq x y ^ t * carlsonL (-(2 * β + t))
         (pair (-t) (β + 1 / 2 + t))
         (pair (arithmeticMeanSq x y / geometricMeanSq x y) 1) := by
   have h := congrArg (fun w => Gamma (β + 1 / 2) * w)
     (regEqualLContinued_secondQuadratic t β x y hz)
-  simp only [equalLContinued, carlsonLSlit, sum_pair]
+  simp only [equalLContinued, carlsonL, sum_pair]
   rw [show 2 * β + t + (1 / 2 - β - t) = β + 1 / 2 by ring,
     show -t + (β + 1 / 2 + t) = β + 1 / 2 by ring]
   linear_combination h
 
 /-- At degree zero a sum-preserving parameter derivative vanishes. -/
-@[simp] theorem regRParameterTransfer_zero (u v x y : ℂ)
+theorem regRParameterTransfer_zero (u v x y : ℂ)
     (hz : pair x y ∈ carlsonRVariableDomain) :
-    regRParameterTransfer 0 u v x y hz = 0 := by
-  have heq : (fun s => regCarlsonRContinued 0 (pair x y) hz (pair (u + s) (v - s))) =
+    regRParameterTransfer 0 u v x y = 0 := by
+  have heq : (fun s => regCarlsonR 0 (pair (u + s) (v - s)) (pair x y)) =
       (fun _ : ℂ => (Gamma (u + v))⁻¹) := by
     funext s
-    rw [show (0 : ℂ) = (0 : ℕ) by norm_num, regCarlsonRContinued_natCast]
+    rw [show (0 : ℂ) = (0 : ℕ) by norm_num, regCarlsonR_natCast _ _ hz]
     simp only [regCarlsonRPolynomial_zero, sum_pair]
     congr 2
     ring
@@ -353,16 +339,17 @@ theorem equalLContinued_secondQuadratic (t β x y : ℂ)
 theorem regEqualLContinued_firstQuadratic_zero (β x y : ℂ)
     (hz : FirstQuadraticDomain x y) :
     2 * regEqualLContinued 0 x y hz.1 β =
-      regCarlsonLContinued 0 (pair (arithmeticMeanSq x y) (geometricMeanSq x y)) hz.2
-        (pair β (1 / 2)) := by
-  simpa using regEqualLContinued_firstQuadratic_deriv 0 β x y hz
+      regCarlsonL 0 (pair β (1 / 2)) (pair (arithmeticMeanSq x y) (geometricMeanSq x y)) := by
+  simpa [regRParameterTransfer_zero _ _ _ _ hz.2] using
+    regEqualLContinued_firstQuadratic_deriv 0 β x y hz
 
 /-- Carlson (1987), second identity (6.8), with no Dirichlet parameter exclusions. -/
 theorem regEqualLContinued_secondQuadratic_zero (β x y : ℂ)
     (hz : SecondQuadraticDomain x y) :
     regEqualLContinued 0 (x ^ 2) (y ^ 2) hz.1 β =
-      regCarlsonLContinued 0 (pair (arithmeticMeanSq x y) (geometricMeanSq x y)) hz.2
-        (pair (2 * β) (1 / 2 - β)) := by
-  simpa using regEqualLContinued_secondQuadratic_deriv 0 β x y hz
+      regCarlsonL 0 (pair (2 * β) (1 / 2 - β)) (pair (arithmeticMeanSq x y) (geometricMeanSq x y))
+          := by
+  simpa [regRParameterTransfer_zero _ _ _ _ hz.2] using
+    regEqualLContinued_secondQuadratic_deriv 0 β x y hz
 
 end Carlson.TwoVariable

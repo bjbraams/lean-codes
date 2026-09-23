@@ -28,14 +28,14 @@ namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
 /-- The same polynomial family gives the R-relation for every parameter and slit node. -/
-theorem sum_carlsonAssociatedRecurrenceJointPolynomial_mul_rSlit
+theorem sum_carlsonAssociatedRecurrenceJointPolynomial_mul_regCarlsonR
     (a : ℂ) (b : ι → ℂ) {z : ι → ℂ} (hz : z ∈ carlsonRSlitDomain) :
     ∑ n ∈ Finset.range (Fintype.card ι + 1),
       (carlsonAssociatedRecurrenceJointPolynomial n).eval (carlsonRecurrencePoint a b z) *
-        regCarlsonRSlit (-a - n) b z = 0 := by
+        regCarlsonR (-a - n) b z = 0 := by
   simp_rw [eval_carlsonAssociatedRecurrenceJointPolynomial]
   cases isEmpty_or_nonempty ι with
-  | inl h => simp [regCarlsonRSlit_eq_zero_of_isEmpty _ b hz]
-  | inr h => exact sum_carlsonAssociatedRecurrencePolynomial_mul_rSlit a b hz
+  | inl h => simp [regCarlsonR_eq_zero_of_isEmpty _ b _]
+  | inr h => exact sum_carlsonAssociatedRecurrencePolynomial_mul_regCarlsonR a b hz
 
 end Carlson

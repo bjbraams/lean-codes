@@ -75,4 +75,17 @@ theorem carlsonRSlitDomain_inv {z : ι → ℂ} (hz : z ∈ carlsonRSlitDomain) 
   · exact mem_slitPlane_iff.mpr (Or.inr (by
       rw [inv_im]; exact div_ne_zero (neg_ne_zero.mpr h) hn.ne'))
 
+/-- Agreement on the right half-plane determines a holomorphic function on the product
+slit plane uniquely. This is the node-variable permanence principle. -/
+theorem eqOn_carlsonRSlitDomain_of_eqOn_rightHalfPlane
+    {F G : (ι → ℂ) → ℂ} (hF : AnalyticOnNhd ℂ F carlsonRSlitDomain)
+    (hG : AnalyticOnNhd ℂ G carlsonRSlitDomain)
+    (hFG : Set.EqOn F G carlsonRVariableDomain) : Set.EqOn F G carlsonRSlitDomain := by
+  have hone : (fun _ : ι => (1 : ℂ)) ∈ carlsonRVariableDomain :=
+    fun _ => by simp [Dirichlet.carlsonRightHalfPlane]
+  apply hF.eqOn_of_preconnected_of_eventuallyEq hG isPreconnected_carlsonRSlitDomain
+    one_mem_carlsonRSlitDomain
+  filter_upwards [isOpen_carlsonRVariableDomain.mem_nhds hone] with z hz
+  exact hFG hz
+
 end Carlson

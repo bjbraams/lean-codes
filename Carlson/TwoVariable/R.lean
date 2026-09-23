@@ -7,7 +7,7 @@ module
 
 public import Carlson.TwoVariable.R.Basic
 public import Carlson.TwoVariable.RPolynomial.Basic
-public import Carlson.R.SingleIntegral.Continuation
+public import Carlson.R.Explicit
 
 /-!
 # The two-variable Carlson R-function
@@ -20,7 +20,7 @@ exponents, symmetry, positive homogeneity, and the logarithmic elementary functi
 
 * `Carlson.TwoVariable.regRIntegral_natCast`, `Carlson.TwoVariable.regRIntegral_swap`,
   `Carlson.TwoVariable.regRIntegral_smul_of_pos`: basic identities.
-* `Carlson.TwoVariable.regRContinued_neg_one_one_one`: the logarithm as an R-function.
+* `Carlson.TwoVariable.regCarlsonR_pair_neg_one_one_one`: the logarithm as an R-function.
 
 ## References
 
@@ -64,9 +64,9 @@ theorem regRIntegral_smul_of_pos (t b₀ b₁ x y : ℂ) {a : ℝ} (ha : 0 < a)
 
 /-- The logarithmic base case in Carlson 8.5(2), without division by a node
 difference. Thus the identity also holds on the diagonal. -/
-theorem sub_mul_regRContinued_neg_one_one_one (x y : ℂ)
+theorem sub_mul_regCarlsonR_pair_neg_one_one_one (x y : ℂ)
     (hz : pair x y ∈ carlsonRVariableDomain) :
-    (y - x) * regCarlsonRContinued (-1) (pair x y) hz (pair 1 1) = log y - log x := by
+    (y - x) * regCarlsonR (-1) (pair 1 1) (pair x y) = log y - log x := by
   let q : ℂ → ℝ → ℂ := fun z u => (1 - u : ℂ) + (u : ℂ) * z
   have hq (z : ℂ) (hz : 0 < z.re) {u : ℝ} (hu : u ∈ Set.Icc 0 1) :
       q z u ∈ slitPlane := by
@@ -106,10 +106,10 @@ theorem sub_mul_regRContinued_neg_one_one_one (x y : ℂ)
       rwa [heq] at h)
     ((hK.const_mul (y - x)).intervalIntegrable_of_Icc zero_le_one)
   have hI : carlsonRUnitIntervalIntegral 1 1 (pair 1 1) (pair x y) =
-      regCarlsonRContinued (-1) (pair x y) hz (pair 1 1) := by
-    simpa using carlsonRUnitIntervalIntegral_eq_gamma_mul_continued
+      regCarlsonR (-1) (pair 1 1) (pair x y) := by
+    simpa using carlsonRUnitIntervalIntegral_eq_gamma_mul_regCarlsonR
       (a := 1) (a' := 1) (b := pair 1 1) (by norm_num) (by norm_num)
-      (by simp) hz
+      (by simp) (carlsonRVariableDomain_subset_slitDomain hz)
   have hIK : carlsonRUnitIntervalIntegral 1 1 (pair 1 1) (pair x y) =
       ∫ u : ℝ in (0 : ℝ)..1, K u := by
     rw [intervalIntegral.integral_of_le zero_le_one,
@@ -119,20 +119,20 @@ theorem sub_mul_regRContinued_neg_one_one_one (x y : ℂ)
   simpa [q, intervalIntegral.integral_const_mul] using H
 
 /-- Carlson's logarithmic elementary function, for distinct nodes. -/
-theorem regRContinued_neg_one_one_one (x y : ℂ)
+theorem regCarlsonR_pair_neg_one_one_one (x y : ℂ)
     (hz : pair x y ∈ carlsonRVariableDomain) (hxy : x ≠ y) :
-    regCarlsonRContinued (-1) (pair x y) hz (pair 1 1) =
+    regCarlsonR (-1) (pair 1 1) (pair x y) =
       (log y - log x) / (y - x) := by
   apply (eq_div_iff (sub_ne_zero.mpr hxy.symm)).mpr
-  simpa only [mul_comm] using sub_mul_regRContinued_neg_one_one_one x y hz
+  simpa only [mul_comm] using sub_mul_regCarlsonR_pair_neg_one_one_one x y hz
 
 /-- The diagonal value completing the logarithmic base case. -/
-theorem regRContinued_neg_one_one_one_diag (x : ℂ)
+theorem regCarlsonR_pair_neg_one_one_one_diag (x : ℂ)
     (hz : pair x x ∈ carlsonRVariableDomain) :
-    regCarlsonRContinued (-1) (pair x x) hz (pair 1 1) = x⁻¹ := by
+    regCarlsonR (-1) (pair 1 1) (pair x x) = x⁻¹ := by
   have hb : pair (1 : ℂ) 1 ∈ mvBetaConvergent := by
     intro i; fin_cases i <;> norm_num [pair]
-  rw [regCarlsonRContinued_eq_integral _ hz hb]
+  rw [regCarlsonR_eq_regCarlsonRIntegral _ hb hz]
   change regCarlsonDirichletAverage (pair 1 1) (pair x x)
     (fun w => w ^ (-1 : ℂ)) = _
   rw [show pair x x = (fun _ => x) by ext i; fin_cases i <;> rfl,

@@ -8,6 +8,8 @@ module
 public import Carlson.R.Associated.ExponentReduction
 public import Carlson.R.Relations
 public import Mathlib.LinearAlgebra.Dimension.Constructions
+public import Carlson.R.Explicit
+public import Carlson.R.SlitRecurrence
 
 /-!
 # Polynomial dependence of associated Carlson R-functions
@@ -18,9 +20,12 @@ identity valid throughout the variable domain. Repeated parameter raising then r
 associated functions to a common parameter vector. Finite-dimensional linear algebra over
 the polynomial ring gives a nontrivial polynomial relation between any `card ι + 1` of them.
 
-`exists_polynomial_relation_associatedRContinued` extends this conclusion to arbitrary
-complex exponents and Dirichlet parameters for the regularized continued functions.
-The nodes remain in `carlsonRVariableDomain` (the product of right half-planes).
+`exists_polynomial_relation_associatedCarlsonR` extends this conclusion to arbitrary complex
+exponents and Dirichlet parameters for the regularized R-function, first on right-half-plane
+nodes by continuation in the parameters, then on the whole product slit plane, since the
+polynomial coefficients are entire in the nodes. The existential coefficients are chosen for
+fixed exponent and Dirichlet parameters; no polynomial or analytic dependence of those
+witnesses on the parameters is claimed.
 
 The choice of common parameters also ensures Gamma regularity at both ends of the exponent
 recurrence, including the exceptional integral cases discussed by Carlson. The empty index
@@ -236,12 +241,11 @@ theorem exists_polynomial_relation_associatedR
 
 /-- In the regularized normalization, raising parameters preserves any polynomial
 submodule containing the raised functions. No scalar denominator is cancelled. -/
-private theorem regCarlsonRContinued_mem_of_nat_shift
+private theorem regCarlsonR_mem_of_nat_shift
     (P : Submodule (MvPolynomial ι ℂ) (CarlsonVariableFunctions ι))
     (n : ι → ℕ) (b : ι → ℂ) (t : ℂ)
-    (hupper : ∀ m : ℤ, (fun z => regCarlsonRContinued (t + m) z.1 z.2
-      (fun i => b i + n i)) ∈ P) :
-    (fun z => regCarlsonRContinued t z.1 z.2 b) ∈ P := by
+    (hupper : ∀ m : ℤ, (fun z => regCarlsonR (t + m) (fun i => b i + n i) z.1) ∈ P) :
+    (fun z => regCarlsonR t b z.1) ∈ P := by
   classical
   induction n using (measure (fun n : ι → ℕ => ∑ i, n i)).wf.induction generalizing b t with
   | h n ih =>
@@ -271,36 +275,32 @@ private theorem regCarlsonRContinued_mem_of_nat_shift
       rw [hB, show t - 1 + (m : ℂ) = t + (m - 1 : ℤ) by push_cast; ring]
       exact hupper (m - 1))
     have heq : (fun z : {z : ι → ℂ // z ∈ carlsonRVariableDomain} =>
-        regCarlsonRContinued t z.1 z.2 b) =
+        regCarlsonR t b z.1) =
         MvPolynomial.C (σ := ι) ((∑ j, b j) + t) •
-          (fun z => regCarlsonRContinued t z.1 z.2 (addDirichletUnit b i)) -
+          (fun z => regCarlsonR t (addDirichletUnit b i) z.1) -
         (MvPolynomial.C t * MvPolynomial.X i) •
-          (fun z => regCarlsonRContinued (t - 1) z.1 z.2 (addDirichletUnit b i)) := by
+          (fun z => regCarlsonR (t - 1) (addDirichletUnit b i) z.1) := by
       ext z
       simp only [Pi.sub_apply, polynomial_smul_apply, map_mul,
         MvPolynomial.eval_C, MvPolynomial.eval_X]
-      exact regCarlsonRContinued_eq_addDirichletUnit t b z.2 i
+      exact regCarlsonR_eq_addDirichletUnit t b (carlsonRVariableDomain_subset_slitDomain z.2) i
     rw [heq]
     exact P.sub_mem (P.smul_mem _ h₀) (P.smul_mem _ h₁)
 
 /-- Carlson's Theorem 8.4-3 on the entire Dirichlet-parameter space. The relation
 is nontrivial as a polynomial identity, not merely a pointwise scalar dependence.
 Gamma regularization includes all exceptional total parameters. -/
-theorem exists_polynomial_relation_associatedRContinued
+private theorem exists_polynomial_relation_associatedCarlsonR_of_mem_variableDomain
     (t : ℂ) (b : ι → ℂ)
     (s : Fin (Fintype.card ι + 1) → CarlsonRAssociatedShift ι) :
     ∃ A : Fin (Fintype.card ι + 1) → MvPolynomial ι ℂ,
       (∃ j, A j ≠ 0) ∧
-      ∀ (z : ι → ℂ) (hz : z ∈ carlsonRVariableDomain),
+      ∀ (z : ι → ℂ) (_ : z ∈ carlsonRVariableDomain),
         ∑ j, (A j).eval z *
-          regCarlsonRContinued ((s j).exponentValue t) z hz ((s j).parameterValue b) = 0 := by
+          regCarlsonR ((s j).exponentValue t) ((s j).parameterValue b) z = 0 := by
   cases isEmpty_or_nonempty ι with
   | inl hι =>
-    have hzero (u : ℂ) (z c : ι → ℂ) (hz : z ∈ carlsonRVariableDomain) :
-        regCarlsonRContinued u z hz c = 0 := by
-      rw [regCarlsonRContinued_eq_integral u hz (by intro i; exact isEmptyElim i)]
-      simp [regCarlsonRIntegral, regCarlsonDirichletAverage, regDirichletIntegral]
-    exact ⟨fun _ => 1, ⟨0, one_ne_zero⟩, fun z hz => by simp [hzero]⟩
+    exact ⟨fun _ => 1, ⟨0, one_ne_zero⟩, fun z hz => by simp [regCarlsonR_eq_zero_of_isEmpty]⟩
   | inr hι =>
     obtain ⟨N, B, hB, hT, hBT, hshift⟩ := exists_common_carlsonAssociated_parameters t b s
     let v : Fin (Fintype.card ι) → CarlsonVariableFunctions ι :=
@@ -319,24 +319,24 @@ theorem exists_polynomial_relation_associatedRContinued
       rw [heq]
       exact P.sum_mem fun j _ => P.smul_mem _ (Submodule.subset_span ⟨j, rfl⟩)
     have hfixedReg (m : ℤ) :
-        (fun z => regCarlsonRContinued ((t - N) + m) z.1 z.2 B)
+        (fun z => regCarlsonR ((t - N) + m) B z.1)
             ∈ Submodule.denominatorClosure P := by
       have hGamma := Gamma_ne_zero_of_re_pos (sum_re_pos_of_mem_mvBetaConvergent hB)
       have heq : (fun z : {z : ι → ℂ // z ∈ carlsonRVariableDomain} =>
-          regCarlsonRContinued ((t - N) + m) z.1 z.2 B) =
+          regCarlsonR ((t - N) + m) B z.1) =
           MvPolynomial.C (σ := ι) (Gamma (∑ i, B i))⁻¹ •
             (fun z => carlsonRIntegral ((t - N) + m) B z.1) := by
         ext z
         simp only [polynomial_smul_apply, MvPolynomial.eval_C, carlsonRIntegral,
-          regCarlsonRContinued_eq_integral _ z.2 hB]
+          regCarlsonR_eq_regCarlsonRIntegral _ hB z.2]
         rw [← mul_assoc, inv_mul_cancel₀ hGamma, one_mul]
       rw [heq]
       exact (Submodule.denominatorClosure P).smul_mem _ (hfixed m)
     let w : Fin (Fintype.card ι + 1) → CarlsonVariableFunctions ι :=
-      fun j z => regCarlsonRContinued ((s j).exponentValue t) z.1 z.2 ((s j).parameterValue b)
+      fun j z => regCarlsonR ((s j).exponentValue t) ((s j).parameterValue b) z.1
     have hw (j) : w j ∈ Submodule.denominatorClosure P := by
       obtain ⟨n, hn⟩ := hshift j
-      apply regCarlsonRContinued_mem_of_nat_shift (Submodule.denominatorClosure P) n _ _
+      apply regCarlsonR_mem_of_nat_shift (Submodule.denominatorClosure P) n _ _
       intro m
       rw [← hn, show (s j).exponentValue t + (m : ℂ) =
         (t - N) + ((N : ℤ) + (s j).exponent + m : ℤ) by
@@ -348,6 +348,21 @@ theorem exists_polynomial_relation_associatedRContinued
     have heq := congrFun hrel ⟨z, hz⟩
     simp only [Finset.sum_apply, Pi.zero_apply] at heq
     exact heq
+
+/-- Carlson's Theorem 8.4-3 for all complex parameters and slit-plane nodes.
+Nontriviality is polynomial nontriviality, not a pointwise assertion. The empty
+index type is included through the existing entire-parameter theorem. -/
+theorem exists_polynomial_relation_associatedCarlsonR
+    (t : ℂ) (b : ι → ℂ)
+    (s : Fin (Fintype.card ι + 1) → CarlsonRAssociatedShift ι) :
+    ∃ A : Fin (Fintype.card ι + 1) → MvPolynomial ι ℂ,
+      (∃ j, A j ≠ 0) ∧
+      ∀ (z : ι → ℂ), z ∈ carlsonRSlitDomain →
+        ∑ j, (A j).eval z *
+          regCarlsonR ((s j).exponentValue t) ((s j).parameterValue b) z = 0 := by
+  obtain ⟨A, hA, hrel⟩ := exists_polynomial_relation_associatedCarlsonR_of_mem_variableDomain t b s
+  exact ⟨A, hA, fun _ hz => polynomial_relation_regCarlsonR_of_right
+    Finset.univ A _ _ hrel hz⟩
 
 end Carlson
 end CarlsonR

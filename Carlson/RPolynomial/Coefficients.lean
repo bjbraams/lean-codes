@@ -268,7 +268,7 @@ theorem carlsonRPolynomialNumerator_eq_multinomial_sum (n : ℕ) (b z : ι → �
 
 /-- Regularized Carlson polynomials preserve analytic dependence jointly in
 their nodes and Dirichlet parameters. -/
-theorem analyticAt_regCarlsonR_comp
+theorem analyticAt_regCarlsonRPolynomial_comp
     {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
     {x : E} {b z : E → ι → ℂ}
     (hb : ∀ i, AnalyticAt ℂ (fun y => b y i) x)

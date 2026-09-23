@@ -12,9 +12,10 @@ public import Dirichlet.Average.ContinuedRelations
 /-!
 # Further associated and differential identities for L
 
-The three-node relation (3.3) and backward-shift relation (3.7) of Carlson
-(1987) hold for the entire regularized continuation. The translation and Euler
-differential identities (2.9) and (2.8) are stated for native integrals.
+The three-node relation (3.3) and backward-shift relation (3.7) of Carlson (1987), for
+right-half-plane nodes and all complex Dirichlet parameters; their extension to slit-plane
+nodes is in `Carlson.L.SlitRelations`. The translation and Euler differential identities
+(2.9) and (2.8) are stated for native integrals.
 -/
 
 open Dirichlet
@@ -27,54 +28,34 @@ variable {ι : Type*} [Fintype ι]
 theorem isRegCarlsonContinuation_deriv_LKernel (t : ℂ) {z : ι → ℂ}
     (hz : z ∈ carlsonRVariableDomain) :
     IsRegCarlsonContinuation (deriv (carlsonLKernel t)) z
-      (fun b => t * regCarlsonLContinued (t - 1) z hz b + regCarlsonRContinued (t - 1) z hz b) := by
-  refine ⟨(analyticOnNhd_const.mul (analyticOnNhd_regCarlsonLContinued (t - 1) hz)).add
-    (analyticOnNhd_regCarlsonRContinued (t - 1) hz), ?_⟩
+      (fun b => t * regCarlsonL (t - 1) b z + regCarlsonR (t - 1) b z) := by
+  refine ⟨(analyticOnNhd_const.mul (analyticOnNhd_regCarlsonL_parameters (t - 1)
+      (carlsonRVariableDomain_subset_slitDomain hz))).add
+    (analyticOnNhd_regCarlsonR_parameters (t - 1) (carlsonRVariableDomain_subset_slitDomain hz)),
+        ?_⟩
   intro b hb
   dsimp only
-  rw [regCarlsonLContinued_eq_integral _ hz hb, regCarlsonRContinued_eq_integral _ hz hb]
+  rw [regCarlsonL_eq_regCarlsonLIntegral _ hb hz, regCarlsonR_eq_regCarlsonRIntegral _ hb hz]
   exact (regCarlsonDirichletAverage_deriv_LKernel t hb hz).symm
-
-open scoped Classical in
-/-- Equation (3.3), including coincident nodes and indices. -/
-theorem regCarlsonLContinued_three_node (t : ℂ) (b : ι → ℂ)
-    {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain) (i j k : ι) :
-    (z i - z j) * regCarlsonLContinued t z hz (b - Pi.single k 1) +
-      (z j - z k) * regCarlsonLContinued t z hz (b - Pi.single i 1) +
-      (z k - z i) * regCarlsonLContinued t z hz (b - Pi.single j 1) = 0 :=
-  (isRegCarlsonLContinuation_continued t hz).three_node convex_carlsonRightHalfPlane
-    ((analyticOnNhd_carlsonLKernel t).mono carlsonRightHalfPlane_subset_slitPlane)
-    (Set.range_subset_iff.mpr hz) isOpen_carlsonRightHalfPlane b i j k
-
-open scoped Classical in
-/-- Equation (3.7), in pole-free regularized form. -/
-theorem regCarlsonLContinued_tangent_sub (t : ℂ) (b : ι → ℂ)
-    {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain) (i j : ι) :
-    (z i - z j) * (t * regCarlsonLContinued (t - 1) z hz b +
-      regCarlsonRContinued (t - 1) z hz b) =
-        regCarlsonLContinued t z hz (b - Pi.single j 1) -
-          regCarlsonLContinued t z hz (b - Pi.single i 1) :=
-  (isRegCarlsonLContinuation_continued t hz).tangent_sub convex_carlsonRightHalfPlane
-    ((analyticOnNhd_carlsonLKernel t).mono carlsonRightHalfPlane_subset_slitPlane)
-    (Set.range_subset_iff.mpr hz) (isRegCarlsonContinuation_deriv_LKernel t hz) b i j
 
 /-- The first associated relation on the native convergence region. -/
 theorem regCarlsonLIntegral_eq_sum_addDirichletUnit (t : ℂ) {b z : ι → ℂ}
     (hb : b ∈ mvBetaConvergent) (hz : z ∈ carlsonRVariableDomain) :
     regCarlsonLIntegral t b z =
       ∑ i, b i * regCarlsonLIntegral t (addDirichletUnit b i) z := by
-  simpa only [regCarlsonLContinued_eq_integral _ hz hb,
-    regCarlsonLContinued_eq_integral _ hz (addDirichletUnit_mem_mvBetaConvergent hb _)] using
-    regCarlsonLContinued_eq_sum_addDirichletUnit t b hz
+  simpa only [regCarlsonL_eq_regCarlsonLIntegral _ hb hz,
+    regCarlsonL_eq_regCarlsonLIntegral _ (addDirichletUnit_mem_mvBetaConvergent hb _) hz] using
+    regCarlsonL_eq_sum_addDirichletUnit t b (carlsonRVariableDomain_subset_slitDomain hz)
 
 /-- The exponent-raising relation on the native convergence region. -/
 theorem regCarlsonLIntegral_add_one_eq_sum_mul_addDirichletUnit (t : ℂ) {b z : ι → ℂ}
     (hb : b ∈ mvBetaConvergent) (hz : z ∈ carlsonRVariableDomain) :
     regCarlsonLIntegral (t + 1) b z =
       ∑ i, b i * z i * regCarlsonLIntegral t (addDirichletUnit b i) z := by
-  simpa only [regCarlsonLContinued_eq_integral _ hz hb,
-    regCarlsonLContinued_eq_integral _ hz (addDirichletUnit_mem_mvBetaConvergent hb _)] using
-    regCarlsonLContinued_add_one_eq_sum_mul_addDirichletUnit t b hz
+  simpa only [regCarlsonL_eq_regCarlsonLIntegral _ hb hz,
+    regCarlsonL_eq_regCarlsonLIntegral _ (addDirichletUnit_mem_mvBetaConvergent hb _) hz] using
+    regCarlsonL_add_one_eq_sum_mul_addDirichletUnit t b (carlsonRVariableDomain_subset_slitDomain
+        hz)
 
 /-- Equation (2.9): the differential-difference identity for translations. -/
 theorem sum_carlsonPartialDeriv_regCarlsonLIntegral (t : ℂ) {b z : ι → ℂ}

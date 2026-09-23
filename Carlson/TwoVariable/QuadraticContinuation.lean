@@ -7,6 +7,7 @@ module
 
 public import Carlson.TwoVariable.Quadratic
 public import Carlson.R.JointParameter
+public import Carlson.R.Explicit
 
 /-!
 # Quadratic transformations on the full Dirichlet parameter domain
@@ -60,24 +61,25 @@ private theorem quadratic_parameter_identity
     (hnative : ∀ t β, pair β β ∈ mvBetaConvergent → r t β ∈ mvBetaConvergent →
       carlsonRIntegral (l t) (pair β β) z = carlsonRIntegral t (r t β) Z)
     (t β : ℂ) :
-    regCarlsonRContinued (l t) z hz (pair β β) =
-      quadraticGammaRatio β * regCarlsonRContinued t Z hZ (r t β) := by
-  let L : (Fin 2 → ℂ) → ℂ := fun p => regCarlsonRContinued (l (p 0)) z hz (pair (p 1) (p 1))
+    regCarlsonR (l t) (pair β β) z =
+      quadraticGammaRatio β * regCarlsonR t (r t β) Z := by
+  let L : (Fin 2 → ℂ) → ℂ := fun p => regCarlsonR (l (p 0)) (pair (p 1) (p 1)) z
   let R : (Fin 2 → ℂ) → ℂ := fun p => quadraticGammaRatio (p 1) *
-    regCarlsonRContinued (p 0) Z hZ (r (p 0) (p 1))
+    regCarlsonR (p 0) (r (p 0) (p 1)) Z
   have hleft : AnalyticOnNhd ℂ L univ := by
     intro p _
-    apply analyticAt_regCarlsonRContinued_comp hz
-    · exact (hl _ (mem_univ _)).comp (analyticAt_pi_iff.mp (analyticAt_id (𝕜 := ℂ) (z := p)) 0)
-    · apply analyticAt_pi_iff.mpr
-      intro i; fin_cases i <;> exact (analyticAt_pi_iff.mp (analyticAt_id (𝕜 := ℂ) (z := p)) 1)
+    refine analyticAt_regCarlsonR_comp
+      ((hl _ (mem_univ _)).comp (analyticAt_pi_iff.mp (analyticAt_id (𝕜 := ℂ) (z := p)) 0))
+      (analyticAt_pi_iff.mpr fun i => ?_) analyticAt_const
+      (carlsonRVariableDomain_subset_slitDomain hz)
+    fin_cases i <;> exact (analyticAt_pi_iff.mp (analyticAt_id (𝕜 := ℂ) (z := p)) 1)
   have hright : AnalyticOnNhd ℂ R univ := by
     intro p _
     apply AnalyticAt.mul
     · exact (analyticOnNhd_quadraticGammaRatio _ (mem_univ _)).comp
         (analyticAt_pi_iff.mp (analyticAt_id (𝕜 := ℂ) (z := p)) 1)
-    · exact analyticAt_regCarlsonRContinued_comp hZ
-        (analyticAt_pi_iff.mp (analyticAt_id (𝕜 := ℂ) (z := p)) 0) (hr p (mem_univ _))
+    · exact analyticAt_regCarlsonR_comp (analyticAt_pi_iff.mp (analyticAt_id (𝕜 := ℂ) (z := p)) 0)
+        (hr p (mem_univ _)) analyticAt_const (carlsonRVariableDomain_subset_slitDomain hZ)
   let o := pair (0 : ℂ) (1 / 4)
   have hbc : ContinuousAt (fun p : Fin 2 → ℂ => pair (p 1) (p 1)) o := by
     apply continuousAt_pi.mpr
@@ -89,7 +91,7 @@ private theorem quadratic_parameter_identity
   apply congrFun (hleft.eq_of_eventuallyEq hright (z₀ := o) ?_) (pair t β)
   filter_upwards [hbl, hbr] with p hbp hrp
   dsimp [L, R]
-  rw [regCarlsonRContinued_eq_integral _ hz hbp, regCarlsonRContinued_eq_integral _ hZ hrp]
+  rw [regCarlsonR_eq_regCarlsonRIntegral _ hbp hz, regCarlsonR_eq_regCarlsonRIntegral _ hrp hZ]
   have hβ : 0 < (p 1).re := hbp 0
   have htotal : 0 < (p 1 + p 1).re := by simpa using add_pos hβ hβ
   apply mul_left_cancel₀ (Gamma_ne_zero_of_re_pos htotal)
@@ -99,11 +101,10 @@ private theorem quadratic_parameter_identity
 
 /-- First quadratic transformation, entire in both parameters, including exceptional
 Gamma parameters. There are no convergence or non-pole hypotheses. -/
-theorem regRContinued_firstQuadratic (t β x y : ℂ) (hz : FirstQuadraticDomain x y) :
-    regCarlsonRContinued (2 * t) (pair x y) hz.1 (pair β β) =
-      quadraticGammaRatio β * regCarlsonRContinued t
-        (pair (arithmeticMeanSq x y) (geometricMeanSq x y)) hz.2
-        (pair (β + t) (1 / 2 - t)) := by
+theorem regCarlsonR_pair_firstQuadratic (t β x y : ℂ) (hz : FirstQuadraticDomain x y) :
+    regCarlsonR (2 * t) (pair β β) (pair x y) =
+      quadraticGammaRatio β * regCarlsonR t (pair (β + t) (1 / 2 - t)) (pair (arithmeticMeanSq x y)
+          (geometricMeanSq x y)) := by
   apply quadratic_parameter_identity (fun t => 2 * t) (fun t β => pair (β + t) (1 / 2 - t))
   · exact analyticOnNhd_const.mul analyticOnNhd_id
   · intro p _
@@ -114,14 +115,15 @@ theorem regRContinued_firstQuadratic (t β x y : ℂ) (hz : FirstQuadraticDomain
     · exact analyticAt_const.sub (analyticAt_pi_iff.mp (analyticAt_id (𝕜 := ℂ) (z := p)) 0)
   · intro i; fin_cases i <;> norm_num [pair]
   · intro t β; simp only [sum_pair]; ring
+  · exact hz.1
+  · exact hz.2
   · exact fun t β hb hr => rIntegral_firstQuadratic t β x y hb hr hz
 
 /-- Second quadratic transformation, entire in both parameters. -/
-theorem regRContinued_secondQuadratic (t β x y : ℂ) (hz : SecondQuadraticDomain x y) :
-    regCarlsonRContinued t (pair (x ^ 2) (y ^ 2)) hz.1 (pair β β) =
-      quadraticGammaRatio β * regCarlsonRContinued t
-        (pair (arithmeticMeanSq x y) (geometricMeanSq x y)) hz.2
-        (pair (2 * β + t) (1 / 2 - β - t)) := by
+theorem regCarlsonR_pair_secondQuadratic (t β x y : ℂ) (hz : SecondQuadraticDomain x y) :
+    regCarlsonR t (pair β β) (pair (x ^ 2) (y ^ 2)) =
+      quadraticGammaRatio β * regCarlsonR t (pair (2 * β + t) (1 / 2 - β - t)) (pair
+          (arithmeticMeanSq x y) (geometricMeanSq x y)) := by
   apply quadratic_parameter_identity id (fun t β => pair (2 * β + t) (1 / 2 - β - t))
   · exact analyticOnNhd_id
   · intro p _
@@ -133,6 +135,8 @@ theorem regRContinued_secondQuadratic (t β x y : ℂ) (hz : SecondQuadraticDoma
         (analyticAt_pi_iff.mp (analyticAt_id (𝕜 := ℂ) (z := p)) 0)
   · intro i; fin_cases i <;> norm_num [pair]
   · intro t β; simp only [sum_pair]; ring
+  · exact hz.1
+  · exact hz.2
   · exact fun t β hb hr => rIntegral_secondQuadratic t β x y hb hr hz
 
 end Carlson.TwoVariable

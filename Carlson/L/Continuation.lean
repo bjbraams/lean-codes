@@ -6,108 +6,193 @@ Authors: Bastiaan J Braams
 module
 
 public import Carlson.L.Basic
-public import Carlson.R.JointParameter
-public import SeveralComplexVariables.Derivatives
+public import Carlson.R.Explicit
 
 /-!
-# Carlson's L-function: entire regularized continuation
+# Carlson's L-function
 
-The continued L-function is the exponent derivative of the continued R-function.
-Joint entireness of R proves joint entireness of L, not merely separate
-existence of derivatives. This establishes the parameter part of Carlson (1987),
-(2.1), for arbitrary complex Dirichlet parameters. This module retains the original
-right-half-plane node interface. `Carlson.L.SlitContinuation` extends it to the full
-product slit plane and proves joint holomorphy in all arguments.
+The regularized L-function `L_t(b, z) / Γ(∑ b)` is the exponent derivative of the regularized
+R-function `regCarlsonR`. Since `regCarlsonR` is defined for all complex exponents and
+parameters and is analytic on the product slit plane in the nodes, so is `regCarlsonL`, and it
+inherits joint holomorphy in all arguments (Carlson (1987), (2.1)). On the convergence domain
+of the native integral, for right-half-plane nodes, `regCarlsonL` is the power-logarithm
+Dirichlet average `regCarlsonLIntegral`, and it is the unique entire continuation of that
+integral in the parameters.
+
+## Main definitions
+
+* `Carlson.regCarlsonL t b z`: the regularized L-function `deriv (fun s => regCarlsonR s b z) t`.
+* `Carlson.carlsonL t b z`: Carlson's function `L_t(b, z) = Γ(∑ b) regCarlsonL t b z`.
+
+## Main results
+
+* `Carlson.hasDerivAt_regCarlsonR_L`: the derivative characterization on the slit domain.
+* `Carlson.analyticOnNhd_regCarlsonL_joint`, `Carlson.analyticAt_regCarlsonL_comp`: joint
+  holomorphy in exponent, parameters and slit-plane nodes.
+* `Carlson.regCarlsonL_eq_regCarlsonLIntegral`: agreement with the native integral.
+* `Carlson.isRegCarlsonLContinuation_regCarlsonL`: the L-function is the unique entire
+  continuation of the native integral in the parameters.
+
+## References
+
+* B. C. Carlson, *A table of elliptic integrals of the third kind*, Math. Comp. 51 (1987);
+  cited as Carlson (1987).
 -/
 
 open Dirichlet
-open Complex ProbabilityTheory
+open Complex Filter Set
+open scoped Topology
 @[expose] public noncomputable section
 namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
-/-- The exponent derivative of the entire regularized R-continuation. -/
-def regCarlsonLContinued (t : ℂ) (z : ι → ℂ) (hz : z ∈ carlsonRVariableDomain)
-    (b : ι → ℂ) : ℂ := deriv (fun s => regCarlsonRContinued s z hz b) t
+/-- The regularized L-function, defined by differentiating the regularized R-function in its
+exponent. Values at nodes outside the product slit plane are unspecified. -/
+def regCarlsonL (t : ℂ) (b z : ι → ℂ) : ℂ :=
+  deriv (fun s => regCarlsonR s b z) t
 
-/-- The normalized L-continuation. At poles of `Γ(∑ i, b i)` this is only
-Lean's totalized expression; the entire object is `regCarlsonLContinued`. -/
-def carlsonLContinued (t : ℂ) (z : ι → ℂ) (hz : z ∈ carlsonRVariableDomain)
-    (b : ι → ℂ) : ℂ := Gamma (∑ i, b i) * regCarlsonLContinued t z hz b
+/-- Carlson's L-function `L_t(b, z)`. At poles of `Γ(∑ i, b i)` this is only Lean's totalized
+expression; the entire object is `regCarlsonL`. -/
+def carlsonL (t : ℂ) (b z : ι → ℂ) : ℂ :=
+  Gamma (∑ i, b i) * regCarlsonL t b z
 
-/-- The derivative characterization holds at every complex Dirichlet parameter. -/
-theorem hasDerivAt_regCarlsonRContinued_L (t : ℂ) (b : ι → ℂ)
-    {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain) :
-    HasDerivAt (fun s => regCarlsonRContinued s z hz b)
-      (regCarlsonLContinued t z hz b) t :=
-  (analyticAt_regCarlsonRContinued_comp hz analyticAt_id
-      analyticAt_const).differentiableAt.hasDerivAt
+/-- On the slit domain the regularized L-function is the exponent derivative of the
+regularized R-function. -/
+theorem hasDerivAt_regCarlsonR_L (t : ℂ) (b : ι → ℂ) {z : ι → ℂ}
+    (hz : z ∈ carlsonRSlitDomain) :
+    HasDerivAt (fun s => regCarlsonR s b z) (regCarlsonL t b z) t :=
+  (analyticAt_regCarlsonR_comp analyticAt_id analyticAt_const analyticAt_const
+      hz).differentiableAt.hasDerivAt
 
-/-- Joint entireness in the exponent and the Dirichlet parameters, including
-nonpositive integral parameters and totals. -/
-theorem analyticOnNhd_regCarlsonLContinued_exponent_parameters {z : ι → ℂ}
-    (hz : z ∈ carlsonRVariableDomain) :
-    AnalyticOnNhd ℂ (fun p : Option ι → ℂ =>
-      regCarlsonLContinued (p none) z hz (fun i => p (some i))) Set.univ := by
+/-- Differentiating the ordinary R-function gives the ordinary L-function. -/
+theorem hasDerivAt_carlsonR_L (t : ℂ) (b : ι → ℂ) {z : ι → ℂ}
+    (hz : z ∈ carlsonRSlitDomain) :
+    HasDerivAt (fun s => carlsonR s b z) (carlsonL t b z) t :=
+  (hasDerivAt_regCarlsonR_L t b hz).const_mul (Gamma (∑ i, b i))
+
+/-- Carlson (1987), (2.1): full joint holomorphy, with no parameter exceptions after
+Gamma regularization. The coordinates are exponent, parameters, then nodes. -/
+theorem analyticOnNhd_regCarlsonL_joint :
+    AnalyticOnNhd ℂ (fun p : Option (ι ⊕ ι) → ℂ =>
+      regCarlsonL (p none) (fun i => p (some (.inl i))) (fun i => p (some (.inr i))))
+      {p | (fun i => p (some (.inr i))) ∈ carlsonRSlitDomain} := by
   classical
-  have h := (analyticOnNhd_regCarlsonRContinued_exponent_parameters hz).partialDeriv
-    isOpen_univ none
+  have h := analyticOnNhd_regCarlsonR_joint (ι := ι) |>.partialDeriv
+    (isOpen_carlsonRSlitDomain.preimage (by fun_prop)) none
   have heq : SeveralComplexVariables.partialDeriv none
-      (fun p : Option ι → ℂ => regCarlsonRContinued (p none) z hz (fun i => p (some i))) =
-      (fun p : Option ι → ℂ => regCarlsonLContinued (p none) z hz (fun i => p (some i))) := by
+      (fun p : Option (ι ⊕ ι) → ℂ => regCarlsonR (p none)
+        (fun i => p (some (.inl i))) (fun i => p (some (.inr i)))) =
+      (fun p => regCarlsonL (p none)
+        (fun i => p (some (.inl i))) (fun i => p (some (.inr i)))) := by
     funext p
-    simp only [SeveralComplexVariables.partialDeriv, regCarlsonLContinued,
+    simp only [SeveralComplexVariables.partialDeriv, regCarlsonL,
       Function.update_self, Function.update_of_ne (Option.some_ne_none _)]
   rwa [heq] at h
 
-/-- Analytic substitutions in the exponent and parameters preserve analyticity. -/
-theorem analyticAt_regCarlsonLContinued_comp
+/-- Analytic substitutions in all arguments preserve analyticity on the slit domain. -/
+theorem analyticAt_regCarlsonL_comp
     {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
-    {f : E → ℂ} {b : E → ι → ℂ} {p : E} {z : ι → ℂ}
-    (hz : z ∈ carlsonRVariableDomain) (hf : AnalyticAt ℂ f p) (hb : AnalyticAt ℂ b p) :
-    AnalyticAt ℂ (fun w => regCarlsonLContinued (f w) z hz (b w)) p := by
-  let g : E → Option ι → ℂ := fun w i => i.elim (f w) (b w)
-  have hg : AnalyticAt ℂ g p := by
-    apply analyticAt_pi_iff.mpr
-    intro i
-    cases i with
-    | none => exact hf
-    | some i => exact (analyticAt_pi_iff.mp hb) i
-  exact (analyticOnNhd_regCarlsonLContinued_exponent_parameters hz (g p)
-    (Set.mem_univ _)).comp hg
+    {t : E → ℂ} {b z : E → ι → ℂ} {p : E}
+    (ht : AnalyticAt ℂ t p) (hb : AnalyticAt ℂ b p) (hz : AnalyticAt ℂ z p)
+    (hslit : z p ∈ carlsonRSlitDomain) :
+    AnalyticAt ℂ (fun q => regCarlsonL (t q) (b q) (z q)) p := by
+  let f : E → Option (ι ⊕ ι) → ℂ := fun q k => k.elim (t q) (Sum.elim (b q) (z q))
+  suffices hf : AnalyticAt ℂ f p from
+    (analyticOnNhd_regCarlsonL_joint (f p) hslit).comp_of_eq hf rfl
+  apply analyticAt_pi_iff.mpr
+  intro k
+  cases k with
+  | none => exact ht
+  | some k =>
+    cases k with
+    | inl i => exact (analyticAt_pi_iff.mp hb) i
+    | inr i => exact (analyticAt_pi_iff.mp hz) i
 
-/-- The continued regularized L-function is entire in the Dirichlet parameters. -/
-theorem analyticOnNhd_regCarlsonLContinued (t : ℂ) {z : ι → ℂ}
+/-- At fixed exponent and parameters the regularized L-function is analytic on the product
+slit plane. -/
+theorem analyticOnNhd_regCarlsonL (t : ℂ) (b : ι → ℂ) :
+    AnalyticOnNhd ℂ (regCarlsonL t b) carlsonRSlitDomain := fun _ hz =>
+  analyticAt_regCarlsonL_comp analyticAt_const analyticAt_const analyticAt_id hz
+
+/-- At fixed slit-plane nodes the regularized L-function is entire jointly in the exponent
+and the parameters. -/
+theorem analyticOnNhd_regCarlsonL_exponent_parameters {z : ι → ℂ}
+    (hz : z ∈ carlsonRSlitDomain) :
+    AnalyticOnNhd ℂ (fun p : Option ι → ℂ =>
+      regCarlsonL (p none) (fun i => p (some i)) z) univ := by
+  intro p _
+  apply analyticAt_regCarlsonL_comp
+  · exact (ContinuousLinearMap.proj none : (Option ι → ℂ) →L[ℂ] ℂ).analyticAt p
+  · exact analyticAt_pi_iff.mpr fun i =>
+      (ContinuousLinearMap.proj (some i) : (Option ι → ℂ) →L[ℂ] ℂ).analyticAt p
+  · exact analyticAt_const
+  · exact hz
+
+/-- At fixed slit-plane nodes the regularized L-function is entire in the parameters. -/
+theorem analyticOnNhd_regCarlsonL_parameters (t : ℂ) {z : ι → ℂ}
+    (hz : z ∈ carlsonRSlitDomain) :
+    AnalyticOnNhd ℂ (fun b => regCarlsonL t b z) univ := fun _ _ =>
+  analyticAt_regCarlsonL_comp analyticAt_const analyticAt_id analyticAt_const hz
+
+/-- The ordinary L-function is jointly analytic away from the Gamma poles of the total
+parameter. -/
+theorem analyticAt_carlsonL_comp
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
+    {t : E → ℂ} {b z : E → ι → ℂ} {p : E}
+    (ht : AnalyticAt ℂ t p) (hb : AnalyticAt ℂ b p) (hz : AnalyticAt ℂ z p)
+    (hslit : z p ∈ carlsonRSlitDomain) (hc : ∀ n : ℕ, (∑ i, b p i) ≠ -n) :
+    AnalyticAt ℂ (fun q => carlsonL (t q) (b q) (z q)) p := by
+  have hsum : AnalyticAt ℂ (fun q => ∑ i, b q i) p :=
+    Finset.analyticAt_fun_sum _ fun i _ => (analyticAt_pi_iff.mp hb) i
+  have hrecip := (differentiable_one_div_Gamma.analyticAt (∑ i, b p i)).comp_of_eq hsum rfl
+  have hgamma : AnalyticAt ℂ (fun q => Gamma (∑ i, b q i)) p := by
+    have h := hrecip.inv (inv_ne_zero (Gamma_ne_zero hc))
+    change AnalyticAt ℂ (fun q => ((Gamma (∑ i, b q i))⁻¹)⁻¹) p at h
+    simpa only [inv_inv] using h
+  exact hgamma.mul (analyticAt_regCarlsonL_comp ht hb hz hslit)
+
+/-- On the convergence region, for right-half-plane nodes, the regularized L-function is
+the power-logarithm Dirichlet average. -/
+theorem regCarlsonL_eq_regCarlsonLIntegral (t : ℂ) {b z : ι → ℂ} (hb : b ∈ mvBetaConvergent)
     (hz : z ∈ carlsonRVariableDomain) :
-    AnalyticOnNhd ℂ (regCarlsonLContinued t z hz) Set.univ :=
-  fun _ _ => analyticAt_regCarlsonLContinued_comp hz analyticAt_const analyticAt_id
-
-/-- On the convergence region the continued function equals the power-log integral. -/
-theorem regCarlsonLContinued_eq_integral (t : ℂ) {b z : ι → ℂ}
-    (hz : z ∈ carlsonRVariableDomain) (hb : b ∈ mvBetaConvergent) :
-    regCarlsonLContinued t z hz b = regCarlsonLIntegral t b z := by
-  unfold regCarlsonLContinued
-  simp_rw [regCarlsonRContinued_eq_integral _ hz hb]
+    regCarlsonL t b z = regCarlsonLIntegral t b z := by
+  unfold regCarlsonL
+  simp_rw [regCarlsonR_eq_regCarlsonRIntegral _ hb hz]
   exact (hasDerivAt_regCarlsonRIntegral_L t hb hz).deriv
 
-/-- L satisfies the existing general Dirichlet-continuation specification. -/
-theorem isRegCarlsonLContinuation_continued (t : ℂ) {z : ι → ℂ}
+/-- On the convergence region the ordinary L-function is the native L-integral. -/
+theorem carlsonL_eq_carlsonLIntegral (t : ℂ) {b z : ι → ℂ} (hb : b ∈ mvBetaConvergent)
     (hz : z ∈ carlsonRVariableDomain) :
-    IsRegCarlsonContinuation (carlsonLKernel t) z (regCarlsonLContinued t z hz) :=
-  ⟨analyticOnNhd_regCarlsonLContinued t hz,
-    fun _ hb => regCarlsonLContinued_eq_integral t hz hb⟩
+    carlsonL t b z = carlsonLIntegral t b z := by
+  simp only [carlsonL, carlsonLIntegral, regCarlsonL_eq_regCarlsonLIntegral t hb hz]
 
-/-- Any entire continuation of the native L-integral is the selected L-function. -/
-theorem _root_.Dirichlet.IsRegCarlsonContinuation.eq_regCarlsonLContinued {t : ℂ} {z : ι → ℂ}
+/-- The L-function satisfies the general Dirichlet-continuation specification for the
+power-logarithm kernel. -/
+theorem isRegCarlsonLContinuation_regCarlsonL (t : ℂ) {z : ι → ℂ}
+    (hz : z ∈ carlsonRVariableDomain) :
+    IsRegCarlsonContinuation (carlsonLKernel t) z (regCarlsonL t · z) :=
+  ⟨analyticOnNhd_regCarlsonL_parameters t (carlsonRVariableDomain_subset_slitDomain hz),
+    fun _ hb => regCarlsonL_eq_regCarlsonLIntegral t hb hz⟩
+
+/-- Any entire continuation of the native L-integral in the parameters is the L-function. -/
+theorem _root_.Dirichlet.IsRegCarlsonContinuation.eq_regCarlsonL {t : ℂ} {z : ι → ℂ}
     {G : (ι → ℂ) → ℂ} (hG : IsRegCarlsonContinuation (carlsonLKernel t) z G)
-    (hz : z ∈ carlsonRVariableDomain) : G = regCarlsonLContinued t z hz :=
-  hG.eq (isRegCarlsonLContinuation_continued t hz)
+    (hz : z ∈ carlsonRVariableDomain) : G = (regCarlsonL t · z) :=
+  hG.eq (isRegCarlsonLContinuation_regCarlsonL t hz)
 
-/-- On the convergence region the continued L-function is the native L-integral. -/
-theorem carlsonLContinued_eq_integral (t : ℂ) {b z : ι → ℂ}
-    (hz : z ∈ carlsonRVariableDomain) (hb : b ∈ mvBetaConvergent) :
-    carlsonLContinued t z hz b = carlsonLIntegral t b z := by
-  simp only [carlsonLContinued, carlsonLIntegral, regCarlsonLContinued_eq_integral t hz hb]
+/-- A function analytic on the slit domain that agrees with the L-function on right-half-plane
+nodes agrees with it on the whole slit domain. -/
+theorem eqOn_regCarlsonL_of_eqOn_variableDomain {t : ℂ} {b : ι → ℂ} {F : (ι → ℂ) → ℂ}
+    (hF : AnalyticOnNhd ℂ F carlsonRSlitDomain)
+    (heq : ∀ z ∈ carlsonRVariableDomain, F z = regCarlsonL t b z) :
+    EqOn F (regCarlsonL t b) carlsonRSlitDomain :=
+  eqOn_carlsonRSlitDomain_of_eqOn_rightHalfPlane hF (analyticOnNhd_regCarlsonL t b) heq
+
+/-- With an empty index type the regularized L-function vanishes. -/
+@[simp] theorem regCarlsonL_eq_zero_of_isEmpty [IsEmpty ι] (t : ℂ) (b z : ι → ℂ) :
+    regCarlsonL t b z = 0 := by
+  unfold regCarlsonL
+  simp_rw [regCarlsonR_eq_zero_of_isEmpty _ b _]
+  exact deriv_const t 0
 
 end Carlson
-end

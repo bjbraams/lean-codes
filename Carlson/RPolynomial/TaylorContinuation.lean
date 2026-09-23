@@ -189,7 +189,7 @@ theorem analyticOnNhd_regCarlsonTaylorSeries_joint {A : ℂ} {R : ℝ}
   classical
   apply (hasSumLocallyUniformlyOn_regCarlsonTaylorSeries_joint hf).analyticOnNhd_pi
   · intro n p _
-    exact analyticAt_const.mul (analyticAt_regCarlsonR_comp
+    exact analyticAt_const.mul (analyticAt_regCarlsonRPolynomial_comp
       (b := fun p : Sum ι ι → ℂ => fun i => p (.inl i))
       (z := fun p : Sum ι ι → ℂ => fun i => p (.inr i) - A) (x := p)
       (fun i => (ContinuousLinearMap.proj (R := ℂ) (.inl i)).analyticAt p)

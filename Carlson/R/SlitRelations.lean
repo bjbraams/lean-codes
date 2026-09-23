@@ -5,7 +5,7 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import Carlson.R.SlitJointAnalytic
+public import Carlson.R.Explicit
 public import Carlson.R.Relations
 
 /-!
@@ -18,9 +18,9 @@ dividing by the exponent or the total parameter, so they remain valid at the exc
 
 ## Main results
 
-* `Carlson.regCarlsonRSlit_eq_addDirichletUnit`: parameter raising.
-* `Carlson.regCarlsonRSlit_sub_dirichletUnit`: parameter lowering.
-* `Carlson.regCarlsonRSlit_tangent_sub`, `Carlson.regCarlsonRSlit_tangent`: the tangential
+* `Carlson.regCarlsonR_eq_addDirichletUnit`: parameter raising.
+* `Carlson.regCarlsonR_sub_dirichletUnit`: parameter lowering.
+* `Carlson.regCarlsonR_tangent_sub`, `Carlson.regCarlsonR_tangent`: the tangential
   relations.
 
 ## References
@@ -35,33 +35,13 @@ open scoped Topology
 namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
-/-- The parameter-raising identity on the full slit domain, without dividing by
-the exponent or total parameter. -/
-theorem regCarlsonRSlit_eq_addDirichletUnit (t : ℂ) (b : ι → ℂ)
-    {z : ι → ℂ} (hz : z ∈ carlsonRSlitDomain) (i : ι) :
-    regCarlsonRSlit t b z =
-      ((∑ j, b j) + t) * regCarlsonRSlit t (addDirichletUnit b i) z -
-        t * z i * regCarlsonRSlit (t - 1) (addDirichletUnit b i) z := by
-  have hright : AnalyticOnNhd ℂ (fun w =>
-      ((∑ j, b j) + t) * regCarlsonRSlit t (addDirichletUnit b i) w -
-        t * w i * regCarlsonRSlit (t - 1) (addDirichletUnit b i) w) carlsonRSlitDomain := by
-    intro w hw
-    exact (analyticAt_const.mul (analyticOnNhd_regCarlsonRSlit t _ w hw)).sub
-      ((analyticAt_const.mul ((ContinuousLinearMap.proj i : (ι → ℂ) →L[ℂ] ℂ).analyticAt w)).mul
-        (analyticOnNhd_regCarlsonRSlit (t - 1) _ w hw))
-  apply eqOn_carlsonRSlitDomain_of_eqOn_rightHalfPlane
-    (analyticOnNhd_regCarlsonRSlit t b) hright ?_ hz
-  intro w hw
-  simp_rw [regCarlsonRSlit_eq_continued _ _ hw]
-  exact regCarlsonRContinued_eq_addDirichletUnit t b hw i
-
 open scoped Classical in
 /-- Parameter lowering without dividing by the total parameter minus one. -/
-theorem regCarlsonRSlit_sub_dirichletUnit (t : ℂ) (b : ι → ℂ)
+theorem regCarlsonR_sub_dirichletUnit (t : ℂ) (b : ι → ℂ)
     {z : ι → ℂ} (hz : z ∈ carlsonRSlitDomain) (i : ι) :
-    regCarlsonRSlit t (b - Pi.single i 1) z =
-      ((∑ j, b j) + t - 1) * regCarlsonRSlit t b z -
-        t * z i * regCarlsonRSlit (t - 1) b z := by
+    regCarlsonR t (b - Pi.single i 1) z =
+      ((∑ j, b j) + t - 1) * regCarlsonR t b z -
+        t * z i * regCarlsonR (t - 1) b z := by
   have hunit : addDirichletUnit (b - Pi.single i 1) i = b := by
     ext j
     by_cases hji : j = i
@@ -70,29 +50,29 @@ theorem regCarlsonRSlit_sub_dirichletUnit (t : ℂ) (b : ι → ℂ)
     · simp [addDirichletUnit, hji]
   have hsum : (∑ j, ((b - Pi.single i (1 : ℂ)) : ι → ℂ) j) = (∑ j, b j) - 1 := by
     simp [Pi.sub_apply, Finset.sum_sub_distrib]
-  have h := regCarlsonRSlit_eq_addDirichletUnit t (b - Pi.single i 1) hz i
+  have h := regCarlsonR_eq_addDirichletUnit t (b - Pi.single i 1) hz i
   rw [hunit, hsum] at h
   convert h using 1
   ring
 
 open scoped Classical in
 /-- The backward-shift tangential relation, including equal indices and coincident nodes. -/
-theorem regCarlsonRSlit_tangent_sub (t : ℂ) (b : ι → ℂ)
+theorem regCarlsonR_tangent_sub (t : ℂ) (b : ι → ℂ)
     {z : ι → ℂ} (hz : z ∈ carlsonRSlitDomain) (i j : ι) :
-    (z i - z j) * (t * regCarlsonRSlit (t - 1) b z) =
-      regCarlsonRSlit t (b - Pi.single j 1) z -
-        regCarlsonRSlit t (b - Pi.single i 1) z := by
-  rw [regCarlsonRSlit_sub_dirichletUnit t b hz j,
-    regCarlsonRSlit_sub_dirichletUnit t b hz i]
+    (z i - z j) * (t * regCarlsonR (t - 1) b z) =
+      regCarlsonR t (b - Pi.single j 1) z -
+        regCarlsonR t (b - Pi.single i 1) z := by
+  rw [regCarlsonR_sub_dirichletUnit t b hz j,
+    regCarlsonR_sub_dirichletUnit t b hz i]
   ring
 
 /-- The parameter-raised tangential relation on the full slit domain. -/
-theorem regCarlsonRSlit_tangent (t : ℂ) (b : ι → ℂ)
+theorem regCarlsonR_tangent (t : ℂ) (b : ι → ℂ)
     {z : ι → ℂ} (hz : z ∈ carlsonRSlitDomain) (i j : ι) :
     (z i - z j) * (t *
-      regCarlsonRSlit (t - 1) (addDirichletUnit (addDirichletUnit b j) i) z) =
-      regCarlsonRSlit t (addDirichletUnit b i) z -
-        regCarlsonRSlit t (addDirichletUnit b j) z := by
+      regCarlsonR (t - 1) (addDirichletUnit (addDirichletUnit b j) i) z) =
+      regCarlsonR t (addDirichletUnit b i) z -
+        regCarlsonR t (addDirichletUnit b j) z := by
   classical
   by_cases hij : i = j
   · subst j; simp
@@ -106,6 +86,6 @@ theorem regCarlsonRSlit_tangent (t : ℂ) (b : ι → ℂ)
     ext k
     by_cases hki : k = i <;> simp_all [addDirichletUnit]
   simpa only [h₁, h₂] using
-    regCarlsonRSlit_tangent_sub t (addDirichletUnit (addDirichletUnit b j) i) hz i j
+    regCarlsonR_tangent_sub t (addDirichletUnit (addDirichletUnit b j) i) hz i j
 
 end Carlson

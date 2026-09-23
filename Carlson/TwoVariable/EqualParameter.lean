@@ -47,44 +47,43 @@ private theorem isRegEqualRContinuation_of_quadratic
     (t s x y : ℂ) (Z : Fin 2 → ℂ) (hZ : Z ∈ carlsonRVariableDomain)
     (hz : pair x y ∈ carlsonRVariableDomain) (b : ℂ → Fin 2 → ℂ)
     (hb : AnalyticOnNhd ℂ b univ)
-    (h : ∀ β, regCarlsonRContinued t (pair x y) hz (pair β β) =
-      quadraticGammaRatio β * regCarlsonRContinued s Z hZ (b β)) :
-    IsRegEqualRContinuation t x y (fun β => regCarlsonRContinued s Z hZ (b β)) := by
-  refine ⟨fun β _ => analyticAt_regCarlsonRContinued_comp hZ analyticAt_const (hb β trivial), ?_⟩
+    (h : ∀ β, regCarlsonR t (pair β β) (pair x y) =
+      quadraticGammaRatio β * regCarlsonR s (b β) Z) :
+    IsRegEqualRContinuation t x y (fun β => regCarlsonR s (b β) Z) := by
+  refine ⟨fun β _ => analyticAt_regCarlsonR_comp analyticAt_const (hb β trivial) analyticAt_const
+      (carlsonRVariableDomain_subset_slitDomain hZ), ?_⟩
   intro β hβ
   have hpos : pair β β ∈ mvBetaConvergent := by intro i; fin_cases i <;> exact hβ
   have hc : 0 < (β + 1 / 2).re := by simp only [add_re]; norm_num; linarith
   apply (eq_div_iff (Gamma_ne_zero_of_re_pos hc)).mpr
   have H := h β
-  rw [regCarlsonRContinued_eq_integral _ hz hpos] at H
+  rw [regCarlsonR_eq_regCarlsonRIntegral _ hpos hz] at H
   change _ = Gamma (∑ i, pair β β i) * regCarlsonRIntegral t (pair β β) (pair x y)
   rw [sum_pair, H, ← mul_assoc, Gamma_mul_quadraticGammaRatio hβ, mul_comm]
 
 /-- The first transformed regularized function gives the entire equal-parameter family. -/
 theorem isRegEqualRContinuation_firstQuadratic (t x y : ℂ) (hz : FirstQuadraticDomain x y) :
-    IsRegEqualRContinuation (2 * t) x y (fun β => regCarlsonRContinued t
-      (pair (arithmeticMeanSq x y) (geometricMeanSq x y)) hz.2
-      (pair (β + t) (1 / 2 - t))) := by
+    IsRegEqualRContinuation (2 * t) x y (fun β => regCarlsonR t (pair (β + t) (1 / 2 - t)) (pair
+        (arithmeticMeanSq x y) (geometricMeanSq x y))) := by
   apply isRegEqualRContinuation_of_quadratic (2 * t) t x y _ hz.2 hz.1
   · intro β _
     apply analyticAt_pi_iff.mpr
     intro i; fin_cases i
     · exact analyticAt_id.add analyticAt_const
     · exact analyticAt_const
-  · exact fun β => regRContinued_firstQuadratic t β x y hz
+  · exact fun β => regCarlsonR_pair_firstQuadratic t β x y hz
 
 /-- The second transformed regularized function gives the entire equal-parameter family. -/
 theorem isRegEqualRContinuation_secondQuadratic (t x y : ℂ) (hz : SecondQuadraticDomain x y) :
-    IsRegEqualRContinuation t (x ^ 2) (y ^ 2) (fun β => regCarlsonRContinued t
-      (pair (arithmeticMeanSq x y) (geometricMeanSq x y)) hz.2
-      (pair (2 * β + t) (1 / 2 - β - t))) := by
+    IsRegEqualRContinuation t (x ^ 2) (y ^ 2) (fun β => regCarlsonR t (pair (2 * β + t) (1 / 2 - β
+        - t)) (pair (arithmeticMeanSq x y) (geometricMeanSq x y))) := by
   apply isRegEqualRContinuation_of_quadratic t t (x ^ 2) (y ^ 2) _ hz.2 hz.1
   · intro β _
     apply analyticAt_pi_iff.mpr
     intro i; fin_cases i
     · exact (analyticAt_const.mul analyticAt_id).add analyticAt_const
     · exact (analyticAt_const.sub analyticAt_id).sub analyticAt_const
-  · exact fun β => regRContinued_secondQuadratic t β x y hz
+  · exact fun β => regCarlsonR_pair_secondQuadratic t β x y hz
 
 private lemma secondQuadraticDomain_of_right_roots {x y : ℂ}
     (hx : |x.im| < x.re) (hy : |y.im| < y.re) : SecondQuadraticDomain x y := by
@@ -143,31 +142,29 @@ theorem analyticOnNhd_regEqualRContinued (t x y : ℂ)
 /-- First quadratic transformation with the natural equal-parameter regularization.
 Unlike the general `Γ(2β)` regularization, this loses no information at integral `β`. -/
 theorem regEqualRContinued_firstQuadratic (t β x y : ℂ) (hz : FirstQuadraticDomain x y) :
-    regEqualRContinued (2 * t) x y hz.1 β = regCarlsonRContinued t
-      (pair (arithmeticMeanSq x y) (geometricMeanSq x y)) hz.2
-      (pair (β + t) (1 / 2 - t)) :=
+    regEqualRContinued (2 * t) x y hz.1 β = regCarlsonR t (pair (β + t) (1 / 2 - t)) (pair
+        (arithmeticMeanSq x y) (geometricMeanSq x y)) :=
   congrFun ((isRegEqualRContinuation_regEqualRContinued (2 * t) x y hz.1).unique
     (isRegEqualRContinuation_firstQuadratic t x y hz)) β
 
 /-- Second quadratic transformation with the natural equal-parameter regularization. -/
 theorem regEqualRContinued_secondQuadratic (t β x y : ℂ) (hz : SecondQuadraticDomain x y) :
-    regEqualRContinued t (x ^ 2) (y ^ 2) hz.1 β = regCarlsonRContinued t
-      (pair (arithmeticMeanSq x y) (geometricMeanSq x y)) hz.2
-      (pair (2 * β + t) (1 / 2 - β - t)) :=
+    regEqualRContinued t (x ^ 2) (y ^ 2) hz.1 β = regCarlsonR t (pair (2 * β + t) (1 / 2 - β - t))
+        (pair (arithmeticMeanSq x y) (geometricMeanSq x y)) :=
   congrFun ((isRegEqualRContinuation_regEqualRContinued t (x ^ 2) (y ^ 2) hz.1).unique
     (isRegEqualRContinuation_secondQuadratic t x y hz)) β
 
 /-- Compatibility with the general regularized R-function. The factor can vanish;
 the equal-parameter regularization retains the removable values in that case. -/
-theorem regCarlsonRContinued_pair_eq (t β x y : ℂ) (hz : pair x y ∈ carlsonRVariableDomain) :
-    regCarlsonRContinued t (pair x y) hz (pair β β) =
+theorem regCarlsonR_pair_eq (t β x y : ℂ) (hz : pair x y ∈ carlsonRVariableDomain) :
+    regCarlsonR t (pair β β) (pair x y) =
       quadraticGammaRatio β * regEqualRContinued t x y hz β := by
   obtain ⟨u, hu, _, hup⟩ := exists_sq_eq_of_re_pos (show 0 < x.re from hz 0)
   obtain ⟨v, hv, _, hvp⟩ := exists_sq_eq_of_re_pos (show 0 < y.re from hz 1)
   subst x; subst y
   have hroot := secondQuadraticDomain_of_right_roots hup hvp
   rw [regEqualRContinued_secondQuadratic t β u v hroot]
-  exact regRContinued_secondQuadratic t β u v hroot
+  exact regCarlsonR_pair_secondQuadratic t β u v hroot
 
 /-- Joint analytic dependence on the exponent and the equal Dirichlet parameter. -/
 theorem analyticAt_regEqualRContinued_comp
@@ -180,7 +177,8 @@ theorem analyticAt_regEqualRContinued_comp
   subst x; subst y
   have hroot := secondQuadraticDomain_of_right_roots hup hvp
   simp only [regEqualRContinued_secondQuadratic _ _ u v hroot]
-  apply analyticAt_regCarlsonRContinued_comp hroot.2 hf
+  refine analyticAt_regCarlsonR_comp hf ?_ analyticAt_const
+    (carlsonRVariableDomain_subset_slitDomain hroot.2)
   apply analyticAt_pi_iff.mpr
   intro i; fin_cases i
   · exact (analyticAt_const.mul hb).add hf
@@ -227,7 +225,7 @@ theorem isCarlsonGammaRegular_neg_nat_add_half (n : ℕ) :
   subst x; subst y
   have hroot := secondQuadraticDomain_of_right_roots hup hvp
   rw [regEqualRContinued_secondQuadratic 0 β u v hroot]
-  rw [show (0 : ℂ) = (0 : ℕ) by norm_num, regCarlsonRContinued_natCast]
+  rw [show (0 : ℂ) = (0 : ℕ) by norm_num, regCarlsonR_natCast _ _ hroot.2]
   simp only [regCarlsonRPolynomial_zero, sum_pair]
   congr 2
   ring
@@ -241,17 +239,15 @@ theorem equalRContinued_zero (β x y : ℂ) (hz : pair x y ∈ carlsonRVariableD
 /-- Carlson 6.9-3 on the full common parameter domain of the ordinary functions. -/
 theorem equalRContinued_firstQuadratic (t β x y : ℂ) (hz : FirstQuadraticDomain x y)
     (_hβ : IsCarlsonGammaRegular (β + 1 / 2)) :
-    equalRContinued (2 * t) x y hz.1 β = Gamma (β + 1 / 2) * regCarlsonRContinued t
-      (pair (arithmeticMeanSq x y) (geometricMeanSq x y)) hz.2
-      (pair (β + t) (1 / 2 - t)) := by
+    equalRContinued (2 * t) x y hz.1 β = Gamma (β + 1 / 2) * regCarlsonR t (pair (β + t) (1 / 2 -
+        t)) (pair (arithmeticMeanSq x y) (geometricMeanSq x y)) := by
   rw [equalRContinued, regEqualRContinued_firstQuadratic t β x y hz]
 
 /-- Carlson 6.10-1 on the full common parameter domain of the ordinary functions. -/
 theorem equalRContinued_secondQuadratic (t β x y : ℂ) (hz : SecondQuadraticDomain x y)
     (_hβ : IsCarlsonGammaRegular (β + 1 / 2)) :
-    equalRContinued t (x ^ 2) (y ^ 2) hz.1 β = Gamma (β + 1 / 2) * regCarlsonRContinued t
-      (pair (arithmeticMeanSq x y) (geometricMeanSq x y)) hz.2
-      (pair (2 * β + t) (1 / 2 - β - t)) := by
+    equalRContinued t (x ^ 2) (y ^ 2) hz.1 β = Gamma (β + 1 / 2) * regCarlsonR t (pair (2 * β + t)
+        (1 / 2 - β - t)) (pair (arithmeticMeanSq x y) (geometricMeanSq x y)) := by
   rw [equalRContinued, regEqualRContinued_secondQuadratic t β x y hz]
 
 end Carlson.TwoVariable

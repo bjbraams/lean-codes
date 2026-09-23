@@ -7,7 +7,7 @@ module
 
 public import Dirichlet.Transform.Euler
 public import ComplexAnalysis.ExteriorPath
-public import Carlson.R.SlitJointAnalytic
+public import Carlson.R.Explicit
 
 /-!
 # Compactified exterior-path kernels for Carlson continuation
@@ -154,7 +154,7 @@ theorem regCarlsonExteriorPathIntegral_one (n : ℕ) (b : ι → ℂ)
     {z : ι → ℂ} (hz : z ∈ carlsonRSlitDomain)
     (hc : (n : ℝ) + 1 < (∑ i, b i).re) :
     regCarlsonExteriorPathIntegral n b (fun _ => 1)
-      (fun i v => log (1 - v + v * z i)) = regCarlsonRSlit (-(n + 1)) b z := by
+      (fun i v => log (1 - v + v * z i)) = regCarlsonR (-(n + 1)) b z := by
   have ha : 0 < ((n : ℂ) + 1).re := by simp; positivity
   have hb : 0 < ((∑ i, b i) - n - 1).re := by
     simp only [sub_re, natCast_re, one_re]
@@ -170,18 +170,18 @@ theorem regCarlsonExteriorPathIntegral_one (n : ℕ) (b : ι → ℂ)
     dsimp only
     rw [carlsonExteriorPathAmplitude_one n b z ⟨hu.1.le, hu.2.le⟩ hz]
     rfl]
-  rw [carlsonRUnitIntervalIntegral_eq_gamma_mul_slit ha hb (by ring) hz,
+  rw [carlsonRUnitIntervalIntegral_eq_gamma_mul_regCarlsonR ha hb (by ring) hz,
     inv_mul_cancel_left₀ (mul_ne_zero (Gamma_ne_zero_of_re_pos ha) (Gamma_ne_zero_of_re_pos hb))]
 
 /-- An entire continuation of the straight-path integral is the established slit resolvent
 at every parameter, including outside the initial total-parameter convergence strip. -/
-theorem eq_regCarlsonRSlit_of_exteriorPath_one [Nonempty ι] (n : ℕ)
+theorem eq_regCarlsonR_of_exteriorPath_one [Nonempty ι] (n : ℕ)
     {z : ι → ℂ} (hz : z ∈ carlsonRSlitDomain) {F : (ι → ℂ) → ℂ}
     (hF : AnalyticOnNhd ℂ F univ)
     (hFnative : ∀ b : ι → ℂ, (n : ℝ) + 1 < (∑ i, b i).re →
       F b = regCarlsonExteriorPathIntegral n b (fun _ => 1)
         (fun i v => log (1 - v + v * z i))) :
-    F = fun b => regCarlsonRSlit (-(n + 1)) b z := by
+    F = fun b => regCarlsonR (-(n + 1)) b z := by
   classical
   let i : ι := Classical.choice inferInstance
   let b₀ : ι → ℂ := Pi.single i ((n : ℂ) + 2)
@@ -193,7 +193,7 @@ theorem eq_regCarlsonRSlit_of_exteriorPath_one [Nonempty ι] (n : ℕ)
   have hopen : IsOpen {b : ι → ℂ | (n : ℝ) + 1 < (∑ i, b i).re} :=
     isOpen_lt continuous_const (by fun_prop)
   apply hF.eq_of_eventuallyEq
-    (fun _ _ => analyticAt_regCarlsonRSlit_comp
+    (fun _ _ => analyticAt_regCarlsonR_comp
       analyticAt_const analyticAt_id analyticAt_const hz) (z₀ := b₀)
   filter_upwards [hopen.mem_nhds hb₀] with b hb
   exact (hFnative b hb).trans (regCarlsonExteriorPathIntegral_one n b hz hb)

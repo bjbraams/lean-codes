@@ -48,6 +48,29 @@ def addDirichletUnit (b : ι → ℂ) (i : ι) : ι → ℂ :=
   exact Function.update_of_ne j.property _ _
 
 omit [Fintype ι] in
+/-- Unit parameter shifts in two coordinates commute. -/
+theorem addDirichletUnit_comm (b : ι → ℂ) (i j : ι) :
+    addDirichletUnit (addDirichletUnit b i) j = addDirichletUnit (addDirichletUnit b j) i := by
+  classical
+  unfold addDirichletUnit
+  by_cases hij : i = j
+  · subst hij
+    simp [Function.update_idem]
+  · rw [Function.update_of_ne (Ne.symm hij), Function.update_of_ne hij,
+      Function.update_comm hij]
+
+omit [Fintype ι] in
+open scoped Classical in
+/-- The coordinates of a unit parameter shift. -/
+theorem addDirichletUnit_apply (b : ι → ℂ) (i j : ι) :
+    addDirichletUnit b i j = b j + if j = i then 1 else 0 := by
+  unfold addDirichletUnit
+  by_cases hji : j = i
+  · subst hji
+    simp
+  · simp [hji]
+
+omit [Fintype ι] in
 /-- A positive unit shift preserves the native convergence region. -/
 theorem addDirichletUnit_mem_mvBetaConvergent {b : ι → ℂ}
     (hb : b ∈ mvBetaConvergent) (i : ι) :

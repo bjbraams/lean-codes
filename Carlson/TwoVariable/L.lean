@@ -33,10 +33,6 @@ abbrev regLIntegral (t b₀ b₁ x y : ℂ) : ℂ :=
 abbrev lIntegral (t b₀ b₁ x y : ℂ) : ℂ :=
   carlsonLIntegral t (pair b₀ b₁) (pair x y)
 
-/-- The two-variable entire regularized L-continuation. -/
-abbrev regLContinued (t b₀ b₁ x y : ℂ) (hz : pair x y ∈ carlsonRVariableDomain) : ℂ :=
-  regCarlsonLContinued t (pair x y) hz (pair b₀ b₁)
-
 /-- Symmetry exchanges the two parameters together with their nodes. -/
 theorem regLIntegral_swap (t b₀ b₁ x y : ℂ) :
     regLIntegral t b₀ b₁ x y = regLIntegral t b₁ b₀ y x := by
@@ -74,9 +70,9 @@ private theorem one_one_mem_mvBetaConvergent : pair (1 : ℂ) 1 ∈ mvBetaConver
   intro i; fin_cases i <;> norm_num [pair]
 
 /-- Equation (8.8), without division by the node difference. -/
-theorem sub_mul_regLContinued_neg_one_one_one (x y : ℂ)
+theorem sub_mul_regCarlsonL_pair_neg_one_one_one (x y : ℂ)
     (hz : pair x y ∈ carlsonRVariableDomain) :
-    (x - y) * regLContinued (-1) 1 1 x y hz = (log x ^ 2 - log y ^ 2) / 2 := by
+    (x - y) * regCarlsonL (-1) (pair 1 1) (pair x y) = (log x ^ 2 - log y ^ 2) / 2 := by
   let f : ℂ → ℂ := fun w => log w ^ 2 / 2
   have hf : AnalyticOnNhd ℂ f carlsonRightHalfPlane := by
     intro w hw
@@ -87,8 +83,8 @@ theorem sub_mul_regLContinued_neg_one_one_one (x y : ℂ)
       deriv f w = (2 : ℂ) * log w ^ (2 - 1) * w⁻¹ / 2 := h.deriv
       _ = _ := by simp only [carlsonLKernel, cpow_neg_one]; ring
   have heq : regCarlsonDirichletAverage (pair 1 1) (pair x y) (deriv f) =
-      regLContinued (-1) 1 1 x y hz := by
-    rw [regLContinued, regCarlsonLContinued_eq_integral _ hz one_one_mem_mvBetaConvergent]
+      regCarlsonL (-1) (pair 1 1) (pair x y) := by
+    rw [regCarlsonL_eq_regCarlsonLIntegral _ one_one_mem_mvBetaConvergent hz]
     exact regDirichletIntegral_congr _ (fun u hu => hd _ (carlsonAffineForm_mem_slitPlane hz hu))
   have h := sub_mul_regAverage_deriv hf x y hz
   rw [heq] at h
@@ -96,46 +92,46 @@ theorem sub_mul_regLContinued_neg_one_one_one (x y : ℂ)
   linear_combination h
 
 /-- The elementary divided-logarithm formula of Carlson (1987), (8.8). -/
-theorem regLContinued_neg_one_one_one (x y : ℂ)
+theorem regCarlsonL_pair_neg_one_one_one (x y : ℂ)
     (hz : pair x y ∈ carlsonRVariableDomain) (hxy : x ≠ y) :
-    regLContinued (-1) 1 1 x y hz = (log x ^ 2 - log y ^ 2) / (2 * (x - y)) := by
+    regCarlsonL (-1) (pair 1 1) (pair x y) = (log x ^ 2 - log y ^ 2) / (2 * (x - y)) := by
   apply (eq_div_iff (mul_ne_zero two_ne_zero (sub_ne_zero.mpr hxy))).mpr
-  linear_combination 2 * sub_mul_regLContinued_neg_one_one_one x y hz
+  linear_combination 2 * sub_mul_regCarlsonL_pair_neg_one_one_one x y hz
 
 /-- The diagonal value completes the exceptional elementary formula. -/
-theorem regLContinued_neg_one_one_one_diag (x : ℂ)
+theorem regCarlsonL_pair_neg_one_one_one_diag (x : ℂ)
     (hz : pair x x ∈ carlsonRVariableDomain) :
-    regLContinued (-1) 1 1 x x hz = x⁻¹ * log x := by
+    regCarlsonL (-1) (pair 1 1) (pair x x) = x⁻¹ * log x := by
   have heq : pair x x = fun _ => x := by ext i; fin_cases i <;> rfl
-  have h := regCarlsonLContinued_const (-1) x (hz 0) (pair 1 1)
+  have h := regCarlsonL_const (-1) x (carlsonRightHalfPlane_subset_slitPlane (hz 0)) (pair 1 1)
   norm_num [sum_pair, cpow_neg_one] at h
   simpa only [← heq] using h
 
 /-- The uniform two-node reduction underlying (8.5), stated without division.
 At `t = -1` it reduces to the logarithmic R-identity, so the separate formula
-`regLContinued_neg_one_one_one` is needed to evaluate L there. -/
-theorem sub_mul_regLContinued_one_one (t x y : ℂ)
+`regCarlsonL_pair_neg_one_one_one` is needed to evaluate L there. -/
+theorem sub_mul_regCarlsonL_pair_one_one (t x y : ℂ)
     (hz : pair x y ∈ carlsonRVariableDomain) :
-    (x - y) * ((t + 1) * regLContinued t 1 1 x y hz +
-      regCarlsonRContinued t (pair x y) hz (pair 1 1)) =
+    (x - y) * ((t + 1) * regCarlsonL t (pair 1 1) (pair x y) +
+      regCarlsonR t (pair 1 1) (pair x y)) =
         x ^ (t + 1) * log x - y ^ (t + 1) * log y := by
   have h := sub_mul_regAverage_deriv
     ((analyticOnNhd_carlsonLKernel (t + 1)).mono carlsonRightHalfPlane_subset_slitPlane) x y hz
   rw [regCarlsonDirichletAverage_deriv_LKernel (t + 1) one_one_mem_mvBetaConvergent hz] at h
   rw [show t + 1 - 1 = t by ring] at h
-  simpa only [regLContinued,
-    regCarlsonLContinued_eq_integral _ hz one_one_mem_mvBetaConvergent,
-    regCarlsonRContinued_eq_integral _ hz one_one_mem_mvBetaConvergent, carlsonLKernel] using h
+  simpa only [
+    regCarlsonL_eq_regCarlsonLIntegral _ one_one_mem_mvBetaConvergent hz,
+    regCarlsonR_eq_regCarlsonRIntegral _ one_one_mem_mvBetaConvergent hz, carlsonLKernel] using h
 
 /-- Carlson (1987), (3.9), in a division-free regularized form. The identity is
 valid at coincident nodes and at every complex Dirichlet parameter. -/
-theorem regCarlsonLSlit_pair_contiguous (t u v : ℂ) {x y : ℂ}
+theorem regCarlsonL_pair_contiguous (t u v : ℂ) {x y : ℂ}
     (hz : pair x y ∈ carlsonRSlitDomain) :
-    u * (y - x) * regCarlsonLSlit t (pair (u + 1) v) (pair x y) =
-      y * regCarlsonLSlit t (pair u v) (pair x y) -
-        regCarlsonLSlit (t + 1) (pair u v) (pair x y) := by
-  have h₀ := regCarlsonLSlit_eq_sum_addDirichletUnit t (pair u v) hz
-  have h₁ := regCarlsonLSlit_add_one_eq_sum_mul_addDirichletUnit t (pair u v) hz
+    u * (y - x) * regCarlsonL t (pair (u + 1) v) (pair x y) =
+      y * regCarlsonL t (pair u v) (pair x y) -
+        regCarlsonL (t + 1) (pair u v) (pair x y) := by
+  have h₀ := regCarlsonL_eq_sum_addDirichletUnit t (pair u v) hz
+  have h₁ := regCarlsonL_add_one_eq_sum_mul_addDirichletUnit t (pair u v) hz
   have hu : addDirichletUnit (pair u v) 0 = pair (u + 1) v := by
     ext i
     fin_cases i <;> simp [addDirichletUnit, pair]

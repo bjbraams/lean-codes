@@ -8,6 +8,7 @@ module
 public import Dirichlet.Average.Aggregation
 public import Carlson.R.Continuation
 public import Carlson.S
+public import Carlson.R.Explicit
 
 /-!
 # Equal-node aggregation for Carlson functions
@@ -24,13 +25,13 @@ namespace Carlson
 variable {ι κ : Type*} [Fintype ι] [Fintype κ]
 
 /-- Equal-node aggregation for the entire regularized `R` function. -/
-theorem regCarlsonRContinued_aggregate {q : ι → κ} (hq : Function.Surjective q)
+theorem regCarlsonR_aggregate {q : ι → κ} (hq : Function.Surjective q)
     (t : ℂ) {z : κ → ℂ} (hz : z ∈ carlsonRVariableDomain) (b : ι → ℂ) :
-    regCarlsonRContinued t (z ∘ q) (fun i => hz (q i)) b =
-      regCarlsonRContinued t z hz (stdSimplexAggregate q b) := by
+    regCarlsonR t b (z ∘ q) =
+      regCarlsonR t (stdSimplexAggregate q b) z := by
   exact IsRegCarlsonContinuation.aggregate hq
-    (isRegCarlsonRContinuation_continued t (fun i => hz (q i)))
-    (isRegCarlsonRContinuation_continued t hz)
+    (isRegCarlsonRContinuation_regCarlsonR t (fun i => hz (q i)))
+    (isRegCarlsonRContinuation_regCarlsonR t hz)
     ((continuous_carlsonAffineForm z).continuousOn.cpow_const
       (fun _ hu => carlsonAffineForm_mem_slitPlane hz hu)) b
 

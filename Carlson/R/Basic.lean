@@ -29,7 +29,7 @@ averaging kernel.
 
 The continuation of these integrals beyond the convergence region of the Dirichlet parameters
 and beyond the right half-plane is developed in `Carlson.R.Continuation` and
-`Carlson.R.SlitContinuation`.
+`Carlson.R.Explicit`.
 
 ## References
 

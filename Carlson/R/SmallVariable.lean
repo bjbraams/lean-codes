@@ -7,6 +7,7 @@ module
 
 public import Carlson.R.IntegralEvaluation
 public import Carlson.R.Relations
+public import Carlson.R.Explicit
 
 import Mathlib.MeasureTheory.Integral.DominatedConvergence
 
@@ -16,7 +17,7 @@ import Mathlib.MeasureTheory.Integral.DominatedConvergence
 This file develops [Carl77, Section 8.3].  Its core result identifies the sectorial limit as
 one variable tends to zero with deletion of that variable and a beta-factor correction.
 
-`tendsto_regCarlsonRContinued_update_zero_of_pos` allows arbitrary individual
+`tendsto_regCarlsonR_update_zero_of_pos` allows arbitrary individual
 Dirichlet parameters and any approach through the right half-plane. It still
 assumes positive real parts for both endpoint exponents. The double-shift
 recurrence 8.3(5) is available for removing those restrictions; the corresponding
@@ -311,16 +312,17 @@ theorem carlsonRVariableDomain_update {z : ι → ℂ} (hz : z ∈ carlsonRVaria
 
 /-- Carlson's recurrence 8.3(5), used to move both endpoint exponents into
 their convergence half-planes. This regularized form has no denominators. -/
-theorem regCarlsonRContinued_eq_sum_double_shift (t : ℂ) (b : ι → ℂ)
+theorem regCarlsonR_eq_sum_double_shift (t : ℂ) (b : ι → ℂ)
     {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain) (i : ι) :
-    regCarlsonRContinued t z hz b =
+    regCarlsonR t b z =
       ∑ j, addDirichletUnit b i j * (((∑ k, b k) + t) * z j - t * z i) *
-        regCarlsonRContinued (t - 1) z hz (addDirichletUnit (addDirichletUnit b i) j) := by
-  have h := regCarlsonRContinued_add_one_eq_sum_mul_addDirichletUnit
-    (t - 1) (addDirichletUnit b i) hz
+        regCarlsonR (t - 1) (addDirichletUnit (addDirichletUnit b i) j) z := by
+  have h := regCarlsonR_add_one_eq_sum_mul_addDirichletUnit (t - 1) (addDirichletUnit b i)
+      (carlsonRVariableDomain_subset_slitDomain hz)
   rw [sub_add_cancel] at h
-  rw [regCarlsonRContinued_eq_addDirichletUnit t b hz i, h,
-    regCarlsonRContinued_eq_sum_addDirichletUnit (t - 1) (addDirichletUnit b i) hz,
+  rw [regCarlsonR_eq_addDirichletUnit t b (carlsonRVariableDomain_subset_slitDomain hz) i, h,
+    regCarlsonR_eq_sum_addDirichletUnit (t - 1) (addDirichletUnit b i)
+        (carlsonRVariableDomain_subset_slitDomain hz),
     Finset.mul_sum, Finset.mul_sum, ← Finset.sum_sub_distrib]
   apply Finset.sum_congr rfl
   intro j _
@@ -331,18 +333,16 @@ open scoped Classical in
 individual Dirichlet parameters. The approach can be any filter in the right
 half-plane; no narrower angular sector is needed. The positive endpoint-exponent
 hypotheses are still required here. -/
-theorem tendsto_regCarlsonRContinued_update_zero_of_pos
+theorem tendsto_regCarlsonR_update_zero_of_pos
     (i : ι) {a a' : ℂ} {b z : ι → ℂ}
     (ha : 0 < a.re) (ha' : 0 < a'.re)
     (ha'i : 0 < (a' - b i).re) (hsum : a + a' = ∑ j, b j)
     (hz : z ∈ carlsonRVariableDomain)
     {E : Type*} {l : Filter E} {w : E → ℂ}
     (hw : ∀ x, 0 < (w x).re) (hlim : Tendsto w l (𝓝 0)) :
-    Tendsto (fun x => regCarlsonRContinued (-a) (Function.update z i (w x))
-      (carlsonRVariableDomain_update hz i (hw x)) b) l
+    Tendsto (fun x => regCarlsonR (-a) b (Function.update z i (w x))) l
       (𝓝 (Gamma (a' - b i) / Gamma a' *
-        regCarlsonRContinued (-a) (eraseCarlsonVariable i z)
-          (fun j => hz j) (eraseCarlsonParameter i b))) := by
+        regCarlsonR (-a) (eraseCarlsonParameter i b) (eraseCarlsonVariable i z))) := by
   have hwithin : Tendsto w l (𝓝[{v : ℂ | 0 ≤ v.re}] 0) :=
     tendsto_nhdsWithin_iff.mpr ⟨hlim, Eventually.of_forall (fun x => (hw x).le)⟩
   have H := (tendsto_unitIntervalIntegral_update_zero i ha ha' ha'i hz).comp hwithin
@@ -352,21 +352,22 @@ theorem tendsto_regCarlsonRContinued_update_zero_of_pos
     dsimp only [eraseCarlsonParameter]
     linear_combination h
   have hz' : eraseCarlsonVariable i z ∈ carlsonRVariableDomain := fun j => hz j
-  rw [carlsonRUnitIntervalIntegral_eq_gamma_mul_continued ha ha'i hs hz'] at H
+  rw [carlsonRUnitIntervalIntegral_eq_gamma_mul_regCarlsonR ha ha'i hs
+      (carlsonRVariableDomain_subset_slitDomain hz')] at H
   have hGa := Gamma_ne_zero_of_re_pos ha
   have hGa' := Gamma_ne_zero_of_re_pos ha'
   have H' := H.const_mul ((Gamma a * Gamma a')⁻¹)
   have hval : (Gamma a * Gamma a')⁻¹ *
-      ((Gamma a * Gamma (a' - b i)) * regCarlsonRContinued (-a)
-        (eraseCarlsonVariable i z) (fun j => hz j) (eraseCarlsonParameter i b)) =
-      Gamma (a' - b i) / Gamma a' * regCarlsonRContinued (-a)
-        (eraseCarlsonVariable i z) (fun j => hz j) (eraseCarlsonParameter i b) := by field_simp
+      ((Gamma a * Gamma (a' - b i)) * regCarlsonR (-a) (eraseCarlsonParameter i b)
+          (eraseCarlsonVariable i z)) =
+      Gamma (a' - b i) / Gamma a' * regCarlsonR (-a) (eraseCarlsonParameter i b)
+          (eraseCarlsonVariable i z) := by field_simp
   rw [hval] at H'
   apply H'.congr'
   filter_upwards with x
   dsimp only [Function.comp_def]
-  rw [carlsonRUnitIntervalIntegral_eq_gamma_mul_continued ha ha' hsum
-    (carlsonRVariableDomain_update hz i (hw x))]
+  rw [carlsonRUnitIntervalIntegral_eq_gamma_mul_regCarlsonR ha ha' hsum
+      (carlsonRVariableDomain_subset_slitDomain (carlsonRVariableDomain_update hz i (hw x)))]
   field_simp
 
 /- Gauss's summation formula is a two-variable hypergeometric specialization of the theorem

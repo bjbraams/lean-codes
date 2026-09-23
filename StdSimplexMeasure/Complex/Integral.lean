@@ -13,8 +13,9 @@ public import Mathlib.Analysis.Complex.CauchyIntegral
 # Complex kernels integrated over simplices
 
 Unnormalized simplex integrals, node symmetry, coalescence, and a simplex fundamental
-theorem of calculus on convex complex domains. Only general simplex foundations are used;
-there is no dependence on Dirichlet measures or Carlson functions.
+theorem of calculus on convex complex domains. Only the general simplex foundation of
+`StdSimplexMeasure` and Mathlib's complex analysis are used; there is no dependence on the
+`ComplexAnalysis` library, on Dirichlet measures or on Carlson functions.
 -/
 
 open MeasureTheory

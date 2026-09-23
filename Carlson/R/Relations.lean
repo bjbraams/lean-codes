@@ -15,8 +15,8 @@ public import Dirichlet.Average.Associated
 This file proves the regularized forms of Carlson's formulas 5.9-3, 5.9-5, and 5.9-6 on
 the native convergence region and right-half-plane node domain. The third associated
 relation follows by summing the tangential integration-by-parts relation.
-All three algebraic associated relations are also extended to arbitrary complex Dirichlet
-parameters for `regCarlsonRContinued`. Node derivatives are still stated for the native integral.
+The extension of the three associated relations to all complex parameters and slit-plane
+nodes is in `Carlson.R.Explicit`. Node derivatives are stated for the native integral.
 -/
 
 open Dirichlet
@@ -231,84 +231,6 @@ theorem sum_mul_carlsonPartialDeriv_regCarlsonRIntegral
       simpa [addDirichletUnit] using
         (regCarlsonRIntegral_add_one_eq_sum_mul_update (t - 1) hb hz).symm
     _ = t * regCarlsonRIntegral t b z := by ring_nf
-
-private lemma analyticAt_regCarlsonRContinued_shift (t : ℂ) {z : ι → ℂ}
-    (hz : z ∈ carlsonRVariableDomain) (b : ι → ℂ) (i : ι) :
-    AnalyticAt ℂ (fun c ↦ regCarlsonRContinued t z hz (addDirichletUnit c i)) b := by
-  have hshift : AnalyticAt ℂ (fun c : ι → ℂ ↦ addDirichletUnit c i) b := by
-    apply AnalyticAt.pi
-    intro j
-    by_cases hji : j = i
-    · subst j
-      simpa [addDirichletUnit] using!
-        ((ContinuousLinearMap.proj i : (ι → ℂ) →L[ℂ] ℂ).analyticAt b).add analyticAt_const
-    · simpa [addDirichletUnit, hji] using!
-        (ContinuousLinearMap.proj j : (ι → ℂ) →L[ℂ] ℂ).analyticAt b
-  exact ((analyticOnNhd_regCarlsonRContinued t hz) _ (Set.mem_univ _)).comp_of_eq hshift rfl
-
-/-- The first associated relation holds for the continued function at every complex
-Dirichlet parameter, including points outside the native convergence region. -/
-theorem regCarlsonRContinued_eq_sum_addDirichletUnit (t : ℂ) (b : ι → ℂ)
-    {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain) :
-    regCarlsonRContinued t z hz b =
-      ∑ i, b i * regCarlsonRContinued t z hz (addDirichletUnit b i) := by
-  have hright : AnalyticOnNhd ℂ
-      (fun b : ι → ℂ ↦ ∑ i, b i * regCarlsonRContinued t z hz (addDirichletUnit b i))
-      Set.univ := by
-    intro b _
-    exact Finset.analyticAt_fun_sum _ fun i _ ↦
-      ((ContinuousLinearMap.proj i : (ι → ℂ) →L[ℂ] ℂ).analyticAt b).mul
-        (analyticAt_regCarlsonRContinued_shift t hz b i)
-  apply congrFun (analyticOnNhd_eq_of_eqOn_mvBetaConvergent
-    (analyticOnNhd_regCarlsonRContinued t hz) hright ?_) b
-  intro c hc
-  simp_rw [regCarlsonRContinued_eq_integral t hz hc,
-    regCarlsonRContinued_eq_integral t hz (addDirichletUnit_mem_mvBetaConvergent hc _)]
-  exact regCarlsonRIntegral_eq_sum_update_add_one t hc hz
-
-/-- The second associated relation extends to all complex Dirichlet parameters. -/
-theorem regCarlsonRContinued_add_one_eq_sum_mul_addDirichletUnit
-    (t : ℂ) (b : ι → ℂ) {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain) :
-    regCarlsonRContinued (t + 1) z hz b =
-      ∑ i, b i * z i * regCarlsonRContinued t z hz (addDirichletUnit b i) := by
-  have hright : AnalyticOnNhd ℂ
-      (fun b : ι → ℂ ↦ ∑ i, b i * z i * regCarlsonRContinued t z hz (addDirichletUnit b i))
-      Set.univ := by
-    intro b _
-    exact Finset.analyticAt_fun_sum _ fun i _ ↦
-      (((ContinuousLinearMap.proj i : (ι → ℂ) →L[ℂ] ℂ).analyticAt b).mul analyticAt_const).mul
-        (analyticAt_regCarlsonRContinued_shift t hz b i)
-  apply congrFun (analyticOnNhd_eq_of_eqOn_mvBetaConvergent
-    (analyticOnNhd_regCarlsonRContinued (t + 1) hz) hright ?_) b
-  intro c hc
-  simp_rw [regCarlsonRContinued_eq_integral (t + 1) hz hc,
-    regCarlsonRContinued_eq_integral t hz (addDirichletUnit_mem_mvBetaConvergent hc _)]
-  exact regCarlsonRIntegral_add_one_eq_sum_mul_update t hc hz
-
-/-- Carlson's third associated relation holds everywhere in the Dirichlet parameters
-after regularization; no division by the total parameter or by the exponent is needed. -/
-theorem regCarlsonRContinued_eq_addDirichletUnit (t : ℂ) (b : ι → ℂ)
-    {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain) (i : ι) :
-    regCarlsonRContinued t z hz b =
-      ((∑ j, b j) + t) * regCarlsonRContinued t z hz (addDirichletUnit b i) -
-        t * z i * regCarlsonRContinued (t - 1) z hz (addDirichletUnit b i) := by
-  have hright : AnalyticOnNhd ℂ (fun b : ι → ℂ ↦
-      ((∑ j, b j) + t) * regCarlsonRContinued t z hz (addDirichletUnit b i) -
-        t * z i * regCarlsonRContinued (t - 1) z hz (addDirichletUnit b i)) Set.univ := by
-    intro b _
-    have hsum : AnalyticAt ℂ (fun c : ι → ℂ ↦ ∑ j, c j) b :=
-      Finset.analyticAt_fun_sum _ fun j _ ↦
-        (ContinuousLinearMap.proj j : (ι → ℂ) →L[ℂ] ℂ).analyticAt b
-    exact ((hsum.add analyticAt_const).mul
-      (analyticAt_regCarlsonRContinued_shift t hz b i)).sub
-        (analyticAt_const.mul (analyticAt_regCarlsonRContinued_shift (t - 1) hz b i))
-  apply congrFun (analyticOnNhd_eq_of_eqOn_mvBetaConvergent
-    (analyticOnNhd_regCarlsonRContinued t hz) hright ?_) b
-  intro c hc
-  simp_rw [regCarlsonRContinued_eq_integral t hz hc,
-    regCarlsonRContinued_eq_integral t hz (addDirichletUnit_mem_mvBetaConvergent hc i),
-    regCarlsonRContinued_eq_integral (t - 1) hz (addDirichletUnit_mem_mvBetaConvergent hc i)]
-  exact regCarlsonRIntegral_eq_update_add_one t hc hz i
 
 /-- Pointwise homogeneity of Carlson's power kernel for positive real scaling. -/
 theorem cpow_carlsonAffineForm_smul (t : ℂ) {a : ℝ} (ha : 0 < a)

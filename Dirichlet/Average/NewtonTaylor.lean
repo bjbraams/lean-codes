@@ -7,8 +7,8 @@ module
 
 public import Dirichlet.Average.Basic
 public import Dirichlet.Average.Real
-public import ComplexAnalysis.NewtonTaylor
-public import ComplexAnalysis.RepeatedIntegral
+public import StdSimplexMeasure.Complex.NewtonTaylor
+public import StdSimplexMeasure.Complex.RepeatedIntegral
 
 /-!
 # Dirichlet-average identities for divided differences and repeated integrals

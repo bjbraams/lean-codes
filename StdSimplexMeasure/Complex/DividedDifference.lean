@@ -5,7 +5,7 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import ComplexAnalysis.Integral.Simplex
+public import StdSimplexMeasure.Complex.Integral
 public import Mathlib.Analysis.Calculus.IteratedDeriv.Lemmas
 
 /-!

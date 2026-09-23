@@ -3,9 +3,10 @@
 The project has nine mathematical libraries. General support and simplex
 geometry/integration (`StdSimplexMeasure`) feed into `Dirichlet`, then `Carlson`.
 The support libraries do not import either application layer, and Dirichlet theory
-does not import Carlson functions. `ComplexAnalysis.Integral.Simplex` uses the
-general simplex foundation for divided differences and repeated integrals; the
-other support modules remain simplex-independent.
+does not import Carlson functions. The complex-analytic libraries (`Analysis`, `Topology`,
+`ComplexAnalysis`, `SeveralComplexVariables`) depend only on Mathlib and on each other;
+complex kernels integrated over simplices (divided differences, repeated integrals) live in
+`StdSimplexMeasure.Complex`.
 
 The root modules and the topic umbrellas below are convenient entry points.
 
@@ -70,15 +71,12 @@ common natural shift on compact sets, with a finite-coordinate-sum specializatio
 formerly developed inside SCV. Complex-specific declarations use the `Complex` namespace;
 extensions to existing APIs retain namespaces such as `AnalyticOnNhd` and `DiffContOnCl`.
 The modules do not import the application layers or several-variable function theory.
-Its general support is now imported from the independent `Analysis` and `Topology`
-libraries. The simplex kernel, divided-difference, Newton–Taylor, and repeated-integral
-modules additionally use `StdSimplexMeasure.SimplexFTC`. There are no imports back into SCV.
+Its general support is imported from the independent `Analysis` and `Topology`
+libraries; nothing in the library imports `StdSimplexMeasure`. There are no imports back into
+SCV.
 
 | Module | Proved content |
 | --- | --- |
-| `ComplexAnalysis.Integral.Simplex` | Unnormalized complex simplex kernel integrals, permutation symmetry, coalescence, and the simplex FTC |
-| `ComplexAnalysis.DividedDifference`, `NewtonTaylor` | Hermite–Genocchi divided differences including coincident nodes, recurrence, and exact Newton and Taylor remainders |
-| `ComplexAnalysis.RepeatedIntegral` | Segment integration identified with Mathlib curve integrals, and repeated integration as a coalesced simplex integral under continuity |
 | `ComplexAnalysis.HalfPlane`, `Pow` | Right-half-plane branch geometry, sector square roots, finite-family containing disks, and principal-power multiplication and holomorphy |
 | `ComplexAnalysis.BranchLog` | Differentiation of continuous logarithm branches; holomorphic logarithms and roots on simply connected open sets; prescribed branch value and uniqueness |
 | `ComplexAnalysis.BranchLog.Analytic` | Analytic dependence of logarithm branches, including normed source spaces and normalization along a zero section |
@@ -207,6 +205,17 @@ Coordinate integral API; slicing/Fubini; polynomial integration; aggregation.
 Ambient smooth neighborhoods and derivatives remain in the coordinate vector
 space.
 
+### `StdSimplexMeasure.Complex`
+
+Contains modules `Integral`, `DividedDifference`, `NewtonTaylor`, `RepeatedIntegral`.
+
+Complex kernels integrated over simplices, in the `Complex` namespace: unnormalized simplex
+kernel integrals with permutation symmetry, coalescence and the simplex FTC; Hermite–Genocchi
+divided differences including coincident nodes, with the recurrence and exact Newton and
+Taylor remainders; segment integration identified with Mathlib curve integrals, and repeated
+integration as a coalesced simplex integral under continuity. These modules depend only on
+`StdSimplexMeasure.SimplexFTC` and Mathlib; they are used by `Dirichlet.Average.NewtonTaylor`.
+
 ## Dirichlet theory modules
 
 ### `Dirichlet.Beta.Complex.Basic`
@@ -305,28 +314,41 @@ scalar API. The foundation uses only Mathlib, including its positive-real-rate e
 1. `SingleIntegral.Series`: unit-interval definition and near-one series.
 2. `SingleIntegral.Analytic`: joint analyticity in endpoint exponents, parameters, and nodes.
 3. `SingleIntegral.UnitInterval`: node analyticity as a specialization, and native representation.
-4. `SingleIntegral.Continuation`: unit-interval representation with continued
-   Dirichlet parameters.
-5. `SingleIntegral.PositiveRay`: positive-ray substitution and representations.
+4. `SingleIntegral.PositiveRay`: positive-ray substitution and representations.
 
 `Carlson.R.SingleIntegralAnalytic` retains the original import path for joint analyticity.
 
-`SlitContinuation` uses the continued unit-interval construction; ray-kernel
-arguments use `PositiveRay`. The contour formula (6.8-7) is still a separate
+The unit-interval representation at arbitrary Dirichlet parameters is a theorem of
+`R.Explicit`; ray-kernel arguments use `PositiveRay`. The contour formula (6.8-7) is still a separate
 mathematical task and has no module of its own.
 
 The slit-domain API separates `SlitRelations` (parameter-shift identities),
 `SlitDeriv` (node derivatives and differential identities), and
 `EulerPoisson` (the second-order system).
 
-The three R interfaces remain distinct: native simplex integrals,
-right-half-plane parameter continuation, and slit-node continuation.
-`R.SlitIntegral` and `L.SlitIntegral` prove native-integral agreement when the
-whole node convex hull stays in the slit plane; individual slit-plane nodes
-alone are insufficient. `R.SlitIntegral` also specializes the continued circle
-representation to R. Ordinary normalization still uses the total-parameter
-Gamma factor; Lean's totalized values at Gamma poles are not assertions of
-finite ordinary-function values.
+The R-function has one definition. `R.Explicit` defines `regCarlsonR t b z` for all
+complex exponents and parameters by a finite recursion in the style of `Complex.Gamma`:
+in the strip `re t < 0 < re (∑ b + t)` it is the doubly Gamma-regularized Euler integral
+on the product slit plane, and outside the strip it is reached by the two denominator-free
+associated relations, one raising the total parameter and one lowering the exponent.
+Independence of the recursion depth and joint analyticity in all variables are proved by
+the identity theorem in the joint variables, packaged as functions on `Option (ι ⊕ ι)`.
+The same file proves the three associated relations on the whole domain, agreement with
+the native integral `regCarlsonRIntegral` for convergent parameters and right-half-plane
+nodes at every exponent, and the characterization of `regCarlsonR` as the unique entire
+continuation in the parameters (`Carlson.R.Continuation` keeps the predicate). The native
+integral plays the role of `Complex.GammaIntegral`: theorems about it are stepping stones,
+transported to `regCarlsonR` by continuation in the parameters and then in the nodes.
+The L-function likewise has one definition: `L.Continuation` defines `regCarlsonL` as
+the exponent derivative of `regCarlsonR`, proves its joint holomorphy, and identifies it
+with the native power-logarithm average `regCarlsonLIntegral` on the convergence domain.
+`L.Relations` derives the associated L-relations on the whole domain by differentiating
+the R-relations.
+`R.SlitIntegral` and `L.SlitIntegral` prove native-integral agreement when the whole node
+convex hull stays in the slit plane; individual slit-plane nodes alone are insufficient.
+`R.SlitIntegral` also specializes the continued circle representation to R. Ordinary
+normalization still uses the total-parameter Gamma factor; Lean's totalized values at
+Gamma poles are not assertions of finite ordinary-function values.
 
 ### Recurrences and associated dependence
 
@@ -337,9 +359,8 @@ finite ordinary-function values.
 | `Carlson.R.Recurrence.Coefficients` | Symmetric-polynomial recurrence coefficients, independently of R-functions |
 | `Carlson.R.AssociatedRecurrence` | Native homogeneity recurrence |
 | `Carlson.R.Associated.ExponentReduction` | Polynomial and rational reduction to a finite exponent window |
-| `Carlson.R.AssociatedDependence` | Parameter reduction and fixed-parameter dependence theorem |
-| `Carlson.R.SlitRecurrence` | Transport of polynomial relations and the homogeneity recurrence to slit nodes |
-| `Carlson.R.SlitAssociated` | Fixed-parameter associated dependence on the slit domain |
+| `Carlson.R.SlitRecurrence` | Transport of polynomial relations to slit nodes; the homogeneity recurrence for all parameters and slit nodes |
+| `Carlson.R.AssociatedDependence` | Parameter reduction and the fixed-parameter dependence theorem, on the slit domain |
 | `Carlson.R.Recurrence.JointCoefficients` | Joint parameter/node coefficient polynomials and formal derivatives |
 | `Carlson.R.JointRecurrence` | Universal R homogeneity identity using those polynomials |
 

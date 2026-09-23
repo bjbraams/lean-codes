@@ -24,10 +24,6 @@ public import ComplexAnalysis.CauchyTransform
 public import ComplexAnalysis.CurveIndex
 public import ComplexAnalysis.CurveIndex.Continuity
 public import ComplexAnalysis.CurveIndex.Homotopy
-public import ComplexAnalysis.DividedDifference
-public import ComplexAnalysis.Integral.Simplex
-public import ComplexAnalysis.NewtonTaylor
-public import ComplexAnalysis.RepeatedIntegral
 public import ComplexAnalysis.HalfPlane
 public import ComplexAnalysis.Injective
 public import ComplexAnalysis.Integral.Circle
@@ -77,9 +73,6 @@ retain their usual namespaces. There is no dependency on application or SCV func
 General support is imported from the independent `Analysis` and `Topology` libraries.
 Divided differences and repeated integrals also use the general `StdSimplexMeasure` foundations.
 
-* `Integral.Simplex`, `DividedDifference`, `NewtonTaylor`, `RepeatedIntegral`: simplex kernel
-  integrals, Hermite–Genocchi divided differences with coincident nodes, exact Newton and Taylor
-  remainders, and repeated segment integration under continuity.
 * `HalfPlane`, `Pow`: right-half-plane geometry, sector roots, finite-family containing disks,
   and multiplication and holomorphy of principal powers.
 * `BranchLog`: holomorphic logarithms and roots on simply connected open sets, with

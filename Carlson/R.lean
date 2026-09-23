@@ -17,8 +17,7 @@ public import Carlson.R.Laplace
 public import Carlson.R.SlitPlane
 public import Carlson.R.SingleIntegral
 public import Carlson.R.SingleIntegralAnalytic
-public import Carlson.R.SlitContinuation
-public import Carlson.R.SlitJointAnalytic
+public import Carlson.R.Explicit
 public import Carlson.R.SlitIntegral
 public import Carlson.R.RayKernel
 public import Carlson.R.ContourKernel
@@ -26,11 +25,9 @@ public import Carlson.R.EulerTransform
 public import Carlson.R.IntegralEvaluation
 public import Carlson.R.SmallVariable
 public import Carlson.R.AssociatedRecurrence
-public import Carlson.R.ContinuedRecurrence
 public import Carlson.R.ZeroParameter
 public import Carlson.R.IntegerParameters
 public import Carlson.R.AssociatedDependence
-public import Carlson.R.SlitAssociated
 public import Carlson.R.SlitDeriv
 public import Carlson.R.SlitRelations
 public import Carlson.R.EulerPoisson

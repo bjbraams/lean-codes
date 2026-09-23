@@ -38,17 +38,16 @@ variable {ι : Type*} [Fintype ι] [Nonempty ι]
 /-- A nonpositive integral parameter can be removed with polynomial coefficients,
 uniformly in the nodes. This is the raising-and-deletion step in Theorems 8.5-1
 and 8.5-3, on the entire regularized parameter domain. -/
-theorem exists_polynomial_regCarlsonRContinued_option_neg_nat (N : ℕ) (t : ℂ)
+theorem exists_polynomial_regCarlsonR_option_neg_nat (N : ℕ) (t : ℂ)
     {b : Option ι → ℂ} (hb : b none = -(N : ℂ)) :
-    ∃ p : Fin (N + 1) → ℂ[X], ∀ (z : Option ι → ℂ) (hz : z ∈ carlsonRVariableDomain),
-      regCarlsonRContinued t z hz b =
+    ∃ p : Fin (N + 1) → ℂ[X], ∀ (z : Option ι → ℂ) (_ : z ∈ carlsonRVariableDomain),
+      regCarlsonR t b z =
         ∑ j, (p j).eval (z none) *
-          regCarlsonRContinued (t - (j : ℕ)) (z ∘ some)
-            (fun i => hz (some i)) (b ∘ some) := by
+          regCarlsonR (t - (j : ℕ)) (b ∘ some) (z ∘ some) := by
   induction N generalizing t b with
   | zero =>
     refine ⟨fun _ => 1, fun z hz => ?_⟩
-    simpa using regCarlsonRContinued_option_zero t (by simpa using hb) hz
+    simpa using regCarlsonR_option_zero t (by simpa using hb) hz
   | succ N ih =>
     let : DecidableEq (Option ι) := Classical.decEq _
     let b' := addDirichletUnit b none
@@ -68,10 +67,11 @@ theorem exists_polynomial_regCarlsonRContinued_option_neg_nat (N : ℕ) (t : ℂ
     have hp' := hp z hz
     have hq' := hq z hz
     rw [hsome] at hp' hq'
-    have hraise := regCarlsonRContinued_eq_addDirichletUnit t b hz none
-    change regCarlsonRContinued t z hz b =
-      (c + t) * regCarlsonRContinued t z hz b' -
-        t * z none * regCarlsonRContinued (t - 1) z hz b' at hraise
+    have hraise := regCarlsonR_eq_addDirichletUnit t b (carlsonRVariableDomain_subset_slitDomain
+        hz) none
+    change regCarlsonR t b z =
+      (c + t) * regCarlsonR t b' z -
+        t * z none * regCarlsonR (t - 1) b' z at hraise
     rw [hraise, hp', hq']
     simp only [p₀, q₀, eval_sub, eval_mul, eval_C, eval_X, sub_mul, Finset.sum_sub_distrib]
     congr 1
@@ -91,33 +91,33 @@ theorem exists_polynomial_regCarlsonRContinued_option_neg_nat (N : ℕ) (t : ℂ
 
 /-- Explicit removal of the parameter `-1`, the first nontrivial case of the
 finite reduction in Section 8.5. No division or node-distinctness is required. -/
-theorem regCarlsonRContinued_option_neg_one (t : ℂ)
+theorem regCarlsonR_option_neg_one (t : ℂ)
     {b : Option ι → ℂ} (hb : b none = -1)
     {z : Option ι → ℂ} (hz : z ∈ carlsonRVariableDomain) :
-    regCarlsonRContinued t z hz b =
+    regCarlsonR t b z =
       ((∑ i, b i) + t) *
-        regCarlsonRContinued t (z ∘ some) (fun i => hz (some i)) (b ∘ some) -
+        regCarlsonR t (b ∘ some) (z ∘ some) -
       t * z none *
-        regCarlsonRContinued (t - 1) (z ∘ some) (fun i => hz (some i)) (b ∘ some) := by
+        regCarlsonR (t - 1) (b ∘ some) (z ∘ some) := by
   let : DecidableEq (Option ι) := Classical.decEq _
   have hzero : addDirichletUnit b none none = 0 := by simp [addDirichletUnit, hb]
   have hsome : addDirichletUnit b none ∘ some = b ∘ some := by
     ext i
     simp [addDirichletUnit]
-  rw [regCarlsonRContinued_eq_addDirichletUnit t b hz none,
-    regCarlsonRContinued_option_zero t hzero hz,
-    regCarlsonRContinued_option_zero (t - 1) hzero hz, hsome]
+  rw [regCarlsonR_eq_addDirichletUnit t b (carlsonRVariableDomain_subset_slitDomain hz) none,
+    regCarlsonR_option_zero t hzero hz,
+    regCarlsonR_option_zero (t - 1) hzero hz, hsome]
 
 open scoped Classical in
 omit [Nonempty ι] in
 /-- Carlson's lowering relation 8.5(1), in pole-free regularized form. It is
 valid even at `a = 1` and coincident nodes, though solving for the left-hand
 function then requires the usual nonvanishing hypotheses. -/
-theorem regCarlsonRContinued_lower (a : ℂ) (b : ι → ℂ)
+theorem regCarlsonR_lower (a : ℂ) (b : ι → ℂ)
     {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain) (i j : ι) :
-    (a - 1) * (z i - z j) * regCarlsonRContinued (-a) z hz b =
-      regCarlsonRContinued (1 - a) z hz (b - Pi.single i 1) -
-        regCarlsonRContinued (1 - a) z hz (b - Pi.single j 1) := by
+    (a - 1) * (z i - z j) * regCarlsonR (-a) b z =
+      regCarlsonR (1 - a) (b - Pi.single i 1) z -
+        regCarlsonR (1 - a) (b - Pi.single j 1) z := by
   have hf : AnalyticOnNhd ℂ (fun w : ℂ => w ^ (1 - a)) carlsonRightHalfPlane := by
     intro w hw
     rw [analyticAt_iff_eventually_differentiableAt]
@@ -125,11 +125,12 @@ theorem regCarlsonRContinued_lower (a : ℂ) (b : ι → ℂ)
       (carlsonRightHalfPlane_subset_slitPlane hw)] with v hv
     exact differentiableAt_id.cpow_const hv
   have hD : IsRegCarlsonContinuation (deriv (fun w : ℂ => w ^ (1 - a))) z
-      (fun c => (1 - a) * regCarlsonRContinued (-a) z hz c) := by
-    refine ⟨analyticOnNhd_const.mul (analyticOnNhd_regCarlsonRContinued (-a) hz), ?_⟩
+      (fun c => (1 - a) * regCarlsonR (-a) c z) := by
+    refine ⟨analyticOnNhd_const.mul (analyticOnNhd_regCarlsonR_parameters (-a)
+        (carlsonRVariableDomain_subset_slitDomain hz)), ?_⟩
     intro c hc
     dsimp only
-    rw [regCarlsonRContinued_eq_integral (-a) hz hc]
+    rw [regCarlsonR_eq_regCarlsonRIntegral (-a) hc hz]
     rw [regCarlsonRIntegral, ← regCarlsonDirichletAverage_const_mul]
     apply regDirichletIntegral_congr
     intro u hu
@@ -138,30 +139,30 @@ theorem regCarlsonRContinued_lower (a : ℂ) (b : ι → ℂ)
     congr 2
     ring
   have h := IsRegCarlsonContinuation.tangent_sub convex_carlsonRightHalfPlane hf
-    (Set.range_subset_iff.mpr hz) (isRegCarlsonRContinuation_continued (1 - a) hz) hD b i j
+    (Set.range_subset_iff.mpr hz) (isRegCarlsonRContinuation_regCarlsonR (1 - a) hz) hD b i j
   linear_combination -h
 
 omit [Nonempty ι] in
 /-- If the complementary exponent is a nonpositive integer, Euler's
 transformation reduces the function to a polynomial in reciprocal nodes times
 complex powers. This is the second terminating case used in Section 8.5. -/
-theorem regCarlsonRContinued_neg_sum_sub_nat (N : ℕ) (b : ι → ℂ)
+theorem regCarlsonR_neg_sum_sub_nat (N : ℕ) (b : ι → ℂ)
     {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain) :
-    regCarlsonRContinued (-(∑ i, b i) - N) z hz b =
+    regCarlsonR (-(∑ i, b i) - N) b z =
       (∏ i, z i ^ (-b i)) * regCarlsonRPolynomial N b (fun i => (z i)⁻¹) := by
-  rw [regCarlsonRContinued_euler,
+  rw [regCarlsonR_euler _ _ (carlsonRVariableDomain_subset_slitDomain hz),
     show -(∑ i, b i) - (-(∑ i, b i) - N) = (N : ℂ) by ring,
-    regCarlsonRContinued_natCast]
+    regCarlsonR_natCast _ _ (carlsonRVariableDomain_inv hz)]
 
 omit [Nonempty ι] in
 /-- For integral Dirichlet parameters the complementary terminating case is
 explicitly rational in the nodes: integer powers times a polynomial in their
 reciprocals. Negative and zero Dirichlet parameters are allowed. -/
-theorem regCarlsonRContinued_neg_sum_sub_nat_int (N : ℕ) (m : ι → ℤ)
+theorem regCarlsonR_neg_sum_sub_nat_int (N : ℕ) (m : ι → ℤ)
     {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain) :
-    regCarlsonRContinued (-(∑ i, (m i : ℂ)) - N) z hz (fun i => m i) =
+    regCarlsonR (-(∑ i, (m i : ℂ)) - N) (fun i => m i) z =
       (∏ i, z i ^ (-m i)) * regCarlsonRPolynomial N (fun i => m i) (fun i => (z i)⁻¹) := by
-  rw [regCarlsonRContinued_neg_sum_sub_nat]
+  rw [regCarlsonR_neg_sum_sub_nat _ _ hz]
   simp only [← Int.cast_neg, cpow_intCast]
 
 end Carlson

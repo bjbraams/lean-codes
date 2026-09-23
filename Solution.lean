@@ -143,7 +143,7 @@ theorem joint_average_continuation {D : Set ℂ} (hD : IsOpen D) (hconv : Convex
 /-- Gamma-regularized Carlson R on the principal slit domain.
 The solution supplies its construction; r_joint and r_native fix its mathematical meaning. -/
 def regR {ι : Type*} [Fintype ι] (t : ℂ) (b z : ι → ℂ) : ℂ :=
-  Carlson.regCarlsonRSlit t b z
+  Carlson.regCarlsonR t b z
 
 /-- Gamma-regularized Carlson L is the exponent derivative of the same R-function. -/
 abbrev regL (t : ℂ) (b z : ι → ℂ) : ℂ := deriv (fun s => regR s b z) t
@@ -153,24 +153,24 @@ theorem r_joint :
     AnalyticOnNhd ℂ (fun p : Option (ι ⊕ ι) → ℂ =>
       regR (p none) (fun i => p (some (.inl i))) (fun i => p (some (.inr i))))
       {p | ∀ i, p (some (.inr i)) ∈ slitPlane} := by
-  exact Carlson.analyticOnNhd_regCarlsonRSlit_joint
+  exact Carlson.analyticOnNhd_regCarlsonR_joint
 
 /-- R equals its native power average when the entire node convex hull stays in the slit plane. -/
 theorem r_native (t : ℂ) {b z : ι → ℂ} (hb : ∀ i, 0 < (b i).re)
     (hz : convexHull ℝ (Set.range z) ⊆ slitPlane) :
     regR t b z = average b z (fun w => w ^ t) := by
-  exact Carlson.regCarlsonRSlit_eq_integral_of_convexHull t hb hz
+  exact Carlson.regCarlsonR_eq_regCarlsonRIntegral_of_convexHull t hb hz
 
 /-- Carlson 6.8-3: Euler inversion on all slit-plane nodes and all complex parameters. -/
 theorem r_euler (t : ℂ) (b : ι → ℂ) {z : ι → ℂ} (hz : ∀ i, z i ∈ slitPlane) :
     regR t b z = (∏ i, z i ^ (-b i)) * regR (-(∑ i, b i) - t) b (fun i => (z i)⁻¹) := by
-  exact Carlson.regCarlsonRSlit_euler t b hz
+  exact Carlson.regCarlsonR_euler t b hz
 
 /-- Euler–Poisson on the full slit domain, including repeated indices and coincident nodes. -/
 theorem r_euler_poisson (t : ℂ) (b : ι → ℂ) {z : ι → ℂ} (hz : ∀ i, z i ∈ slitPlane) (i j : ι) :
     (z i - z j) * coordDeriv i (coordDeriv j (regR t b)) z +
       b i * coordDeriv j (regR t b) z - b j * coordDeriv i (regR t b) z = 0 := by
-  exact Carlson.carlsonEulerPoissonOperator_regCarlsonRSlit t b hz i j
+  exact Carlson.carlsonEulerPoissonOperator_regCarlsonR t b hz i j
 
 /-- First quadratic transformation (6.9): all t, beta, with positive-real-part unsquared variables. -/
 theorem r_first_quadratic (t β x y : ℂ) (hx : 0 < x.re) (hy : 0 < y.re) :
@@ -191,18 +191,18 @@ theorem l_joint :
     AnalyticOnNhd ℂ (fun p : Option (ι ⊕ ι) → ℂ =>
       regL (p none) (fun i => p (some (.inl i))) (fun i => p (some (.inr i))))
       {p | ∀ i, p (some (.inr i)) ∈ slitPlane} := by
-  exact Carlson.analyticOnNhd_regCarlsonLSlit_joint
+  exact Carlson.analyticOnNhd_regCarlsonL_joint
 
 /-- L equals the native power-logarithm average on the hull-admissible slit domain. -/
 theorem l_native (t : ℂ) {b z : ι → ℂ} (hb : ∀ i, 0 < (b i).re)
     (hz : convexHull ℝ (Set.range z) ⊆ slitPlane) :
     regL t b z = average b z (fun w => w ^ t * log w) := by
-  exact Carlson.regCarlsonLSlit_eq_integral_of_convexHull t hb hz
+  exact Carlson.regCarlsonL_eq_integral_of_convexHull t hb hz
 
 /-- The exponent derivative of R exists and equals L for all complex parameters and slit nodes. -/
 theorem l_exponent_derivative (t : ℂ) (b : ι → ℂ) {z : ι → ℂ} (hz : ∀ i, z i ∈ slitPlane) :
     HasDerivAt (fun s => regR s b z) (regL t b z) t := by
-  exact Carlson.hasDerivAt_regCarlsonRSlit_L t b hz
+  exact Carlson.hasDerivAt_regCarlsonR_L t b hz
 
 end PalomarSnapshot
 end
