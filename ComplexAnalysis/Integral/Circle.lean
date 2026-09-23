@@ -12,7 +12,8 @@ public import Mathlib.MeasureTheory.Integral.CircleIntegral
 # Circle integrability of maxima and reflection invariance of circle averages
 
 The maximum of two real-valued functions integrable on a circle is integrable there, and circle
-averages are invariant under the antipodal reflection of the circle.
+averages are invariant under the antipodal reflection of the circle (a restatement of Mathlib's
+`circleAverage_neg_radius`).
 
 ## Main results
 
@@ -34,12 +35,12 @@ theorem CircleIntegrable.max {u v : ℂ → ℝ} {c : ℂ} {R : ℝ} (hu : Circl
 /-- The circle average is invariant under the antipodal reflection of the circle. -/
 theorem Real.circleAverage_reflect (u : ℂ → ℝ) (c : ℂ) (r : ℝ) :
     circleAverage (fun t => u (2 * c - t)) c r = circleAverage u c r := by
-  rw [circleAverage_eq_integral_add (f := u) π, circleAverage_def]
+  rw [← circleAverage_neg_radius (f := u), circleAverage_def, circleAverage_def]
   congr 1
   refine intervalIntegral.integral_congr fun θ _ => ?_
   simp only [circleMap]
   congr 1
-  rw [Complex.ofReal_add, add_mul, Complex.exp_add, Complex.exp_pi_mul_I]
+  push_cast
   ring
 
 end

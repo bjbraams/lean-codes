@@ -97,7 +97,7 @@ SCV.
 | `ComplexAnalysis.UnivalentDisk.Index`, `CauchyFormula` | Index one in the image disk and zero outside its closure; normalized Banach-valued Cauchy formula on the mapped contour |
 | `ComplexAnalysis.UnivalentDisk.Exhaustion` | Nested relatively compact image disks, with every compact subset eventually contained in one term; an injective holomorphic disk parametrization is required |
 | `ComplexAnalysis.PolygonIntegral` | Sum of integrals over oriented polygon edges; vanishing for exact functions and holomorphic functions on simply connected open sets |
-| `ComplexAnalysis.CauchyDerivatives`, `CauchyEstimates`, `CauchySeries` | Higher derivative circle formulas, compact derivative bounds, geometric Taylor-coefficient majorants, and one-variable Cauchy-series estimates |
+| `ComplexAnalysis.CauchyDerivatives`, `CauchyEstimates`, `CauchySeries` | Higher derivative circle formulas at any interior point (from Mathlib's kernel derivative), compact derivative bounds, geometric Taylor-coefficient majorants, and one-variable Cauchy-series estimates |
 | `ComplexAnalysis.LaurentSeries.Basic`, `Annulus`, `Geometry` | Banach-valued Laurent expansions, coefficient estimates and radius independence, annular Cauchy identities, and planar circular geometry |
 | `ComplexAnalysis.Residue`, `Residue.LogDeriv`, `Residue.PrincipalPart` | Residues at isolated holomorphic singularities, Laurent coefficient identification, germ invariance and linearity, higher-pole derivative formulas, logarithmic-derivative residues equal to meromorphic orders, and finite principal parts of meromorphic germs with their circle integrals |
 | `ComplexAnalysis.ArgumentPrinciple`, `Rouche` | The disk argument principle for meromorphic functions and preservation of holomorphic zero counts, with multiplicity, under strict boundary perturbations |
@@ -108,6 +108,35 @@ SCV.
 | `ComplexAnalysis.CauchyPompeiu`, `CauchyTransform` | Planar Cauchy–Pompeiu theory and the Cauchy transform with smooth parameters |
 | `ComplexAnalysis.RemovableSingularity`, `Injective`, `ZeroPersistence` | Removal across planar analytic zero sets and countable sets under continuity, nonvanishing derivatives of injective functions, and persistence of zeros |
 | `ComplexAnalysis.ParametricIntegral`, `RealUniqueness`, `LocallyUniform`, `Integral.Circle` | Compact integration in one complex parameter, uniqueness from real parameters, convergence of iterated derivatives, and circle-integration helpers |
+| `ComplexAnalysis.HolomorphicIntegral` | Fubini for interval integrals with continuous integrands, continuity and holomorphy of parametric interval integrals, and joint continuity of the divided slope of a holomorphic function |
+| `ComplexAnalysis.Cycle` | Cycles as finite families of closed curves with base points; integrals and indices summed over the family; integer, locally constant and eventually vanishing index; length-type integral bounds; concatenation and integer multiples of a closed curve |
+| `ComplexAnalysis.Cycle.Cauchy` | Homology form of Cauchy's theorem and Cauchy's formula for Banach-valued functions: for a `C¹` cycle whose index vanishes outside the open set (Dixon's proof) |
+| `ComplexAnalysis.Cycle.Residue` | The residue theorem for cycles homologous to zero, with finitely many isolated singularities of any type, by induction with small circles |
+| `ComplexAnalysis.Cycle.ArgumentPrinciple` | The argument principle for cycles: the logarithmic-derivative integral of a meromorphic function is `2πi` times the finite sum of the indices weighted by the orders; finiteness of codiscrete complements in compact sets |
+| `ComplexAnalysis.Cycle.Parallelogram` | The boundary of a parallelogram, as a `C^∞` closed `Path`, built by gluing its four edges with `Real.smoothTransition` (all derivatives flat at the joins, so no case analysis on differentiability at the corners); the analytic index of this loop proved to vanish at every point outside the closed parallelogram, by a straight-line nullhomotopy coning the loop toward a vertex, which stays inside the closed convex parallelogram and so automatically avoids every exterior point; the index equal to `1` on the open interior is not proved |
+| `ComplexAnalysis.Runge.Kernel`, `Runge.Cutoff`, `Runge.Basic` | Uniform approximation of Cauchy-type integrals by finite pole sums, smooth cutoffs and the Cauchy–Pompeiu representation of a holomorphic function on a compact set, and Runge's theorem with poles in `U \ K` |
+| `ComplexAnalysis.Runge.PolePushing`, `Runge.Theorem` | Uniform approximability on a compact set as a closure operation on a subalgebra of functions, moving poles by geometric series, pole pushing within connected sets, expansion of far poles in polynomials, Runge's theorem with poles in a prescribed set meeting every bounded component of the complement, and polynomial approximation when the complement is connected |
+| `ComplexAnalysis.Runge.OpenSet`, `MittagLeffler` | Hole-free compact exhaustions of an open set, Runge's theorem on open sets with locally uniformly convergent rational and polynomial approximants, and the Mittag-Leffler theorem with prescribed principal parts of any type on arbitrary open sets |
+| `ComplexAnalysis.InfiniteProduct`, `WeierstrassFactor`, `WeierstrassProduct` | Holomorphy, zeros and orders of locally uniformly convergent products `∏ (1 + f n)`, the Weierstrass elementary factors with their uniform estimate, the Weierstrass product with prescribed zeros tending to infinity, and the factorization of entire functions with prescribed zeros |
+| `ComplexAnalysis.DiscMobius`, `HolomorphicInverse`, `Cayley` | Disc Möbius transformations with their mapping properties, inverse and derivative; holomorphic inverses and open images of injective holomorphic maps; the Cayley transform between the upper half-plane and the disc |
+| `ComplexAnalysis.RiemannMapping`, `DiscAutomorphism` | The Riemann mapping theorem by the extremal argument (Montel, Hurwitz, open mapping, square root trick), the classification of disc and half-plane automorphisms by the Schwarz lemma, and uniqueness of the normalized Riemann map |
+| `ComplexAnalysis.Harnack`, `DirichletDisc` | Poisson kernel bounds, Harnack's inequality, the Poisson integral of continuous boundary data as a harmonic function with the prescribed boundary values, existence and uniqueness for the Dirichlet problem on a disc, and harmonic functions as subharmonic functions |
+| `ComplexAnalysis.LocalMapping`, `ResidueAtInfinity` | The local `m`-to-one mapping theorem with simple preimages by Rouché's theorem, the residue at infinity, the inversion change of variables in circle integrals, and the total residue theorem |
+| `ComplexAnalysis.AnalyticContinuation`, `NaturalBoundary` | Function elements along a continuous path, uniqueness of analytic continuation by a clopen argument, and the lacunary series `∑ z ^ (2 ^ n)` with the unit circle as natural boundary |
+| `ComplexAnalysis.CanonicalProduct`, `CanonicalProduct.Bounds`, `CanonicalProduct.GoodRadii` | Canonical products `∏ E_k (z / a i)` of fixed genus over a countable index family with summable inverse powers: holomorphy, zeros and orders; lower bounds `exp (-c ‖z‖ ^ s)` outside small discs around the zeros; arbitrarily large circles avoiding all those discs |
+| `ComplexAnalysis.Blaschke` | Blaschke factors as normalized disc Möbius maps with the estimate `‖1 - b_a z‖ ≤ (1 + ‖z‖) / (1 - ‖z‖) (1 - ‖a‖)`, Blaschke products over families with `∑ (1 - ‖a i‖) < ∞`: holomorphy on the disc, zeros with multiplicities, modulus at most one; the Blaschke condition for the zeros of a bounded holomorphic function on the disc via Jensen's formula, and the uniqueness theorem for zero sets with `∑ (1 - ‖a i‖) = ∞` |
+| `ComplexAnalysis.HarmonicLimit`, `Perron`, `Perron.Barrier` | Locally uniform limits of harmonic functions are harmonic (through the Poisson representation), Harnack's principle for monotone sequences; the maximum principle for subharmonic functions with boundary upper limits, Perron families and the Perron function, Perron's theorem that the upper envelope is harmonic; barriers, the boundary behaviour of the Perron function at a boundary point with a barrier, the exterior disc criterion, and the Dirichlet problem on bounded open sets with the exterior disc property |
+| `ComplexAnalysis.Parseval`, `DiscCauchyTransform` | Cauchy's coefficient formula on circles, Parseval's identity `∫₀^{2π} ‖f (r e^{iθ})‖² dθ = 2π ∑ ‖c n‖² r ^ (2n)` for Taylor coefficients, Gutzmer's inequality, the pairing formula for `conj f` against a continuous function, coefficient shifts under `dslope` and multiplication by `z ^ m`; the Cauchy transform of the indicator of a disc `∫_{‖w‖<ρ} (z - w)⁻¹ dA = π conj z` by polar coordinates |
+| `ComplexAnalysis.AreaTheorem`, `Koebe` | The index-area identity: the integral over a large disc of `∮ f' / (f - w)` equals `π ∮ conj (f z) f' z dz`; the index of the image circle for a map `z⁻¹ + h z` of class `Σ`; Gronwall's area theorem `∑ n ‖b n‖² ≤ 1`; Bieberbach's bound `‖a₂‖ ≤ 2` by the square-root transform and the Koebe one-quarter theorem by the Möbius transform |
+| `ComplexAnalysis.SchwarzPick` | The Schwarz–Pick lemma in distance form (contraction of the pseudo-hyperbolic distance `‖discMobius a z‖` under a holomorphic disc self-map) and derivative form (contraction of the hyperbolic metric `‖f' a‖ / (1 - ‖f a‖ ^ 2) ≤ 1 / (1 - ‖a‖ ^ 2)`), by reduction to Mathlib's Schwarz lemma at the origin via a disc Möbius change of variables |
+| `ComplexAnalysis.KoebeDistortion` | The second derivative of a disc Möbius transformation at `0`; the pre-Schwarzian bound `‖(1-‖z‖²) f''/f' - 2 conj z‖ ≤ 4` for injective holomorphic maps of the disc, by applying Bieberbach's theorem (`Koebe`) to the Koebe transform of `f` composed with a disc Möbius map sending `0` to `z`, needing no normalization of `f` at `0` |
+| `ComplexAnalysis.MobiusGeometry` | The Möbius transformation `mobiusMap a b c d z = (az+b)/(cz+d)` and the cross ratio `crossRatio z₁ z₂ z₃ z₄`, with invariance of the cross ratio under Möbius transformations; generalized circles `IsGenCircle A B C z` (`A‖z‖² + 2Re(conj B z) + C = 0`, covering both circles and lines) and their preservation under Möbius transformations, via decomposition into translations, scalings, and the inversion `z ↦ 1/z`; symmetric points `IsSymmetricWrt` via the cross-ratio criterion and their invariance under Möbius transformations |
+| `ComplexAnalysis.EllipticLiouville` | **Liouville's first theorem** for elliptic functions: an entire function doubly periodic with respect to a lattice (Mathlib's `PeriodPair`) is constant, by boundedness on the compact fundamental parallelogram (reducing any point mod the lattice into it via the period basis and integer floors) and the classical Liouville theorem for bounded entire functions |
+| `ComplexAnalysis.KoebeGrowth` | The Koebe distortion theorem `(1-‖z‖)/(1+‖z‖)³ ≤ ‖f' z‖ ≤ (1+‖z‖)/(1-‖z‖)³` for injective holomorphic maps of the disc, and the growth theorem's upper bound `‖f z‖ ≤ ‖z‖/(1-‖z‖)²`; the proof integrates the pre-Schwarzian bound along a ray through a holomorphic logarithm of `f'`, evaluated via explicit antiderivatives |
+| `ComplexAnalysis.GreenFunction` | Existence of the Green function `G(·, w)` of a bounded open set with the exterior disc property, as `G z = h z - log ‖z - w‖` for `h` the harmonic solution of the Dirichlet problem with boundary data `log ‖ζ - w‖`; vanishing at the boundary and nonnegativity on `U \ {w}` via the maximum principle for `-G` on the punctured domain |
+| `ComplexAnalysis.ThreeCircles` | Hadamard's three-circle theorem: the maximum modulus of a nonvanishing holomorphic function on a punctured disc, restricted to a circle, is a log-convex function of the radius, by the maximum principle for the harmonic function `log ‖f‖ - a log ‖z‖` on the annulus between two circles |
+| `ComplexAnalysis.RieszFactorization` | The multiplicity-weighted Blaschke condition (zeros of a bounded holomorphic function on the disc, weighted by multiplicity, satisfy the Blaschke sum condition); division by a matching-order holomorphic function on the disc; the Riesz factorization theorem `f = z ^ m * B * g` with `B` the Blaschke product of the zeros of `f` counted with multiplicity and `g` holomorphic, nonvanishing, and bounded on the disc by the same bound as `f` — the last by comparing `f` to finite Blaschke prefixes on circles of radius `r → 1` (maximum modulus) and passing to the limit of the full product |
+| `ComplexAnalysis.FiniteOrder`, `Hadamard` | Entire functions of order at most `ρ`, Jensen's zero-counting bound, identification of the counting function with the divisor degree, summability of `‖a i‖ ^ (-s)` for `s > ρ` by dyadic shells, division by the zero at the origin, and Hadamard's factorization theorem in a form with a given enumeration of the zeros and in an intrinsic form |
 
 SCV retains the multivariable Laurent theory, Hartogs expansions, plurisubharmonicity,
 and holomorphic dependence on several parameters. In particular,
@@ -141,11 +170,33 @@ exhaustions still need geometric construction.
 `UnivalentDisk` supplies separation, orientation and Cauchy normalization for contours
 obtained by injective holomorphic maps on a neighborhood of a closed disk. It also
 constructs a relatively compact exhaustion of an injective holomorphic open-disk image,
-without assuming extension to the limiting boundary. The disk parametrization remains
-an explicit hypothesis: its existence for arbitrary simply connected proper planar
-domains is not supplied by the pinned Mathlib's partial Riemann mapping development.
-General Jordan separation and a general-domain contour construction or exhaustion
-remain unfinished for the nonconvex Carlson/Dirichlet construction.
+without assuming extension to the limiting boundary. The disk parametrization is still
+an explicit hypothesis there, although `ComplexAnalysis.RiemannMapping` now supplies it for
+every simply connected proper planar domain; transporting the exhaustion through the
+Riemann map has not been carried out. General Jordan separation and a general-domain
+contour construction remain unfinished for the nonconvex Carlson/Dirichlet construction.
+
+`Cycle` and its submodules supply the homology form of the Cauchy theory: for a finite family
+of closed `C¹` curves whose total index vanishes at every point outside an open set `U`,
+Cauchy's theorem and formula, the residue theorem and the argument principle hold on `U`
+without any simple connectivity assumption. `Runge` proves Runge's approximation theorem by
+the Cauchy–Pompeiu representation rather than by a contour around the compact set, then
+passes to open sets by hole-free compact exhaustions, from which `MittagLeffler` follows.
+`InfiniteProduct` and the `Weierstrass*` modules give the Weierstrass factorization of entire
+functions, and `RiemannMapping` with `DiscAutomorphism` and `Cayley` give the Riemann mapping
+theorem and the automorphism groups of the disc and the half-plane. `Harnack` and
+`DirichletDisc` build on Mathlib's Poisson representation of harmonic functions,
+`LocalMapping` and `ResidueAtInfinity` on the Rouché and cycle residue theorems, and
+`AnalyticContinuation` and `NaturalBoundary` on the identity theorem. `FiniteOrder`,
+`CanonicalProduct.*` and `Hadamard` combine Mathlib's Jensen formula and Borel–Carathéodory
+theorem with the elementary factors to prove Hadamard's factorization theorem. `RieszFactorization`
+extends `Blaschke` to the full factorization of a bounded holomorphic function by its zero set.
+`HarmonicLimit`,
+`Perron` and `Perron.Barrier` extend `DirichletDisc` and the subharmonic theory to Perron's
+method for the Dirichlet problem on general bounded open sets. `Parseval` and
+`DiscCauchyTransform` supply the analytic and measure-theoretic identities behind `AreaTheorem`,
+and `Koebe` derives Bieberbach's coefficient bound and the one-quarter theorem from the area
+theorem.
 
 ## Several complex variables support modules
 

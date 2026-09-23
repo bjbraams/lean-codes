@@ -62,6 +62,54 @@ public import ComplexAnalysis.Subharmonic.SmoothCriterion
 public import ComplexAnalysis.Subharmonic.Submean
 public import ComplexAnalysis.UnivalentDisk
 public import ComplexAnalysis.ZeroPersistence
+public import ComplexAnalysis.HolomorphicIntegral
+public import ComplexAnalysis.Cycle
+public import ComplexAnalysis.Cycle.Cauchy
+public import ComplexAnalysis.Cycle.Residue
+public import ComplexAnalysis.Cycle.ArgumentPrinciple
+public import ComplexAnalysis.Cycle.Parallelogram
+public import ComplexAnalysis.Runge.Kernel
+public import ComplexAnalysis.Runge.Cutoff
+public import ComplexAnalysis.Runge.Basic
+public import ComplexAnalysis.Runge.PolePushing
+public import ComplexAnalysis.Runge.Theorem
+public import ComplexAnalysis.Runge.OpenSet
+public import ComplexAnalysis.MittagLeffler
+public import ComplexAnalysis.InfiniteProduct
+public import ComplexAnalysis.WeierstrassFactor
+public import ComplexAnalysis.WeierstrassProduct
+public import ComplexAnalysis.DiscMobius
+public import ComplexAnalysis.HolomorphicInverse
+public import ComplexAnalysis.RiemannMapping
+public import ComplexAnalysis.DiscAutomorphism
+public import ComplexAnalysis.Cayley
+public import ComplexAnalysis.Harnack
+public import ComplexAnalysis.DirichletDisc
+public import ComplexAnalysis.LocalMapping
+public import ComplexAnalysis.ResidueAtInfinity
+public import ComplexAnalysis.AnalyticContinuation
+public import ComplexAnalysis.NaturalBoundary
+public import ComplexAnalysis.CanonicalProduct
+public import ComplexAnalysis.CanonicalProduct.Bounds
+public import ComplexAnalysis.CanonicalProduct.GoodRadii
+public import ComplexAnalysis.FiniteOrder
+public import ComplexAnalysis.Hadamard
+public import ComplexAnalysis.Blaschke
+public import ComplexAnalysis.HarmonicLimit
+public import ComplexAnalysis.Perron
+public import ComplexAnalysis.Perron.Barrier
+public import ComplexAnalysis.Parseval
+public import ComplexAnalysis.DiscCauchyTransform
+public import ComplexAnalysis.AreaTheorem
+public import ComplexAnalysis.Koebe
+public import ComplexAnalysis.RieszFactorization
+public import ComplexAnalysis.SchwarzPick
+public import ComplexAnalysis.ThreeCircles
+public import ComplexAnalysis.GreenFunction
+public import ComplexAnalysis.KoebeDistortion
+public import ComplexAnalysis.KoebeGrowth
+public import ComplexAnalysis.MobiusGeometry
+public import ComplexAnalysis.EllipticLiouville
 
 /-!
 # Single-variable complex analysis
@@ -124,8 +172,84 @@ Divided differences and repeated integrals also use the general `StdSimplexMeasu
 * `RemovableSingularity`, `Injective`, `ZeroPersistence`: planar removal, injectivity, and zeros.
 * `ParametricIntegral`, `RealUniqueness`, `LocallyUniform`, `Integral.Circle`: one-variable
   integration, uniqueness, convergence, and circle helpers.
+* `HolomorphicIntegral`: holomorphy of parametric interval integrals with jointly continuous
+  integrands, Fubini for interval integrals, and joint continuity of the divided slope.
+* `Cycle`, `Cycle.Cauchy`, `Cycle.Residue`, `Cycle.ArgumentPrinciple`: cycles as finite
+  families of closed `C¹` curves, their integrals and indices, and the homology forms of
+  Cauchy's theorem and formula (Dixon's proof), of the residue theorem, and of the argument
+  principle for cycles whose index vanishes outside the domain.
+* `Cycle.Parallelogram`: the boundary of a parallelogram as a single `C^∞` closed curve
+  (gluing the four edges with `Real.smoothTransition`, flat at the corners), with its index
+  shown to vanish outside the closed parallelogram by a convexity-coning nullhomotopy; the
+  index equal to `1` on the open interior is not established.
+* `Runge.Kernel`, `Runge.Cutoff`, `Runge.Basic`, `Runge.PolePushing`, `Runge.Theorem`:
+  Runge's approximation theorem, through the Cauchy–Pompeiu representation with a smooth
+  cutoff, uniform approximation of Cauchy-type integrals by finite pole sums, and pole pushing
+  in the components of the complement; polynomial approximation when the complement is
+  connected.
+* `Runge.OpenSet`, `MittagLeffler`: Runge's theorem on open sets through hole-free compact
+  exhaustions, with locally uniformly convergent sequences of approximants, and the
+  Mittag-Leffler theorem on arbitrary open sets.
+* `InfiniteProduct`, `WeierstrassFactor`, `WeierstrassProduct`: holomorphy, zeros, and orders of
+  locally uniformly convergent infinite products, the elementary factors with their uniform
+  estimate, the Weierstrass product with prescribed zeros, and the factorization of entire
+  functions.
+* `DiscMobius`, `HolomorphicInverse`, `RiemannMapping`, `DiscAutomorphism`, `Cayley`: disc
+  Möbius transformations, holomorphic inverses of injective holomorphic maps, the Riemann
+  mapping theorem by the extremal argument, the classification of disc and half-plane
+  automorphisms, and uniqueness of the normalized Riemann map.
+* `Harnack`, `DirichletDisc`: Poisson kernel bounds and Harnack's inequality, the Poisson
+  integral of continuous boundary data as the solution of the Dirichlet problem on a disc,
+  harmonic functions as subharmonic functions, and uniqueness by the maximum principle.
+* `LocalMapping`, `ResidueAtInfinity`: the local `m`-to-one mapping theorem by Rouché, the
+  residue at infinity with the inversion change of variables, and the total residue theorem.
+* `AnalyticContinuation`, `NaturalBoundary`: function elements along a path, uniqueness of
+  analytic continuation by the clopen argument, and the lacunary series `∑ z ^ (2 ^ n)` with
+  the unit circle as natural boundary.
+* `CanonicalProduct`, `CanonicalProduct.Bounds`, `CanonicalProduct.GoodRadii`, `FiniteOrder`,
+  `Hadamard`: canonical products of finite genus over a countable index type with their
+  zeros, lower bounds off small discs around the zeros and good radii; entire functions of
+  finite order, Jensen's zero-counting bound and the summability of inverse powers of the
+  zeros; Hadamard's factorization theorem.
+* `Blaschke`: Blaschke factors and products on the disc with their zeros and the bound by
+  one, the Blaschke condition for the zeros of bounded holomorphic functions from Jensen's
+  formula, and the resulting uniqueness theorem.
+* `RieszFactorization`: the multiplicity-weighted Blaschke condition, division by a
+  matching-order function on the disc, and the Riesz factorization theorem `f = z ^ m * B * g`
+  with `B` the Blaschke product of the zeros of `f` and `g` holomorphic and nonvanishing.
+* `SchwarzPick`: the Schwarz–Pick lemma in distance and derivative form, contracting the
+  pseudo-hyperbolic distance and the hyperbolic metric of the disc.
+* `ThreeCircles`: Hadamard's three-circle theorem, that the maximum modulus of a nonvanishing
+  holomorphic function on an annulus is a log-convex function of the radius, by the maximum
+  principle for the harmonic function `log ‖f‖ - a log ‖z‖`.
+* `GreenFunction`: existence and nonnegativity of the Green function of a bounded open set with
+  the exterior disc property, as the harmonic compensator for the logarithmic singularity at a
+  pole.
+* `KoebeDistortion`: the pre-Schwarzian bound for injective holomorphic maps of the disc, by
+  Bieberbach's theorem applied to the Koebe transform at each point.
+* `KoebeGrowth`: the Koebe distortion theorem (both bounds on `‖f' z‖`) and the growth theorem's
+  upper bound on `‖f z‖`, by integrating the pre-Schwarzian bound along a ray through a
+  holomorphic logarithm of `f'`; the growth theorem's lower bound is not derived.
+* `MobiusGeometry`: invariance of the cross ratio under Möbius transformations, and generalized
+  circles (circles and lines) mapping to generalized circles, by decomposing a Möbius map into
+  translations, scalings, and inversion.
+* `EllipticLiouville`: Liouville's first theorem for elliptic functions, that an entire
+  function doubly periodic with respect to a lattice (`PeriodPair`) is constant, by showing
+  it is bounded on the compact fundamental parallelogram and applying the classical Liouville
+  theorem for bounded entire functions.
+* `HarmonicLimit`, `Perron`, `Perron.Barrier`: locally uniform limits of harmonic functions
+  are harmonic, Harnack's principle for monotone sequences, the maximum principle for
+  subharmonic functions with boundary upper limits, Perron's method (the upper envelope of
+  the Perron family is harmonic), barriers and the boundary behaviour of the Perron
+  solution, the exterior disc criterion, and the solution of the Dirichlet problem on
+  bounded open sets with the exterior disc property.
+* `Parseval`, `DiscCauchyTransform`, `AreaTheorem`, `Koebe`: Cauchy's coefficient formula and
+  Parseval's identity for Taylor coefficients on circles with Gutzmer's inequality, the Cauchy
+  transform of a disc by polar coordinates, the index-area identity and Gronwall's area theorem
+  for the class `Σ`, Bieberbach's bound `‖a₂‖ ≤ 2` and the Koebe one-quarter theorem.
 
-General Jordan separation and normalization beyond these analytic disk contours remain open.
-Exhaustion of arbitrary simply connected planar domains still requires a construction of
-suitable contours or an injective holomorphic disk parametrization.
+The index of merely continuous closed curves and the Jordan curve theorem remain open. General
+Jordan separation and normalization beyond these analytic disk contours remain open. The
+Riemann mapping theorem now supplies an injective holomorphic disk parametrization of every
+simply connected proper planar domain; transporting contours through it is not yet done.
 -/

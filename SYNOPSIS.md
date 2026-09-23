@@ -21,7 +21,7 @@ after the libraries it imports. The nine libraries and their dependencies are
 | `Analysis` | Mathlib | 19 files |
 | `Pochhammer` | Mathlib | 10 files |
 | `StdSimplexMeasure` | `Pochhammer` | 32 files |
-| `ComplexAnalysis` | `Analysis`, `Topology` | 60 files |
+| `ComplexAnalysis` | `Analysis`, `Topology` | 108 files |
 | `SeveralComplexVariables` | `Analysis`, `Topology`, `ComplexAnalysis` | 133 files |
 | `Dirichlet` | all of the above except `Algebra` | 50 files |
 | `Carlson` | all of the above | 97 files |
@@ -379,9 +379,10 @@ Banach-valued functions along them, with explicit integrability hypotheses.
 **Cauchy's derivative formula at any interior point.** If $f$ is holomorphic on $B(c, R)$ and
 continuous on the closed disc, then for every $w \in B(c, R)$ and $k \ge 0$,
 $$f^{(k)}(w) = \frac{k!}{2\pi i}\oint_{|\zeta - c| = R} \frac{f(\zeta)}{(\zeta - w)^{k+1}}\,d\zeta,$$
-Banach-valued; Mathlib states this only at the center. Differentiating the contour kernel in $w$
-raises its order. Uniform derivative bounds on closed thickenings of compact subsets, geometric
-majorants for Taylor coefficients, and bounds for the Cauchy power series.
+Banach-valued; Mathlib states this only at the center, and supplies the derivative of the
+contour kernel in $w$, from which the formula follows by induction. Uniform derivative bounds
+on closed thickenings of compact subsets, geometric majorants for Taylor coefficients, and
+bounds for the Cauchy power series.
 
 **Laurent series (new).** For $f$ holomorphic on an annulus $r_1 < |z - c| < r_2$ the circle
 coefficients $a_k(r) = \frac{1}{2\pi i}\oint_{|z-c|=r} f(z)(z-c)^{-k-1}dz$ satisfy Cauchy bounds,
@@ -409,6 +410,367 @@ integer-valued function along the segment from $f$ to $g$). Hurwitz: uniform app
 closed disc with zero-free boundary eventually preserves the zero count; a locally uniform limit
 of zero-free holomorphic functions on a connected open set is zero-free or identically zero;
 limits of injective functions are constant or injective.
+
+**Cycles and the homology form of Cauchy's theorem (new).** A *cycle* $\Gamma$ is a finite
+family of closed $C^1$ curves; its integral and its index $\operatorname{ind}_\Gamma(w)$ are the
+sums over the family. The index is an integer off the cycle, locally constant there, and zero
+far away; cycles can be concatenated and a closed curve can be taken with an integer
+multiplicity. Let $U$ be open and $\Gamma$ a cycle in $U$ with $\operatorname{ind}_\Gamma(w) = 0$
+for every $w \notin U$ (*homologous to zero in $U$*). Then for every Banach-valued $f$
+holomorphic on $U$ and every $z \in U$ off the cycle,
+$$\frac{1}{2\pi i}\int_\Gamma \frac{f(w)}{w - z}\,dw = \operatorname{ind}_\Gamma(z)\, f(z),
+\qquad \int_\Gamma f = 0,$$
+by Dixon's proof: the integral of the divided slope $(f(w) - f(z))/(w - z)$ over $\Gamma$ is
+holomorphic in $z$ on $U$ (holomorphy of parametric integrals with jointly continuous
+integrands, proved through Cauchy's formula on discs and Fubini), agrees off the cycle with
+the Cauchy integral where the index vanishes, and the two pieces glue to a bounded entire
+function vanishing at infinity. No simple connectivity is assumed. Consequences: the **residue
+theorem for cycles**, $\int_\Gamma f = 2\pi i \sum_{a \in S} \operatorname{ind}_\Gamma(a)
+\operatorname{res}_a f$ for $f$ holomorphic on $U$ minus a finite set $S$ of isolated
+singularities of any type avoided by the cycle (proved by induction on $S$, subtracting
+$\operatorname{ind}_\Gamma(a)$ copies of a small circle), and the **argument principle for
+cycles**, $\frac{1}{2\pi i}\int_\Gamma f'/f = \sum_a \operatorname{ind}_\Gamma(a)
+\operatorname{ord}_a f$ for $f$ meromorphic on $U$, analytic and nonvanishing on the cycle;
+the sum is finite because the index vanishes outside a compact subset of $U$, on which the
+divisor has finite support (a set in the codiscrete filter of $U$ has finite complement in every
+compact subset). The index of merely continuous closed curves and the Jordan curve theorem are
+not included.
+
+**Runge's approximation theorem (new).** Let $K$ be compact and $f$ holomorphic on an open
+neighborhood $U$ of $K$. First, $f$ is a uniform limit on $K$ of finite sums of simple poles
+$\sum_i a_i/(c_i - z)$ with $c_i \in U \setminus K$: with a smooth cutoff $\varphi$ equal to $1$
+near $K$ and compactly supported in $U$ (from Mathlib's smooth Urysohn lemma), the
+Cauchy–Pompeiu identity gives $f(z) = -\pi^{-1}\int_\Omega \frac{f(w)\,\partial\varphi/\partial\bar
+w}{w - z}\,dA(w)$ on $K$ with $\Omega = \operatorname{supp}\varphi \setminus \{\varphi = 1\}^\circ$
+compact in $U \setminus K$, and a Cauchy-type integral with bounded density over a compact set
+disjoint from $K$ is approximated uniformly on $K$ by finite pole sums (Riemann sums over a
+disjoint refinement of a finite cover by small balls, controlled by the uniform continuity of
+the kernel). Second, *pole pushing*: uniform approximability on $K$ by elements of a subalgebra
+of functions is closed under sums, products and uniform limits; if $(a - z)^{-1}$ is
+approximable then so is $(a' - z)^{-1}$ for $a'$ within a fixed fraction of the distance from
+$a$ to $K$ (geometric series), hence for all $a'$ in the connected component of $a$ in the
+complement of $K$; and poles outside a disc containing $K$ are approximable by polynomials.
+**Runge's theorem**: if $A \subseteq \mathbb C \setminus K$ meets every bounded component of
+$\mathbb C \setminus K$, then $f$ is uniformly approximable on $K$ by the algebra generated by
+$z$ and the poles $(a - z)^{-1}$, $a \in A$; if $\mathbb C \setminus K$ is connected, by
+polynomials.
+
+**Runge on open sets and Mittag-Leffler (new).** For an open set $U$ let $K_n$ be the
+points of $U$ within distance $n$ of the origin and at distance at least $1/(n+1)$ from
+$\mathbb C \setminus U$. These compact sets exhaust $U$, $K_n \subseteq K_{n+1}^\circ$, and every
+bounded component of $\mathbb C \setminus K_n$ meets $\mathbb C \setminus U$; so Runge's theorem
+gives, for $f$ holomorphic on $U$ and $A$ meeting every component of $\mathbb C \setminus U$ (the
+complement of $U$ itself when nothing better is known), a sequence in the algebra generated by
+$z$ and the poles $(a - z)^{-1}$, $a \in A$, converging to $f$ locally uniformly on $U$;
+polynomials suffice when $\mathbb C \setminus U$ has no bounded component. **Mittag-Leffler**:
+for a set $S$ discrete in $U$ and functions $P_a$ holomorphic on $\mathbb C \setminus \{a\}$,
+$a \in S$, there is $f$ holomorphic on $U \setminus S$ with $f - P_a$ holomorphic near each
+$a$; the sum $\sum_a (P_a - r_a)$ converges after subtracting, for the finitely many $a$ in
+each $K_n \setminus K_{n-1}$, a Runge correction $r_a$ with poles off $U$ that approximates
+$P_a$ on $K_{n-1}$ to within $2^{-n}$.
+
+**Infinite products and Weierstrass factorization (new).** If the $f_n$ are holomorphic on
+$U$ and $\sum_n \sup_K |f_n| < \infty$ for every compact $K \subseteq U$, then $\prod_n (1 +
+f_n)$ converges locally uniformly (Mathlib), is holomorphic, vanishes exactly where some
+factor vanishes, and its order of vanishing at a point is the sum of the orders of the
+finitely many factors vanishing there. The elementary factors $E_p(z) = (1 - z)\exp(z + z^2/2
++ \dots + z^p/p)$ satisfy $|1 - E_p(z)| \le 4|z|^{p+1}$ for $|z| \le 1/2$, from $E_p(z) =
+\exp(-\sum_{k > p} z^k/k)$; hence for $a_n \ne 0$ with $|a_n| \to \infty$ the product $P(z) =
+\prod_n E_n(z/a_n)$ is entire with zeros exactly the $a_n$, the order at $w$ being the number
+of $n$ with $a_n = w$. **Factorization**: an entire $f$ with $f(0) \ne 0$ whose orders of
+vanishing are those of $P$ is $e^g P$ with $g$ entire, since $f/P$ extends to a nonvanishing
+entire function (removal across the zero set, by the local normal forms $f = (z - w)^m f_1$,
+$P = (z - w)^m P_1$), which is an exponential because $H'/H$ has an entire primitive.
+
+**Möbius transformations, the Riemann mapping theorem (new).** The disc Möbius map
+$\varphi_a(z) = (z - a)/(1 - \bar a z)$, $|a| < 1$, preserves the open disc and the unit circle,
+has inverse $\varphi_{-a}$, and has derivative $(1 - |a|^2)/(1 - \bar a z)^2$, from the identity
+$|1 - \bar a z|^2 - |z - a|^2 = (1 - |a|^2)(1 - |z|^2)$. An injective holomorphic function on
+an open set is an open map with holomorphic inverse (open mapping theorem and nonvanishing
+derivative). **Automorphisms of the disc**: a holomorphic bijection of the disc with
+holomorphic inverse (equivalently, an injective holomorphic map of the disc onto itself) is
+$z \mapsto c\,\varphi_a(z)$ with $|c| = 1$, by the Schwarz lemma and its equality case
+(Mathlib) applied at a fixed point after conjugating by $\varphi_a$; the automorphisms of the
+upper half-plane are the conjugates by the Cayley transform $z \mapsto (z - i)/(z + i)$.
+**Riemann mapping theorem**: for $U \ne \mathbb C$ open and simply connected and $z_0 \in U$
+there is an injective holomorphic $f$ with $f(U)$ the unit disc, $f(z_0) = 0$ and $f'(z_0) >
+0$, and it is unique. The family of injective holomorphic maps $U \to \mathbb D$ with $z_0
+\mapsto 0$ is nonempty (a holomorphic square root $h$ of $z - a$, $a \notin U$, has open
+image disjoint from $-h(U)$, and $(\varepsilon/2)/(h + h(z_0))$ maps into the disc); $|f'(z_0)|$
+is bounded by the Cauchy estimate; a maximizing sequence has a locally uniform limit $g$ by
+Montel, injective by Hurwitz, into the open disc by the open mapping theorem; and if $g$
+omitted $w \in \mathbb D$, then with $h^2 = \varphi_w \circ g$ and $c = h(z_0)$ the map
+$\varphi_c \circ h$ would have $|(\varphi_c \circ h)'(z_0)| = |g'(z_0)|\,(1 + |w|)/(2\sqrt{|w|}) >
+|g'(z_0)|$. Uniqueness follows from the classification of disc automorphisms fixing $0$.
+
+**Harnack's inequality and the Dirichlet problem on a disc (new).** Mathlib's Poisson kernel
+$P_w(\zeta) = (R^2 - |w - c|^2)/|\zeta - w|^2$ on the circle $|\zeta - c| = R$ is nonnegative,
+continuous, has circle average $1$, and satisfies $(R - r)/(R + r) \le P_w \le (R + r)/(R - r)$
+with $r = |w - c|$. For $u \ge 0$ harmonic on the disc and continuous on its closure, Mathlib's
+Poisson representation $u(w) = \operatorname{avg}(P_w u)$ and the mean value $u(c) =
+\operatorname{avg} u$ give **Harnack's inequality** $\frac{R - r}{R + r} u(c) \le u(w) \le
+\frac{R + r}{R - r} u(c)$. For continuous boundary data $g$ the Poisson integral $w \mapsto
+\operatorname{avg}(P_w g)$ is harmonic on the disc (the real part of the Herglotz–Riesz integral,
+analytic in $w$ by Mathlib) and tends to $g(\zeta_0)$ as $w \to \zeta_0$ from inside: split the
+circle at distance $\delta$ from $\zeta_0$, use the modulus of continuity of $g$ on the near
+arc and the bound $P_w \le (R^2 - |w - c|^2)/(\delta/2)^2 \le 2R|w - \zeta_0|/(\delta/2)^2$ on
+the far arc. Hence the **Dirichlet problem** on a disc has a solution continuous on the closed
+disc, unique by the maximum principle for subharmonic functions (harmonic functions are
+subharmonic by the mean value property).
+
+**Local mapping and the residue at infinity (new).** If $f - f(a)$ vanishes to finite order
+$m$ at $a$, then $f - f(a)$ and $f'$ do not vanish on a punctured neighborhood of $a$ (the order
+of $f'$ at $a$ is $m - 1$). For small $\varepsilon$ and $\delta$ the minimum of $|f - f(a)|$ on
+the circle $|z - a| = \varepsilon$, every $w$ with $0 < |w - f(a)| < \delta$ is taken exactly $m$
+times in the disc, each time with $f' \ne 0$: Rouché gives the divisor degrees of $f - w$ and
+$f - f(a)$ on the closed disc to be equal, the latter is $m$, and the zeros of $f - w$ are
+simple. The **residue at infinity** is $\operatorname{res}_\infty f = -\operatorname{res}_0
+\bigl(w^{-2} f(1/w)\bigr)$; the substitution $z = 1/w$ turns the circle integral of $f$ over
+$|z| = R$ into that of $w^{-2} f(1/w)$ over $|w| = 1/R$ (reparametrize $\varphi \mapsto
+-\varphi$ and use periodicity), so the integral over a large circle equals $-2\pi i
+\operatorname{res}_\infty f$, and the residue theorem for the circle as a cycle gives the
+**total residue theorem** $\sum_{a \in S} \operatorname{res}_a f + \operatorname{res}_\infty f
+= 0$ for $f$ holomorphic off a finite set $S$.
+
+**Analytic continuation along paths and a natural boundary (new).** A continuation along a
+continuous path $\gamma\colon [0,1] \to \mathbb C$ is a family of function elements
+$(f_t, D(\gamma(t), r_t))$ with $f_t$ analytic on the disc, such that for $s$ near $t$ the point
+$\gamma(s)$ lies in the disc of $t$ and $f_s = f_t$ near $\gamma(s)$. Two continuations along
+the same path with the same germ at $\gamma(0)$ have the same germ at every $\gamma(t)$: the
+set of parameters where the germs agree is open and closed by the identity theorem on the
+discs, and $[0,1]$ is connected. The lacunary series $f(z) = \sum_n z^{2^n}$ is holomorphic on
+the unit disc; for a $2^k$-th root of unity $\zeta$ and $0 \le r < 1$ one has $\operatorname{Re}
+f(r\zeta) \ge N r^{2^{N+k}} - k$ for every $N$, since the terms with $n \ge k$ are the positive
+reals $r^{2^n}$; as these roots of unity are dense in the circle, $f$ is unbounded near every
+boundary point, and no continuous extension across any point of the circle exists (a
+**natural boundary**).
+
+**Entire functions of finite order and Hadamard's factorization (new).** An entire function
+$f$ has order at most $\rho$ if $|f(z)| \le A e^{B|z|^\rho}$. For $f(0) \ne 0$, Mathlib's Jensen
+inequality bounds the number of zeros in $|z| \le r$ by $(\log(A e^{B(2r)^\rho}) -
+\log|f(0)|)/\log 2 \le C r^\rho$; if $a_i$ ($i$ in a countable index set) lists the zeros with
+multiplicity, this counting function equals the divisor degree on the closed disc, and
+grouping the zeros in dyadic shells $2^j \le |a_i| < 2^{j+1}$ gives $\sum_i |a_i|^{-s} < \infty$ for
+every $s > \rho$. The canonical product of genus $k$, $P(z) = \prod_i E_k(z/a_i)$, converges for
+$\sum_i |a_i|^{-(k+1)} < \infty$, is entire with zeros exactly the $a_i$ (orders equal to
+multiplicities), and satisfies, from the elementary bounds $|E_k(w)| \ge e^{-2|w|^{k+1}}$ for
+$|w| \le 1/2$ and $|E_k(w)| \ge |1 - w| e^{-2^k k |w|^k}$ for $|w| \ge 1/2$, the lower bound
+$|P(z)| \ge e^{-c|z|^s}$ for $|z| \ge 1$ outside the discs $|z - a_i| < |a_i|^{-(k+1)}$, when
+$k \le s < k+1$ and $\sum |a_i|^{-\rho'} < \infty$ for some $\rho' < s$. Since the radii met by
+those discs have finite total length, there are arbitrarily large circles $|z| = r$ avoiding
+them all. **Hadamard's theorem**: if $f$ has order at most $\rho < k+1$, a zero of order $m$ at
+$0$ and nonzero zeros $a_i$, then $\sum |a_i|^{-(k+1)} < \infty$ and $f(z) = e^{Q(z)} z^m P(z)$
+with $Q$ a polynomial of degree at most $k$: the quotient $f/(z^m P)$ is $e^{G}$ with $G$
+entire; on good circles $|z| = r$ the two bounds give $\operatorname{Re} G(z) \le C r^s$, which
+extends to the disc by the maximum principle; the Borel–Carathéodory theorem (Mathlib) then
+bounds $|G|$ on $|z| = r/2$, and
+the Cauchy estimates force the Taylor coefficients of $G$ of index above $s$ to vanish along
+$r \to \infty$. The intrinsic form constructs the enumeration of the zeros over the countable
+index type $\sum_{w} \{1, \dots, \operatorname{ord}_w f\}$.
+
+**Blaschke products and the Blaschke condition (new).** For $0 < |a| < 1$ the Blaschke factor
+$b_a(z) = \frac{|a|}{a}\,\frac{a - z}{1 - \bar a z}$ is a disc Möbius map with $b_a(0) = |a|$,
+$|b_a| \le 1$ on the closed disc, a simple zero at $a$, and $|1 - b_a(z)| \le \frac{1 + |z|}{1 -
+|z|}(1 - |a|)$ from the identity $1 - b_a(z) = (1 - |a|)(a + |a| z)/(a(1 - \bar a z))$. For a
+family $a_i$ of nonzero points of the disc with $\sum (1 - |a_i|) < \infty$ the Blaschke product
+$\prod_i b_{a_i}$ therefore converges locally uniformly on the disc (the general product theory
+of Part I.6), is holomorphic with $|B| \le 1$, and vanishes exactly at the $a_i$ with the
+multiplicities of the family. Conversely (**F. Riesz**), if $f$ is bounded and holomorphic on
+the disc with $f(0) \ne 0$, Jensen's formula on $|z| \le R < 1$ gives $\sum_{|w| \le R}
+\operatorname{ord}_w f \cdot \log(R/|w|) \le \log M - \log|f(0)|$; letting $R \to 1$ and using
+$1 - |w| \le \log(1/|w|)$ shows $\sum_w (1 - |w|) < \infty$ over the zeros. Dividing out $z^m$
+handles $f(0) = 0$, and a bounded holomorphic function vanishing on a family with $\sum (1 -
+|a_i|) = \infty$ is identically zero.
+
+**Harnack's principle and Perron's method (new).** A locally uniform limit of harmonic
+functions is harmonic: on each closed disc the Poisson representation passes to the limit by
+uniform convergence of circle averages. A monotone sequence of harmonic functions on a connected
+open set that is bounded at one point converges locally uniformly to a harmonic function
+(**Harnack's principle**): Harnack's inequality on each disc transfers the bound and the
+Cauchy property from the center to the disc, and the set of points where the sequence is
+bounded is clopen. For a bounded open set $U$ and bounded boundary data $g$ on $\partial U$,
+the **Perron family** consists of the continuous subharmonic $v$ on $U$ with
+$\limsup_{z \to \zeta} v(z) \le g(\zeta)$ at every boundary point, and the **Perron function** is
+$u = \sup v$. The maximum principle for subharmonic functions with boundary upper limits bounds
+every member by $\sup g$. The family is closed under maxima and under **Poisson modification**
+(replacing $v$ on a closed disc in $U$ by the Poisson extension of its boundary values,
+which is subharmonic and dominates $v$). Fixing a disc, a sequence of members tending to $u$
+at the center is made increasing and Poisson-modified; Harnack's principle gives a harmonic
+limit $h \le u$ with $h = u$ at the center, and comparison with a second sequence (built from
+any point of the disc) shows $h = u$ on the disc, so $u$ is harmonic (**Perron's theorem**).
+A **barrier** at $\zeta \in \partial U$ is a continuous subharmonic $\beta < 0$ on $U$ with
+$\beta \to 0$ at $\zeta$ and $\beta \le -\eta(\delta) < 0$ outside each $\delta$-neighbourhood of
+$\zeta$. If $g$ is continuous at $\zeta$, then $g(\zeta) - \varepsilon + K \beta$ belongs to
+the family for a suitable $K$ while every member is at most $g(\zeta) + \varepsilon - K \beta$,
+so $u(z) \to g(\zeta)$. When a closed disc $\bar D(c, R)$ meets $\bar U$ only in $\zeta$
+(**exterior disc condition**), $\log(R / |z - c|)$ is a barrier; hence on a bounded open set
+all of whose boundary points satisfy this condition the Dirichlet problem is solvable for
+every continuous boundary function.
+
+**The Schwarz–Pick lemma (new).** For a holomorphic self-map $f$ of the disc and $a$ in the
+disc, the map $h(z) = \varphi_{f(a)}(f(\varphi_{-a}(z)))$ (with $\varphi_b(z) = (z-b)/(1-\bar b
+z)$ the disc Möbius involution) sends the disc into itself with $h(0)=0$, so the classical
+Schwarz lemma gives $|h(z)| \le |z|$ and $|h'(0)| \le 1$. Substituting $z = \varphi_a(w)$ and
+using $\varphi_{-a}(\varphi_a(w)) = w$ turns the first bound into
+$|\varphi_{f(a)}(f(w))| \le |\varphi_a(w)|$: a holomorphic self-map of the disc contracts the
+pseudo-hyperbolic distance. The chain rule on $h'(0) = \varphi_{f(a)}'(f(a)) \cdot f'(a) \cdot
+\varphi_{-a}'(0)$, with $\varphi_b'(b) = (1-|b|^2)^{-1}$ and $\varphi_b'(0) = 1-|b|^2$, turns the
+second bound into $|f'(a)| / (1-|f(a)|^2) \le 1/(1-|a|^2)$: the infinitesimal form contracting
+the hyperbolic metric of the disc.
+
+**The Riesz factorization theorem (new).** For a bounded holomorphic $f$ on the disc, not
+identically zero, the zeros with multiplicity give a countable index $\iota = \sum_{w} \{1,
+\dots, \operatorname{ord}_w f\}$ over the nonzero zeros $w$; the multiplicity-weighted Blaschke
+condition $\sum \operatorname{ord}_w f \cdot (1 - |w|) < \infty$ strengthens the plain Blaschke
+condition of the previous section by carrying the divisor weight through Jensen's inequality
+instead of dropping it to one. The matching Blaschke product $B(z) = z^m \prod_i b_{a_i}(z)$
+then has the same order as $f$ at every point of the disc, so the quotient $f / B$ extends
+holomorphically and without zeros across the disc by the general removable-singularity
+extension theorem (`RemovableSingularity`), applied with the open preconnected set taken to be
+the disc rather than the whole plane. This gives $f = z^m B g$ with $g$ nonvanishing. The
+further fact that $g$ is bounded by the same constant $M$ as $f$ (new, 2026-09-23) is proved
+classically: a finite Blaschke prefix $B_S(z) = \prod_{i \in S} b_{a_i}(z)$ has modulus exactly
+$1$ on the unit circle, and by uniform continuity of $B_S$ on the closed disc, modulus at least
+$1 - \varepsilon$ on circles of radius $r$ close enough to $1$. The quotient $f / (z^m B_S)$
+extends holomorphically across $B_S$'s finitely many zeros to $B_S^c \cdot g$, where $B_S^c$ is
+the Blaschke product over the complementary (still countable, still summable) index set — the
+identity $B = B_S \cdot B_S^c$ splits the infinite product exactly via
+`Multipliable.tprod_mul_tprod_compl`, so no removable-singularity argument is needed for this
+step. The maximum modulus principle on circles of radius $r \to 1$ then bounds this quotient by
+$M / (r^m(1-\varepsilon))$, giving $\|g(z_0)\| \le M$ in the limit for any $z_0$ with $B(z_0)
+\ne 0$; a finite prefix $B_{S_N}$ along an exhaustion of the (countable) index set converges to
+$B$ itself, transporting the bound to $g(z_0)$ directly. The remaining case, $z_0$ itself a
+zero of $B$, follows from continuity of $g$ at $z_0$, since $B$'s zeros are isolated (it is a
+nonzero analytic function) and the bound holds on the punctured neighborhood.
+
+**Parseval, the area theorem, Bieberbach and Koebe (new).** For $f$ holomorphic on $|z| < R$
+with Taylor coefficients $c_n$ and $r < R$, the restriction to $|z| = r$ has the uniformly
+convergent Fourier expansion $f(re^{i\theta}) = \sum c_n r^n e^{in\theta}$; term-by-term
+integration gives Cauchy's coefficient formula, the pairing formula
+$\int_0^{2\pi} \overline{f(re^{i\theta})}\, G(\theta)\, d\theta = \sum \bar c_n r^n
+\int_0^{2\pi} e^{-in\theta} G(\theta)\, d\theta$ for continuous $G$, hence **Parseval's identity**
+$\int_0^{2\pi} |f(re^{i\theta})|^2 d\theta = 2\pi \sum |c_n|^2 r^{2n}$, **Gutzmer's inequality**
+$\sum |c_n|^2 r^{2n} \le M^2$, and $\int_0^{2\pi} \overline{f}\,(z f')\, d\theta =
+2\pi \sum n |c_n|^2 r^{2n}$. Separately, polar coordinates give the Cauchy transform of a disc,
+$\int_{|w| < \rho} (z - w)^{-1}\, dA(w) = \pi \bar z$ for $|z| < \rho$. For $g(z) = z^{-1} + h(z)$
+injective on the punctured disc (the class $\Sigma$, $h(z) = \sum b_n z^n$), the index of the
+curve $g(re^{i\theta})$ about $w$ is $(2\pi i)^{-1}\oint g'/(g - w)$; it is $-1$ on the complement
+$E_r$ of the image of the punctured disc of radius $r$ (off the null set $g(|z| = r)$) and $0$ on
+the image, by the argument principle for $z(g(z) - w)$. Integrating the index over a large disc
+with Fubini and the disc transform gives $-\operatorname{area}(E_r) = (2i)^{-1}\oint
+\overline{g}\, g'\, dz$, which Parseval evaluates as $-\pi(r^{-2} - \sum n |b_n|^2 r^{2n})$.
+Nonnegativity of the area and $r \to 1$ give **Gronwall's area theorem** $\sum n |b_n|^2 \le 1$.
+For $f$ in the class $S$ (injective on the disc, $f(0) = 0$, $f'(0) = 1$, $f = z + a_2 z^2 +
+\cdots$), the odd square-root transform $F(z) = z\sqrt{f(z^2)/z^2}$ is injective, and $1/F$ is of
+class $\Sigma$ with $b_1 = -a_2/2$, so **Bieberbach's theorem** $|a_2| \le 2$ follows. If $w$ is
+omitted by $f$, then $f/(1 - f/w)$ is again of class $S$ with second coefficient $a_2 + 1/w$, so
+$|1/w| \le 4$: this is the **Koebe one-quarter theorem**, $f(\mathbb D) \supseteq \{|w| < 1/4\}$.
+
+**Hadamard's three-circle theorem (new).** For $f$ holomorphic and nonvanishing on
+$0 < |z| < R$, let $M(r) = \max_{|z|=r} |f(z)|$. Choosing $a$ so that the affine function
+$a \log |z| + C$ agrees with $\log M(r_1)$ and $\log M(r_2)$ at $|z| = r_1$ and $|z| = r_2$, the
+harmonic function $\varphi(z) = \log |f(z)| - a \log |z|$ (harmonic because $\log |f|$ and
+$\log |z|$ both are, away from zeros of $f$ and of $z$) satisfies $\varphi \le C$ on both
+bounding circles, hence on the whole open annulus $r_1 < |z| < r_2$ by the maximum principle
+for subharmonic functions on bounded open sets (`Perron.SubharmonicOn.le_of_frontier`, whose
+frontier is exactly the two circles). This gives $\log M(r) \le t \log M(r_1) +
+(1-t) \log M(r_2)$ for $t = (\log r_2 - \log r)/(\log r_2 - \log r_1)$: **$\log M(r)$ is a
+convex function of $\log r$**. No branch of $\log f$ is needed on the (not simply connected)
+annulus, only $\log |f|$.
+
+**The Green function (new).** For a bounded open set $U$ with the exterior disc property and
+$w \in U$, solving the Dirichlet problem with boundary data $\zeta \mapsto \log|\zeta - w|$
+gives a harmonic $h$ on $U$ agreeing with $\log|\zeta - w|$ on $\partial U$. The Green function
+$G(z) = h(z) - \log|z - w|$ is then harmonic on $U \setminus \{w\}$, has $G(z) + \log|z-w|$
+extending harmonically across $w$ (equal to $h$), vanishes at $\partial U$, and blows up to
+$+\infty$ at $w$. Nonnegativity of $G$ on $U \setminus \{w\}$ follows from the maximum
+principle applied to $-G$, a subharmonic function on the punctured domain whose frontier is
+$\partial U \cup \{w\}$: $-G \to 0$ at $\partial U$ and $-G \to -\infty$ at $w$, giving
+$-G \le 0$ throughout. The sharper strict positivity, and the symmetry $G(z,w) = G(w,z)$, are
+not proved; both need the strong maximum principle for harmonic functions on the (preconnected)
+punctured domain.
+
+**The pre-Schwarzian bound (new).** For $f$ holomorphic and injective on the disc and
+$z_0$ in the disc, the Koebe transform $\varphi(w) = f(\psi(w))$ with $\psi = $ the disc
+Möbius map sending $0$ to $z_0$, normalized as $F(w) = (\varphi(w) - \varphi(0))/\varphi'(0)$,
+lies in the class $S$. Its second Taylor coefficient unwinds by the chain rule (using
+$\psi'(0) = 1 - |z_0|^2$ and $\psi''(0) = -2\bar z_0(1-|z_0|^2)$, both computed from the
+explicit rational formula for the disc Möbius map) to
+$\tfrac12\big[(1-|z_0|^2) f''(z_0)/f'(z_0) - 2\bar z_0\big]$, so Bieberbach's bound
+$|a_2(F)| \le 2$ gives $|(1-|z_0|^2) f''(z_0)/f'(z_0) - 2\bar z_0| \le 4$: the
+**pre-Schwarzian bound**. No normalization of $f$ itself at $0$ is needed, since the bound is
+invariant under post-composition of $f$ with an affine map; the full Koebe distortion and
+growth theorems, obtained by integrating this pointwise bound along a ray from $0$ to $z$, are
+not derived.
+
+**The Koebe distortion theorem and the growth theorem's upper bound (new).** Fix $z_0 = r
+e^{i\theta}$ in the disc. Since $f'$ is nonvanishing and the disc is simply connected, $f'$ has
+a holomorphic logarithm $L$ with $L(0) = 0$; $\operatorname{Re} L(z) = \log|f'(z)|$. Along the
+ray $t \mapsto tu$ ($u = e^{i\theta}$), the pre-Schwarzian bound, multiplied through by $u$ and
+using $\bar u u = 1$, gives $|(1-t^2)L'(tu)u - 2t| \le 4$, so
+$(2t-4)/(1-t^2) \le \operatorname{Re}(L'(tu)u) \le (2t+4)/(1-t^2)$. Since
+$\tfrac{d}{dt}\operatorname{Re} L(tu) = \operatorname{Re}(L'(tu)u)$, integrating from $0$ to
+$r$ (the fundamental theorem of calculus for the real part of a path) and evaluating the
+explicit antiderivatives $\log(1+t) - 3\log(1-t)$ and $\log(1-t) - 3\log(1+t)$ gives
+$\log[(1-r)/(1+r)^3] \le \log|f'(z_0)| \le \log[(1+r)/(1-r)^3]$: the **Koebe distortion
+theorem**. The **growth theorem's upper bound** follows from $f(z_0) = \int_0^r f'(tu)u\,dt$,
+the triangle inequality for the integral, and the antiderivative $t/(1-t)^2$ of the distortion
+upper bound $(1+t)/(1-t)^3$. The growth theorem's lower bound is not derived: it needs a
+separate argument bounding the rotation of $f'$ along the ray, not a direct integration of the
+distortion theorem.
+
+**Möbius geometry: cross ratio and generalized circles (new).** For the Möbius transformation
+$M(z) = (az+b)/(cz+d)$ with $ad-bc \ne 0$, a direct computation gives $M(z_i) - M(z_j) =
+(ad-bc)(z_i-z_j) / [(cz_i+d)(cz_j+d)]$ for each pair, and substituting into the cross ratio
+$(z_1-z_3)(z_2-z_4)/[(z_1-z_4)(z_2-z_3)]$ cancels the $(ad-bc)^2$ factor and the four
+denominators symmetrically, giving invariance of the cross ratio. A **generalized circle** (a
+circle, or in the limit a line) is the zero set of $A|z|^2 + 2\operatorname{Re}(\bar B z) + C$
+for real $A, C$ and complex $B$. Direct substitution shows translations and nonzero scalings
+preserve this form, and the inversion $z \mapsto 1/z$ sends the circle $(A, B, C)$ to
+$(C, \bar B, A)$ (clearing denominators in the substituted equation and using
+$\operatorname{Re}(\bar B/w) = \operatorname{Re}(Bw)/|w|^2$). Since every Möbius transformation
+with $c \ne 0$ decomposes as $z \mapsto a/c - \big[(ad-bc)/c^2\big] \cdot (z + d/c)^{-1}$ — a
+translation, an inversion, a scaling, and a further translation — and the $c = 0$ case is
+already an affine map, every Möbius transformation sends generalized circles to generalized
+circles. A point $z^*$ is **symmetric** to $z$ with respect to the generalized circle through
+three distinct points $z_1, z_2, z_3$ when the cross ratio of $z^*, z_1, z_2, z_3$ is the
+complex conjugate of the cross ratio of $z, z_1, z_2, z_3$; applying cross-ratio invariance to
+both cross ratios shows this relation is itself preserved by every Möbius transformation.
+
+**Liouville's first theorem for elliptic functions (new).** A function $f$ doubly periodic
+with respect to a lattice, given as Mathlib's `PeriodPair` (periods $\omega_1, \omega_2$
+linearly independent over $\mathbb{R}$), is bounded on all of $\mathbb{C}$ once it is
+continuous: the compact closed fundamental parallelogram $\{x\omega_1 + y\omega_2 : x, y \in
+[0,1]\}$ has a uniform bound $M$ by compactness, and any $z$, written as $x\omega_1 +
+y\omega_2$ in the $\mathbb{R}$-basis given by the periods, is congruent modulo the lattice
+(subtracting $\lfloor x\rfloor$ and $\lfloor y \rfloor$ integer periods) to a point of the
+parallelogram, so $|f(z)|\le M$ everywhere. If $f$ is in addition entire, boundedness on
+$\mathbb{C}$ forces it to be constant by the classical Liouville theorem for bounded entire
+functions — this is **Liouville's first theorem**. Liouville's second theorem (the sum of
+residues of an elliptic function over a period parallelogram vanishes) and third theorem
+(the numbers of zeros and poles, counted with multiplicity, agree) are not proved. The
+project's residue theorem and argument principle for cycles are already general enough for
+this; what was missing was specific to the period parallelogram itself.
+
+**The parallelogram boundary as a smooth cycle, and its index outside (new, partial).** The
+boundary of the parallelogram with vertices $c, c+\omega_1, c+\omega_1+\omega_2, c+\omega_2$
+is realized as a single $C^\infty$ closed curve rather than four separate line segments: each
+edge is reparametrized by `Real.smoothTransition`, a function equal to $0$ up to its left
+endpoint and $1$ from its right endpoint on, with every derivative vanishing exactly at those
+two endpoints. Summing the four edge terms with this reparametrization glues them into a
+single globally $C^\infty$ closed curve, with no case analysis on differentiability at the
+corners, since each term is locally constant to all orders exactly where it hands off to the
+next. For a point $w$ outside the closed parallelogram, the index of this loop about $w$ is
+proved to vanish, by a straight-line homotopy coning the loop toward the vertex $c$: since $c$
+and every point of the loop lie in the closed convex parallelogram, so does the entire
+homotopy, so it automatically avoids $w$. Left open is the harder half: that the index equals
+$1$ at every point of the open interior. The exterior argument gives no information about the
+interior, since a nullhomotopy is unavailable there (the loop cannot be contracted to a point
+without crossing an interior point). Establishing the interior value needs either a direct
+winding computation — bounding and consistently signing the four edge-wise continuous argument
+changes as seen from an interior point, so that they sum to exactly $2\pi$ rather than $0$ or
+$4\pi$ — or an orientation hypothesis on $\omega_1, \omega_2$ (interchanging them reverses the
+traversal and negates the index) together with that computation. Neither was completed.
 
 **Montel, Vitali (one variable).** A family of holomorphic maps bounded on each compact subset of
 an open set, with finite-dimensional target, has compact closure in $\mathcal O(U, F)$, and
