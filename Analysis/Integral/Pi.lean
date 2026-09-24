@@ -34,6 +34,7 @@ theorem lintegral_fin_nat_prod_eq_prod {n : ℕ} {E : Fin n → Type*}
       Fin.prod_univ_succ, Fin.insertNth_zero, Equiv.coe_fn_mk, Fin.cons_succ,
       Fin.zero_succAbove, cast_eq, Fin.cons_zero]
     have hg : Measurable (fun x : (i : Fin n) → E i.succ => ∏ i, f i.succ (x i)) := by fun_prop
+    have : SFinite (Measure.pi fun j : Fin n => μ j.succ) := inferInstance
     rw [lintegral_prod_mul (hf 0).aemeasurable hg.aemeasurable,
       ih _ (fun i => hf i.succ)]
 

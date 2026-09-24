@@ -110,6 +110,13 @@ public import ComplexAnalysis.KoebeDistortion
 public import ComplexAnalysis.KoebeGrowth
 public import ComplexAnalysis.MobiusGeometry
 public import ComplexAnalysis.EllipticLiouville
+public import ComplexAnalysis.PringsheimVivanti
+public import ComplexAnalysis.SokhotskiPlemelj
+public import ComplexAnalysis.PaleyWiener
+public import ComplexAnalysis.CircleReflection
+public import ComplexAnalysis.ChordalMetric
+public import ComplexAnalysis.SphericalDerivative
+public import ComplexAnalysis.EllipticResidue
 
 /-!
 # Single-variable complex analysis
@@ -237,6 +244,36 @@ Divided differences and repeated integrals also use the general `StdSimplexMeasu
   function doubly periodic with respect to a lattice (`PeriodPair`) is constant, by showing
   it is bounded on the compact fundamental parallelogram and applying the classical Liouville
   theorem for bounded entire functions.
+* `PringsheimVivanti`: the Pringsheim–Vivanti theorem, that a power series with nonnegative
+  coefficients and finite radius of convergence cannot be continued holomorphically across a
+  boundary point of its disc of convergence, by an explicit Taylor recentering at a nearby
+  point with manifestly nonnegative coefficients.
+* `SokhotskiPlemelj`: the Sokhotski–Plemelj jump relation for the Cauchy-type contour integral
+  of a density on a circle given by an absolutely summable two-sided Laurent series, identifying
+  the interior and exterior Cauchy-type integrals with explicit one-sided power series in the
+  Laurent coefficients whose difference at the boundary recovers the density.
+* `PaleyWiener`: the holomorphic-extension half of the Paley–Wiener theorem, that the
+  Fourier-type transform of a function integrable on `[-τ, τ]` extends to an entire function of
+  exponential type at most `τ`, by differentiating under the integral sign in the complex
+  parameter and an elementary growth estimate on the kernel.
+* `CircleReflection`: the Schwarz reflection principle across a circle `‖z‖ = r`, the first
+  genuinely curved instance of reflection across an analytic arc, by reducing to
+  `Reflection`'s real-axis case via a Cayley-type Möbius map conjugating circle inversion to
+  complex conjugation.
+* `ChordalMetric`: the chordal (spherical) metric on `ℂ ∪ {∞}` (`OnePoint ℂ`), defined as the
+  Euclidean distance between the images of two points under inverse stereographic projection
+  onto the unit sphere in `ℝ³`, which gives every metric-space axiom for free from the ambient
+  Euclidean metric; the classical closed-form formula is recovered as a theorem.
+* `SphericalDerivative`: the spherical derivative `f#(z) = ‖f' z‖ / (1 + ‖f z‖²)`, the local
+  chordal-metric distortion factor of a holomorphic function, and its invariance under the
+  inversion `w ↦ 1/w`.
+* `EllipticResidue`: the boundary integral of a doubly periodic continuous function over a
+  period parallelogram vanishes, by cancellation of opposite edges — one is the periodic
+  translate of the other, traversed oppositely. Combined with
+  `curveIndex_parallelogramLoop_eq_one`/`_eq_zero` (`Cycle.Parallelogram`), this is the
+  elementary half of Liouville's second and third theorems for elliptic functions; assembling
+  the two into those theorems (via the residue theorem/argument principle for cycles) is not
+  done here.
 * `HarmonicLimit`, `Perron`, `Perron.Barrier`: locally uniform limits of harmonic functions
   are harmonic, Harnack's principle for monotone sequences, the maximum principle for
   subharmonic functions with boundary upper limits, Perron's method (the upper envelope of

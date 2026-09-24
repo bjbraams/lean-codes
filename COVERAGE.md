@@ -60,6 +60,9 @@ References and requested chapters (PDFs in `ComplexAnalysis/References/`):
 | Riemann removable singularity theorem (discs) | Mathlib (Banach-valued) | `Complex.differentiableOn_update_limUnder_of_bddAbove` | BN 9.1, Ga VI.2 |
 | Removal across countable sets and planar analytic zero sets under continuity; gluing across the real axis | Project | `RemovableSingularity`, `RemovableLine` | Bu V.6 (in part) |
 | Schwarz reflection across the real axis | Project | `Reflection` | APP 28, SS 2.5.4, C1 IX.1, C2 13.4 (line case) |
+| Reflection across a circle, via a Cayley-type Möbius map reducing to the real-axis case | Project | `CircleReflection` | La IX.2, Si 5.6, He XIII |
+| The chordal metric on `ℂ ∪ {∞}`, defined via inverse stereographic projection into `ℝ³` | Project | `ChordalMetric` | Ga XII.1, C1 I.6 |
+| The spherical derivative and its invariance under inversion | Project in part | `SphericalDerivative` | Ga XII.1, C1 I.6 |
 | Uniqueness from real parameters | Project | `RealUniqueness` | – |
 
 ### 1.3 Singularities, Laurent series, residues
@@ -97,7 +100,11 @@ References and requested chapters (PDFs in `ComplexAnalysis/References/`):
 | The Koebe distortion theorem (both bounds on `‖f'‖`); the growth theorem's upper bound on `‖f‖` | Project | `KoebeGrowth` | Du 2.6, C2 14.7 |
 | Cross ratio invariance, generalized circles mapping to generalized circles, and symmetric points under Möbius transformations | Project | `MobiusGeometry` | Si 7.3, He XV, La VII.5, Ga II.7 |
 | Liouville's first theorem for elliptic functions: an entire doubly periodic function is constant | Project | `EllipticLiouville` | SS 9.1, La XIV.1, Si 10.3, He XIV.2 |
-| The parallelogram boundary as a `C^∞` `Cycle`, with index `0` outside it (index `1` inside not proved) | Project in part | `Cycle.Parallelogram` | C1 IV.5 (chains) |
+| The boundary integral of a doubly periodic continuous function over a period parallelogram vanishes | Project | `EllipticResidue` | SS 9.1, La XIV.1, Si 10.3, He XIV.2 |
+| The Pringsheim–Vivanti theorem: a power series with nonnegative coefficients cannot be continued past a boundary point of its disc of convergence | Project | `PringsheimVivanti` | Bu XI.3, Re 8.1 |
+| The Sokhotski–Plemelj jump relation for the Cauchy-type contour integral of a density given by an absolutely summable Laurent series on a circle | Project | `SokhotskiPlemelj` | Ga VIII.7 |
+| The Paley–Wiener transform of a function integrable on `[-τ, τ]` is entire of exponential type at most `τ` (holomorphic-extension half of Paley–Wiener) | Project in part | `PaleyWiener` | SS 4.1 |
+| The parallelogram boundary as a `C^∞` `Cycle`, with index `0` outside it and index `1` at every interior point | Project | `Cycle.Parallelogram` | C1 IV.5 (chains) |
 | Local mapping theorem: `f - f a` of order `m` is locally `m`-to-one with simple preimages | Project | `LocalMapping` | Si 3.4.1, C1 IV.7.4, Bu V.7 |
 | Residue at infinity; inversion change of variables in circle integrals; total residue theorem | Project | `ResidueAtInfinity` | Si 3.8, Ga VII.3, APP 33 |
 | Partial fractions of `π cot (π z)` | Mathlib | `cot_series_rep` | C1 VII.5, APP 42, Ga VII.4, Si 9.2 |
@@ -233,26 +240,26 @@ foundations (Jordan curve theorem, Lebesgue boundary theory, covering-space theo
 | --- | --- | --- |
 | Bu IX | Riemann mapping theorem (Carathéodory–Koebe and Fejér–Riesz proofs, uniqueness); boundary behavior for Jordan regions; general Dirichlet problem; Dirichlet problem and Riemann mapping; half-plane onto polygon | Project (existence, uniqueness); Gap (boundary behavior, general Dirichlet problem: see B); Deferred (Jordan regions, Schwarz–Christoffel) |
 | Bu X | Simple, double and higher connectivity; Aumann–Carathéodory | Gap (characterizations of simple connectivity); Deferred (annulus classification, finitely connected regions) |
-| Bu XI | Laurent series and singularities; rational functions; singularities on the circle of convergence (Pringsheim–Vivanti); residue theorem and applications; Mittag-Leffler; meromorphic functions; harmonic functions | Project (Laurent, residues, Mittag-Leffler); Gap (Pringsheim–Vivanti: see H) |
+| Bu XI | Laurent series and singularities; rational functions; singularities on the circle of convergence (Pringsheim–Vivanti); residue theorem and applications; Mittag-Leffler; meromorphic functions; harmonic functions | Project (Laurent, residues, Mittag-Leffler, Pringsheim–Vivanti: see H) |
 | Bu XII | Logarithmic means and Jensen; Miranda's theorem; Schottky, Bloch, sectorial limits (Lindelöf); iteration; Ostrowski's proof of Schottky | Mathlib (Jensen); Deferred (Miranda, Schottky, Bloch: item 8 of Section 2); Gap (sectorial limit theorems: see H) |
 | C2 18 | Bergman spaces; partitions of unity; convolution; distributions; Cauchy transform; rational approximation; Fourier series and Cesàro sums | Project (Cauchy transform, smooth cutoffs); Deferred (Bergman spaces, distributions) |
 | C2 19 | Harmonic functions on the disc; Fatou's theorem; semicontinuous and subharmonic functions; logarithmic potential; approximation by harmonic functions; Dirichlet problem; harmonic majorants; Green function; regular points; Dirichlet principle | Project (disc, subharmonic); Mathlib (Poisson); Gap (Dirichlet problem, Green function: see B); Deferred (Fatou, logarithmic potential, Dirichlet principle) |
 | C2 20 | Hardy spaces; Nevanlinna class; factorization; disc algebra; invariant subspaces; Szegő | Gap (Blaschke products and the Blaschke condition: see C); Deferred (Hardy spaces, inner–outer factorization, Szegő) |
 | C2 21 | Potential theory: harmonic measure, Green potential, polar sets, capacity, fine topology, Wiener criterion | Deferred |
-| Ga VIII | Argument principle, Rouché, Hurwitz, open mapping, critical points, winding numbers, jump theorem for Cauchy integrals, simply connected domains | Project (all but the last two); Gap (Sokhotski–Plemelj jump theorem: see H; characterizations of simple connectivity) |
+| Ga VIII | Argument principle, Rouché, Hurwitz, open mapping, critical points, winding numbers, jump theorem for Cauchy integrals, simply connected domains | Project (all but the last); Gap (characterizations of simple connectivity) |
 | Ga IX | Schwarz lemma, conformal self-maps of the disc, hyperbolic geometry | Mathlib + Project; Gap (Schwarz–Pick and the hyperbolic metric: see H) |
 | Ga X | Poisson integral, characterization of harmonic functions, Schwarz reflection | Project + Mathlib |
 | Ga XI | Mappings to disc and half-plane, Riemann mapping theorem, Schwarz–Christoffel, compactness of families | Project; Deferred (Schwarz–Christoffel) |
-| Ga XII | Marty's theorem, Montel and Picard, Julia sets, Mandelbrot set | Gap (Marty: see E); Deferred (Picard, Julia sets) |
+| Ga XII | Marty's theorem, Montel and Picard, Julia sets, Mandelbrot set | Project in part (chordal metric, spherical derivative); Gap (Marty's criterion itself: see E); Deferred (Picard, Julia sets) |
 | Ga XIII | Runge, Mittag-Leffler, infinite products, Weierstrass | Project |
 | He XI | Wirtinger derivatives, harmonic functions of two real variables | Mathlib (Wirtinger derivatives, harmonic functions) |
 | He XII | Formal power series, majorant calculus, analytic ODEs, two-variable power series, analytic continuation | Mathlib (formal series) + Project (continuation); Deferred (majorant calculus, analytic ODEs) |
-| He XIII | Poisson integral, Schwarz reflection, Carleman extension principle, subharmonic functions | Project; Gap (reflection in analytic arcs: see H) |
-| He XIV | Gauss sums by residues, divisors and residues of doubly periodic functions, Weierstrass preparation theorem, polynomial approximation, boundary behavior of integrals, Weierstrass classes | Project in part (Liouville's first theorem: see F); Gap (Liouville's second and third theorems: see F; Weierstrass preparation: SCV candidate); Deferred (Gauss sums, Weierstrass classes) |
+| He XIII | Poisson integral, Schwarz reflection, Carleman extension principle, subharmonic functions | Project (real axis and circle); Gap (reflection in general analytic arcs, Carleman extension principle: see H) |
+| He XIV | Gauss sums by residues, divisors and residues of doubly periodic functions, Weierstrass preparation theorem, polynomial approximation, boundary behavior of integrals, Weierstrass classes | Project in part (Liouville's first theorem; both prerequisites of the second and third theorems, not yet assembled: see F); Gap (Weierstrass preparation: SCV candidate); Deferred (Gauss sums, Weierstrass classes) |
 | He XV | Classification of Möbius transformations | Mathlib in part (`GL(2, K)` action on the projective line, parabolic and elliptic elements); Gap (cross ratio, circles, symmetry: see H) |
 | He XVI | Modular function λ, Picard theorems | Deferred (item 8 of Section 2) |
 | He XVII | Riemann mapping (Fejér–Riesz), Carathéodory's theorem on variable regions (kernel convergence), boundary behavior of univalent functions | Project (Riemann mapping); Gap (area theorem and distortion: see G); Deferred (kernel convergence, boundary behavior) |
-| La IX | Schwarz reflection, reflection across analytic arcs, applications | Project (real axis); Gap (analytic arcs: see H) |
+| La IX | Schwarz reflection, reflection across analytic arcs, applications | Project (real axis, circle); Gap (general analytic arcs: see H) |
 | La X | Riemann mapping theorem, compact sets in function spaces, behavior at the boundary | Project; Deferred (boundary behavior) |
 | La XI | Analytic continuation along curves, dilogarithm, application to Picard | Project (continuation along curves); Deferred (dilogarithm, Picard) |
 | La XII | Jensen's formula, Picard–Borel, Borel–Carathéodory, three circles and small derivatives, Hermite interpolation, entire functions with rational values (Pólya), Phragmén–Lindelöf and Hadamard | Mathlib (Jensen, Borel–Carathéodory, Phragmén–Lindelöf, three lines); Gap (three circles, Pólya's theorem: see A, H) |
@@ -262,12 +269,12 @@ foundations (Jordan curve theorem, Lebesgue boundary theory, covering-space theo
 | Re 11 | Series of meromorphic functions, partial fractions of `π cot π z`, Euler's formulas for `ζ(2n)`, Eisenstein theory | Mathlib (`cot_series_rep`, zeta values, Eisenstein series) |
 | Re 12 | Laurent series, periodic holomorphic functions and Fourier series, theta function | Project (Laurent) + Mathlib (periodic functions, Jacobi theta) |
 | Re 13 | Residue theorem and consequences | Project |
-| Si 5 | Phragmén–Lindelöf, three lines and Riesz–Thorin, Poisson representations, harmonic functions, reflection, reflection in analytic arcs, definite integrals | Mathlib (Phragmén–Lindelöf, three lines, Poisson); Project (harmonic, reflection); Gap (analytic arcs: see H); Deferred (Riesz–Thorin, definite integrals) |
-| Si 6 | Fréchet space of analytic functions, Montel and Vitali, Runge, Hurwitz, Marty | Project; Gap (Marty: see E) |
+| Si 5 | Phragmén–Lindelöf, three lines and Riesz–Thorin, Poisson representations, harmonic functions, reflection, reflection in analytic arcs, definite integrals | Mathlib (Phragmén–Lindelöf, three lines, Poisson); Project (harmonic, reflection across the real axis and the circle); Gap (general analytic arcs: see H); Deferred (Riesz–Thorin, definite integrals) |
+| Si 6 | Fréchet space of analytic functions, Montel and Vitali, Runge, Hurwitz, Marty | Project (also chordal metric, spherical derivative); Gap (Marty's criterion itself: see E) |
 | Si 7 | Riemann sphere, PSL(2, ℂ), self-maps of the disc, continued fractions and the Schur algorithm | Mathlib in part; Project (disc); Gap (cross ratio: see H); Deferred (Schur algorithm) |
 | Si 8 | Riemann mapping, boundary behavior, elliptic modular function, explicit maps, covering maps, doubly connected regions, uniformization, Ahlfors function and analytic capacity | Project (Riemann mapping); Deferred (rest) |
 | Si 9 | Infinite products, Euler product, Mittag-Leffler, Weierstrass, general regions, Gamma, Euler–Maclaurin and Stirling, Jensen, Blaschke products, finite order and Hadamard | Project + Mathlib (Gamma, Stirling, Jensen); Gap (Weierstrass on general regions, Blaschke, finite order and Hadamard: see A, C) |
-| SS 4 | Fourier transform on the class F, Paley–Wiener theorem | Mathlib (Fourier transform, Schwartz space, inversion); Gap (Paley–Wiener: see D) |
+| SS 4 | Fourier transform on the class F, Paley–Wiener theorem | Mathlib (Fourier transform, Schwartz space, inversion); Project in part (holomorphic extension half, see D); Gap (L² membership, the converse direction: see D) |
 | SS 5 | Jensen's formula, functions of finite order, infinite products, Weierstrass products, Hadamard factorization | Mathlib (Jensen) + Project (products); Gap (finite order, Hadamard: see A) |
 | SS 8 | Conformal equivalence, Dirichlet problem in a strip, automorphisms, Riemann mapping, Schwarz–Christoffel, boundary behavior, elliptic integrals | Project; Deferred (Schwarz–Christoffel) |
 
@@ -317,35 +324,90 @@ C. **Blaschke products and the Blaschke condition.** Done (2026-09-24, `Blaschke
    formula (F. Riesz), hence the uniqueness theorem for bounded functions with zeros
    accumulating too fast; prescribed zeros on the disc. References: Si 9.9, C2 20.2–20.3,
    C1 VII.5 (exercises), Bu XII.1. Mathlib: `canonicalFactor` only.
-D. **The Paley–Wiener theorem.** Entire functions of exponential type with square-integrable
-   restriction to `ℝ` are exactly the Fourier transforms of functions supported in a bounded
-   interval; holomorphic extension of Fourier transforms of rapidly decaying functions; uses
-   Mathlib's Fourier transform, inversion and Plancherel with Phragmén–Lindelöf in strips.
-   Ties to A. References: SS 4.1–4.3, Si 11.1. Mathlib: Fourier infrastructure, no Paley–Wiener.
-E. **Normal families of meromorphic functions.** Chordal metric on `ℂ ∪ {∞}` (Mathlib has the
-   topology of `OnePoint ℂ` and its homeomorphism with the sphere), spherical derivative, Marty's
-   criterion for normality, and Zalcman's rescaling lemma. Extends `Montel`. References:
-   Ga XII.1, Si 6.5, 11.4, C1 VII.3, Bu VII.2. Mathlib: nothing.
+D. **The Paley–Wiener theorem.** Done in part (2026-09-24, `PaleyWiener`): the holomorphic
+   extension half (SS 4.1). `paleyWienerTransform f τ z = ∫ t in -τ..τ, f t * exp (I z t)`, the
+   (unnormalized-kernel) Fourier-type transform of `f` extended by zero outside `[-τ, τ]`,
+   extends holomorphically to an entire function (`differentiable_paleyWienerTransform`, by
+   differentiating under the integral sign in the complex parameter, Mathlib's
+   `hasDerivAt_integral_of_dominated_loc_of_deriv_le` instantiated with parameter space `H = ℂ`)
+   of exponential type at most `τ` (`norm_paleyWienerTransform_le`,
+   `hasExponentialTypeLE_paleyWienerTransform`, an elementary estimate on the kernel `exp (izt)`
+   for `t ∈ [-τ, τ]`). Ties to A as intended: exponential type is exactly `HasOrderLE f 1`
+   (`FiniteOrder.lean`) with the sharper explicit constant `τ`.
+   Still open: entire functions of exponential type with square-integrable restriction to `ℝ`
+   are exactly the Fourier transforms of functions supported in a bounded interval — the
+   remaining two pieces are (i) that `paleyWienerTransform f τ` restricted to `ℝ` lies in
+   `L²(ℝ)` when `f` does (Plancherel for this transform; bridging it to Mathlib's abstract `L²`
+   Fourier isometry `MeasureTheory.Lp.fourierTransformₗᵢ`, built by continuous extension from
+   Schwartz functions with a `2π`-normalized kernel, needs a currently-missing lemma identifying
+   that isometry with the concrete integral on `L¹ ∩ L²` functions) and (ii) the converse
+   ("hard") direction, that every entire function of exponential type `τ` with `L²` restriction
+   to `ℝ` arises this way — the classical proof needs a mean-square bound on
+   `∫ ‖F (x + iy)‖² dx` uniform in `y`, from the sub-mean-value property of the subharmonic
+   function `‖F‖²` together with the growth bound, a substantial argument beyond this pass.
+   References: SS 4.1–4.3, Si 11.1. Mathlib: Fourier infrastructure (used only informally
+   above), Phragmén–Lindelöf (`Mathlib.Analysis.Complex.PhragmenLindelof`, not needed for the
+   part proved — its strip lemmas are pointwise/sup-norm, not the `L²`-in-strips estimate the
+   hard direction actually needs), no Paley–Wiener.
+E. **Normal families of meromorphic functions.** Done in part (2026-09-24, `ChordalMetric`,
+   `SphericalDerivative`): the chordal (spherical) metric on `ℂ ∪ {∞}` (Mathlib's `OnePoint ℂ`,
+   which has the topology and its homeomorphism with the sphere, but no metric realizing it) and
+   the spherical derivative. `chordalDist p q` is *defined* as the Euclidean distance between the
+   images of `p, q` under inverse stereographic projection `stereographicInv : OnePoint ℂ →
+   EuclideanSpace ℝ (Fin 3)` onto the unit sphere — this gives every metric-space axiom
+   (symmetry, the triangle inequality, definiteness via injectivity of `stereographicInv`) for
+   free from the ambient Euclidean metric, avoiding a considerably messier direct algebraic
+   argument for the triangle inequality. The classical closed-form formula
+   `chordalDist z w = 2‖z-w‖/(√(1+‖z‖²)√(1+‖w‖²))` (and the `z, ∞` case) is then recovered as a
+   theorem about this definition. The spherical derivative `f#(z) = ‖f' z‖/(1+‖f z‖²)` is defined
+   for holomorphic `f`, with its invariance under post-composition by the inversion `w ↦ 1/w`
+   proved (reflecting that inversion is a chordal isometry).
+   Still open: Marty's criterion for normality and Zalcman's rescaling lemma. Both need a
+   genuine normal-families compactness theory for sphere/`OnePoint ℂ`-valued function families
+   (locally uniform convergence in the chordal metric, allowing degenerate limits `≡ ∞`), which
+   is not present anywhere in the project — `Montel.lean`'s compactness machinery
+   (`Analysis.Holomorphic.NormalFamily`, shared with `SeveralComplexVariables`) is built for
+   finite-dimensional vector space targets, not the sphere, and does not transfer directly.
+   Extends `Montel`. References: Ga XII.1, Si 6.5, 11.4, C1 VII.3, Bu VII.2. Mathlib: nothing.
 F. **Elliptic functions: the general theory.** Liouville's first theorem done (2026-09-23,
    `EllipticLiouville`): an entire function doubly periodic with respect to a lattice
    (Mathlib's `PeriodPair`) is constant, by boundedness on the compact fundamental
    parallelogram together with the classical Liouville theorem for bounded entire functions.
-   Still open: Liouville's second and third theorems for doubly periodic meromorphic functions
-   (vanishing residue sum; equal numbers of zeros and poles; Abel's relation). The general
+   Liouville's second and third theorems (vanishing residue sum; equal numbers of zeros and
+   poles) done in the sense that both of their two prerequisite pieces are now separately
+   proved — assembling them into the actual theorem statements is not done. The general
    residue theorem itself is already available (`Cycle.Residue.integral_eq_sum_index_smul_residue`)
-   and so is the argument principle for cycles (`Cycle.ArgumentPrinciple`). Partial progress
-   (2026-09-23, `Cycle.Parallelogram`): the parallelogram boundary is now a genuine `C^∞`
-   `Loop`/`Path`, built by gluing the four edges with `Real.smoothTransition` (flat, so smooth
-   across the corners with no case analysis), and its index is proved to vanish at every point
-   *outside* the closed parallelogram, by a convexity-coning nullhomotopy toward a vertex. The
-   index equalling `1` on the *open interior* — the fact actually needed to apply the residue
-   theorem to a period parallelogram — is NOT proved: the exterior nullhomotopy gives no
-   information about the interior, and pinning the interior value needs either a direct winding
-   computation (bounding and signing four edge-wise argument changes so they sum to exactly
-   `2π`, not `0` or `4π`) or an orientation hypothesis on `w1, w2` (swapping them reverses the
-   traversal and negates the index) plus that computation; see `REMINDERS.md` for the
-   considered strategies and why none was completed. Also open: order of an elliptic function,
-   and the facts that Mathlib's `℘` and `℘'` generate the field. References:
+   and so is the argument principle for cycles (`Cycle.ArgumentPrinciple`).
+   (i) Done (2026-09-24, `Cycle.Parallelogram`): **the parallelogram boundary's index is `1` at
+   every interior point.** `curveIndex_parallelogramLoop_eq_one` (for `w1, w2` positively
+   oriented, `Im (conj w1 * w2) > 0`) completes what was left open on 2026-09-23 (only the
+   exterior case, index `0`, was proved then). The strategy that finally worked, after three
+   others were tried and shelved (see `REMINDERS.md` for all four): avoid tracking a
+   continuously varying branch of `Complex.log`/`Complex.arg` around the whole boundary
+   entirely. Each of the four straight edges' contribution to the real "turning" integral
+   `∫ Im [γ'/(γ - w)]` is computed as an explicit `Real.arctan` antiderivative (justified by the
+   Lagrange identity, which makes the relevant quadratic denominator positive-definite);
+   `Real.arctan`'s range bound then gives, for free, that each edge's contribution lies in
+   `(0, π)`, so the total lies in `(0, 4π)`. Since the index is already known to be an integer
+   (`exists_int_curveIndex`), this pins it to exactly `1` without ever computing the total
+   directly or gluing branches across corners.
+   (ii) Done (2026-09-24, `EllipticResidue`): **the boundary integral of a doubly periodic
+   continuous function over a period parallelogram vanishes**
+   (`curveIntegral_toSpanSingleton_parallelogramLoop_eq_zero`), the classical "opposite edges
+   cancel" argument — one edge is the periodic translate of the other, traversed in the
+   opposite direction — made precise via an explicit reversal substitution and one algebraic
+   fact about the gluing function not recorded where it is defined
+   (`Real.smoothTransition (1 - x) = 1 - Real.smoothTransition x`, `smoothTransition_one_sub`).
+   **Not done**: assembling (i) and (ii) into Liouville 2/3 proper. The obstacle is not
+   mathematical but a hypothesis mismatch: (ii) requires `f` *globally* continuous, which a
+   genuinely non-constant elliptic function (with poles) can never be (an entire doubly
+   periodic function is constant, by Liouville 1) — (ii)'s hypothesis needs weakening to
+   `ContinuousOn` near the boundary only, touching several internal continuity/integrability
+   steps in its proof, before it can be combined with (i) via the residue theorem (choosing an
+   open `U ⊇` the closed parallelogram, small enough to contain only the finitely many poles of
+   `f` inside `P`, giving a `Finset` `S`) and with the argument principle (applying the same
+   boundary-vanishing fact to `f'/f`, periodic since `f` is). Also open: order of an elliptic
+   function, and the facts that Mathlib's `℘` and `℘'` generate the field. References:
    SS 9.1, La XIV.1–2, Si 10.3–10.4, He XIV.2. Mathlib: `PeriodPair.weierstrassP` with its
    differential equation, no Liouville theorems, no residue calculus.
 G. **Univalent functions: area and distortion theorems.** Done (2026-09-24, `Parseval`,
@@ -370,21 +432,44 @@ H. **Smaller self-contained items.** (1) Done (2026-09-24, `SchwarzPick`): Schwa
    La VII.5, Ga II.7). Not treated: the point at infinity / `OnePoint ℂ` formalism itself, and
    the connection of the cross-ratio symmetric-point criterion to the classical geometric
    inverse-point formula for a genuine circle.
-   (3) reflection across analytic arcs and the Carleman extension principle (La IX.2,
-   Si 5.6, He XIII, C2 13.4) extending `Reflection`; (4) Done (2026-09-24, `ThreeCircles`):
+   (3) Done in part (2026-09-24, `CircleReflection`): reflection across a circle `‖z‖ = r`, the
+   first genuinely curved instance of reflection across an analytic arc (La IX.2, Si 5.6,
+   He XIII), extending `Reflection`. Reduces to `Reflection`'s real-axis case via a Cayley-type
+   Möbius map `cayleyCircle r z = I(r - z)/(r + z)` sending the circle to the real axis and the
+   disc to the upper half-plane — a single closed-form identity for its imaginary part,
+   `(cayleyCircle r z).im = (r² - ‖z‖²)/‖z + r‖²`, gives every needed region-mapping fact — and
+   conjugating circle inversion `z ↦ r²/conj z` to complex conjugation
+   (`cayleyCircle_inv_conj`), the algebraic heart of the reduction. Not treated: reflection
+   across a general analytic arc (only the circle case, not an arbitrary analytic curve via
+   local conformal straightening) and the Carleman extension principle (C2 13.4).
+   (4) Done (2026-09-24, `ThreeCircles`):
    Hadamard's three-circle theorem (La XII.4, Si 5.2), via the maximum principle for subharmonic
    functions (`Perron`) rather than Mathlib's three-lines theorem, applied to
-   `log ‖f‖ - a log ‖z‖` on the annulus. (5) the
-   Pringsheim–Vivanti theorem on singularities of power series with nonnegative coefficients
-   (Bu XI.3, Re 8.1); (6) the Sokhotski–Plemelj jump relations for Cauchy integrals (Ga VIII.7).
-   Checked (2026-09-23): this is not a small extension of `CauchyTransform` (which is the
-   several-variable area-integral Cauchy transform, `∂/∂z̄ = g` for compactly supported `C¹`
-   functions) or of `DiscCauchyTransform` (the area Cauchy transform of a disc indicator). The
-   classical jump relations concern a genuinely different object, the boundary Cauchy-type
-   *contour* integral `Cφ(z) = (2πi)⁻¹ ∮ φ(w)/(w - z) dw` of a density on a curve, with no
-   counterpart yet in the project; formalizing it needs its own module (existence, continuity,
-   and the jump formula as `z` approaches the curve from each side), not an extension of
-   existing code. (7) the characterizations of simple connectivity (Bu X.1,
+   `log ‖f‖ - a log ‖z‖` on the annulus. (5) Done (2026-09-23, `PringsheimVivanti`): the
+   Pringsheim–Vivanti theorem, that a power series with nonnegative coefficients and finite
+   radius of convergence `R` cannot be continued holomorphically across any neighborhood of the
+   boundary point `R` — proved in the equivalent contrapositive form, that such a continuation
+   forces the series to converge at some real point beyond `R` — by Taylor-recentering the
+   continuation at a point close to `R`, computing the recentered coefficients as explicit,
+   manifestly nonnegative finite binomial sums via term-by-term circle integration, and a
+   finite double-sum comparison (Bu XI.3, Re 8.1). (6) Done (2026-09-24, `SokhotskiPlemelj`):
+   the Sokhotski–Plemelj jump relation for the Cauchy-type contour integral
+   `Cφ(z) = (2πi)⁻¹ ∮ φ(w)/(w - z) dw` of a density on a circle (Ga VIII.7), for densities `φ`
+   given by an absolutely summable two-sided Laurent series `φ(w) = ∑ₖ c_k w^k` on the circle
+   (`∑ₖ ‖c_k‖ R^k` summable). Identifies `c` with the actual Laurent coefficients of `φ` by
+   term-by-term circle integration (reusing the elementary evaluation `∮ w^m dw = 2πi·[m = -1]`
+   from `PringsheimVivanti`), then invokes the project's Laurent expansion
+   `hasSum_circleLaurentCoeff_nat` / `hasSum_circleLaurentCoeff_negSucc` (`LaurentSeries.Basic`)
+   to identify the interior/exterior Cauchy-type integrals with explicit one-sided power series
+   in the nonnegative/negative Laurent coefficients, whose difference at any boundary point
+   recovers `φ` there — this is a genuinely new module (not an extension of `CauchyTransform`,
+   the several-variable area-integral Cauchy transform, or `DiscCauchyTransform`, its disc-
+   indicator special case, both unrelated boundary-contour objects). Not proved: the companion
+   "sum" identity `C₊ + C₋ = 2·PV∫` (needs a principal-value integral, not otherwise used in the
+   project) and an explicit `Tendsto`-as-`z → t` boundary-limit statement (the jump relation is
+   stated as an identity between the natural power-series continuations to the boundary, whose
+   agreement with the Cauchy-type integral on each open side is separately proved).
+   (7) the characterizations of simple connectivity (Bu X.1,
    Ga VIII.8, C1 VIII.2, Si 4.5), already listed under item 2 of Section 2.
 
 Deferred: Picard, Schottky, Bloch and the modular function (item 8 of Section 2; Mathlib's

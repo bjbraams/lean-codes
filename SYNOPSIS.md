@@ -21,13 +21,13 @@ after the libraries it imports. The nine libraries and their dependencies are
 | `Analysis` | Mathlib | 19 files |
 | `Pochhammer` | Mathlib | 10 files |
 | `StdSimplexMeasure` | `Pochhammer` | 32 files |
-| `ComplexAnalysis` | `Analysis`, `Topology` | 108 files |
+| `ComplexAnalysis` | `Analysis`, `Topology` | 115 files |
 | `SeveralComplexVariables` | `Analysis`, `Topology`, `ComplexAnalysis` | 133 files |
 | `Dirichlet` | all of the above except `Algebra` | 50 files |
 | `Carlson` | all of the above | 97 files |
 
 The whole project is written against a pinned Mathlib (the Lean 4 mathematical library, release
-v4.34.0). "New" below always means: not available in that Mathlib release, as far as the authors
+v4.35.0-rc2). "New" below always means: not available in that Mathlib release, as far as the authors
 could determine. Where the project reproves a Mathlib result in a more general form (typically
 Banach-valued instead of scalar-valued, or with fewer hypotheses), this is said explicitly.
 Conversely, wherever a Mathlib theorem is used as a black box, this is also indicated; the
@@ -748,29 +748,182 @@ parallelogram, so $|f(z)|\le M$ everywhere. If $f$ is in addition entire, bounde
 $\mathbb{C}$ forces it to be constant by the classical Liouville theorem for bounded entire
 functions — this is **Liouville's first theorem**. Liouville's second theorem (the sum of
 residues of an elliptic function over a period parallelogram vanishes) and third theorem
-(the numbers of zeros and poles, counted with multiplicity, agree) are not proved. The
-project's residue theorem and argument principle for cycles are already general enough for
-this; what was missing was specific to the period parallelogram itself.
+(the numbers of zeros and poles, counted with multiplicity, agree) still are not proved as
+theorems — but, unlike before, both of their prerequisite building blocks now are, described
+in the next two entries; only the final assembly is missing.
 
-**The parallelogram boundary as a smooth cycle, and its index outside (new, partial).** The
-boundary of the parallelogram with vertices $c, c+\omega_1, c+\omega_1+\omega_2, c+\omega_2$
-is realized as a single $C^\infty$ closed curve rather than four separate line segments: each
-edge is reparametrized by `Real.smoothTransition`, a function equal to $0$ up to its left
-endpoint and $1$ from its right endpoint on, with every derivative vanishing exactly at those
-two endpoints. Summing the four edge terms with this reparametrization glues them into a
-single globally $C^\infty$ closed curve, with no case analysis on differentiability at the
-corners, since each term is locally constant to all orders exactly where it hands off to the
-next. For a point $w$ outside the closed parallelogram, the index of this loop about $w$ is
-proved to vanish, by a straight-line homotopy coning the loop toward the vertex $c$: since $c$
-and every point of the loop lie in the closed convex parallelogram, so does the entire
-homotopy, so it automatically avoids $w$. Left open is the harder half: that the index equals
-$1$ at every point of the open interior. The exterior argument gives no information about the
-interior, since a nullhomotopy is unavailable there (the loop cannot be contracted to a point
-without crossing an interior point). Establishing the interior value needs either a direct
-winding computation — bounding and consistently signing the four edge-wise continuous argument
-changes as seen from an interior point, so that they sum to exactly $2\pi$ rather than $0$ or
-$4\pi$ — or an orientation hypothesis on $\omega_1, \omega_2$ (interchanging them reverses the
-traversal and negates the index) together with that computation. Neither was completed.
+**The parallelogram boundary as a smooth cycle, with its index proved on both sides (new).**
+The boundary of the parallelogram with vertices $c, c+\omega_1, c+\omega_1+\omega_2,
+c+\omega_2$ is realized as a single $C^\infty$ closed curve rather than four separate line
+segments: each edge is reparametrized by `Real.smoothTransition`, a function equal to $0$ up
+to its left endpoint and $1$ from its right endpoint on, with every derivative vanishing
+exactly at those two endpoints. Summing the four edge terms with this reparametrization glues
+them into a single globally $C^\infty$ closed curve, with no case analysis on differentiability
+at the corners, since each term is locally constant to all orders exactly where it hands off
+to the next. For a point $w$ outside the closed parallelogram, the index of this loop about
+$w$ vanishes, by a straight-line homotopy coning the loop toward the vertex $c$: since $c$ and
+every point of the loop lie in the closed convex parallelogram, so does the entire homotopy, so
+it automatically avoids $w$. The harder half — that the index equals $1$ at every point of the
+open interior, for $\omega_1, \omega_2$ positively oriented — is now also proved, by a route
+different from the one originally attempted (and shelved) here: rather than tracking a
+continuously varying branch of $\log$ or $\arg$ around the whole boundary (delicate to glue
+consistently across all four corners), each edge's contribution to the real "turning" integral
+$\int \mathrm{Im}[\gamma'/(\gamma-w)]$ is computed as an explicit $\arctan$ antiderivative — the
+Lagrange identity $(1+|z|^2)(1+|w|^2)-|1+\bar zw|^2=|z-w|^2$-style computation makes the
+relevant quadratic denominator positive-definite, and $\arctan$'s range bound $(-\pi/2,\pi/2)$
+then gives, for free, that each edge's contribution lies in $(0,\pi)$, hence the total lies in
+$(0,4\pi)$. Since the index is already known to be an integer, this pins it to exactly $1$
+without ever computing the total directly or gluing branches across corners at all.
+
+**The boundary integral of a doubly periodic function vanishes (new).** The other classical
+ingredient for Liouville 2/3 is that $\oint_{\partial P} f\,dz = 0$ for $f$ doubly periodic:
+opposite edges cancel exactly, since one is the periodic translate of the other, traversed in
+the opposite direction. Made precise: after a linear reparametrization bringing each edge's
+integral to the form $\int_0^1 h(v)\,dv$, the reversal substitution $u=1-v$ relates edge $k$'s
+integral to the opposite edge $k+2$'s, using one algebraic fact about the gluing function not
+recorded where `Real.smoothTransition` is defined —
+$\mathrm{smoothTransition}(1-x)=1-\mathrm{smoothTransition}(x)$, immediate from its own
+defining formula as a ratio of two `expNegInvGlue` translates — to simplify the shifted
+argument down to exactly "the original point translated by the other period", at which point
+periodicity of $f$ finishes it. **Not done**: combining this with the index fact above into
+Liouville 2/3 proper. The obstacle is a hypothesis mismatch, not further mathematics: this
+lemma needs $f$ *globally* continuous, but a genuinely non-constant elliptic function always
+has poles (an entire doubly periodic function is constant, by Liouville 1) and so is never
+globally continuous — weakening the hypothesis to continuity near the boundary only (needed to
+touch several internal continuity/integrability steps in the proof) remains for future work,
+after which the residue theorem and argument principle for cycles (already general enough,
+proved independently of this work) apply directly.
+
+**The Pringsheim–Vivanti theorem (new).** A power series $\sum a_n z^n$ with nonnegative real
+coefficients and finite radius of convergence $R$ cannot be continued holomorphically across a
+neighborhood of the boundary point $R$; equivalently (the contrapositive form proved here), if
+$F$ agrees with the series on $\{|z|<R\}$ and extends holomorphically to
+$\{|z|<R\}\cup\{|z-R|<\rho\}$ for some $\rho>0$, the series itself already converges at some
+real $z_0 > R$. Fix $x_0$ close enough to $R$ (specifically $x_0 = R-\delta$ for
+$\delta=\min(\rho,R)/4$) that a genuine disc $\{|w-x_0|<s'\}$, $s'=\rho/2$, sits inside the
+extended domain — a short triangle-inequality computation, since the extended domain already
+contains $\{|z|<R\}$ and only needs to reach a bit further near $R$. On a *small* circle
+$\{|w|=r\}$, $r<R-x_0$, entirely inside the original disc, the Taylor coefficients of the
+translate $G(w)=F(x_0+w)$ at $0$ (Mathlib's `circleLaurentCoeff`, a Cauchy-kernel circle
+integral) are computed *explicitly*: substituting the series for $F$, moving the sum outside
+the integral (justified by uniform convergence of the partial sums on the circle, Weierstrass's
+$M$-test — no delicate interchange machinery needed), expanding $(x_0+w)^k$ by the finite
+binomial theorem, and evaluating $\oint w^m\,dw$ around the origin (zero unless $m=-1$, when it
+is $2\pi i$) picks out a single term from each finite expansion, giving the $n$-th coefficient
+as $\sum_k a_k\binom{k}{n}x_0^{k-n}$ — manifestly nonnegative. Since $G$ is in fact holomorphic
+on the larger disc $\{|w|<s'\}$ (reaching past $R$), Mathlib's Laurent expansion on an annulus
+gives convergence of this same Taylor series at every point out to radius $s'$, in particular at
+$z_0-x_0$ for a suitable real $z_0>R$; taking real parts (the coefficients are real) gives an
+ordinary real convergent series $\sum_n (z_0-x_0)^n\sum_k[\text{if }n\le k\text{ then }
+a_k\binom{k}{n}x_0^{k-n}\text{ else }0]$. Finally, for any finite set $S$ of indices, bounding
+$\sum_{k\in S}a_k z_0^k$ by a partial sum over $\{0,\dots,K\}$ ($K=\max S$), expanding
+$z_0^k=(x_0+(z_0-x_0))^k$ by the binomial theorem, swapping the two finite sums (an ordinary
+`Finset.sum_comm`, since both range over the same rectangle once padded with an
+if-then-zero guard — no genuine reindexing needed), and comparing each resulting finite
+inner sum to the corresponding infinite tail, bounds $\sum_{k\in S}a_k z_0^k$ by the total of
+the already-known-convergent real series, giving $\sum a_k z_0^k$ convergent by comparison.
+
+**The Sokhotski–Plemelj jump relation (new).** For a density $\varphi$ on a circle $\{|w|=R\}$,
+the Cauchy-type contour integral $C\varphi(z)=(2\pi i)^{-1}\oint\varphi(w)/(w-z)\,dw$ is
+holomorphic off the circle, and classically its boundary values from inside and outside a point
+$t$ of the circle differ by the density itself: $C_+(t)-C_-(t)=\varphi(t)$. This is proved for
+densities given by an *absolutely summable* two-sided Laurent series
+$\varphi(w)=\sum_k c_k w^k$ ($k\in\mathbb Z$, $\sum_k\|c_k\|R^k$ summable). Splitting $c$ into
+its nonnegative- and negative-index parts, the two one-sided series $c_+(z)=\sum_n c_n z^n$ and
+$c_-(z)=-\sum_n c_{-(n+1)}z^{-(n+1)}$ ($n\in\mathbb N$) are shown to equal $C\varphi(z)$ for
+$\|z\|<R$ and $\|z\|>R$ respectively, by first identifying $c$ with the actual Laurent
+coefficients of $\varphi$ on its own circle — a term-by-term circle integration (the same
+Weierstrass-$M$-test technique and the elementary evaluation of $\oint w^m\,dw$ reused from
+`PringsheimVivanti`) picks out $c_n$ regardless of the sign of $n$, since exactly one of the two
+one-sided sums contributes the surviving residue — and then invoking Mathlib's Laurent expansion
+`hasSum_circleLaurentCoeff_nat` / `hasSum_circleLaurentCoeff_negSucc` to recognize each one-sided
+series as the genuine Cauchy-type integral on its side (the latter with a reversed kernel
+$(z-w)^{-1}$, whose sign is tracked explicitly). Since $c$ is summable at radius $R$ itself, both
+series converge absolutely at any boundary point $t$, giving natural continuations of $C\varphi$
+to the boundary from each side; their difference is then $\sum_n c_n t^n+\sum_n
+c_{-(n+1)}t^{-(n+1)}=\varphi(t)$ by construction — the jump relation. Not proved: the companion
+"sum" identity with a Cauchy principal-value integral, and an explicit $\mathrm{Tendsto}$
+statement that these power-series values are literal one-sided limits as $z\to t$ (their
+agreement with the actual contour integral on each *open* side is what is proved).
+
+**Paley–Wiener, holomorphic-extension half (new).** The full Paley–Wiener theorem identifies the
+entire functions of exponential type with square-integrable restriction to $\mathbb R$ exactly
+with the Fourier-type transforms of functions supported on a bounded interval. This is the
+classical *preliminary* half (Stein–Shakarchi's own split, SS 4.1): for $f$ integrable on
+$[-\tau,\tau]$, the transform $F(z)=\int_{-\tau}^{\tau}f(t)e^{izt}\,dt$ — the (unnormalized-kernel)
+Fourier-type transform of $f$ extended by zero outside $[-\tau,\tau]$ — extends holomorphically to
+an entire function of exponential type at most $\tau$. Entire-ness is obtained by differentiating
+under the integral sign in the *complex* parameter $z$, using Mathlib's parametric-derivative
+machinery (`hasDerivAt_integral_of_dominated_loc_of_deriv_le`) instantiated with parameter space
+$H=\mathbb C$, so the resulting `HasDerivAt` literally is complex differentiability; the needed
+locally uniform bound on the derivative of the kernel $e^{izt}$ comes from $t$ ranging over the
+fixed compact interval $[-\tau,\tau]$. The exponential type bound is the elementary estimate
+$|e^{izt}|=e^{-t\cdot\mathrm{Im}\,z}\le e^{\tau\|z\|}$ for $t\in[-\tau,\tau]$. Not proved: that
+$F$ restricted to $\mathbb R$ lies in $L^2(\mathbb R)$ when $f$ does (Plancherel for this
+transform — bridging it to Mathlib's abstract $L^2$ Fourier isometry, built by continuous
+extension from Schwartz functions with a $2\pi$-normalized kernel, would need a currently-missing
+lemma identifying that isometry with the concrete integral on $L^1\cap L^2$ functions), and the
+converse ("hard") direction, that every entire function of exponential type $\tau$ with $L^2$
+restriction to $\mathbb R$ arises this way (the classical proof needs a mean-square bound on
+$\int\|F(x+iy)\|^2\,dx$ uniform in $y$, from the sub-mean-value property of the subharmonic
+function $\|F\|^2$ together with the growth bound — a substantial argument, not attempted here).
+
+**Reflection across a circle (new).** The Schwarz reflection principle proved earlier is
+specific to the real axis; this is the next classical instance of reflection across an
+*analytic arc* — the first genuinely curved case, reflection across a circle $\|z\|=r$. The
+proof reduces to the real-axis case via a Cayley-type Möbius map
+$\varphi(z) = i(r-z)/(r+z)$,
+which sends the circle to the real axis and the disc to the upper half-plane. Every geometric
+fact about $\varphi$ needed — which of the three regions a point lands in on which side of the
+real axis — follows from a single closed-form identity for its imaginary part,
+$\varphi(z).\mathrm{im} = (r^2-\|z\|^2)/\|z+r\|^2$,
+obtained directly from $\mathrm{Complex.div\_im}$ and real/imaginary-part algebra. Crucially,
+$\varphi$ conjugates circle inversion $z\mapsto r^2/\bar z$ to complex conjugation:
+$\varphi(r^2/\bar z) = \overline{\varphi(z)}$,
+verified by direct field algebra (clearing denominators via the nonvanishing facts already in
+hand). Consequently, for $f$ holomorphic inside the circle, continuous up to it, and
+real-valued on it, the function $g := f\circ\varphi^{-1}$ is holomorphic in the upper
+half-plane, continuous up to $\mathbb R$, and real-valued there, so the earlier Schwarz
+reflection theorem gives an entire extension of $g$ on the transported (inversion-invariant
+becomes conjugation-invariant, via the intertwining identity) domain; pulling back along
+$\varphi$ — itself holomorphic away from its pole $-r$ — shows the reflected extension of $f$
+across the circle, defined directly as $f(z)$ for $\|z\|\le r$ and $\overline{f(r^2/\bar z)}$
+for $\|z\|>r$, equals $\mathrm{schwarzReflection}\ g\circ\varphi$ and hence is holomorphic on
+the original domain. The domain hypotheses mirror the real-axis case exactly: open and
+inversion-invariant, only now also avoiding the inversion pole $0$ and the Möbius pole $-r$.
+Not treated: reflection across a general analytic arc (only the circle, not an arbitrary curve
+via local conformal straightening) and the Carleman extension principle.
+
+**The chordal metric and spherical derivative (new).** Normal families of *meromorphic*
+functions need a metric on the extended plane $\mathbb C\cup\{\infty\}$ (Mathlib's `OnePoint
+ℂ`) under which a pole is just an ordinary point — the chordal (spherical) metric. Rather than
+verifying the classical closed-form formula
+$\chi(z,w) = 2|z-w|/\sqrt{(1+|z|^2)(1+|w|^2)}$
+satisfies the triangle inequality directly (a considerably messier computation), `chordalDist`
+is *defined* as the Euclidean distance between the images of two points under inverse
+stereographic projection `stereographicInv`,
+$z \mapsto (2\operatorname{Re}z,\, 2\operatorname{Im}z,\, |z|^2-1)/(|z|^2+1) \in \mathbb R^3,
+\qquad \infty \mapsto (0,0,1)$,
+landing on the unit sphere in $\mathbb R^3$ (`EuclideanSpace ℝ (Fin 3)`, via the `!₂[\cdot]`
+literal notation). Every metric-space axiom — symmetry, the triangle inequality, nonnegativity —
+is then inherited for free from the ambient Euclidean metric on $\mathbb R^3$, and definiteness
+(distance zero only between a point and itself) follows from proving `stereographicInv`
+injective directly: equal third coordinates force equal $|z|^2$, and then equal first/second
+coordinates force $z=w$. The classical closed-form formula is recovered afterward as a genuine
+*theorem* about this definition — the key algebraic content of that recovery is the identity
+$(1+|z|^2)(1+|w|^2) - |1+\bar zw|^2 = |z-w|^2$ underlying the sum of the three squared Euclidean
+coordinate differences, verified directly by `field_simp`/`ring` on the real and imaginary parts.
+The **spherical derivative** $f^\#(z) = |f'(z)|/(1+|f(z)|^2)$ of a holomorphic function measures
+the local chordal-metric distortion of $f$; the one structural fact proved here is its
+invariance under post-composition with the inversion $w\mapsto 1/w$, reflecting that inversion
+is a chordal isometry of the sphere — a short computation via the quotient rule for `deriv` and
+`norm_inv`. Not treated: Marty's criterion for normality (spherical derivatives locally bounded
+$\iff$ the family is normal) and Zalcman's rescaling lemma, both of which need a genuine
+normal-families compactness theory for sphere-valued function families — allowing degenerate
+limits identically equal to $\infty$ — that does not exist anywhere in the project; the
+project's existing Montel compactness machinery (`Analysis.Holomorphic.NormalFamily`, shared
+with `SeveralComplexVariables`) is built for finite-dimensional vector space targets and does
+not transfer directly to the sphere.
 
 **Montel, Vitali (one variable).** A family of holomorphic maps bounded on each compact subset of
 an open set, with finite-dimensional target, has compact closure in $\mathcal O(U, F)$, and
