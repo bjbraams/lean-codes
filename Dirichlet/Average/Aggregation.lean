@@ -16,6 +16,23 @@ Carlson's equal-node aggregation theorem holds for all complex parameters after
 regularization. The probability aggregation theorem supplies the identity on positive
 real parameters; analytic uniqueness extends it to the whole complex parameter space.
 The partition is surjective, so no empty blocks are inserted.
+
+## Main results
+
+* `Dirichlet.carlsonAffineForm_aggregate`: The affine form factors through aggregation when
+  nodes are constant on blocks.
+* `Dirichlet.realCarlsonDirichletAverage_aggregate`: Real Dirichlet averages respect any
+  surjective grouping of equal nodes.
+* `Dirichlet.IsRegCarlsonContinuation.aggregate`: Entire-parameter form of Carlson's Theorem
+  5.2-4. Equal nodes are merged and their parameters added, including zero and negative
+  parameters.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977
+  (Dirichlet averages).
+* NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
+  https://dlmf.nist.gov/5.14.
 -/
 
 open Complex MeasureTheory ProbabilityTheory Set

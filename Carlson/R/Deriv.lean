@@ -14,6 +14,25 @@ public import Dirichlet.Average.Associated
 This file proves the pointwise kernel identities, differentiation under the Dirichlet
 integral, and joint analyticity in the nodes for Carlson's Theorem 5.9-2 on the native
 parameter convergence region and right-half-plane node domain.
+
+## Main results
+
+* `Carlson.analyticOnNhd_cpow_carlsonAffineForm`: For a fixed simplex point, Carlson's power
+  kernel is analytic in all variables throughout the right-half-plane domain. This is the
+  pointwise input to the analyticity in Theorem 5.9-2.
+* `Carlson.carlsonPartialDeriv_regCarlsonRIntegral`: Coordinate form of Carlson's first
+  differentiation formula, Relation 5.9-6, equation (9).
+* `Carlson.analyticOnNhd_regCarlsonRIntegral`: Carlson's joint analyticity assertion in Theorem
+  5.9-2, restricted to the nodes, for the native regularized integral on the right-half-plane
+  variable domain.
+* `Carlson.analyticOnNhd_carlsonRIntegral`: The native unregularized R-integral is jointly
+  analytic on the same variable domain.
+* `Carlson.sum_mul_deriv_cpow_carlsonAffineForm`: Euler's differential identity for the
+  pointwise power kernel, corresponding to the second equation of Theorem 5.9-2.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet

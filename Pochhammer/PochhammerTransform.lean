@@ -56,7 +56,7 @@ The resulting transformations define a linear equivalence of `Polynomial R`. It 
 the leading coefficient and natural degree. The file also proves its interaction with
 multiplication by `X`.
 
-## Main definitions and results
+## Main results
 
 * `ascPochhammerTransform`: the linear map sending `X ^ n` to `ascPochhammer R n`.
 * `ascPochhammerInverseTransform`: its inverse, expressed using Stirling numbers of the
@@ -118,23 +118,32 @@ noncomputable def inverseAscPochhammerBasis (n : ℕ) : Polynomial R :=
     Polynomial.monomial k (((-1 : R) ^ (n - k)) * (n.stirlingSecond k : R))
 
 /- Some private defs and theorems towards the proof of `sum_stirlingSecond_mul_ascPochhammer`. -/
+/-- The second-kind Stirling coefficient with sign `(-1) ^ (n + k)`, viewed in the coefficient ring. -/
 private def signedStirlingSecond (n k : ℕ) : R :=
   (-1 : R) ^ n * (-1 : R) ^ k * (n.stirlingSecond k : R)
+/-- The signed second-kind Stirling coefficients satisfy the recurrence for simultaneous increments
+of both indices. -/
 private theorem signedStirlingSecond_succ_succ (n k : ℕ) :
     signedStirlingSecond R (n + 1) (k + 1) =
       signedStirlingSecond R n k -
         signedStirlingSecond R n (k + 1) * ((k + 1 : ℕ) : R) := by
   simp [signedStirlingSecond, Nat.stirlingSecond_succ_succ,
     pow_succ, Nat.cast_add, Nat.cast_mul]; ring
+/-- A signed second-kind Stirling coefficient with positive first index and zero second index
+vanishes. -/
 @[simp] private theorem signedStirlingSecond_succ_zero (n : ℕ) :
     signedStirlingSecond R (n + 1) 0 = 0 := by
   simp [signedStirlingSecond]
+/-- Multiplication by `X` raises the degree of the ascending Pochhammer polynomial and subtracts the
+degree times the original polynomial. -/
 private theorem ascPochhammer_mul_X (k : ℕ) :
     ascPochhammer R k * Polynomial.X =
       ascPochhammer R (k + 1) -
         (k : R) • ascPochhammer R k := by
   rw [ascPochhammer_succ_right]
   simp [mul_add, Polynomial.smul_eq_C_mul, mul_comm]
+/-- Signed second-kind Stirling coefficients expand the monomial `X ^ n` in the ascending Pochhammer
+basis. -/
 private theorem sum_signedStirlingSecond_mul_ascPochhammer (n : ℕ) :
     ∑ k ∈ Finset.range (n + 1),
         signedStirlingSecond R n k • ascPochhammer R k =
@@ -184,6 +193,8 @@ private theorem sum_signedStirlingSecond_mul_ascPochhammer (n : ℕ) :
       simp_rw [ascPochhammer_mul_X]
       simp_rw [smul_sub]
       simp_rw [smul_smul]
+/-- For `k ≤ n`, the sign `(-1) ^ (n - k)` gives the same signed Stirling coefficient as the product
+of the two parity signs. -/
 private theorem neg_one_pow_sub_mul_stirlingSecond
     {n k : ℕ} (hk : k ≤ n) :
     ((-1 : R) ^ (n - k)) * (n.stirlingSecond k : R) =

@@ -15,6 +15,23 @@ The Hermite–Genocchi simplex integral defines divided differences of complex f
 We prove permutation symmetry, the coalesced Taylor coefficient, and the recurrence on
 convex domains. The definition is total; its interpolation properties require the stated
 analyticity hypotheses.
+
+## Main results
+
+* `Complex.dividedDifference`: The Hermite–Genocchi divided difference of order `n`, defined by
+  integrating `iteratedDeriv n f` over the simplex of nodes. Analyticity on a convex
+  neighborhood of the nodes gives the usual divided-difference recurrence, including coincident
+  nodes.
+* `Complex.dividedDifference_perm`: Divided differences are invariant under permutations of
+  their nodes.
+* `Complex.dividedDifference_const`: If all nodes coincide, the divided difference is the
+  corresponding Taylor coefficient.
+* `Complex.dividedDifference_sub`: The divided-difference recurrence in multiplication form,
+  valid also at coincident nodes.
+
+## References
+
+* `Mathlib.Analysis.Calculus.IteratedDeriv.Lemmas`: formal background used by this module.
 -/
 
 open MeasureTheory

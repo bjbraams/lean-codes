@@ -8,11 +8,27 @@ module
 public import Carlson.R.Recurrence.Coefficients
 public import SeveralComplexVariables.PolynomialDerivatives
 
-/-! # Universal polynomial recurrence coefficients and specialization
+/-!
+# Universal polynomial recurrence coefficients and specialization
 
 The coordinates are `none` for the exponent parameter, `some (inl i)` for
 Dirichlet parameters and `some (inr i)` for nodes. No R-function dependence
-or recurrence theorem is imported here. -/
+or recurrence theorem is imported here.
+
+## Main results
+
+* `Carlson.eval_carlsonAssociatedRecurrenceJointPolynomial`: Specialization recovers the
+  existing division-free recurrence coefficients.
+* `Carlson.carlsonAssociatedRecurrenceJointPolynomial_zero_ne_zero`: The universal family is not
+  the zero polynomial family. This is polynomial nontriviality; specializations may still have
+  vanishing coefficients.
+* `Carlson.hasDerivAt_carlsonRecurrencePoint_eval`: Formal differentiation supplies a polynomial
+  coefficient derivative, including at exceptional parameter values.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
+-/
 
 open Complex Set
 open scoped Topology
@@ -29,6 +45,7 @@ def recurrencePochhammer (n : ℕ) (p : MvPolynomial (Option (ι ⊕ ι)) ℂ) :
   (ascPochhammer ℂ n).eval₂ MvPolynomial.C p
 
 omit [Fintype ι] in
+/-- Evaluation commutes with the ascending Pochhammer polynomial used in recurrence coefficients. -/
 private theorem eval_recurrencePochhammer (n : ℕ)
     (p : MvPolynomial (Option (ι ⊕ ι)) ℂ) (w : Option (ι ⊕ ι) → ℂ) :
     (recurrencePochhammer n p).eval w = (ascPochhammer ℂ n).eval (p.eval w) := by

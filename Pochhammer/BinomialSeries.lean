@@ -14,6 +14,21 @@ public import Mathlib.RingTheory.Polynomial.Pochhammer
 
 The generating function \(\sum_n (a)_n t^n / n! = (1-t)^{-a}\) for \(\|t\| < 1\), written in
 Mathlib's `ascPochhammer` and `Ring.multichoose` language.
+
+## Main results
+
+* `Complex.ascPochhammer_eval_div_factorial`: Ascending Pochhammer symbols divided by factorials
+  are the binomial-ring multichoose coefficients.
+* `Complex.hasSum_ascPochhammer_mul_pow_div_factorial`: The binomial series \(\sum (a)_n t^n /
+  n! = (1-t)^{-a}\) inside the unit disk.
+* `Complex.summable_norm_ascPochhammer_mul_pow_div_factorial`: The binomial series of
+  `hasSum_ascPochhammer_mul_pow_div_factorial` is absolutely summable inside the unit disk.
+
+## References
+
+* `Mathlib.Analysis.Analytic.Binomial`: formal background used by this module.
+* `Mathlib.RingTheory.Binomial`: formal background used by this module.
+* `Mathlib.RingTheory.Polynomial.Pochhammer`: formal background used by this module.
 -/
 
 open scoped Topology

@@ -15,6 +15,26 @@ Regularization by both endpoint Gamma factors identifies a weighted Euler integr
 with a two-coordinate Dirichlet transform. A kernel holomorphic near the closed interval
 therefore gives a continuation entire in both endpoint exponents and jointly holomorphic
 in its auxiliary parameters. This also permits analytic substitutions in the exponents.
+
+## Main results
+
+* `Dirichlet.integrableOn_eulerKernel_mul`: Positive endpoint exponents make a continuous
+  weighted Euler kernel integrable.
+* `Dirichlet.regDirichletIntegral_fin_two`: A two-coordinate regularized Dirichlet integral is a
+  regularized Euler integral.
+* `Dirichlet.exists_joint_regEulerContinuation`: A holomorphic interval kernel has a joint
+  continuation entire in both endpoint exponents. The open complex neighborhood may depend on
+  the auxiliary parameter.
+* `Dirichlet.exists_analyticOnNhd_regEulerIntegral`: Analytic substitution in the endpoint
+  exponents preserves the continued Euler integral. Native agreement is asserted wherever both
+  substituted exponents have positive real part.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977
+  (Dirichlet averages).
+* NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
+  https://dlmf.nist.gov/5.14.
 -/
 
 open Complex MeasureTheory ProbabilityTheory Set

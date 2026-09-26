@@ -6,7 +6,7 @@ Authors: Bastiaan J Braams
 module
 
 public import Dirichlet.Average.HolomorphicDomain
-public import Analysis.ConvexHullDomain
+public import ToMathlib.Analysis.ConvexHullDomain
 
 /-!
 # The native node domain of a holomorphic Dirichlet average
@@ -19,6 +19,29 @@ this node set is connected too, giving a useful uniqueness domain.
 This does not extend the average to tuples whose convex hull leaves `D`.
 That is the additional content of Carlson (1969), Theorem 8, on simply
 connected domains; its general existence assertion remains open here.
+
+## Main results
+
+* `Dirichlet.mem_carlsonIntegralNodeDomain_iff`: Convex-hull containment can be tested on the
+  simplex coordinates.
+* `Dirichlet.isConnected_carlsonIntegralNodeDomain_of_isOpen`: Every connected open scalar
+  domain has a connected native node domain.
+* `Dirichlet.exists_joint_isRegCarlsonContinuation_on_integralDomain`: Joint entire-parameter
+  continuation over the native node domain of any open holomorphy domain. Convexity of that
+  scalar domain is not required.
+* `Dirichlet.isJointRegCarlsonContinuationOn_of_convex_seed_of_isConnected`: Recognize native
+  agreement throughout any connected open scalar domain from agreement on a nonempty convex open
+  seed. Joint holomorphy on the full product domain is a hypothesis, not an existence
+  conclusion.
+* `Dirichlet.isJointRegCarlsonContinuationOn_of_convex_seed`: The star-convex specialization of
+  native agreement from a convex open seed.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977
+  (Dirichlet averages).
+* NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
+  https://dlmf.nist.gov/5.14.
 -/
 
 open Complex ProbabilityTheory Set Filter

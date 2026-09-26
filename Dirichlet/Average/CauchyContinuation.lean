@@ -22,6 +22,30 @@ unique regularized continuation of the corresponding derivative average.
 General Jordan contours and their contour-adapted resolvent branches remain
 necessary for Carlson's Theorems 5 and 8 on nonconvex simply connected domains.
 The multiply connected and Riemann-surface extensions are left open.
+
+## Main results
+
+* `Dirichlet.mem_carlsonResolventDomain_of_mem_sphere`: A circle surrounding all nodes avoids
+  all their simplex affine combinations.
+* `Dirichlet.isRegCarlsonContinuation_continuedRegCarlsonCauchyRepresentation`: Carlson's
+  circle-Cauchy expression is an entire regularized continuation, for every derivative order; no
+  boundary derivatives are required.
+* `Dirichlet.isJointRegCarlsonContinuationOn_circle`: The circle construction supplies a
+  domain-aware joint continuation on its interior disk, ready for comparison and gluing with
+  other local constructions.
+* `Dirichlet.IsRegCarlsonContinuation.eq_circleIntegral`: Any established entire continuation
+  has the circle-Cauchy representation at every complex Dirichlet parameter, including poles of
+  the unregularized average.
+* `Dirichlet.continuedRegCarlsonCauchyRepresentation_eq_of_disks`: Independence of the enclosing
+  circle for all complex parameters. Both circles must bound disks on which the same scalar
+  function is holomorphic.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977
+  (Dirichlet averages).
+* NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
+  https://dlmf.nist.gov/5.14.
 -/
 
 open Complex MeasureTheory ProbabilityTheory Set Metric

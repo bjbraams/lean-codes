@@ -18,6 +18,20 @@ import Pochhammer.Identities
 
 Carlson's inequality 6.2-7(24) uses the maximum node norm, not the sum
 of node norms. This distinction preserves the full Taylor disk in Section 6.3.
+
+## Main results
+
+* `Carlson.norm_carlsonRPolynomialNumerator_le_pochhammer`: Carlson 6.2-7(24), with independent
+  nonnegative bounds for the parameter norms.
+* `Carlson.norm_carlsonRPolynomialNumerator_le_sum_norm`: The parameter majorant in 6.2-7 can be
+  chosen to be the parameter norms themselves.
+* `Carlson.exists_summable_norm_carlsonTaylor_bounded_variables`: A normally convergent majorant
+  for the Taylor construction on compact parameter sets and bounded node vectors. The only
+  radius restriction is `q * r < 1`.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Complex Finset Polynomial Set

@@ -16,7 +16,27 @@ public import Carlson.RPolynomial.PowerSeries
 public import Carlson.RPolynomial.TaylorContinuation
 public import Carlson.RPolynomial.Differential
 
-/-! # Carlson's R-polynomials
+/-!
+# Carlson's R-polynomials
 
 Umbrella import for the algebraic, transformation, and generating-function theory.
+
+## Main results
+
+This module re-exports the following developments:
+
+* `Carlson.RPolynomial.Basic`: Carlson's R-polynomials.
+* `Carlson.RPolynomial.Coefficients`: Coefficients of Carlson's R-polynomials.
+* `Carlson.RPolynomial.Estimates`: Estimates for Carlson's R-polynomials.
+* `Carlson.RPolynomial.SharpEstimates`: Sharp bounds for Carlson polynomials.
+* `Carlson.RPolynomial.Binomial`: The binomial theorem for Carlson's R-polynomials.
+* `Carlson.RPolynomial.Transform`: Linear transformations of Carlson's R-polynomials.
+* `Carlson.RPolynomial.Generating`: Generating functions of Carlson's R-polynomials.
+* `Carlson.RPolynomial.PowerSeries`: Power-series representations using Carlson R-polynomials.
+* `Carlson.RPolynomial.TaylorContinuation`: Carlson's continued Taylor representation.
+* `Carlson.RPolynomial.Differential`: Differentiation of Carlson's Pochhammer numerators.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/

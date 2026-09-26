@@ -17,6 +17,22 @@ below, rather than a quotient evaluated at Gamma poles, implements Legendre dupl
 Node domains are unchanged from the native transformation theorems.
 `EqualParameter` supplies the canonical ordinary continuation, retaining the removable
 values at nonpositive integral `β` where the entire ratio here vanishes.
+
+## Main results
+
+* `Carlson.TwoVariable.analyticOnNhd_quadraticGammaRatio`: Legendre's duplication ratio is
+  entire.
+* `Carlson.TwoVariable.Gamma_mul_quadraticGammaRatio`: Duplication converts the native
+  normalization into the equal-parameter normalization.
+* `Carlson.TwoVariable.regCarlsonR_pair_firstQuadratic`: First quadratic transformation, entire
+  in both parameters, including exceptional Gamma parameters. There are no convergence or
+  non-pole hypotheses.
+* `Carlson.TwoVariable.regCarlsonR_pair_secondQuadratic`: Second quadratic transformation,
+  entire in both parameters.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Complex ProbabilityTheory Filter Set

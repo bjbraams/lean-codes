@@ -15,6 +15,21 @@ Carlson (1987), (2.6), (3.1)–(3.4), and (3.7), for arbitrary complex exponents
 and Dirichlet parameters. The identities are regularized and have no exceptional
 parameter hyperplanes. Euler inversion retains the minus sign from the reflected
 exponent, and the lowering and tangent identities retain their inhomogeneous R-terms.
+
+## Main results
+
+* `Carlson.regCarlsonL_three_node`: Equation (3.3), allowing coincident indices and nodes.
+* `Carlson.regCarlsonL_tangent_sub`: Equation (3.7), with its R-term and without parameter
+  restrictions.
+* `Carlson.regCarlsonL_sub_dirichletUnit`: Equation (3.4) in parameter-lowered form.
+  Regularization eliminates the ordinary normalization's factor `c - 1`, so no exceptional
+  parameter is excluded.
+* `Carlson.regCarlsonL_weighted_tangent_sub`: Carlson (1987), (3.8), on the full slit domain.
+  The undivided identity includes coincident nodes and equal indices.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet

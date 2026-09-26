@@ -13,10 +13,14 @@ public import Carlson.S.Series
 
 The two-node specializations of the native S-integrals and of the entire regularized S-series.
 
-## Main definitions
+## Main statements
 
 * `Carlson.TwoVariable.regSIntegral`, `Carlson.TwoVariable.sIntegral`,
   `Carlson.TwoVariable.regSSeries`.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Complex MeasureTheory ProbabilityTheory Filter Set

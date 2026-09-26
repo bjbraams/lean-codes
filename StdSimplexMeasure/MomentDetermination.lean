@@ -12,6 +12,30 @@ public import Mathlib.Topology.ContinuousMap.StoneWeierstrass
 
 /-!
 # Moment determination for measures supported on the standard simplex
+
+Finite measures supported on the standard simplex in a finite real coordinate space are
+determined by their monomial moments. The proof first passes from monomials to multivariate
+polynomials, then uses polynomial approximation on the compact simplex. Integrability and
+almost-everywhere support lemmas supply the measure-theoretic interface.
+
+## Main results
+
+* `MeasureTheory.integrable_of_continuous_of_restrict_stdSimplex`: A continuous real function is
+  integrable against a finite measure supported on the simplex.
+* `MeasureTheory.ae_mem_of_restrict_eq_self`: A finite measure equal to its restriction to a
+  measurable set is concentrated on that set.
+* `MeasureTheory.integral_mvPolynomial_eval_eq_of_forall_monomial`: Two finite measures on the
+  simplex with the same monomial moments integrate every polynomial alike.
+* `MeasureTheory.eq_of_forall_monomial_integral_eq_of_restrict_stdSimplex`: Finite Borel
+  measures supported on the standard simplex are determined by their monomial moments.
+  Polynomials are dense in the continuous functions on the compact simplex by
+  Stone--Weierstrass, and the two measures integrate every polynomial alike.
+
+## References
+
+* `Mathlib.Algebra.MvPolynomial.Eval`: formal background used by this module.
+* `Mathlib.MeasureTheory.Measure.HasOuterApproxClosed`: formal background used by this module.
+* `Mathlib.Topology.ContinuousMap.StoneWeierstrass`: formal background used by this module.
 -/
 
 open Real MeasureTheory MeasureTheory.Measure

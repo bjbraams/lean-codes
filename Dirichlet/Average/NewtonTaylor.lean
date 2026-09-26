@@ -17,6 +17,23 @@ Unweighted Dirichlet averages are related to the general Hermite–Genocchi divi
 differences, Newton–Taylor formulas, and repeated segment integrals in `ComplexAnalysis`.
 The original application statements are retained as wrappers around that theory.
 
+
+## Main results
+
+* `Dirichlet.one_mem_mvRealBetaDomain`: The unweighted Dirichlet parameters belong to the
+  positive real parameter domain.
+* `Dirichlet.carlsonDividedDifference_sub`: **Carlson 5.5-1.** Divided differences defined by
+  unweighted Dirichlet averages satisfy the usual first-order recurrence, including at
+  coincident nodes.
+* `Dirichlet.newtonTaylor_sum_add_remainder`: **Carlson 5.5-2.** The finite Newton expansion
+  with its Dirichlet-average remainder.
+* `Dirichlet.taylor_sum_add_carlsonRemainder`: Taylor's formula with Carlson's
+  unweighted-average remainder, obtained from the Newton--Taylor formula by coalescing all
+  interpolation nodes.
+* `Dirichlet.carlsonRepeatedIntegral_eq_unweightedAverage`: Carlson's equation 5.5(10): an
+  `n`-fold repeated integral is an unweighted Dirichlet average with `n` nodes coalesced at the
+  base point and one node at the endpoint.
+
 ## References
 
 * B. C. Carlson, *Special Functions of Applied Mathematics*, Section 5.5 (1977).

@@ -15,6 +15,25 @@ public import Carlson.R.Explicit
 The two numerator parameters in the Gauss series are symmetric. We establish
 this symmetry first near the all-one node vector, then continue in the parameters
 and in the slit-plane node. This is the R-identity underlying Carlson (1987), (2.12).
+
+## Main results
+
+* `Carlson.TwoVariable.carlsonRPolynomialNumerator₂_zero_left`: Only one monomial survives when
+  the first polynomial node vanishes.
+* `Carlson.TwoVariable.regCarlsonR_normalize_first`: Normalize the first node, with branch
+  control for arbitrary right-half-plane nodes. The normalized second node need only belong to
+  the slit plane.
+* `Carlson.TwoVariable.regCarlsonR_parameterInterchange`: Exponent-parameter interchange at two
+  right-half-plane nodes, with no parameter restrictions and a slit-plane ratio on the
+  transformed side.
+* `Carlson.TwoVariable.regCarlsonR_pair_swap`: Simultaneously swapping the two parameters and
+  nodes on the slit domain.
+* `Carlson.TwoVariable.regCarlsonR_parameterInterchange_last`: The second form of the
+  exponent-parameter interchange, normalized at the last node.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet
@@ -38,6 +57,8 @@ theorem carlsonRPolynomialNumerator₂_zero_left (n : ℕ) (u v y : ℂ) :
     simp [zero_pow hi]
   · simp
 
+/-- For convergent parameter vectors, the native two-node R-integral near unit nodes is invariant
+under interchange of the two numerator parameters of its Gauss series. -/
 private theorem parameterSymmetry_native_near_one (a u v y : ℂ)
     (hb : pair u v ∈ mvBetaConvergent)
     (hB : pair (u + v - a) a ∈ mvBetaConvergent) (hy : ‖y‖ < 1) :
@@ -65,6 +86,8 @@ private theorem parameterSymmetry_native_near_one (a u v y : ℂ)
     ext i; fin_cases i <;> simp [pair]
   simpa only [hn] using h₁.unique h₂
 
+/-- The numerator-parameter symmetry near unit nodes extends to all parameters of the regularized
+R-function. -/
 private theorem parameterSymmetry_near_one (a u v y : ℂ) (hy : ‖y‖ < 1) :
     regCarlsonR (-a) (pair u v) (pair 1 (1 - y)) =
       regCarlsonR (-v) (pair (u + v - a) a) (pair 1 (1 - y)) := by

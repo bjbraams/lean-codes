@@ -13,6 +13,17 @@ public import Mathlib.MeasureTheory.Function.SpecialFunctions.Basic
 
 The angular coordinate of a finite real vector is obtained by dividing by its sum.
 This map is defined at sum zero and recovers a simplex point from any positive scaling.
+
+## Main results
+
+* `Convexity.StdSimplex.measurable_normalizeCoordinates`: Normalization by the coordinate sum is
+  measurable, including at sum zero.
+* `Convexity.StdSimplex.sum_normalizeCoordinates_smul`: Radial coordinates recover a simplex
+  point and its positive scale.
+
+## References
+
+* `Mathlib.MeasureTheory.Function.SpecialFunctions.Basic`: formal background used by this module.
 -/
 
 @[expose] public noncomputable section

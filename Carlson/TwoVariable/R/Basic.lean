@@ -13,10 +13,14 @@ public import Carlson.R.Basic
 
 The two-node specializations of the native regularized and ordinary Carlson R-integrals.
 
-## Main definitions
+## Main statements
 
 * `Carlson.TwoVariable.regRIntegral`, `Carlson.TwoVariable.rIntegral`: the R-integrals with
   parameters `b₀, b₁` and nodes `z₀, z₁`.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Complex MeasureTheory ProbabilityTheory Filter Set

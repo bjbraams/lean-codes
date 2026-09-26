@@ -12,6 +12,21 @@ public import Mathlib.RingTheory.Polynomial.Pochhammer
 
 These multiplicative identities avoid division by parameter-dependent factors, so they remain
 valid at zeros of the Pochhammer symbols.
+
+## Main results
+
+* `ascPochhammer_eval_shift`: A division-free shift identity for ascending Pochhammer symbols.
+* `ascPochhammer_add_eval`: Evaluation of the product formula for ascending Pochhammer symbols.
+* `ascPochhammer_eval_double`: Duplication of ascending Pochhammer symbols, in division-free
+  multiplicative form.
+* `ascPochhammer_eval_split_reflect`: Splitting an ascending Pochhammer symbol and reflecting
+  the remaining factors.
+* `ascPochhammer_eval_reflect`: Reflection of ascending Pochhammer symbols, including their
+  zeros.
+
+## References
+
+* `Mathlib.RingTheory.Polynomial.Pochhammer`: formal background used by this module.
 -/
 
 open Polynomial

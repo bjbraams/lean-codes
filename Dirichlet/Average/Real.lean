@@ -13,6 +13,18 @@ public import Dirichlet.Average.Kernel
 
 This file provides the probability-theoretic form of Carlson's average.  Its parameters are
 strictly positive real numbers and integration is against `dirichletMeasure`.
+
+## Main results
+
+* `Dirichlet.realCarlsonDirichletAverage_eq_integral`: The probability-theoretic Carlson average
+  has the expected density representation.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977
+  (Dirichlet averages).
+* NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
+  https://dlmf.nist.gov/5.14.
 -/
 
 open Complex MeasureTheory MeasureTheory.Measure ProbabilityTheory

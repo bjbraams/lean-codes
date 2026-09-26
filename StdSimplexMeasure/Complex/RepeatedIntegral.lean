@@ -13,6 +13,20 @@ public import Mathlib.MeasureTheory.Integral.CurveIntegral.Basic
 
 Segment integration is identified with Mathlib's curve integral. Its iterates are expressed
 as simplex integrals with coalesced base nodes, for kernels continuous on a convex domain.
+
+## Main results
+
+* `Complex.repeatedIntegral_zero`: The zeroth repeated integral is the original function.
+* `Complex.repeatedIntegral_succ`: The successor step for the repeated integration operator.
+* `Complex.segmentIntegral_eq_curveIntegral`: Segment integration agrees with Mathlib's curve
+  integral of the associated one-form.
+* `Complex.repeatedIntegral_eq_simplexIntegral`: Repeated segment integration as a simplex
+  integral with the base nodes coalesced. Continuity on a convex domain suffices; analyticity is
+  not required.
+
+## References
+
+* `Mathlib.MeasureTheory.Integral.CurveIntegral.Basic`: formal background used by this module.
 -/
 
 open MeasureTheory

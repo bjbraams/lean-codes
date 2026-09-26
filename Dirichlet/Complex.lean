@@ -16,7 +16,7 @@ functionals. These are complex-valued densities, not measures in the sense of Ma
 nonnegative `Measure` type. Parameter analyticity is in `Dirichlet.Complex.Analytic`,
 and continuation beyond the convergence domain is in `Dirichlet.Transform`.
 
-## Main definitions and results
+## Main results
 
 * `Complex.mvBeta_eq_integral`: the simplex integral representation of the multivariate Beta
   function.

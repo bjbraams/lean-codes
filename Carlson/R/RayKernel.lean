@@ -15,6 +15,25 @@ public import Mathlib.Analysis.MellinTransform
 The products of powers in Carlson's single-integral representation (Section 6.8)
 have explicit power growth at infinity. These estimates also apply to the primitive
 used in the associated-function recurrence of Section 8.4.
+
+## Main results
+
+* `Carlson.carlsonRayProduct_eq_scaled`: Extracting the positive real scale from each affine
+  factor is branch-safe.
+* `Carlson.hasDerivAt_cpow_mul_carlsonRayProduct`: Differentiation under the branch-safe
+  positive-ray hypotheses.
+* `Carlson.integrableOn_carlsonRayDerivative`: The ray derivative is absolutely integrable in
+  the boundary-vanishing strip.
+* `Carlson.integral_carlsonRayDerivative_eq_zero`: Carlson's ray-kernel integration-by-parts
+  identity. The hypotheses imply both endpoint values vanish and the derivative is absolutely
+  integrable.
+* `Carlson.mellin_carlsonRayProduct_eq_rIntegral`: Carlson's Exercise 6.8-8: the ray
+  representation with factors `1 + x zᵢ`. This is the orientation needed in the proof of the
+  associated-function recurrence.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet

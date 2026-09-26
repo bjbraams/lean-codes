@@ -15,6 +15,26 @@ At positive real parameters the normalized complex integral is a probability exp
 the regularized integral differs by the Gamma factor of the total parameter.
 These identities hold for arbitrary integrands as identities of totalized Bochner integrals.
 They neither require nor invoke analytic continuation.
+
+## Main results
+
+* `Complex.mvBeta_ofReal`: The complex multivariate beta function specializes to the real one.
+* `Dirichlet.complexDirichletDensity_ofReal`: At positive real parameters the normalized complex
+  density is the real probability density, regarded as complex-valued.
+* `Dirichlet.complexDirichletIntegral_ofReal`: The normalized native complex Dirichlet integral
+  is a probability expectation at positive real parameters.
+* `Dirichlet.regDirichletIntegral_ofReal`: The regularized native complex Dirichlet integral is
+  the probability expectation divided by the Gamma factor of the total parameter.
+* `Dirichlet.complexDirichletIntegral_ofReal_ofReal`: Real-valued probability expectations can
+  be recovered by specializing the complex Dirichlet integral in both its parameters and its
+  integrand.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977
+  (Dirichlet averages).
+* NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
+  https://dlmf.nist.gov/5.14.
 -/
 
 open Complex MeasureTheory ProbabilityTheory

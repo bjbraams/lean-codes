@@ -19,6 +19,15 @@ provides the correction coefficients needed for the corresponding L-recurrence.
 
 This constructs a universal homogeneity recurrence. It does not yet construct
 universal coefficient witnesses for arbitrary lists of associated shifts.
+
+## Main results
+
+* `Carlson.sum_carlsonAssociatedRecurrenceJointPolynomial_mul_regCarlsonR`: The same polynomial
+  family gives the R-relation for every parameter and slit node.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet

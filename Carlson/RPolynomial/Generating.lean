@@ -19,6 +19,23 @@ import Pochhammer.BinomialSeries
 This file develops [Carl77, Section 6.6].  The scalar binomial series
 `∑ (a)_n t^n / n! = (1-t)^{-a}` is `Complex.hasSum_ascPochhammer_mul_pow_div_factorial`
 in `Pochhammer.BinomialSeries`.
+
+## Main results
+
+* `Carlson.carlsonRPolynomialNumerator_eq_sum_piAntidiag`: The Pochhammer numerator is the
+  complete degree-`n` multinomial expansion.
+* `Carlson.carlsonGeneratingCoeff_empty`: The empty generating series is the constant series
+  `1`.
+* `Carlson.hasSum_carlsonGeneratingCoeff`: The generating series attached to a subset of the
+  Carlson coordinates.
+* `Carlson.hasSum_carlsonRPolynomialNumerator_div_factorial`: Carlson's generating relation
+  6.6-1 in the division-free Pochhammer-numerator normalization.
+* `Carlson.summable_carlsonRPolynomialNumerator_div_factorial`: Within the common disk `‖t * z
+  i‖ < 1`, the series of Carlson numerator coefficients is summable.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet

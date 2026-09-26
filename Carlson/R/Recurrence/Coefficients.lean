@@ -151,6 +151,8 @@ theorem carlsonElementarySymmetric_card (z : ι → ℂ) :
   simp [carlsonElementarySymmetric, MvPolynomial.esymm,
     ← Finset.card_univ, Finset.powersetCard_self]
 
+/-- Multiplying a coordinate derivative of the top elementary symmetric polynomial by that
+coordinate recovers the polynomial. -/
 private lemma X_mul_pderiv_esymm_card (i : ι) :
     MvPolynomial.X i * MvPolynomial.pderiv i
       (MvPolynomial.esymm ι ℂ (Fintype.card ι)) =

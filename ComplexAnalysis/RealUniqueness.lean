@@ -10,6 +10,23 @@ public import Mathlib.Analysis.Complex.CauchyIntegral
 
 /-!
 # Uniqueness of holomorphic functions from real parameters
+
+Analytic functions with values in a complex normed space are determined on a preconnected domain
+by agreement on a real neighborhood of a point in the domain. In particular, two entire
+functions agreeing on the positive real axis are equal.
+
+## Main results
+
+* `AnalyticOnNhd.eqOn_of_eventuallyEq_ofReal`: Local one-variable uniqueness from agreement on a
+  real germ. This is the form useful when the functions are only analytic on a connected
+  continuation domain rather than entire.
+* `AnalyticOnNhd.eq_of_eqOn_posReal`: Two entire functions of one complex variable which agree
+  at every positive real number agree everywhere.
+
+## References
+
+* J. B. Conway, *Functions of One Complex Variable I*, second edition, Springer, 1978
+  (background on one-variable holomorphic functions).
 -/
 
 public noncomputable section
@@ -54,6 +71,6 @@ theorem AnalyticOnNhd.eq_of_eqOn_posReal {F G : ℂ → H}
     filter_upwards [eventually_gt_nhds (show (0 : ℝ) < 1 by norm_num)] with x hx
     exact hEq x hx
   have h := hF.eqOn_of_eventuallyEq_ofReal hG isPreconnected_univ (Set.mem_univ _) hEq'
-  exact funext fun z => h (Set.mem_univ z)
+  exact funext fun z ↦ h (Set.mem_univ z)
 
 end

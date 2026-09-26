@@ -13,6 +13,23 @@ public import Dirichlet.Transform
 
 Tangential integration by parts proves the Euler--Poisson system first for large real
 parts of the parameters. Analytic uniqueness extends it to the native convergence domain.
+
+## Main results
+
+* `Dirichlet.regCarlsonDirichletAverage_tangent`: The tangential contiguous relation, on the
+  native convergence domain.
+* `Dirichlet.carlsonEulerPoissonOperator_regCarlsonDirichletAverage`: **Carlson 5.4-1,
+  regularized form.** A regularized Carlson average of a function holomorphic on a convex domain
+  satisfies the Euler--Poisson system on node vectors contained in that domain.
+* `Dirichlet.carlsonEulerPoissonOperator_carlsonDirichletAverage`: **Carlson 5.4-1.** The native
+  Carlson Dirichlet average satisfies the Euler--Poisson system on its convergence domain.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977
+  (Dirichlet averages).
+* NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
+  https://dlmf.nist.gov/5.14.
 -/
 
 open Complex MeasureTheory ProbabilityTheory
@@ -24,6 +41,8 @@ namespace Dirichlet
 variable {ι : Type*} [Fintype ι]
 
 open scoped Classical in
+/-- Along a simplex tangent direction, differentiating a holomorphic function of the affine node
+average gives its scalar derivative times the corresponding node difference. -/
 private lemma carlson_tangent_fderiv
     {Ω : Set ℂ} (hΩconv : Convex ℝ Ω) {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f Ω)
     {z : ι → ℂ} (hz : Set.range z ⊆ Ω) (i j : ι)
@@ -36,6 +55,8 @@ private lemma carlson_tangent_fderiv
   erw [hd.fderiv]
   simp [carlsonSimplexCLM_tangent, mul_comm]
 
+/-- A continuous function on a convex node domain remains continuous after composition with the
+affine average on the simplex. -/
 private lemma continuousOn_carlson_comp
     {Ω : Set ℂ} (hΩconv : Convex ℝ Ω) {f : ℂ → ℂ} (hf : ContinuousOn f Ω)
     {z : ι → ℂ} (hz : Set.range z ⊆ Ω) :
@@ -45,6 +66,7 @@ private lemma continuousOn_carlson_comp
 
 open scoped Classical in
 omit [Fintype ι] in
+/-- Raising a Dirichlet parameter by one is addition of the corresponding coordinate unit vector. -/
 private lemma addDirichletUnit_eq_add_single (b : ι → ℂ) (i : ι) :
     addDirichletUnit b i = b + Pi.single i 1 := by
   ext k

@@ -15,6 +15,27 @@ public import Mathlib.Analysis.Convex.Combination
 
 This file contains the common algebraic kernel used by both the real probability average and
 the complex regularized integral.
+
+## Main results
+
+* `Dirichlet.continuous_carlsonAffineForm`: The affine form associated with `z` is continuous in
+  the simplex variable.
+* `Dirichlet.carlsonSimplexCLM_tangent`: A coordinate tangent vector is sent to the difference
+  of the corresponding nodes.
+* `Dirichlet.carlsonAffineForm_mem_convexHull`: Carlson's affine form lies in the real convex
+  hull of its parameters.
+* `Dirichlet.mem_convexHull_range_iff_carlsonAffineForm`: The convex hull of the nodes is
+  exactly the image of the intrinsic simplex under Carlson's affine form, including for empty
+  index types.
+* `Dirichlet.zero_mem_convexHull_range_iff`: Zero lies in the convex hull precisely when the
+  affine form vanishes at some simplex point.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977
+  (Dirichlet averages).
+* NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
+  https://dlmf.nist.gov/5.14.
 -/
 
 open Complex

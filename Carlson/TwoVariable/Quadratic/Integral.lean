@@ -33,6 +33,8 @@ open scoped Topology
 @[expose] public noncomputable section
 namespace Carlson.TwoVariable
 
+/-- When the total parameter has positive real part, multiplying the regularized two-node polynomial
+by its Gamma factor gives the numerator divided by a Pochhammer factor. -/
 private lemma Gamma_mul_regRPolynomial (n : ℕ) (p q x y : ℂ)
     (hc : 0 < (p + q).re) :
     Gamma (p + q) * regRPolynomial n p q x y =
@@ -52,6 +54,8 @@ private lemma Gamma_mul_regRPolynomial (n : ℕ) (p q x y : ℂ)
   rw [regRPolynomial_eq_numerator₂_mul_one_div_Gamma, hG']
   field_simp
 
+/-- At opposite nodes and equal parameters with positive real part, an even-degree normalized
+R-polynomial is an explicit ratio of half-integer Pochhammer factors times the node power. -/
 private lemma Gamma_mul_regRPolynomial_even_opposite
     (n : ℕ) {β : ℂ} (hβ : 0 < β.re) (w : ℂ) :
     Gamma (β + β) * regRPolynomial (2 * n) β β w (-w) =
@@ -66,6 +70,8 @@ private lemma Gamma_mul_regRPolynomial_even_opposite
     simp only [add_re, div_ofNat_re, one_re]; linarith) n
   field_simp
 
+/-- The first quadratic transformation holds for native integrals at nodes `1 - w` and `1 + w`
+when `‖w‖ < 1` and both parameter vectors are convergent. -/
 private lemma rIntegral_firstQuadratic_near_one (t β w : ℂ)
     (hbleft : pair β β ∈ mvBetaConvergent)
     (hbright : pair (β + t) (1 / 2 - t) ∈ mvBetaConvergent)
@@ -139,6 +145,8 @@ private lemma rIntegral_firstQuadratic_near_one (t β w : ℂ)
     simpa only [Function.comp_def, heq] using he
   exact hs.unique hr
 
+/-- Scaling both right-half-plane nodes by a scalar with positive real part scales the native
+R-integral by the principal power of that scalar. -/
 private lemma rIntegral_smul_of_re_pos (t p q x y : ℂ) {m : ℂ} (hm : 0 < m.re)
     (hz : pair x y ∈ carlsonRVariableDomain) :
     rIntegral t p q (m * x) (m * y) = m ^ t * rIntegral t p q x y := by
@@ -292,6 +300,8 @@ private lemma rIntegral_secondQuadratic_near_one (t β : ℂ)
     tsum_quadraticSeries_eq (-t) (β + 1 / 2) w hc' hs]
   exact (hasSum_rIntegral_secondQuadratic_right t β w hbright hw).tsum_eq
 
+/-- The first quadratic transformation follows for convergent parameters when the arithmetic mean,
+its square, and the normalized node difference satisfy the stated branch and disc conditions. -/
 private lemma rIntegral_firstQuadratic_of_normalized (t β x y : ℂ)
     (hbleft : pair β β ∈ mvBetaConvergent)
     (hbright : pair (β + t) (1 / 2 - t) ∈ mvBetaConvergent)
@@ -440,6 +450,8 @@ theorem rIntegral_firstQuadratic (t β x y : ℂ)
   have H := hleft.eqOn_of_preconnected_of_eventuallyEq hright hS h0 hlocal h1
   simpa [X, Y] using H
 
+/-- The second quadratic transformation holds for native integrals with convergent parameter vectors
+and right-half-plane roots in the second quadratic domain. -/
 private lemma rIntegral_secondQuadratic_of_re_pos (t β x y : ℂ)
     (hbleft : pair β β ∈ mvBetaConvergent)
     (hbright : pair (2 * β + t) (1 / 2 - β - t) ∈ mvBetaConvergent)

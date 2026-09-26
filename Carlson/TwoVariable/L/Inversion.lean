@@ -8,10 +8,24 @@ module
 public import Carlson.TwoVariable.R.Inversion
 public import Carlson.L.Continuation
 
-/-! # Two-variable L-inversion
+/-!
+# Two-variable L-inversion
 
 The full slit-domain correction is `log x + log y`; the `log (x * y)` version
-requires the branch-safe right-half-plane hypotheses. -/
+requires the branch-safe right-half-plane hypotheses.
+
+## Main results
+
+* `Carlson.TwoVariable.regCarlsonL_pair_inversion`: Carlson (1987), (2.11), in branch-correct
+  form on the entire product slit plane. No Gamma-regularity assumptions are needed for these
+  regularized functions.
+* `Carlson.TwoVariable.regCarlsonL_pair_inversion_log_mul`: The paper's `log (x * y)` form of
+  (2.11), on its branch-safe right half-plane.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
+-/
 
 open Dirichlet
 open Complex MeasureTheory ProbabilityTheory Filter Set

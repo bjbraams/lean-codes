@@ -29,6 +29,8 @@ parameter symmetries.
 
 ## References
 
+## Main results
+
 * [Carl77] B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 * [Carl87] B. C. Carlson, *Dirichlet averages of `x^t log x`*, SIAM J. Math. Anal. 18 (1987).
 -/

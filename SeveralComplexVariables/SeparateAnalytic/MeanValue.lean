@@ -26,6 +26,11 @@ separate-analyticity theorem.
 `volume_mul_norm_rpow_le_integral_closedBall` is the volume submean inequality for positive
 powers of holomorphic norms on a closed ball. `integral_closedBall_smul_rotation` averages unit
 complex rotations.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public section

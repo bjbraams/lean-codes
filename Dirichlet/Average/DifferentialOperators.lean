@@ -20,6 +20,22 @@ and iterated derivatives with the general SCV operators, preserving Carlson's pu
 The integral differentiation formulas in
 `Associated` and the integration-by-parts proof in `Deriv` both use this lower-level layer.
 
+
+## Main results
+
+* `Dirichlet.carlsonAffineForm_update`: Updating one parameter of Carlson's affine form changes
+  its value by the corresponding simplex coordinate times the change in that parameter.
+* `Dirichlet.carlsonDirectionalDeriv_comp_carlsonAffineForm`: Evaluation of a
+  constant-coefficient directional derivative on a Carlson kernel. This is the first-order
+  pointwise identity behind Carlson's more general formula (5.3-4).
+* `Dirichlet.carlsonEulerPoissonOperator_const_mul`: The Euler--Poisson operator commutes with
+  multiplication of the dependent function by a constant.
+* `Dirichlet.carlsonEulerPoissonOperator_self`: The diagonal members of the Euler--Poisson
+  system vanish identically.
+* `Dirichlet.carlsonEulerPoissonOperator_comp_carlsonAffineForm`: Evaluation of the
+  Euler--Poisson operator on a Carlson kernel. The integral of this expression is the quantity
+  killed by Carlson's integration-by-parts argument in the proof of Theorem 5.4-1.
+
 ## References
 
 * [Carl77] B. C. Carlson, *Special Functions of Applied Mathematics*, Sections 5.3--5.4,

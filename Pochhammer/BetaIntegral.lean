@@ -11,8 +11,28 @@ public import Mathlib.Probability.Distributions.Beta
 /-!
 # Further results about the Euler Beta integral
 
-This file is a temporary home for results intended to accompany
-`Mathlib.Analysis.SpecialFunctions.Gamma.Beta`.
+This file supplements Mathlib’s Euler beta integral with scaling formulas for complex kernels
+and their norms, real set-integral formulas on closed intervals, and a nonnegative integral
+formulation. Convergence assumptions are expressed as positivity of the real parts of the
+parameters, or the corresponding lower bounds on real exponents. Integer parameters give the
+factorial formula used for simplex moments.
+
+## Main results
+
+* `Complex.intervalIntegrable_betaKernel_scaled`: The scaled Beta kernel is interval-integrable
+  on `[0, a]` under the usual convergence conditions.
+* `Real.integral_Icc_rpow_mul_one_sub_rpow`: The real Euler beta integral in set-integral form.
+* `Real.integral_Icc_rpow_mul_sub_rpow`: The scaled real Euler beta integral in set-integral
+  form.
+* `Real.lintegral_Icc_rpow_mul_sub_rpow`: The nonnegative Beta integral on an arbitrary positive
+  interval.
+* `MeasureTheory.integral_Icc_pow_mul_one_sub_pow`: The beta integral at positive integer
+  parameters, in a form convenient for simplex monomial integrals.
+
+## References
+
+* `Mathlib.Analysis.SpecialFunctions.Gamma.Beta`: formal background used by this module.
+* `Mathlib.Probability.Distributions.Beta`: formal background used by this module.
 -/
 
 open MeasureTheory

@@ -20,12 +20,18 @@ realization of `Convexity.StdSimplex.map`.
 The fiber-cardinality results are included because they describe the exponents and normalization
 constants that occur when coordinate measures on standard simplices are pushed forward.
 
-## Main definitions and results
+## Main results
 
 * `stdSimplexAggregate`: aggregation of coordinates along a finite map.
 * `Convexity.StdSimplex.weights_map_eq_stdSimplexAggregate`: compatibility with the intrinsic
   standard-simplex map.
 * `stdSimplexAggregateFiberCard`: cardinality of a fiber of the aggregation map.
+
+## References
+
+* `Mathlib.Geometry.Convex.ConvexSpace.Defs`: formal background used by this module.
+* `Mathlib.Topology.Algebra.Monoid.FunOnFinite`: formal background used by this module.
+* `Mathlib.Data.Fintype.BigOperators`: formal background used by this module.
 -/
 
 @[expose] public noncomputable section StdSimplexAggregation

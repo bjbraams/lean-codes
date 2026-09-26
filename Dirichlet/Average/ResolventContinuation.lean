@@ -21,6 +21,28 @@ This is not yet the contour-adapted branch on a nonconvex Jordan domain in
 Carlson's Theorems 4–5. That construction and the simply connected extension of
 Theorem 8 remain further work. Extensions to multiply connected domains and to
 Riemann surfaces are deliberately left open.
+
+## Main results
+
+* `Dirichlet.isOpen_carlsonResolventDomain`: The resolvent domain is open jointly in its
+  evaluation point and nodes.
+* `Dirichlet.exists_joint_regCarlsonResolvent`: Coordinate form of the joint entire-parameter
+  resolvent construction.
+* `Dirichlet.analyticOnNhd_continuedRegCarlsonResolvent`: Joint analyticity in all parameters,
+  evaluation point, and nodes.
+* `Dirichlet.continuedRegCarlsonResolvent_eq_native`: The continued kernel agrees with the
+  native resolvent on the convergence region.
+* `Dirichlet.isRegCarlsonContinuation_continuedRegCarlsonResolvent`: At a fixed exterior point
+  the resolvent is the unique entire continuation of the corresponding native Carlson average.
+* `Dirichlet.continuedRegCarlsonResolvent_const_nodes`: coincident nodes give the integer
+  Cauchy kernel times reciprocal Gamma at every parameter vector.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977
+  (Dirichlet averages).
+* NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
+  https://dlmf.nist.gov/5.14.
 -/
 
 open Complex MeasureTheory ProbabilityTheory Set Filter Metric
@@ -134,6 +156,30 @@ theorem isRegCarlsonContinuation_continuedRegCarlsonResolvent (n : ℕ)
   intro b _
   exact (analyticOnNhd_continuedRegCarlsonResolvent n (b, s, z) ⟨mem_univ _, hs⟩).comp_of_eq
     (analyticAt_id.prod analyticAt_const) rfl
+
+/-- At coincident nodes the continued regularized resolvent reduces to the
+ordinary integer Cauchy kernel times reciprocal Gamma of the total parameter. -/
+theorem continuedRegCarlsonResolvent_const_nodes (n : ℕ) (b : ι → ℂ) {w s : ℂ}
+    (hs : s ≠ w) :
+    continuedRegCarlsonResolvent n b (fun _ => w) s =
+      (s - w) ^ (-(n + 1 : ℤ)) / Gamma (∑ i, b i) := by
+  have hdom : (s, fun _ : ι => w) ∈ carlsonResolventDomain := by
+    intro u hu
+    rw [carlsonAffineForm_const hu w]
+    exact sub_ne_zero.mpr hs
+  have hR : AnalyticOnNhd ℂ
+      (fun b : ι → ℂ => (s - w) ^ (-(n + 1 : ℤ)) / Gamma (∑ i, b i)) univ := by
+    intro b _
+    apply AnalyticAt.mul analyticAt_const
+    exact ((analyticOnNhd_univ_iff_differentiable.mpr
+      Complex.differentiable_one_div_Gamma) _ (mem_univ _)).comp
+      (Finset.analyticAt_fun_sum _ fun i _ =>
+        (ContinuousLinearMap.proj i : (ι → ℂ) →L[ℂ] ℂ).analyticAt b)
+  exact congrFun (analyticOnNhd_eq_of_eqOn_mvBetaConvergent
+    (isRegCarlsonContinuation_continuedRegCarlsonResolvent n hdom).analyticOnNhd hR
+    (fun b hb => by
+      rw [continuedRegCarlsonResolvent_eq_native n hb hdom, regCarlsonResolvent]
+      exact regCarlsonDirichletAverage_const _ w hb)) b
 
 end Dirichlet
 end

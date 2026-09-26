@@ -5,7 +5,7 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import Topology.SeparateContinuous
+public import ToMathlib.Topology.SeparateContinuous
 public import SeveralComplexVariables.LocallyBounded
 
 /-!

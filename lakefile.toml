@@ -1,20 +1,19 @@
 name = "Main"
-version = "0.1.0"
+version = "0.2.0"
 defaultTargets = ["Main"]
+buildDir = ".lake/build-codes"
 
 [[lean_lib]]
 name = "Main"
-roots = ["Algebra", "Dirichlet", "Carlson", "StdSimplexMeasure", "Pochhammer", "SeveralComplexVariables", "ComplexAnalysis", "Analysis", "Topology"]
+roots = ["ToMathlib.Algebra", "ToMathlib.Analysis", "ToMathlib.Topology", "Dirichlet", "Carlson", "StdSimplexMeasure", "Pochhammer", "SeveralComplexVariables", "ComplexAnalysis"]
 globs = [
-  "Algebra", "Algebra.+",
+  "ToMathlib.+",
   "StdSimplexMeasure", "StdSimplexMeasure.+",
   "Dirichlet", "Dirichlet.+",
   "Carlson", "Carlson.+",
   "Pochhammer", "Pochhammer.+",
   "SeveralComplexVariables", "SeveralComplexVariables.+",
   "ComplexAnalysis", "ComplexAnalysis.+",
-  "Analysis", "Analysis.+",
-  "Topology", "Topology.+",
 ]
 
 [[lean_exe]]

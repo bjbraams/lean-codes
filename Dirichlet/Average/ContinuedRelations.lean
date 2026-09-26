@@ -14,6 +14,26 @@ public import Dirichlet.Transform.Laws
 The regularized identities of Carlson, Section 5.6, persist under analytic
 continuation. All Dirichlet parameters below are arbitrary complex numbers.
 The derivative appearing here is the derivative of the function being averaged.
+
+## Main results
+
+* `Dirichlet.IsRegCarlsonContinuation.sum_shift`: Entire-parameter version of Carlson's relation
+  5.6-1(4).
+* `Dirichlet.IsRegCarlsonContinuation.three_node`: Carlson's three-node associated relation
+  5.6-3. No distinctness assumptions on the nodes, indices, or Dirichlet parameters are needed.
+* `Dirichlet.regCarlsonDirichletAverage_mul_arg`: Multiplication of the function being averaged
+  by its argument is a weighted sum of parameter shifts, on the native integral domain.
+* `Dirichlet.IsRegCarlsonContinuation.mul_arg`: Entire-parameter multiplication-by-argument
+  identity.
+* `Dirichlet.IsRegCarlsonContinuation.associated`: Carlson's relation 5.6-4, in regularized form
+  on the entire parameter space. `D` averages `f'`, while `H` averages `w * f'(w)`.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977
+  (Dirichlet averages).
+* NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
+  https://dlmf.nist.gov/5.14.
 -/
 
 open Complex Set MeasureTheory ProbabilityTheory

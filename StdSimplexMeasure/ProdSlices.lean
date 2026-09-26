@@ -35,6 +35,30 @@ This is a temporary project home. Intended Mathlib placement:
 instance on `α × ℝ` and is not intended for Mathlib.
 
 TODO: if those lemmas land in Mathlib, delete this file and switch uses to the upstream names.
+
+## Main results
+
+* `MeasureTheory.setLIntegral_prod_slices`: Tonelli's theorem for a nonnegative integral
+  restricted to a measurable subset `T` of a product. The inner integral is over the section `{y
+  | (x, y) ∈ T}`. Unlike `setIntegral_prod_slices`, this result requires no integrability
+  hypothesis.
+* `MeasureTheory.setIntegral_prod_slices_symm`: Symmetric Fubini theorem for an integrable
+  function restricted to a measurable subset `T` of a product. The inner integral is over the
+  section `{x | (x, y) ∈ T}`.
+* `MeasureTheory.setLIntegral_prod_Icc_slice`: Tonelli's theorem for the region between two
+  graphs, in the closed-interval convention. This is the `Icc` companion of `regionBetween`; see
+  `measurableSet_region_between_cc`.
+* `MeasureTheory.setIntegral_prod_Icc_slice`: Fubini's theorem for the region between two
+  graphs, in the closed-interval convention. This is the `Icc` companion of `regionBetween`; see
+  `measurableSet_region_between_cc`.
+* `MeasureTheory.setIntegral_prod_Icc_slice_volume`: Volume form of
+  `setIntegral_prod_Icc_slice`, matching the product `MeasureSpace` instance on `α × ℝ`. Local
+  convenience, not intended for Mathlib.
+
+## References
+
+* `Mathlib.MeasureTheory.Integral.Prod`: formal background used by this module.
+* `Mathlib.MeasureTheory.Measure.Lebesgue.Basic`: formal background used by this module.
 -/
 
 open MeasureTheory Set
@@ -43,6 +67,8 @@ public noncomputable section
 
 namespace MeasureTheory
 
+/-- Swapping the coordinates of an indicator function is the indicator of the swapped set applied to
+the swapped function. -/
 private theorem indicator_swap {α β γ : Type*} [Zero γ] (T : Set (α × β)) (f : α × β → γ) :
     (fun q : β × α ↦ T.indicator f q.swap) =
       (Prod.swap ⁻¹' T).indicator (fun q ↦ f q.swap) := by
@@ -131,6 +157,8 @@ theorem setIntegral_prod_slices_symm
 variable {α : Type*} [MeasurableSpace α]
 
 omit [MeasurableSpace α] in
+/-- The fiber of a region between two graphs is the corresponding closed interval when the base
+point lies in the base set, and is empty otherwise. -/
 private theorem prod_Icc_slice_preimage (s : Set α) (lo hi : α → ℝ) (x : α) :
     Prod.mk x ⁻¹' {p : α × ℝ | p.1 ∈ s ∧ p.2 ∈ Icc (lo p.1) (hi p.1)} =
       {t | x ∈ s ∧ t ∈ Icc (lo x) (hi x)} := by

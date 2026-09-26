@@ -13,6 +13,27 @@ public import Mathlib.Analysis.Calculus.Deriv.Slope
 /-!
 # Complex powers on the positive half-line
 
+The function `positiveCpow` equals the principal complex power on the positive real half-line
+and is extended by zero on the nonpositive half-line. Continuity across zero requires a positive
+real part of the exponent; differentiability across zero requires real part greater than one.
+The Gamma-normalized version shifts the exponent by one and satisfies a parameter-lowering
+derivative formula under the corresponding stronger bound.
+
+## Main results
+
+* `Complex.continuous_positiveCpow`: The positive-axis complex power is continuous when the
+  exponent has positive real part.
+* `Complex.hasDerivAt_positiveCpow`: The positive-axis complex power has the expected derivative
+  when the exponent has real part greater than one.
+* `Complex.continuous_positiveGammaPower`: The Gamma-normalized positive-axis power is
+  continuous when the exponent has real part greater than one.
+* `Complex.hasDerivAt_positiveGammaPower`: Differentiating the Gamma-normalized positive-axis
+  power lowers its exponent by one.
+
+## References
+
+* `Mathlib.Analysis.SpecialFunctions.Pow.Deriv`: formal background used by this module.
+* `Mathlib.Analysis.Calculus.Deriv.Slope`: formal background used by this module.
 -/
 
 open Complex Set Filter

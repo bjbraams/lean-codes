@@ -5,43 +5,32 @@ The foundational developments are intended as potential Mathlib contributions.
 
 ## Organization
 
-There are nine main directories.
+There are seven main directories.
 
-- `Algebra/`.
-General submodule and linear-dependence support.
-
-- `Topology/`.
-General compactness, path, graph, semicontinuity, and Baire-theorem support.
-
-- `Analysis/`.
-General normed-space, functional-analysis, Taylor-estimate, and integration support,
-including the Gamma integral with a complex Laplace parameter.
+- `ToMathlib/`.
+General support that depends only on Mathlib, in the namespaces of the Mathlib APIs it
+extends: `ToMathlib/Algebra` (submodule and linear-dependence support),
+`ToMathlib/Topology` (compactness, path, graph, semicontinuity, and Baire-theorem support),
+and `ToMathlib/Analysis` (normed-space, functional-analysis, Taylor-estimate, and integration
+support, including the Gamma integral with a complex Laplace parameter).
 
 - `Pochhammer/`.
 Support codes. Simplex-independent Pochhammer, gamma/beta and complex-power operations.
 
 - `ComplexAnalysis/`.
-Single-variable complex analysis: holomorphic branches, Banach-valued primitives and
-Cauchy theory on simply connected open domains, integer-valued curve indices with local
-constancy, exterior vanishing and circle normalization; Jordan contours, separation,
-Cauchy formulas and exhaustions for injective holomorphic disk images; Laurent theory,
-residue calculations, the disk argument principle, Rouché's theorem and Hurwitz's theorems;
-Montel compactness, Vitali convergence from an interior accumulation point, and
-Casorati–Weierstrass with isolated-singularity classification;
-subharmonic functions, planar Cauchy transforms, removability, injectivity,
-divided differences with coincident nodes, Newton–Taylor formulas, and repeated segment integrals.
-The deformation theory includes Cauchy's theorem for continuous homotopies with
-differentiable, integrable boundary paths, index invariance for continuous based
-homotopies of `C¹` loops, and continuous logarithm tracking. Moving-endpoint identities
-pass to improper limits when the endpoint-track integrals vanish. Uniform tail
-bounds and explicit power-decay estimates provide convergence criteria.
-Exterior-path support proves escape to infinity and endpoint formulas for exact integrals;
-general pullback and improper-integration results live in `Analysis`.
-Montel and Vitali share function-space and compactness foundations with SCV through
-`Analysis.Holomorphic`; `ComplexAnalysis` has no SCV dependency.
+The part of single-variable complex analysis that the Dirichlet and Carlson developments use:
+holomorphic logarithm branches, Banach-valued primitives and Cauchy theory on simply connected
+open domains, curve indices, cycles and the homology form of Cauchy's theorem, exterior paths,
+Cauchy estimates and series, holomorphic parameter integrals, and principal powers on the right
+half-plane. The files are exact copies of modules of the separate one-variable project
+(`lean-CA`), which is their primary source.
 
 - `SeveralComplexVariables/`.
-Support codes and more for simplex-independent several-complex-variable analysis.
+The part of several-complex-variable analysis that the Dirichlet and Carlson developments use:
+polydisc Cauchy theory and estimates, analyticity of holomorphic maps, holomorphic parameter
+integrals, locally uniform limits, Osgood's theorem, and Hartogs' separate-analyticity
+theorem. The files are exact copies of modules of the separate several-variable project
+(`lean-SCV`), which is their primary source.
 
 - `StdSimplexMeasure/`.
 Coordinates, aggregation, measure, integration, smooth simplex functions, and moment determination.
@@ -55,29 +44,65 @@ interface.
 
 - `Carlson/`.
 R-polynomials, R/L/S/T functions, and two-variable specializations.
+The regularized functions are entire in the Dirichlet parameters: R and L on
+principal slit-plane nodes, S on all nodes, and T on its native zero-avoiding
+convex-hull domain and on a separately defined principal slit-plane branch.
+`Carlson.Normalization` treats ordinary Gamma normalization, exceptional-parameter
+residues, and removable transverse parameter slices for all four families.
+
+`Carlson.Jacobi` develops Chapter 7 from standard Jacobi polynomials: derivatives,
+differential equations, monic normalization and weighted orthogonality for real
+parameters `α, β > -1`. Finite expansions use continued Dirichlet averages of
+derivatives at arbitrary complex endpoints and admissible complex parameters;
+coincident endpoints recover Taylor's formula. The second-kind functions are
+jointly analytic off the endpoint segment; their adjoint differential equation,
+parameter-shift differentiation rule, biorthogonality and polynomial coefficient
+extraction on `C¹` cycles avoiding the segment are proved, with winding number
+explicit. Contour coefficients are invariant under homologous contour changes
+within the holomorphy domain. Uniformly convergent Jacobi series have uniquely
+determined coefficients on cycles of nonzero index. The second-kind normalization
+`x^(n+1) qₙ(x) → 1` holds in all
+complex directions when the Gamma normalization is regular. For complex parameters
+`re α, re β > -1`, a weighted Cauchy-integral representation gives the symmetric
+boundary jump across any nondegenerate complex endpoint segment.
+Legendre and Chebyshev are identified with
+Mathlib's existing polynomials, and Gegenbauer polynomials are connected to
+symmetric Jacobi polynomials by an identity valid at exceptional parameters;
+their derivatives of every order follow from Jacobi, for all complex parameters.
+Rodrigues' formula holds for arbitrary complex parameters on the principal branch
+domain. Bilinear orthogonality and squared integrals hold for `re α, re β > -1`.
+Weighted coefficient integrals extend to `Cⁿ` functions on the closed interval,
+and squared norms are evaluated throughout the orthogonality range; the shifted
+Legendre norm follows by specialization. Confocal elliptic disks are convex, have
+compact closures, and form neighborhoods of the endpoint segment. Separate boundary
+values and principal-value formulas, branches for contours crossing the endpoint
+segment, large-degree asymptotics, existence and convergence of infinite expansions,
+the Gegenbauer addition theorem and the
+Laguerre/Hermite limits remain further work.
 
 Dependencies flow from the support libraries and simplex foundations to
 `Dirichlet`, then to `Carlson`. The simplex foundation never imports either
 application layer; `Dirichlet` never imports `Carlson`. The support libraries never
-import the application layers. The divided-difference and repeated-integral modules
-in `ComplexAnalysis` use general simplex integration from `StdSimplexMeasure`;
-the other support modules remain independent of the simplex foundation.
+import the application layers, and remain independent of the simplex foundation.
 
-`Algebra`, `Analysis`, and `Topology` depend only on Mathlib. `ComplexAnalysis` builds on them;
-`SeveralComplexVariables` uses all three foundations. The support libraries extend the
+`ToMathlib` depends only on Mathlib. `ComplexAnalysis` builds on it;
+`SeveralComplexVariables` builds on both. The support libraries extend the
 corresponding Mathlib namespaces (`Complex`, `MeasureTheory`, `Submodule`, and so on) and
 several-variable theory uses the `SeveralComplexVariables` namespace. The real Dirichlet
 distribution lives in `ProbabilityTheory`; complex Dirichlet densities, transforms and
 averages live in `Dirichlet`; Carlson's special functions live in `Carlson` and
-`Carlson.TwoVariable`.
+`Carlson.TwoVariable`. The Jacobi and Gegenbauer polynomial layer extends
+`Polynomial`, including its identifications with Mathlib's classical families.
 
-Each directory has a matching umbrella module. `Main.lean` imports all nine.
+Each directory has a matching umbrella module (for `ToMathlib`, the three modules
+`ToMathlib.Algebra`, `ToMathlib.Analysis`, and `ToMathlib.Topology`). `Main.lean` imports all of them.
 See the [module structure guide](STRUCTURE.md) for the finer topic splits and import paths.
 A mathematical synopsis addressed to mathematicians, in dependency order and marking what is
 new relative to Mathlib, is in three parts: [SYNOPSIS.md](SYNOPSIS.md) (support libraries,
-simplex measure, one complex variable), [SYNOPSIS_SCV.md](SYNOPSIS_SCV.md) (several complex
-variables) and [SYNOPSIS_CARLSON.md](SYNOPSIS_CARLSON.md) (Dirichlet averages and Carlson's
-functions).
+simplex measure, and the one-variable complex analysis used here),
+[SYNOPSIS_SCV.md](SYNOPSIS_SCV.md) (the several-variable analysis used here) and
+[SYNOPSIS_CARLSON.md](SYNOPSIS_CARLSON.md) (Dirichlet averages and Carlson's functions). The
+full one- and several-variable theories are documented in their own projects.
 
 ## Registry statement
 

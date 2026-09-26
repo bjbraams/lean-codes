@@ -16,6 +16,26 @@ is unique, and the smooth-kernel Dirichlet continuation theorem shows that one e
 every complex exponent and right-half-plane nodes. The explicit function `regCarlsonR` of
 `Carlson.R.Explicit` is shown there to be this continuation. At natural exponents the
 continuation is the regularized R-polynomial.
+
+## Main results
+
+* `Carlson.IsRegCarlsonRContinuation.analyticOnNhd`: A regularized Carlson `R_t` continuation is
+  entire in the Dirichlet parameters.
+* `Carlson.contDiffNearStdSimplex_cpow_carlsonAffineForm`: A complex power of the affine form is
+  smooth near the simplex on the right-half-plane node domain. This supplies the hypothesis of
+  the general Dirichlet continuation theorem.
+* `Carlson.exists_isRegCarlsonRContinuation`: Every complex exponent has an entire regularized
+  continuation in the Dirichlet parameters, for nodes in the right half-plane. No contour
+  representation is needed.
+* `Carlson.isRegCarlsonRContinuation_natCast`: At a natural exponent, the regularized
+  R-polynomial supplies the entire continuation in the Dirichlet parameters. Thus the general
+  R-function continuation extends, rather than replaces, the polynomial theory of Section 5.7.
+* `Carlson.IsRegCarlsonRContinuation.eq_regCarlsonR_natCast`: Any entire regularized
+  continuation at a natural exponent equals the corresponding regularized R-polynomial.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet

@@ -16,6 +16,15 @@ The exponent occupies the `none` coordinate, and the Dirichlet parameters the `s
 coordinates. Native joint analyticity follows from separate analyticity by Hartogs' theorem.
 The joint analyticity of the explicit function `regCarlsonR` for all parameters is proved
 in `Carlson.R.Explicit`.
+
+## Main results
+
+* `Carlson.analyticOnNhd_regCarlsonRIntegral_exponent_parameters`: Joint analyticity of the
+  native regularized integral in its exponent and parameters.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet

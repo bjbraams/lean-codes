@@ -5,7 +5,7 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import Algebra.LinearDependence
+public import ToMathlib.Algebra.LinearDependence
 public import Carlson.Associated.Shift
 public import Carlson.R.AssociatedRecurrence
 public import Carlson.R.Relations
@@ -18,7 +18,7 @@ Carlson's reduction lemma 8.4-2: the R-functions obtained by shifting the expone
 integers, with fixed Dirichlet parameters, all lie in the span of finitely many of them over
 the rational functions in the nodes. The proof uses the division-free homogeneity recurrence
 of `Carlson.R.AssociatedRecurrence` and the denominator-clearing algebra of
-`Algebra.LinearDependence`.
+`ToMathlib.Algebra.LinearDependence`.
 
 ## Main results
 

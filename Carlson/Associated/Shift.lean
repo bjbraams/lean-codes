@@ -15,7 +15,7 @@ Bookkeeping structures for Carlson's associated R-functions (Chapter 8): an asso
 records integral shifts of the exponent and of the Dirichlet parameters, and a rational
 coefficient is a quotient of two multivariate polynomials in the nodes with nonzero denominator.
 
-## Main definitions
+## Main statements
 
 * `Carlson.CarlsonRAssociatedShift`: an integral exponent shift together with integral parameter
   shifts, with `exponentValue` and `parameterValue` applying them.
@@ -49,8 +49,9 @@ def CarlsonRAssociatedShift.parameterValue
     (s : CarlsonRAssociatedShift ι) (b : ι → ℂ) : ι → ℂ :=
   fun i => b i + s.parameter i
 
-/-- A rational function in the Carlson variables, represented by a numerator and a nonzero
-denominator polynomial. -/
+/-- A numerator and a nonzero denominator polynomial representing a rational coefficient
+in the Carlson variables. This structure records a representation, rather than an equivalence
+class of representations. -/
 structure CarlsonRRationalCoefficient (ι : Type*) where
   /-- Numerator polynomial. -/
   numerator : MvPolynomial ι ℂ
@@ -59,7 +60,8 @@ structure CarlsonRRationalCoefficient (ι : Type*) where
   /-- The denominator is not the zero polynomial. -/
   denominator_ne_zero : denominator ≠ 0
 
-/-- Evaluate a rational Carlson coefficient away from the zero set of its denominator. -/
+/-- Evaluate a rational Carlson coefficient using totalized division. This agrees with rational
+function evaluation away from the denominator’s zero set and is zero on that zero set. -/
 def CarlsonRRationalCoefficient.eval
     (q : CarlsonRRationalCoefficient ι) (z : ι → ℂ) : ℂ :=
   q.numerator.eval z / q.denominator.eval z

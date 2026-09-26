@@ -11,8 +11,28 @@ public import Pochhammer.Identities
 /-!
 # Pochhammer identities for the Gamma function
 
-This file is a temporary home for identities connecting Mathlib's Gamma function and ascending
-Pochhammer polynomials.  The reciprocal formulation remains valid at the poles of `Gamma`.
+Reciprocal Gamma identities express natural shifts using ascending Pochhammer polynomials and
+remain meaningful at Gamma poles. The file also defines Gamma-regular parameters, proves
+stability under positive integral shifts, and establishes factorial decay for reciprocal Gamma
+along natural shifts.
+
+## Main results
+
+* `Complex.one_div_Gamma_eq_ascPochhammer_mul_one_div_Gamma_add_nat`: The natural-shift
+  recurrence for reciprocal Gamma, valid at every complex argument. This is the pole-free
+  counterpart of expressing an ascending Pochhammer symbol as a quotient of Gamma functions.
+* `Complex.IsCarlsonGammaRegular.ascPochhammer_ne_zero`: No ascending Pochhammer factor vanishes
+  at a Gamma-regular argument.
+* `Complex.norm_invGamma_add_nat_le`: Reciprocal Gamma gains at least factorial decay under
+  positive integer shifts in the half-plane `1 ≤ re s`.
+* `Complex.exists_uniform_norm_invGamma_add_nat`: Reciprocal Gamma has uniform factorial decay
+  after a common natural shift on any compact set of complex arguments.
+* `Complex.exists_uniform_norm_invGamma_sum_add_nat`: Uniform factorial decay for reciprocal
+  Gamma after sufficiently many shifts of the total parameter on a compact set.
+
+## References
+
+* `Mathlib.Analysis.SpecialFunctions.Gamma.Beta`: formal background used by this module.
 -/
 
 open Finset Polynomial
@@ -35,7 +55,7 @@ theorem one_div_Gamma_eq_ascPochhammer_mul_one_div_Gamma_add_nat (z : ℂ) (n : 
       ring_nf
 
 /-- Reciprocal Gamma after a natural shift, as a product of reciprocals, provided none of the
-intermediate points is a non-positive integer. -/
+factors `s + k`, for `k < n`, is zero. -/
 theorem inv_Gamma_add_nat_of_ne_zero {s : ℂ} {n : ℕ}
     (h : ∀ k < n, s + k ≠ 0) :
     (Gamma (s + n))⁻¹ = (Gamma s)⁻¹ * ∏ k ∈ range n, (s + k)⁻¹ := by
@@ -94,8 +114,8 @@ end
 
 /-! ## Gamma regularity and decay under natural shifts
 
-The historical `DirichletTransform` names are retained; these results are scalar
-and independent of simplex measures or Carlson functions.
+Gamma-regular parameters avoid the nonpositive integers. Positive integral shifts preserve
+regularity, and reciprocal Gamma decays factorially along natural shifts.
 -/
 
 open Complex

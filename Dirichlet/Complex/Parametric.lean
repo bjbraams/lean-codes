@@ -6,7 +6,7 @@ Authors: Bastiaan J Braams
 module
 
 public import Dirichlet.Complex.Analytic
-public import Analysis.Integral.Parametric
+public import ToMathlib.Analysis.Integral.Parametric
 public import SeveralComplexVariables.SeparateAnalytic
 
 /-!
@@ -15,6 +15,27 @@ public import SeveralComplexVariables.SeparateAnalytic
 A kernel may depend holomorphically on extra parameters and on a complex neighborhood
 of the real simplex. This interface is preserved by the tangential derivatives used in
 Dirichlet-parameter continuation.
+
+## Main results
+
+* `Dirichlet.continuousOn_complexSimplexKernel`: Joint continuity after restricting the second
+  complex variable to real simplex coordinates.
+* `Dirichlet.hasFDerivAt_regDirichletIntegral_kernel`: Differentiation in auxiliary parameters
+  passes through a convergent Dirichlet integral.
+* `Dirichlet.analyticOnNhd_regDirichletIntegral_kernel`: A native Dirichlet integral preserves
+  holomorphic dependence on auxiliary parameters.
+* `Dirichlet.locallyBounded_regDirichletIntegral_kernel`: Compactness of the kernel and a common
+  Dirichlet majorant give local boundedness simultaneously in Dirichlet and auxiliary
+  parameters.
+* `Dirichlet.analyticOnNhd_regDirichletIntegral_kernel_joint`: Joint holomorphy in the native
+  Dirichlet parameters and all auxiliary variables.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977
+  (Dirichlet averages).
+* NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
+  https://dlmf.nist.gov/5.14.
 -/
 
 open Complex MeasureTheory MeasureTheory.Measure ProbabilityTheory Filter Set Metric

@@ -14,6 +14,28 @@ public import Dirichlet.Complex.Parametric
 Complexifying the simplex coordinates makes tangential differentiation compatible with
 holomorphic dependence on auxiliary variables. The finite parameter-shift construction
 can therefore be used jointly, rather than independently for each auxiliary parameter.
+
+## Main results
+
+* `Dirichlet.analyticOnNhd_complexSimplexTangentDeriv`: Complex tangential differentiation
+  preserves joint analyticity.
+* `Dirichlet.analyticOnNhd_shiftedComplexKernelIntegral`: Every finite shift expression is
+  jointly holomorphic on its convergence region.
+* `Dirichlet.shiftedComplexKernelIntegral_eq`: The finite shift expression agrees with the
+  native integral sufficiently far inside the convergence region. This is the
+  integration-by-parts identification used for gluing.
+* `Dirichlet.exists_joint_regDirichletContinuation_kernel`: Finite-order continuation, jointly
+  in Dirichlet and auxiliary parameters.
+* `Dirichlet.exists_entire_joint_regDirichletContinuation_kernel`: The finite shift
+  constructions glue to a continuation entire in the Dirichlet parameters and jointly
+  holomorphic with the auxiliary parameters.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977
+  (Dirichlet averages).
+* NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
+  https://dlmf.nist.gov/5.14.
 -/
 
 open Complex MeasureTheory MeasureTheory.Measure ProbabilityTheory Set Filter Metric

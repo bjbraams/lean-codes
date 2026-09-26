@@ -27,6 +27,28 @@ The straight-path specialization recovers the existing slit-plane R-function.
 The existence theorem below is conditional on an admissible path and analytic branches.
 It does not yet assert independence of the exterior path or construct paths for arbitrary
 Jordan domains. Those are necessary further steps toward Carlson (1969), Theorems 4–5.
+
+## Main results
+
+* `Carlson.exists_analyticOnNhd_exteriorPathLog`: A simply connected parameter neighborhood of
+  an admissible exterior path supplies holomorphic logarithms of all normalized node factors,
+  vanishing at infinity. Only avoidance of the individual nodes is required, not avoidance of
+  their convex hull.
+* `Carlson.exists_analyticOnNhd_regCarlsonExteriorPathIntegral`: Compactified exterior-path
+  integrals admit joint continuation by the Euler transform. No positivity of individual
+  Dirichlet parameters is required for native agreement; only the total-parameter endpoint must
+  converge.
+* `Carlson.carlsonExteriorPathAmplitude_one`: On a straight path, principal logarithms recover
+  the familiar product of powers.
+* `Carlson.regCarlsonExteriorPathIntegral_one`: In its convergence strip, the straight
+  exterior-path construction is the slit resolvent.
+* `Carlson.eq_regCarlsonR_of_exteriorPath_one`: An entire continuation of the straight-path
+  integral is the established slit resolvent at every parameter, including outside the initial
+  total-parameter convergence strip.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet

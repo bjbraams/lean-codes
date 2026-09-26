@@ -7,7 +7,7 @@ module
 
 public import Carlson.R.Basic
 public import Carlson.S
-public import Analysis.SpecialFunctions.Gamma
+public import ToMathlib.Analysis.SpecialFunctions.Gamma
 public import Mathlib.MeasureTheory.Integral.Prod
 
 /-!
@@ -15,7 +15,20 @@ public import Mathlib.MeasureTheory.Integral.Prod
 
 This file develops the inverse confluence formula of [Carl77, Theorem 5.10-2], which expresses
 `R` as a one-dimensional Laplace--Mellin transform of `S`.
-The scalar complex-rate Gamma integral is supplied by `Analysis.SpecialFunctions.Gamma`.
+The scalar complex-rate Gamma integral is supplied by `ToMathlib.Analysis.SpecialFunctions.Gamma`.
+
+
+## Main results
+
+* `Carlson.carlsonRLaplaceIntegral_eq_Gamma_mul_reg`: Regularization in the Dirichlet parameters
+  commutes with Carlson's one-dimensional Laplace--Mellin construction.
+* `Carlson.exists_pos_le_re_carlsonAffineForm`: A positive lower bound for the real part of the
+  affine kernel over the closed simplex, for nodes in the right-half-plane domain.
+* `Carlson.regCarlsonRIntegral_eq_regCarlsonRLaplaceIntegral`: Carlson's inverse confluence
+  formula, Theorem 5.10-2, in regularized form. The proof exchanges the order of integration in
+  the Laplace kernel and evaluates the radial integral by the complex-rate Gamma integral.
+* `Carlson.carlsonRIntegral_eq_carlsonRLaplaceIntegral`: Carlson's inverse confluence formula in
+  the native unregularized normalization.
 
 ## References
 

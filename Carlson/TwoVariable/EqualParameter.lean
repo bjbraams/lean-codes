@@ -22,6 +22,23 @@ quadratic identity to supply existence for any right-half-plane nodes. Both
 quadratic transformations then identify this canonical continuation, including
 its removable values. The ordinary function is analytic wherever `β + 1/2` is
 not a nonpositive integer. No extension of the node domains is asserted here.
+
+## Main results
+
+* `Carlson.TwoVariable.IsRegEqualRContinuation.unique`: Native agreement uniquely determines the
+  entire equal-parameter regularization.
+* `Carlson.TwoVariable.regEqualRContinued_zero`: At exponent zero the entire equal-parameter
+  regularization is reciprocal Gamma.
+* `Carlson.TwoVariable.equalRContinued_zero`: Regression check for the removable values: the
+  exponent-zero function is one, including at `β = 0, -1, -2, ...`.
+* `Carlson.TwoVariable.equalRContinued_firstQuadratic`: Carlson 6.9-3 on the full common
+  parameter domain of the ordinary functions.
+* `Carlson.TwoVariable.equalRContinued_secondQuadratic`: Carlson 6.10-1 on the full common
+  parameter domain of the ordinary functions.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet
@@ -43,6 +60,8 @@ theorem IsRegEqualRContinuation.unique {t x y : ℂ} {F G : ℂ → ℂ}
     (show (0 : ℝ) < (1 : ℂ).re by norm_num)] with β hβ
   rw [hF.2 β hβ, hG.2 β hβ]
 
+/-- A quadratic identity with the Gamma ratio and an analytic transformed parameter vector supplies
+an equal-parameter continuation. -/
 private theorem isRegEqualRContinuation_of_quadratic
     (t s x y : ℂ) (Z : Fin 2 → ℂ) (hZ : Z ∈ carlsonRVariableDomain)
     (hz : pair x y ∈ carlsonRVariableDomain) (b : ℂ → Fin 2 → ℂ)
@@ -85,6 +104,8 @@ theorem isRegEqualRContinuation_secondQuadratic (t x y : ℂ) (hz : SecondQuadra
     · exact (analyticAt_const.sub analyticAt_id).sub analyticAt_const
   · exact fun β => regCarlsonR_pair_secondQuadratic t β x y hz
 
+/-- Nodes whose real parts dominate the absolute values of their imaginary parts satisfy the second
+quadratic domain conditions. -/
 private lemma secondQuadraticDomain_of_right_roots {x y : ℂ}
     (hx : |x.im| < x.re) (hy : |y.im| < y.re) : SecondQuadraticDomain x y := by
   have hxpos : 0 < x.re := (abs_nonneg _).trans_lt hx

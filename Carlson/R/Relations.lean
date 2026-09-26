@@ -17,6 +17,25 @@ the native convergence region and right-half-plane node domain. The third associ
 relation follows by summing the tangential integration-by-parts relation.
 The extension of the three associated relations to all complex parameters and slit-plane
 nodes is in `Carlson.R.Explicit`. Node derivatives are stated for the native integral.
+
+## Main results
+
+* `Carlson.regCarlsonRIntegral_eq_sum_update_add_one`: Carlson's first associated-function
+  relation 5.9-5, in regularized form. Gamma regularization absorbs Carlson's weights and leaves
+  the coefficients `b i`.
+* `Carlson.regCarlsonRIntegral_smul_of_pos`: Carlson's homogeneity formula 5.9-3 for the native
+  regularized integral, stated with positive real scaling so that Mathlib's principal branch is
+  preserved.
+* `Carlson.carlsonRIntegral_smul_of_pos`: The corresponding unregularized homogeneity formula.
+* `Carlson.regCarlsonRIntegral_smul_of_re_pos`: Complex homogeneity on the right half-plane,
+  with explicit principal-branch control. The scaled variables need not themselves be in the
+  right half-plane.
+* `Carlson.carlsonRIntegral_smul_of_re_pos`: Unregularized complex homogeneity with the same
+  principal-branch hypotheses.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet
@@ -137,6 +156,7 @@ theorem regCarlsonRIntegral_tangent (t : ℂ) {b z : ι → ℂ}
       simp_all [addDirichletUnit, Function.update_apply]
   simpa only [hcomm, regCarlsonRIntegral] using H
 
+/-- Raising one parameter by one adds the corresponding summand to a weighted coordinate sum. -/
 private lemma sum_addDirichletUnit_mul (b : ι → ℂ) (i : ι) (f : ι → ℂ) :
     ∑ j, addDirichletUnit b i j * f j = (∑ j, b j * f j) + f i := by
   classical

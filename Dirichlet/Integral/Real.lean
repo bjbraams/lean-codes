@@ -15,6 +15,30 @@ import all StdSimplexMeasure.Measure.Basic
 
 Shared analytic foundations for the real probability distribution and complex Dirichlet
 integrals. No Dirichlet probability measure is constructed or imported here.
+
+## Main results
+
+* `ProbabilityTheory.lintegral_dirichletMonomial_of_unique`: The nonnegative Dirichlet monomial
+  integral on a singleton index type: the simplex is a single point of mass one.
+* `ProbabilityTheory.lintegral_dirichletMonomial_eq_mvRealBeta_of_subtype`: The induction step
+  for the nonnegative Dirichlet monomial integral: slicing off the coordinate `i` reduces the
+  integral over a nontrivial simplex to the integral over the simplex of the remaining
+  coordinates, whose value is supplied as a hypothesis.
+* `ProbabilityTheory.lintegral_dirichletMonomial_eq_mvRealBeta`: The nonnegative Dirichlet
+  monomial integral, used to establish integrability before passing to the Bochner integral. The
+  proof is a strong induction on the number of coordinates, slicing off one coordinate at a
+  time.
+* `ProbabilityTheory.mvRealBeta_eq_integral`: The integral representation of `mvRealBeta`.
+* `ProbabilityTheory.integrableOn_mvRealBetaMonomial`: A real Dirichlet monomial is integrable
+  at positive parameters, including when the index type is empty. This is the shared majorant
+  for complex Dirichlet integrals.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977
+  (Dirichlet averages).
+* NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
+  https://dlmf.nist.gov/5.14.
 -/
 
 open Real MeasureTheory MeasureTheory.Measure

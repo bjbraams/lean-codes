@@ -17,6 +17,23 @@ import Pochhammer.Vandermonde
 This file contains the algebraic infrastructure for [Carl77, Section 6.5].
 The Pochhammer reflection identity used in the book's proof is
 `Complex.ascPochhammer_eval_split_reflection` in `Pochhammer.Gamma`.
+
+## Main results
+
+* `Carlson.eval_carlsonPowerPolynomial_smul`: Scaling all Carlson variables scales their
+  degree-`n` polynomial kernel by `a ^ n`.
+* `Carlson.sum_carlsonRTransformParameters`: The sum of Carlson's transformed parameters is `1 -
+  b i - n`.
+* `Carlson.carlsonRPolynomialNumerator_const`: The Pochhammer numerator of a constant vector of
+  variables is a single Pochhammer symbol, by the multinomial Chu–Vandermonde identity.
+* `Carlson.carlsonRPolynomialNumerator_single`: A numerator with just one nonzero node is a
+  single Pochhammer symbol.
+* `Carlson.carlsonRPolynomialNumerator_transform`: Division-free form of Carlson's multivariate
+  linear transformation 6.5-3.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet
@@ -106,6 +123,8 @@ theorem carlsonRPolynomialNumerator_single (n : ℕ) (i : ι) (b : ι → ℂ) (
 
 open scoped Classical in
 omit [Fintype ι] in
+/-- Updating a node other than the distinguished one updates its transformed value to the difference
+from the distinguished node. -/
 private lemma carlsonRTransformVariables_update {i j : ι} (hji : j ≠ i)
     (z : ι → ℂ) (w : ℂ) :
     carlsonRTransformVariables i (Function.update z j w) =
@@ -119,6 +138,8 @@ private lemma carlsonRTransformVariables_update {i j : ι} (hji : j ≠ i)
       simp [carlsonRTransformVariables, hji, hji.symm]
     · simp [carlsonRTransformVariables, hki, hkj, hji.symm]
 
+/-- Raising a parameter other than the distinguished one commutes with the transformed parameter
+vector after increasing the polynomial degree. -/
 private lemma carlsonRTransformParameters_addDirichletUnit
     (n : ℕ) {i j : ι} (hji : j ≠ i) (b : ι → ℂ) :
     carlsonRTransformParameters n i (addDirichletUnit b j) =

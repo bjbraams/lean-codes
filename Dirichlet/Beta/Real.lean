@@ -21,6 +21,13 @@ used to normalize the Dirichlet probability distribution.
 ## Main results
 
 * `ProbabilityTheory.mvRealBeta_pos`: positivity on the parameter domain.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977
+  (Dirichlet averages).
+* NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
+  https://dlmf.nist.gov/5.14.
 -/
 
 @[expose] public noncomputable section

@@ -14,6 +14,28 @@ public import Dirichlet.Transform.Parametric
 A joint continuation specification and its uniqueness and recognition theorems. The
 auxiliary coordinate type is independent of the simplex coordinate type, and may encode
 nodes, exponents, or any finite collection of additional parameters.
+
+## Main results
+
+* `Dirichlet.exists_isJointRegDirichletContinuation`: The jointly holomorphic continuation of a
+  kernel exists on every admissible open domain.
+* `Dirichlet.analyticOnNhd_complexKernelParamDeriv`: Auxiliary differentiation preserves joint
+  holomorphy of the kernel.
+* `Dirichlet.fderiv_regDirichletIntegral_kernel_apply`: The auxiliary directional derivative of
+  a native transform is the transform of the corresponding kernel derivative.
+* `Dirichlet.IsJointRegDirichletContinuation.paramDeriv`: Auxiliary differentiation commutes
+  with the entire continued transform, including zero and negative Dirichlet parameters. No
+  continuation of the derivative is assumed.
+* `Dirichlet.IsJointRegDirichletContinuation.paramDeriv_joint`: Differentiating a joint
+  continuation yields the joint continuation of the kernel derivative. This statement can be
+  iterated for arbitrary mixed auxiliary derivatives.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977
+  (Dirichlet averages).
+* NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
+  https://dlmf.nist.gov/5.14.
 -/
 
 open Complex MeasureTheory ProbabilityTheory Set

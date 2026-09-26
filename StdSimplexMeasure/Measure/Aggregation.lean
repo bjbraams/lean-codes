@@ -33,6 +33,12 @@ measure, with the polynomial density `∏ k, y k ^ (card (f ⁻¹' {k}) - 1)` up
 
 * `MeasureTheory.Measure.map_stdSimplexMeasure_restrict_stdSimplex_aggregate`: the aggregation
   formula, proved by induction over the fibers.
+
+## References
+
+* `Mathlib.MeasureTheory.Measure.Lebesgue.Basic`: formal background used by this module.
+* `Mathlib.MeasureTheory.Measure.Restrict`: formal background used by this module.
+* `Mathlib.MeasureTheory.Measure.WithDensity`: formal background used by this module.
 -/
 
 public noncomputable section StdSimplexCoordinateMeasure

@@ -16,6 +16,24 @@ to all complex Dirichlet parameters and all slit-plane nodes. Joint analyticity 
 essential: it makes the node derivative analytic in the parameters, so permanence
 of functional relations applies. Summation gives (2.8)–(2.10), including scalar
 translation, with the inhomogeneous R-term and without convergence restrictions.
+
+## Main results
+
+* `Carlson.analyticOnNhd_carlsonPartialDeriv_regCarlsonL_joint`: A node derivative is jointly
+  holomorphic in all arguments of L.
+* `Carlson.sum_carlsonPartialDeriv_regCarlsonL`: Equation (2.9), the translation
+  differential-difference identity.
+* `Carlson.sum_mul_carlsonPartialDeriv_regCarlsonL`: Equation (2.8): the Euler differential
+  identity includes the R-term.
+* `Carlson.hasDerivAt_regCarlsonL_translate`: Equation (2.10): scalar translation, locally
+  wherever every translated node is in the slit plane. No global translation or branch-crossing
+  assumption is needed.
+* `Carlson.mul_carlsonPartialDeriv_add_mul_regCarlsonL`: Carlson (1987), (3.6), including the
+  inhomogeneous R-term and all parameter values.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet
@@ -69,6 +87,8 @@ theorem analyticAt_carlsonPartialDeriv_regCarlsonL_comp
     | inl j => exact (analyticAt_pi_iff.mp hb) j
     | inr j => exact (analyticAt_pi_iff.mp hz) j
 
+/-- At right-half-plane nodes, differentiating the regularized L-function in a node shifts its
+parameter and gives the corresponding L- and R-terms. -/
 private theorem partialDeriv_regCarlsonL_of_right (t : ℂ) (b : ι → ℂ)
     {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain) (i : ι) :
     carlsonPartialDeriv i (regCarlsonL t b) z =

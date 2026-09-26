@@ -22,6 +22,17 @@ simplex, whose affine hull is a hyperplane in its ambient coordinate space.
 TODO: If PR #37910 is merged into Mathlib, remove this file and replace uses of
 `euclideanHausdorffMeasure_eq_lintegral_of_subset_affineSubspace` by the upstream theorem
 `EuclideanGeometry.euclideanHausdorffMeasure_eq_lintegral'`.
+
+## Main results
+
+* `EuclideanGeometry.euclideanHausdorffMeasure_eq_lintegral_of_subset_affineSubspace`: Hausdorff
+  measure of a measurable set contained in an affine subspace, expressed as the integral of its
+  perpendicular cross-sections along a line in that subspace.
+
+## References
+
+* `Mathlib.Geometry.Euclidean.Projection`: formal background used by this module.
+* `Mathlib.Geometry.Euclidean.Volume.Measure`: formal background used by this module.
 -/
 
 open MeasureTheory Measure Module Submodule AffineSubspace

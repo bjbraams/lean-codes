@@ -18,6 +18,26 @@ public import Dirichlet.Average.Bridge
 The two-variable interface parallels `TwoVariable.R`. The exceptional elementary
 case `L_{-1}(1,1;x,y)` is Carlson (1987), (8.8). Its undivided identity includes
 coincident nodes; the diagonal value is supplied separately.
+
+## Main results
+
+* `Carlson.TwoVariable.regLIntegral_swap`: Symmetry exchanges the two parameters together with
+  their nodes.
+* `Carlson.TwoVariable.regCarlsonL_pair_neg_one_one_one`: The elementary divided-logarithm
+  formula of Carlson (1987), (8.8).
+* `Carlson.TwoVariable.regCarlsonL_pair_neg_one_one_one_diag`: The diagonal value completes the
+  exceptional elementary formula.
+* `Carlson.TwoVariable.sub_mul_regCarlsonL_pair_one_one`: The uniform two-node reduction
+  underlying (8.5), stated without division. At `t = -1` it reduces to the logarithmic
+  R-identity, so the separate formula `regCarlsonL_pair_neg_one_one_one` is needed to evaluate L
+  there.
+* `Carlson.TwoVariable.regCarlsonL_pair_contiguous`: Carlson (1987), (3.9), in a division-free
+  regularized form. The identity is valid at coincident nodes and at every complex Dirichlet
+  parameter.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet
@@ -39,6 +59,8 @@ theorem regLIntegral_swap (t b₀ b₁ x y : ℂ) :
   have h := regCarlsonLIntegral_perm t (pair b₀ b₁) (pair x y) swap
   simpa only [pair_comp_swap] using h.symm
 
+/-- With both Dirichlet parameters equal to one, the regularized two-node average is the unweighted
+simplex average. -/
 private theorem regAverage_one_one (z : Fin 2 → ℂ) (f : ℂ → ℂ) :
     regCarlsonDirichletAverage (pair 1 1) z f = carlsonUnweightedAverage z f := by
   have heq : pair (1 : ℂ) 1 = fun _ => ((1 : ℝ) : ℂ) := by
@@ -66,6 +88,8 @@ theorem sub_mul_regAverage_deriv {f : ℂ → ℂ}
   rw [hp, hd] at h
   exact h.symm
 
+/-- The two-node parameter vector with both entries equal to one lies in the beta convergence
+domain. -/
 private theorem one_one_mem_mvBetaConvergent : pair (1 : ℂ) 1 ∈ mvBetaConvergent := by
   intro i; fin_cases i <;> norm_num [pair]
 

@@ -16,6 +16,24 @@ The slit L-function is the domain-aware continuation of `w ^ t * log w`.
 Native-integral agreement and the exponent-derivative relation now hold whenever
 the entire node convex hull lies in the slit plane. Merely asking that each node
 avoid the cut would be insufficient. All statements allow empty index types.
+
+## Main results
+
+* `Carlson.isJointRegCarlsonContinuationOn_regCarlsonL`: The slit L-function is the domain-aware
+  continuation of the power-logarithm kernel.
+* `Carlson.isRegCarlsonContinuation_regCarlsonL_of_convexHull`: Entire-parameter
+  characterization at every native-admissible slit tuple.
+* `Carlson.regCarlsonL_eq_integral_of_convexHull`: Native L-integral agreement wherever the
+  whole node convex hull avoids the cut.
+* `Carlson.carlsonL_eq_integral_of_convexHull`: Native agreement with the ordinary
+  L-normalization.
+* `Carlson.hasDerivAt_regCarlsonRIntegral_L_of_convexHull`: Differentiating the native
+  R-integral inserts the logarithm on the full convex-hull-admissible node domain, with no
+  right-half-plane restriction.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet

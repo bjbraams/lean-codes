@@ -21,6 +21,19 @@ plane; arbitrary complex scaling would require additional branch assumptions. Ze
 deletion retains a nonempty remaining index type. Coincident-node and singleton formulas also
 cover Gamma zeros in the regularized normalization.
 
+
+## Main results
+
+* `Carlson.regCarlsonLIntegral_empty`: The empty-index native integral vanishes.
+* `Carlson.regCarlsonL_one`: The regularized slit L-function vanishes at the all-one node
+  vector.
+* `Carlson.regCarlsonL_unique`: The singleton convention, including the reciprocal Gamma
+  regularization.
+* `Carlson.carlsonRSlitDomain_smul_pos`: Positive real scaling preserves the principal-branch
+  node domain.
+* `Carlson.regCarlsonL_smul_of_pos`: Equation (2.5) on slit-plane nodes: scaling contributes the
+  logarithmic R-term.
+
 ## References
 
 * B. C. Carlson, *Dirichlet averages of x^t log x*, SIAM J. Math. Anal. 18 (1987), 550–565.

@@ -17,6 +17,19 @@ the original coefficient polynomials. This is applied to Carlson's homogeneity
 recurrence, with a single nonzero polynomial family valid for all parameters and
 slit-plane nodes. It is a concrete instance of Carlson (1987), Theorem 3.1, not
 yet that theorem for an arbitrary list of associated shifts.
+
+## Main results
+
+* `Carlson.polynomial_R_relation_implies_L_relation`: Differentiation of a parameter-polynomial
+  R-relation. The exponent convention `-a + e` accounts for the positive sign of the
+  R-correction on the right.
+* `Carlson.sum_carlsonAssociatedRecurrenceJointPolynomial_mul_regCarlsonL`: The L homogeneity
+  recurrence, with explicit polynomial R-correction terms, valid for all complex parameters and
+  all slit-plane nodes, including an empty index type.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet

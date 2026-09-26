@@ -24,6 +24,31 @@ not assume or assert those missing existence results.
 
 Extensions to multiply connected domains (where branches can acquire poles on
 collision diagonals) and to Riemann surfaces are left open.
+
+## Main results
+
+* `Dirichlet.IsJointRegCarlsonContinuationOn.isRegCarlsonContinuation`: Native-compatible node
+  tuples recover the previous fixed-node predicate.
+* `Dirichlet.IsJointRegCarlsonContinuationOn.congr_fun`: Changing the scalar function outside
+  its holomorphy domain does not change the continuation predicate. In particular, a total Lean
+  function does not impose spurious native-integral conditions outside `D`.
+* `Dirichlet.IsJointRegCarlsonContinuationOn.eqOn`: Uniqueness on a connected open scalar
+  domain. Agreement is first obtained on a full neighborhood of a diagonal tuple, not just on
+  the diagonal itself.
+* `Dirichlet.exists_isJointRegCarlsonContinuationOn_of_convex`: The established convex-domain
+  theorem supplies the domain-aware predicate.
+* `Dirichlet.exists_isJointRegCarlsonContinuationOn_iUnion`: Local joint continuations on
+  increasing connected open scalar domains glue to a joint continuation on their union.
+  Compactness handles both the node set and, for native agreement, its entire convex hull. No
+  nonempty-index assumption is needed. This theorem does not construct the local continuations
+  or the cover.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977
+  (Dirichlet averages).
+* NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
+  https://dlmf.nist.gov/5.14.
 -/
 
 open Complex ProbabilityTheory Set Filter Metric

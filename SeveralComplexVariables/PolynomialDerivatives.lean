@@ -21,6 +21,11 @@ one-variable slice identity.
 `hasDerivAt_eval_update` identifies `pderiv i p` with the derivative of the `i`-th coordinate
 slice of `eval`. `partialDeriv_eval` is the corresponding statement for the several-variable
 coordinate derivative `partialDeriv`.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section

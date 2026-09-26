@@ -37,6 +37,12 @@ omitted coordinate, invariant under coordinate permutations, and zero for an emp
 * `MeasureTheory.Measure.measurePreserving_stdSimplexMeasure_perm`: permutation invariance.
 * `MeasureTheory.Measure.stdSimplexMeasure_restrict_stdSimplex`: the restricted simplex measure in
   a chart; the simplex has finite measure and the hyperplane measure is sigma-finite.
+
+## References
+
+* `Mathlib.MeasureTheory.Measure.Lebesgue.Basic`: formal background used by this module.
+* `Mathlib.MeasureTheory.Measure.Restrict`: formal background used by this module.
+* `Mathlib.MeasureTheory.Measure.WithDensity`: formal background used by this module.
 -/
 
 public noncomputable section StdSimplexCoordinateMeasure

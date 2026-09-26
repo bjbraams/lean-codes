@@ -13,6 +13,24 @@ public import Mathlib.Analysis.Complex.Polynomial.Basic
 Products and quotients of right-half-plane points avoid the principal branch cut.
 Square roots lie in a smaller sector, and finite families fit inside a disk tangent
 to the imaginary axis. These results do not depend on special-function domains.
+
+## Main results
+
+* `Complex.mul_mem_slitPlane_of_re_pos`: A product of two right-half-plane numbers avoids the
+  principal branch cut.
+* `Complex.sq_mem_slitPlane_of_re_pos`: Squaring a right-half-plane number can leave that
+  half-plane but not the slit plane.
+* `Complex.div_mem_slitPlane_of_re_pos`: A ratio of two right-half-plane numbers cannot lie on
+  the nonpositive real axis.
+* `Complex.exists_sq_eq_of_re_pos`: A number with positive real part has a square root in the
+  sector `|im x| < re x`.
+* `Complex.exists_pos_real_center_norm_sub_lt`: A finite right-half-plane node vector lies in a
+  disk centered on the positive real axis whose open disk is contained in the right half-plane.
+
+## References
+
+* J. B. Conway, *Functions of One Complex Variable I*, second edition, Springer, 1978
+  (background on one-variable holomorphic functions).
 -/
 
 public noncomputable section
@@ -72,16 +90,16 @@ theorem exists_sq_eq_of_re_pos {z : ℂ} (hz : 0 < z.re) :
 real axis whose open disk is contained in the right half-plane. -/
 theorem exists_pos_real_center_norm_sub_lt {ι : Type*} [Fintype ι]
     {z : ι → ℂ} (hz : ∀ i, 0 < (z i).re) :
-    ∃ A : ℝ, 0 < A ∧ ‖fun i => z i - (A : ℂ)‖ < A := by
-  let d := fun i => normSq (z i) / (2 * (z i).re)
+    ∃ A : ℝ, 0 < A ∧ ‖fun i ↦ z i - (A : ℂ)‖ < A := by
+  let d := fun i ↦ normSq (z i) / (2 * (z i).re)
   have hd (i : ι) : 0 ≤ d i :=
     div_nonneg (normSq_nonneg _) (mul_nonneg (by norm_num) (hz i).le)
   let A := (∑ i, d i) + 1
   have hA : 0 < A :=
-    add_pos_of_nonneg_of_pos (Finset.sum_nonneg (fun i _ => hd i)) zero_lt_one
-  refine ⟨A, hA, (pi_norm_lt_iff hA).mpr (fun i => ?_)⟩
+    add_pos_of_nonneg_of_pos (Finset.sum_nonneg (fun i _ ↦ hd i)) zero_lt_one
+  refine ⟨A, hA, (pi_norm_lt_iff hA).mpr (fun i ↦ ?_)⟩
   have hi : d i < A := lt_of_le_of_lt
-    (Finset.single_le_sum (fun j _ => hd j) (Finset.mem_univ i)) (by dsimp [A]; linarith)
+    (Finset.single_le_sum (fun j _ ↦ hd j) (Finset.mem_univ i)) (by dsimp [A]; linarith)
   have hip : normSq (z i) < A * (2 * (z i).re) :=
     (div_lt_iff₀ (mul_pos (by norm_num) (hz i))).mp hi
   have hs : ‖z i - (A : ℂ)‖ ^ 2 = normSq (z i) + A ^ 2 - 2 * (z i).re * A := by

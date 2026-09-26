@@ -13,6 +13,17 @@ public import Carlson.R.Exponent
 The kernel is `w ^ t * log w`, with the principal complex logarithm. These
 native integrals are distinguished from their analytic continuations in `b`.
 
+
+## Main results
+
+* `Carlson.hasDerivAt_regCarlsonRIntegral_L`: Equation (1.2): differentiating the native
+  R-integral inserts the logarithm.
+* `Carlson.hasDerivAt_carlsonRIntegral_L`: The unregularized native L-integral is the exponent
+  derivative of the native R-integral.
+* `Carlson.analyticOnNhd_regCarlsonLIntegral_exponent`: The native L-integral is entire in its
+  exponent on the convergence region.
+* `Carlson.regCarlsonLIntegral_perm`: Equation (2.2), for the native regularized integral.
+
 ## References
 
 * B. C. Carlson, *Dirichlet averages of x^t log x*, SIAM J. Math. Anal. 18 (1987),

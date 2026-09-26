@@ -14,6 +14,19 @@ public import Dirichlet.Average.Basic
 
 This file identifies the probability average at positive real parameters with the regularized
 complex Carlson integral.
+
+## Main results
+
+* `Dirichlet.regCarlsonDirichletAverage_ofReal`: On positive real parameters, the regularized
+  complex Carlson integral is the Dirichlet probability average divided by the Gamma factor of
+  the total parameter.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977
+  (Dirichlet averages).
+* NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
+  https://dlmf.nist.gov/5.14.
 -/
 
 open Complex MeasureTheory ProbabilityTheory

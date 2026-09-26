@@ -13,6 +13,22 @@ public import StdSimplexMeasure.Complex.DividedDifference
 Finite Newton expansion on a convex complex domain, allowing repeated nodes. Coalescing
 the interpolation nodes gives Taylor coefficients and a divided-difference remainder.
 Finite-vector and product helpers are kept alongside the formulas they support.
+
+## Main results
+
+* `Complex.newtonBasis_zero`: The empty Newton basis is one.
+* `Complex.newtonPrecedingNodes_last`: The nodes preceding the last coefficient are the initial
+  nodes.
+* `Complex.newtonPrefix_last`: The final prefix is the complete node vector.
+* `Complex.newtonTaylor_sum_add_remainder`: The finite Newton expansion with its exact
+  divided-difference remainder.
+* `Complex.taylor_sum_add_dividedDifference_remainder`: Taylor's formula with a
+  divided-difference remainder, obtained from the Newton--Taylor formula by coalescing all
+  interpolation nodes.
+
+## References
+
+* `StdSimplexMeasure.Complex.DividedDifference`: formal background used by this module.
 -/
 
 open MeasureTheory

@@ -8,13 +8,27 @@ module
 public import Carlson.R.Explicit
 public import Carlson.R.JointParameter
 
-/-! # Euler transformations of Carlson's R-function
+/-!
+# Euler transformations of Carlson's R-function
 
 Carlson's Theorem 6.8-3 is proved on the full product slit plane and for arbitrary
 complex exponents and Dirichlet parameters, in the entire regularized normalization.
 The proof first reflects the beta integral on right-half-plane nodes, then uses
 permanence of functional relations in the parameters and in the nodes. Theorem
 6.8-4's additional equal-parameter regularization remains a separate task.
+
+## Main results
+
+* `Carlson.carlsonRVariableDomain_inv`: Taking reciprocals preserves the right-half-plane node
+  domain.
+* `Carlson.carlsonRUnitIntervalIntegral_inv`: Reflection of the beta integral, with principal
+  branches controlled by positivity of the real parts of each factor.
+* `Carlson.regCarlsonR_euler`: Euler inversion (Carlson's Theorem 6.8-3) on the full product
+  slit plane, for all complex exponents and Dirichlet parameters.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet
@@ -33,6 +47,7 @@ theorem carlsonRVariableDomain_inv {z : ι → ℂ} (hz : z ∈ carlsonRVariable
   rw [inv_re]
   exact div_pos (hz i) (normSq_pos.mpr (ne_zero_of_re_pos (hz i)))
 
+/-- Reflection about the midpoint preserves the integral over the open unit interval. -/
 private theorem integral_Ioo_one_sub (f : ℝ → ℂ) :
     (∫ u : ℝ in Set.Ioo 0 1, f (1 - u)) = ∫ u : ℝ in Set.Ioo 0 1, f u := by
   have h := intervalIntegral.integral_comp_sub_left (a := (0 : ℝ)) (b := 1) f 1
@@ -70,6 +85,8 @@ theorem carlsonRUnitIntervalIntegral_inv (a a' : ℂ) (b : ι → ℂ)
   rw [hp]
   ring
 
+/-- Euler inversion for the regularized R-function when the complementary exponents have positive
+real parts and the nodes lie in the right half-plane. -/
 private theorem regCarlsonR_euler_of_pos
     {a a' : ℂ} {b z : ι → ℂ} (ha : 0 < a.re) (ha' : 0 < a'.re)
     (hsum : a + a' = ∑ i, b i) (hz : z ∈ carlsonRVariableDomain) :

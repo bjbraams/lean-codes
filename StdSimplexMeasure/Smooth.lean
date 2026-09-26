@@ -16,6 +16,24 @@ public import Mathlib.Analysis.SpecialFunctions.Pow.Deriv
 # Smooth functions and affine slices on the standard simplex
 
 These geometric and calculus lemmas do not depend on Dirichlet densities or parameters.
+
+## Main results
+
+* `ContDiffNearStdSimplex.of_le`: Having more derivatives near the simplex implies having any
+  smaller number of derivatives there.
+* `powerPartitionDenom_ne_zero`: The power partition denominator does not vanish on the standard
+  simplex.
+* `contDiffNear_div_powerPartitionDenom`: Dividing by the power partition denominator preserves
+  finite differentiability near the simplex.
+* `isClosed_stdSimplexFreeCoords`: The free-coordinate simplex is closed.
+* `stdSimplexCoordMap_add_single`: Moving a free coordinate moves the corresponding ambient
+  coordinate and compensates in the omitted coordinate.
+
+## References
+
+* `Mathlib.Analysis.Calculus.ContDiff.Operations`: formal background used by this module.
+* `Mathlib.Analysis.Calculus.ContDiff.Basic`: formal background used by this module.
+* `Mathlib.Analysis.Calculus.Deriv.Pi`: formal background used by this module.
 -/
 
 open Complex Set Filter

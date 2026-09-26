@@ -15,6 +15,21 @@ public import Dirichlet.Real.Aggregation
 A kernel on a smaller simplex can be pulled back by summing coordinate blocks. Its
 continued transform is the transform on the smaller simplex with the same blocks of
 parameters summed. Surjectivity excludes empty blocks; empty index types are handled.
+
+## Main results
+
+* `Dirichlet.sum_aggregate_dirichletParameters`: Fiber summation preserves the total parameter.
+* `Dirichlet.integral_dirichletMeasure_comp_aggregate`: Aggregating simplex coordinates
+  transports expectations of arbitrary kernels.
+* `Dirichlet.IsRegDirichletContinuation.aggregate`: Aggregating coordinates and adding their
+  parameters commutes with entire continuation.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977
+  (Dirichlet averages).
+* NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
+  https://dlmf.nist.gov/5.14.
 -/
 
 open Complex MeasureTheory ProbabilityTheory Set

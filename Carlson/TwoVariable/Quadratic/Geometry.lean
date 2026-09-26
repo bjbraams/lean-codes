@@ -63,6 +63,8 @@ def SecondQuadraticDomain (x y : ℂ) : Prop :=
   pair (x ^ 2) (y ^ 2) ∈ carlsonRVariableDomain ∧
     pair (arithmeticMeanSq x y) (geometricMeanSq x y) ∈ carlsonRVariableDomain
 
+/-- Along simultaneous segments from one to two right-half-plane nodes with right-half-plane
+product, the product retains positive real part. -/
 private lemma re_affine_prod_pos {x y : ℂ} (hx : 0 < x.re) (hy : 0 < y.re)
     (hxy : 0 < (x * y).re) {s : ℝ} (hs0 : 0 ≤ s) (hs1 : s ≤ 1) :
     0 < (((1 - s : ℂ) + s * x) * ((1 - s : ℂ) + s * y)).re := by

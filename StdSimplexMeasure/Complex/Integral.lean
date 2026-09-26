@@ -16,6 +16,22 @@ Unnormalized simplex integrals, node symmetry, coalescence, and a simplex fundam
 theorem of calculus on convex complex domains. Only the general simplex foundation of
 `StdSimplexMeasure` and Mathlib's complex analysis are used; there is no dependence on the
 `ComplexAnalysis` library, on Dirichlet measures or on Carlson functions.
+
+## Main results
+
+* `Complex.simplexIntegral_eq_integral`: Compute a simplex kernel integral using its first `n`
+  barycentric coordinates.
+* `Complex.simplexIntegral_perm`: A simplex kernel integral is invariant under permutation of
+  its nodes.
+* `Complex.simplexIntegral_const`: Coalescing all nodes evaluates the kernel, with the simplex
+  volume factor.
+* `Complex.simplexIntegral_sub`: The simplex fundamental theorem of calculus for a holomorphic
+  kernel.
+
+## References
+
+* `Mathlib.Analysis.Convex.Combination`: formal background used by this module.
+* `Mathlib.Analysis.Complex.CauchyIntegral`: formal background used by this module.
 -/
 
 open MeasureTheory

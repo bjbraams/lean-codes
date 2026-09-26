@@ -33,6 +33,12 @@ coordinates. The nested slices are reindexed through `stdSimplexDoubleComplement
 * `MeasureTheory.integral_posSimplex_inner_slice`,
   `MeasureTheory.lintegral_posSimplex_inner_slice`: evaluation of the inner sliced integrals.
 * `MeasureTheory.lintegral_posSimplex_scale`: the scaling law for solid-simplex integrals.
+
+## References
+
+* `Mathlib.MeasureTheory.Integral.Bochner.Set`: formal background used by this module.
+* `Mathlib.Analysis.SpecialFunctions.Gamma.Beta`: formal background used by this module.
+* `Mathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap`: formal background used by this module.
 -/
 
 open Fintype (card)

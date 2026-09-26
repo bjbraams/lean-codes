@@ -8,9 +8,28 @@ module
 public import Carlson.TwoVariable.R.Associated
 public import Carlson.L.Continuation
 
-/-! # Two-variable associated L-relations
+/-!
+# Two-variable associated L-relations
 
-Carlson (1987), (3.10), including the factored and mixed-derivative forms. -/
+Carlson (1987), (3.10), including the factored and mixed-derivative forms.
+
+## Main results
+
+* `Carlson.TwoVariable.regCarlsonL_pair_three_term`: The first equality of Carlson (1987),
+  (3.10), including its R-correction. The further factored and mixed-node-derivative forms are
+  separate statements.
+* `Carlson.TwoVariable.regCarlsonL_pair_three_term_factored`: The factored equality in Carlson
+  (1987), (3.10), with all Gamma factors cleared.
+* `Carlson.TwoVariable.regCarlsonL_pair_three_term_mixed`: The mixed-derivative equality in
+  (3.10), without dividing by `t * (t + 1)`. This formulation includes `t = 0`, `t = -1`, and
+  coincident nodes.
+* `Carlson.TwoVariable.regCarlsonL_pair_three_term_mixed_div`: The quotient form printed in
+  (3.10), with its necessary exponent exclusions.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
+-/
 
 open Dirichlet
 open Complex MeasureTheory ProbabilityTheory Filter Set

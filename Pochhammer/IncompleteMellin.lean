@@ -28,6 +28,26 @@ public import Mathlib.RingTheory.Polynomial.Pochhammer
 The regularized incomplete Mellin transform of a `C^N` integrand on a compact interval `[0, a]`
 continues holomorphically from `{0 < re α}` to `{-(N : ℝ) < re α}`.  This is the one-variable
 engine for finite-order continuation of regularized Dirichlet integrals.
+
+## Main results
+
+* `Complex.eq_add_mellinSlope`: The first-order Taylor identity on `[0, a]`.
+* `Complex.regIncompleteMellin_mul_pow`: Mellin of `t ↦ t^k K t` is the Pochhammer shift of the
+  Mellin of `K`.
+* `Complex.taylorWithinEval_eq_sum_cpow`: The Taylor polynomial of order `n` as a sum of
+  monomials.
+* `Complex.regIncompleteMellin_eq_taylor_peano`: Native identity: the incomplete Mellin of a
+  `C^N` integrand is the explicit Mellin of its Taylor polynomial plus a Pochhammer-shifted
+  Mellin of the Peano remainder.
+* `Complex.exists_regIncompleteMellin_continuation`: Finite differentiability of the integrand
+  yields an analytic continuation of the regularized incomplete Mellin transform from `{0 < re
+  α}` to `{-(N : ℝ) < re α}`.
+
+## References
+
+* `Mathlib.Analysis.SpecialFunctions.Gamma.Beta`: formal background used by this module.
+* `Mathlib.Analysis.Calculus.ContDiff.Basic`: formal background used by this module.
+* `Mathlib.Analysis.Calculus.Deriv.Slope`: formal background used by this module.
 -/
 
 open Complex MeasureTheory Set Filter intervalIntegral
@@ -37,7 +57,8 @@ open scoped Topology
 
 namespace Complex
 
-/-- The slope remainder `(K t - K 0) / t`, equal to the one-sided derivative at the origin. -/
+/-- The difference quotient `(K t - K 0) / t` for `t ≠ 0`, with value at zero assigned to
+`derivWithin K (Icc 0 a) 0`. -/
 def mellinSlope (a : ℝ) (K : ℝ → ℂ) (t : ℝ) : ℂ :=
   if t = 0 then derivWithin K (Icc (0 : ℝ) a) 0 else slope K 0 t
 
@@ -404,6 +425,25 @@ theorem regIncompleteMellin_const_mul {α : ℂ} {a : ℝ} {K : ℝ → ℂ} (c 
     funext t; ring
   rw [hfun, MeasureTheory.integral_const_mul, mul_left_comm]
 
+/-- The regularized incomplete Mellin transform depends only on the kernel on its interval. -/
+theorem regIncompleteMellin_congr {α : ℂ} {a : ℝ} {K L : ℝ → ℂ}
+    (h : EqOn K L (Icc 0 a)) : regIncompleteMellin α a K = regIncompleteMellin α a L := by
+  unfold regIncompleteMellin
+  congr 1
+  exact setIntegral_congr_fun measurableSet_Icc fun t ht => by rw [h ht]
+
+/-- Finite sums of continuous kernels commute with the regularized incomplete Mellin transform
+in its convergence half-plane. -/
+theorem regIncompleteMellin_sum {ι : Type*} (s : Finset ι) {α : ℂ} {a : ℝ}
+    (hα : 0 < α.re) (ha : 0 ≤ a) {K : ι → ℝ → ℂ}
+    (hK : ∀ i ∈ s, ContinuousOn (K i) (Icc 0 a)) :
+    regIncompleteMellin α a (fun t => ∑ i ∈ s, K i t) =
+      ∑ i ∈ s, regIncompleteMellin α a (K i) := by
+  unfold regIncompleteMellin
+  simp_rw [Finset.mul_sum]
+  rw [integral_finsetSum s (fun i hi => integrableOn_cpow_mul_Icc hα ha (hK i hi)),
+    Finset.mul_sum]
+
 /-- Mellin of `t ↦ t^k K t` is the Pochhammer shift of the Mellin of `K`. -/
 theorem regIncompleteMellin_mul_pow {α : ℂ} {a : ℝ} (hα : 0 < α.re) (_ha : 0 < a)
     {K : ℝ → ℂ} (_hK : ContinuousOn K (Icc 0 a)) (k : ℕ) :
@@ -437,6 +477,18 @@ theorem taylorWithinEval_eq_sum_cpow {n : ℕ} (K : ℝ → ℂ) (a t : ℝ) :
   rw [real_smul, ofReal_mul, ofReal_inv, ofReal_natCast, ofReal_pow]
   ring
 
+/-- The regularized incomplete Mellin transform of a Taylor polynomial is the corresponding
+finite sum of explicit monomial transforms. -/
+theorem regIncompleteMellin_taylorWithinEval {n : ℕ} {a : ℝ} (ha : 0 < a)
+    (K : ℝ → ℂ) {α : ℂ} (hα : 0 < α.re) :
+    regIncompleteMellin α a (fun t => taylorWithinEval K n (Icc 0 a) 0 t) =
+      ∑ k ∈ Finset.range (n + 1),
+        ((k.factorial : ℂ)⁻¹ * iteratedDerivWithin k K (Icc 0 a) 0) *
+          ((a : ℂ) ^ (α + k) * (ascPochhammer ℂ k).eval α * (Gamma (α + k + 1))⁻¹) := by
+  simp_rw [taylorWithinEval_eq_sum_cpow]
+  rw [regIncompleteMellin_sum _ hα ha.le (fun k _ => by fun_prop)]
+  simp_rw [regIncompleteMellin_const_mul, regIncompleteMellin_pow hα ha]
+
 /-- Native identity: the incomplete Mellin of a `C^N` integrand is the explicit Mellin of its
 Taylor polynomial plus a Pochhammer-shifted Mellin of the Peano remainder. -/
 theorem regIncompleteMellin_eq_taylor_peano {N : ℕ} (hN : 0 < N) {a : ℝ} (ha : 0 < a)
@@ -465,90 +517,9 @@ theorem regIncompleteMellin_eq_taylor_peano {N : ℕ} (hN : 0 < N) {a : ℝ} (ha
       rw [real_smul, ofReal_pow]
     dsimp
     rw [halg, hsmul]
-  have hadd := regIncompleteMellin_add hα ha.le hT hpowψ
-  have hcongr : regIncompleteMellin α a K =
-      regIncompleteMellin α a (fun t =>
-        taylorWithinEval K (N - 1) (Icc 0 a) 0 t +
-          (t : ℂ) ^ N * mellinPeanoRemainder N a K t) := by
-    unfold regIncompleteMellin
-    congr 1
-    exact setIntegral_congr_fun measurableSet_Icc fun t ht => by
-      simp [mul_add, hsplit ht]
-  rw [hcongr, hadd]
-  have hTaylor :
-      regIncompleteMellin α a (fun t => taylorWithinEval K (N - 1) (Icc 0 a) 0 t) =
-        ∑ k ∈ Finset.range N,
-          ((k.factorial : ℂ)⁻¹ * iteratedDerivWithin k K (Icc 0 a) 0) *
-            regIncompleteMellin α a (fun t => (t : ℂ) ^ k) := by
-    have hsum : EqOn (fun t => taylorWithinEval K (N - 1) (Icc 0 a) 0 t)
-        (fun t => ∑ k ∈ Finset.range N,
-          ((k.factorial : ℂ)⁻¹ * iteratedDerivWithin k K (Icc 0 a) 0) * (t : ℂ) ^ k)
-        (Icc 0 a) := by
-      intro t _
-      simpa [Nat.sub_add_cancel hN] using taylorWithinEval_eq_sum_cpow (n := N - 1) K a t
-    unfold regIncompleteMellin
-    have hinter :
-        (∫ t in Icc (0 : ℝ) a, (t : ℂ) ^ (α - 1) *
-            taylorWithinEval K (N - 1) (Icc 0 a) 0 t) =
-          ∫ t in Icc (0 : ℝ) a, (t : ℂ) ^ (α - 1) *
-            ∑ k ∈ Finset.range N,
-              ((k.factorial : ℂ)⁻¹ * iteratedDerivWithin k K (Icc 0 a) 0) *
-                (t : ℂ) ^ k :=
-      setIntegral_congr_fun measurableSet_Icc fun t ht => by simp [hsum ht]
-    rw [hinter]
-    have hswap :
-        (∫ t in Icc (0 : ℝ) a, (t : ℂ) ^ (α - 1) *
-            ∑ k ∈ Finset.range N,
-              ((k.factorial : ℂ)⁻¹ * iteratedDerivWithin k K (Icc 0 a) 0) *
-                (t : ℂ) ^ k) =
-          ∑ k ∈ Finset.range N,
-            ((k.factorial : ℂ)⁻¹ * iteratedDerivWithin k K (Icc 0 a) 0) *
-              ∫ t in Icc (0 : ℝ) a, (t : ℂ) ^ (α - 1) * (t : ℂ) ^ k := by
-      have hpoint (t : ℝ) :
-          (t : ℂ) ^ (α - 1) *
-              ∑ k ∈ Finset.range N,
-                ((k.factorial : ℂ)⁻¹ * iteratedDerivWithin k K (Icc 0 a) 0) *
-                  (t : ℂ) ^ k =
-            ∑ k ∈ Finset.range N,
-              ((k.factorial : ℂ)⁻¹ * iteratedDerivWithin k K (Icc 0 a) 0) *
-                ((t : ℂ) ^ (α - 1) * (t : ℂ) ^ k) := by
-        rw [Finset.mul_sum]
-        refine Finset.sum_congr rfl fun k _ => ?_
-        ring
-      simp_rw [hpoint]
-      have hterm (k : ℕ) :
-          Integrable (fun t : ℝ =>
-            ((k.factorial : ℂ)⁻¹ * iteratedDerivWithin k K (Icc 0 a) 0) *
-              ((t : ℂ) ^ (α - 1) * (t : ℂ) ^ k))
-            (volume.restrict (Icc 0 a)) := by
-        have hfun :
-            (fun t : ℝ =>
-              ((k.factorial : ℂ)⁻¹ * iteratedDerivWithin k K (Icc 0 a) 0) *
-                ((t : ℂ) ^ (α - 1) * (t : ℂ) ^ k)) =
-              fun t : ℝ => (t : ℂ) ^ (α - 1) *
-                (((k.factorial : ℂ)⁻¹ * iteratedDerivWithin k K (Icc 0 a) 0) *
-                  (t : ℂ) ^ k) := by
-          funext t; ring
-        rw [hfun]
-        exact integrableOn_cpow_mul_Icc hα ha.le (by fun_prop)
-      rw [integral_finsetSum (Finset.range N) fun k _ => hterm k]
-      refine Finset.sum_congr rfl fun k _ => ?_
-      rw [MeasureTheory.integral_const_mul]
-    rw [hswap, Finset.mul_sum]
-    refine Finset.sum_congr rfl fun k _ => ?_
-    ring
-  rw [hTaylor]
-  have hpow (k : ℕ) :
-      regIncompleteMellin α a (fun t => (t : ℂ) ^ k) =
-        (a : ℂ) ^ (α + k) * (ascPochhammer ℂ k).eval α * (Gamma (α + k + 1))⁻¹ :=
-    regIncompleteMellin_pow hα ha k
-  simp_rw [hpow]
-  have hrem :
-      regIncompleteMellin α a (fun t => (t : ℂ) ^ N * mellinPeanoRemainder N a K t) =
-        (ascPochhammer ℂ N).eval α *
-          regIncompleteMellin (α + N) a (mellinPeanoRemainder N a K) :=
-    regIncompleteMellin_mul_pow hα ha hψ N
-  rw [hrem]
+  rw [regIncompleteMellin_congr hsplit, regIncompleteMellin_add hα ha.le hT hpowψ,
+    regIncompleteMellin_taylorWithinEval ha K hα, Nat.sub_add_cancel hN,
+    regIncompleteMellin_mul_pow hα ha hψ N]
 
 /-- Finite differentiability of the integrand yields an analytic continuation of the
 regularized incomplete Mellin transform from `{0 < re α}` to `{-(N : ℝ) < re α}`. -/

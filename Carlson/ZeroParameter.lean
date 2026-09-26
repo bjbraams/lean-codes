@@ -18,6 +18,25 @@ The exponential series and the continued Taylor series inherit the same property
 This proves Corollary 6.3-2 for holomorphic averages on disks; the general R-function
 specialization is in `Carlson.R.ZeroParameter`. The deletion statements use a
 nonempty remaining index type, the usual special-function setting.
+
+## Main results
+
+* `Carlson.carlsonRPolynomialNumerator_update_of_param_zero`: A zero parameter makes the
+  polynomial numerator independent of its node.
+* `Carlson.regCarlsonSSeries_update_of_param_zero`: The entire regularized `S` function does not
+  depend on a zero-parameter node.
+* `Carlson.regCarlsonRPolynomial_option_zero`: Deleting a zero parameter from a regularized `R`
+  polynomial. `Option ι` distinguishes the deleted coordinate from the nonempty set of remaining
+  coordinates.
+* `Carlson.regCarlsonSSeries_option_zero`: Deleting a zero parameter from the entire regularized
+  `S` function.
+* `Dirichlet.IsRegCarlsonContinuation.option_zero`: Zero parameters may be deleted from any
+  continued holomorphic average on a disk (Carlson, Corollary 6.3-2), including exceptional
+  values of the total parameter in the regularized normalization.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet
@@ -61,6 +80,8 @@ theorem regCarlsonSSeries_update_of_param_zero {b : ι → ℂ}
   simp only [regCarlsonSSeries_eq_tsum_regCarlsonRPolynomial,
     regCarlsonRPolynomial_update_of_param_zero _ z i hbi w]
 
+/-- Aggregating an extra coordinate with zero parameter into an existing coordinate leaves the
+remaining parameter vector unchanged. -/
 private lemma aggregate_option_zero (k : ι) {b : Option ι → ℂ} (hb : b none = 0) :
     stdSimplexAggregate (fun o => o.elim k id) b = b ∘ some := by
   classical

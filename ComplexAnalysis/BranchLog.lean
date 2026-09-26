@@ -20,6 +20,24 @@ simply connected open subsets of the plane. A branch can be normalized at a chos
 on a connected domain the normalization determines it uniquely.
 
 No principal-branch or slit-plane hypothesis is imposed on the image of the function.
+
+## Main results
+
+* `Complex.hasDerivAt_logBranch`: A continuous local logarithm of a differentiable function has
+  derivative `g' / g`.
+* `Complex.exists_analyticOnNhd_logBranch`: A nonvanishing holomorphic function on a simply
+  connected open set has a holomorphic logarithm.
+* `Complex.exists_analyticOnNhd_logBranch_eq`: A holomorphic logarithm can be prescribed at one
+  point, provided its exponential has the required value there.
+* `Complex.eqOn_logBranch_of_eq`: Two continuous logarithm branches of a holomorphic function on
+  a connected open set agree everywhere if they agree at one point.
+* `Complex.exists_analyticOnNhd_root`: A nonvanishing holomorphic function on a simply connected
+  open set has a holomorphic `n`th root for every nonzero natural number `n`.
+
+## References
+
+* J. B. Conway, *Functions of One Complex Variable I*, second edition, Springer, 1978
+  (background on one-variable holomorphic functions).
 -/
 
 public section
@@ -55,7 +73,9 @@ theorem deriv_logBranch {U : Set ℂ} (hU : IsOpen U) {g L : ℂ → ℂ}
     (heq.eventuallyEq_of_mem (hU.mem_nhds hz))).deriv
 
 /-- A nonvanishing holomorphic function on a simply connected open set has a holomorphic
-logarithm. -/
+logarithm.
+
+A disk-domain counterpart is formalized in Geoffrey Irving's `ray` project. See `CREDITS.md`. -/
 theorem exists_analyticOnNhd_logBranch {U : Set ℂ} (hU : IsOpen U)
     (hUc : IsSimplyConnected U) {g : ℂ → ℂ} (hg : DifferentiableOn ℂ g U)
     (hg0 : ∀ z ∈ U, g z ≠ 0) :
@@ -65,14 +85,16 @@ theorem exists_analyticOnNhd_logBranch {U : Set ℂ} (hU : IsOpen U)
   exact ⟨L, (differentiableOn_logBranch hU hg hL heq).analyticOnNhd hU, heq⟩
 
 /-- A holomorphic logarithm can be prescribed at one point, provided its exponential has
-the required value there. -/
+the required value there.
+
+A disk-domain counterpart is formalized in Geoffrey Irving's `ray` project. See `CREDITS.md`. -/
 theorem exists_analyticOnNhd_logBranch_eq {U : Set ℂ} (hU : IsOpen U)
     (hUc : IsSimplyConnected U) {g : ℂ → ℂ} (hg : DifferentiableOn ℂ g U)
     (hg0 : ∀ z ∈ U, g z ≠ 0) {z₀ w₀ : ℂ} (hz₀ : z₀ ∈ U)
     (hw₀ : exp w₀ = g z₀) :
     ∃ L : ℂ → ℂ, AnalyticOnNhd ℂ L U ∧ EqOn (exp ∘ L) g U ∧ L z₀ = w₀ := by
   obtain ⟨L, hL, heq⟩ := exists_analyticOnNhd_logBranch hU hUc hg hg0
-  refine ⟨fun z => L z + (w₀ - L z₀), hL.add analyticOnNhd_const, ?_, by ring⟩
+  refine ⟨fun z ↦ L z + (w₀ - L z₀), hL.add analyticOnNhd_const, ?_, by ring⟩
   intro z hz
   simp only [Function.comp_apply, exp_add, exp_sub]
   change ∀ z ∈ U, exp (L z) = g z at heq
@@ -97,7 +119,7 @@ theorem exists_analyticOnNhd_root {U : Set ℂ} (hU : IsOpen U)
     (hg0 : ∀ z ∈ U, g z ≠ 0) {n : ℕ} (hn : n ≠ 0) :
     ∃ r : ℂ → ℂ, AnalyticOnNhd ℂ r U ∧ ∀ z ∈ U, r z ^ n = g z := by
   obtain ⟨L, hL, heq⟩ := exists_analyticOnNhd_logBranch hU hUc hg hg0
-  refine ⟨fun z => exp (L z / n), hL.div_const.cexp, ?_⟩
+  refine ⟨fun z ↦ exp (L z / n), hL.div_const.cexp, ?_⟩
   intro z hz
   rw [← exp_nat_mul, mul_div_cancel₀ _ (Nat.cast_ne_zero.mpr hn)]
   exact heq hz

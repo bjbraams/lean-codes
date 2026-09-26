@@ -18,6 +18,26 @@ import Mathlib.Analysis.Complex.TaylorSeries
 The R-polynomial expansion gives the entire regularized continuation in the
 Dirichlet parameters on the full scalar Taylor disk (Carlson, Theorem 6.3-1).
 The sharp estimate from Section 6.2 supplies locally uniform convergence.
+
+## Main results
+
+* `Carlson.isRegCarlsonContinuation_taylor_of_geometric_bound`: A geometric coefficient bound
+  yields a continued Taylor average. This internal criterion is discharged automatically by
+  `isRegCarlsonContinuation_taylor`.
+* `Carlson.summable_norm_regCarlsonTaylorSeries`: Absolute convergence of the continued Taylor
+  expansion at every complex parameter vector and throughout the full node disk.
+* `Dirichlet.IsRegCarlsonContinuation.hasSum_taylor`: The convergent R-polynomial Taylor series
+  represents every continued average, including at exceptional total parameters.
+* `Carlson.hasSumLocallyUniformlyOn_regCarlsonTaylorSeries_joint`: The Taylor series converges
+  locally uniformly jointly in parameters and nodes on the full scalar holomorphy disk. The two
+  coordinate blocks are encoded by `Sum`.
+* `Carlson.analyticOnNhd_regCarlsonTaylorSeries_joint`: The joint holomorphy conclusion of
+  Carlson's Theorem 6.3-1. There are no Dirichlet-parameter exclusions, and the node domain is
+  the full product of disks.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet
@@ -27,6 +47,8 @@ open scoped Topology NNReal ENNReal
 namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
+/-- On the simplex, subtracting a scalar from the affine average is the same as subtracting it from
+every node. -/
 private lemma affine_sub_center (A : ℂ) (z : ι → ℂ) {u : ι → ℝ}
     (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι) :
     carlsonAffineForm z u - A = carlsonAffineForm (fun i => z i - A) u := by

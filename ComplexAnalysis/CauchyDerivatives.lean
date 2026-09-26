@@ -27,6 +27,11 @@ Their intended Mathlib home is `Analysis.Complex.CauchyIntegral`.
 * `DiffContOnCl.iteratedDeriv_eq_circleIntegral_sub_zpow_smul`: Cauchy's formula for every
   derivative at any point inside the circle.
 * `DiffContOnCl.iteratedDeriv_eq_circleIntegral_sub_zpow_mul`: the scalar form.
+
+## References
+
+* J. B. Conway, *Functions of One Complex Variable I*, second edition, Springer, 1978
+  (background on one-variable holomorphic functions).
 -/
 
 open Complex MeasureTheory Metric Filter Set
@@ -38,7 +43,10 @@ section Banach
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [CompleteSpace E]
 
 /-- Cauchy's formula for every derivative at any point inside the circle. The function need only be
-holomorphic in the open disk and continuous on its closure. -/
+holomorphic in the open disk and continuous on its closure.
+
+The corresponding integral formula appears in Mathlib PR #43100 by `JJYYY-JJY`, with coauthor
+`ajirving`. See `CREDITS.md`. -/
 theorem DiffContOnCl.iteratedDeriv_eq_circleIntegral_sub_zpow_smul
     {c : ℂ} {R : ℝ} {f : ℂ → E} (hf : DiffContOnCl ℂ f (ball c R))
     (hR : 0 < R) (n : ℕ) {w : ℂ} (hw : w ∈ ball c R) :
@@ -50,7 +58,7 @@ theorem DiffContOnCl.iteratedDeriv_eq_circleIntegral_sub_zpow_smul
       (hf.two_pi_i_inv_smul_circleIntegral_sub_inv_smul hw).symm
   | succ n ih =>
     have heq : (iteratedDeriv n f) =ᶠ[nhds w]
-        (fun w => ((n.factorial : ℂ) * (2 * (Real.pi : ℂ) * I)⁻¹) •
+        (fun w ↦ ((n.factorial : ℂ) * (2 * (Real.pi : ℂ) * I)⁻¹) •
           ∮ s in C(c, R), (s - w) ^ (-(n + 1 : ℤ)) • f s) := by
       filter_upwards [isOpen_ball.mem_nhds hw] with v hv
       exact ih hv
@@ -59,7 +67,7 @@ theorem DiffContOnCl.iteratedDeriv_eq_circleIntegral_sub_zpow_smul
       (hf.continuousOn_ball.mono sphere_subset_closedBall).circleIntegrable hR.le
     have hw' : w ∉ sphere c |R| := by
       rw [abs_of_pos hR]
-      exact fun h => (mem_ball.mp hw).ne (mem_sphere.mp h)
+      exact fun h ↦ (mem_ball.mp hw).ne (mem_sphere.mp h)
     have hd := ((Complex.hasDerivAt_circleIntegral_sub_zpow_smul (n := -(n + 1 : ℤ)) hint
       hw').const_smul ((n.factorial : ℂ) * (2 * (Real.pi : ℂ) * I)⁻¹)).deriv
     refine hd.trans ?_
@@ -73,7 +81,10 @@ theorem DiffContOnCl.iteratedDeriv_eq_circleIntegral_sub_zpow_smul
 end Banach
 
 /-- Cauchy's formula for every derivative at any point inside the circle. The function need only be
-holomorphic in the open disk and continuous on its closure. -/
+holomorphic in the open disk and continuous on its closure.
+
+The corresponding integral formula appears in Mathlib PR #43100 by `JJYYY-JJY`, with coauthor
+`ajirving`. See `CREDITS.md`. -/
 theorem DiffContOnCl.iteratedDeriv_eq_circleIntegral_sub_zpow_mul
     {c : ℂ} {R : ℝ} {f : ℂ → ℂ} (hf : DiffContOnCl ℂ f (ball c R))
     (hR : 0 < R) (n : ℕ) {w : ℂ} (hw : w ∈ ball c R) :

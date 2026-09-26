@@ -8,7 +8,19 @@ module
 public import Carlson.TwoVariable.R.Associated
 public import Carlson.TwoVariable.L.Associated
 
-/-! # Two-variable associated R and L relations
+/-!
+# Two-variable associated R and L relations
 
 Combined import; R-only users may import `Carlson.TwoVariable.R.Associated`.
+
+## Main results
+
+This module re-exports the following developments:
+
+* `Carlson.TwoVariable.R.Associated`: Two-variable associated R-relations.
+* `Carlson.TwoVariable.L.Associated`: Two-variable associated L-relations.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/

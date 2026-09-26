@@ -27,6 +27,11 @@ it with the Fréchet derivative on a coordinate vector. `iteratedPartialDeriv` a
 are mixed derivatives, identified by `iteratedPartialDeriv_eq_multiIndexDeriv`.
 `iteratedPartialDeriv_perm` is permutation invariance. `complexJacobian` is the Jacobian matrix of
 coordinate derivatives.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section

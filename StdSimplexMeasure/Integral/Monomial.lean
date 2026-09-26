@@ -28,6 +28,12 @@ induction through slicing, and the integral of an `MvPolynomial` monomial.
 * `MeasureTheory.integral_stdSimplex_explicit_monomial`: the multinomial-beta evaluation.
 * `MeasureTheory.integral_stdSimplex_constant`: the volume of the simplex.
 * `MeasureTheory.integral_stdSimplex_MvPolynomial_monomial`.
+
+## References
+
+* `Mathlib.MeasureTheory.Integral.Bochner.Set`: formal background used by this module.
+* `Mathlib.Analysis.SpecialFunctions.Gamma.Beta`: formal background used by this module.
+* `Mathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap`: formal background used by this module.
 -/
 
 open Fintype (card)

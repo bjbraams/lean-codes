@@ -23,7 +23,7 @@ Terminology here is provisional. We are using the name (regularized) Dirichlet t
 because it is the central transform in Carlson's theory of Dirichlet averages. However,
 the name (regularized) simplex Mellin transform is also appropriate.
 
-## Main definitions and results
+## Main results
 
 * `dirichletConvergenceRegion`: the parameter region `re (b i) > -N`.
 * `exists_regDirichletContinuation_of_contDiffNear`: `(card ι - 1) * N` derivatives give
@@ -322,6 +322,8 @@ theorem shiftRegion_cons (i : ι) (j : {j : ι // j ≠ i})
     · simpa [Pi.single_eq_of_ne j.property.symm] using (lt_trans (lt_add_one _) hi)
     · exact hrest
 
+/-- The shifted Dirichlet integral is analytic on its shift region when the kernel has the required
+number of derivatives near the simplex. -/
 private theorem analyticOnNhd_shiftedDirichletIntegral (i : ι)
     (l : List {j : ι // j ≠ i}) {f : (ι → ℝ) → ℂ}
     (hf : ContDiffNearStdSimplex l.length f) :
@@ -346,6 +348,8 @@ private theorem analyticOnNhd_shiftedDirichletIntegral (i : ι)
         ((analyticAt_id.add analyticAt_const).sub analyticAt_const) rfl).sub
         ((h1 _ hb1).comp_of_eq (analyticAt_id.add analyticAt_const) rfl)
 
+/-- For sufficiently positive parameters, the shifted construction agrees with the native
+regularized Dirichlet integral. -/
 private theorem shiftedDirichletIntegral_eq (i : ι) (l : List {j : ι // j ≠ i})
     {f : (ι → ℝ) → ℂ} (hf : ContDiffNearStdSimplex l.length f)
     {b : ι → ℂ} (hb : ∀ k, (l.length : ℝ) + 2 < (b k).re) :

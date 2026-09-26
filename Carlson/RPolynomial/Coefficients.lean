@@ -11,9 +11,28 @@ public import Mathlib.Algebra.Order.Antidiag.Finsupp
 public import Mathlib.Algebra.Order.Antidiag.Pi
 public import Mathlib.Data.Nat.Choose.Multinomial
 
-/-! # Coefficients of Carlson's R-polynomials
+/-!
+# Coefficients of Carlson's R-polynomials
 
 Home for Carlson's Section 6.2: multi-index coefficients, zero specializations, and termination.
+
+## Main results
+
+* `Carlson.coeff_carlsonPowerPolynomial`: The coefficient form of the multinomial theorem for
+  Carlson's homogeneous power polynomial. This is the algebraic core of Carlson's representation
+  6.2-1.
+* `Carlson.regCarlsonRPolynomial_zero_variables`: If all Carlson variables vanish, every
+  positive-degree Carlson polynomial vanishes.
+* `Carlson.map_equivFunOnFinite_piAntidiag_univ`: Reindexing the degree-`n` Finsupp antidiagonal
+  along `Finsupp.equivFunOnFinite`.
+* `Carlson.carlsonRPolynomialNumerator_eq_multinomial_sum`: The Pochhammer numerator is the
+  complete degree-`n` multinomial expansion.
+* `Carlson.analyticAt_regCarlsonRPolynomial_comp`: Regularized Carlson polynomials preserve
+  analytic dependence jointly in their nodes and Dirichlet parameters.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet

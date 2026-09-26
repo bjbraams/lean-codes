@@ -16,6 +16,16 @@ public import Mathlib.Analysis.SpecialFunctions.Complex.Analytic
 The beta endpoint exponents, Dirichlet parameters, and slit-plane nodes may all vary
 holomorphically. A beta density with smaller positive endpoint exponents supplies the
 local integrable bound. This is the convergent seed for the joint continuation in §6.8.
+
+## Main results
+
+* `Carlson.analyticOnNhd_carlsonRUnitIntervalIntegral_comp`: Joint analytic dependence of the
+  beta-weighted single integral under analytic substitutions, on its endpoint convergence domain
+  and the full product slit plane.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Complex MeasureTheory Filter Set

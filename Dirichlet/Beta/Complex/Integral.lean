@@ -177,6 +177,8 @@ private theorem mvBeta_cons_mul_betaIntegral {n : ℕ} {b₀ : ℂ} {b : Fin (n 
   rw [hadd, hcomm]
   field_simp [hΓ', Gamma_ne_zero_of_re_pos hb₀, Gamma_ne_zero_of_re_pos hbl]
 
+/-- Splitting off the last free coordinate expresses the beta simplex as intervals over the
+lower-dimensional simplex. -/
 private theorem piFinSnoc_preimage_mvBetaSimplex (n : ℕ) :
     piFinSnoc (fun _ : Fin (n + 1) ↦ ℝ) ⁻¹' mvBetaSimplex (n + 1) =
       {p : (Fin n → ℝ) × ℝ |

@@ -18,6 +18,23 @@ public import Mathlib.Data.Nat.Choose.Bounds
 The coefficient convolution is Carlson's calculation in Section 6.10, pp. 165–166.
 Absolute convergence justifies grouping the double series by total degree. A coarse geometric
 majorant suffices for the local identity, which is subsequently extended by analyticity.
+
+## Main results
+
+* `Carlson.TwoVariable.sum_antidiagonal_quadraticSeriesCoeff`: The finite convolution that
+  collapses Carlson's double series.
+* `Carlson.TwoVariable.norm_quadraticSeriesCoeff_le`: A coarse geometric majorant is sufficient,
+  since the transformation is first proved in an arbitrarily small neighborhood of equal nodes.
+* `Carlson.TwoVariable.summable_norm_quadraticSeries`: Absolute convergence on a small disk,
+  sufficient for analytic continuation.
+* `Carlson.TwoVariable.tsum_quadraticSeries_eq`: Regroup the absolutely convergent double series
+  by its total degree.
+* `Carlson.TwoVariable.hasSum_quadraticSeries_row`: Summing a row is the ordinary binomial
+  series used on p. 165.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Complex
@@ -67,6 +84,8 @@ theorem sum_antidiagonal_quadraticSeriesCoeff (a c : ℂ) (hc : 0 < c.re) (n : �
   rw [show a + (n : ℂ) + (1 - c - n) = a + 1 - c by ring]
   ring
 
+/-- For a denominator parameter with positive real part, the double-series coefficient factors into
+a binomial coefficient and two Pochhammer ratios. -/
 private lemma quadraticSeriesCoeff_eq_binomial (a c : ℂ) (hc : 0 < c.re) (m k : ℕ) :
     quadraticSeriesCoeff a c m k =
       ((ascPochhammer ℂ (2 * m + k)).eval a / ((2 * m + k).factorial : ℂ)) *

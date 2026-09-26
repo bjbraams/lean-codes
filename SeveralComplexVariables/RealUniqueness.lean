@@ -24,6 +24,11 @@ germ, on a connected continuation domain. `AnalyticOnNhd.eq_of_eqOn_posReal` is 
 entire functions of one variable from the positive reals. `AnalyticOnNhd.eq_of_eqOn_posReal_pi`
 is the corresponding statement for entire functions of finitely many variables. All three
 results allow values in any complex normed space; completeness of the target is not needed.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 open Complex Set Filter

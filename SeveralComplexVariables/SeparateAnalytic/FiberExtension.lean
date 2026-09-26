@@ -5,7 +5,7 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import Analysis.GeometricBounds
+public import ToMathlib.Analysis.GeometricBounds
 public import ComplexAnalysis.CauchySeries
 public import SeveralComplexVariables.RemovableSingularity.Cauchy
 public import SeveralComplexVariables.SeparateAnalytic.HartogsLemma

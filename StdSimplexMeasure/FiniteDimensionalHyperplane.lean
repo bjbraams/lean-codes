@@ -28,6 +28,27 @@ The volume wrappers `volume_setOf_eval_eq` and `volume_setOf_fin_sum_eq` are loc
 conveniences for the present project.
 
 TODO: if those lemmas land in Mathlib, delete this file and switch uses to the upstream names.
+
+## Main results
+
+* `MeasureTheory.Measure.pi_weighted_hyperplane`: A level set of a weighted coordinate sum has
+  product measure zero if one of its coefficients is nonzero. This is the finite-product form of
+  the fact that a proper affine hyperplane is Lebesgue-null; compare `pi_hyperplane` and
+  `addHaar_affineSubspace`.
+* `MeasureTheory.Measure.volume_setOf_fintype_weighted_sum_eq`: A level set of a weighted
+  coordinate sum in a finite real product has volume zero if one of its coefficients is nonzero.
+* `MeasureTheory.Measure.volume_setOf_eval_eq`: A level set of a coordinate projection in a
+  finite real product has volume zero.
+* `MeasureTheory.Measure.volume_setOf_fintype_sum_eq`: A level set of the coordinate sum in a
+  nonempty finite real product has volume zero. The nonempty hypothesis is necessary: in
+  dimension zero the level set at zero is the whole space.
+* `MeasureTheory.Measure.volume_setOf_fin_sum_eq`: A level set of the coordinate sum in a
+  nonempty finite real product has volume zero.
+
+## References
+
+* `Mathlib.MeasureTheory.Constructions.Pi`: formal background used by this module.
+* `Mathlib.MeasureTheory.Measure.Lebesgue.Basic`: formal background used by this module.
 -/
 
 open MeasureTheory MeasurableEquiv

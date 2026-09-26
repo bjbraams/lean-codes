@@ -16,6 +16,25 @@ This file connects ambient coordinate charts to the intrinsic
 `Convexity.StdSimplex`. The coordinate carrier is used for restricting the
 hyperplane measure and for ambient calculus. The chart homeomorphism targets
 the intrinsic simplex itself.
+
+## Main results
+
+* `preimage_stdSimplex_perm`: The coordinate realization of the standard simplex is invariant
+  under precomposition by a permutation of its coordinates.
+* `stdSimplexAggregate_mem_stdSimplex`: Coordinate aggregation sends the coordinate realization
+  of the standard simplex on `ι` into the coordinate realization on `κ`.
+* `Convexity.StdSimplex.coordinates_map`: Intrinsic aggregation is realized by summing ambient
+  coordinates over fibers.
+* `Convexity.StdSimplex.coordinates_homeomorphFreeCoords`: The coordinates of the intrinsic
+  point associated with free coordinates are given by the coordinate map.
+* `Convexity.StdSimplex.coe_homeomorphFreeCoords_symm`: The free coordinates of an intrinsic
+  point are its coordinate projection.
+
+## References
+
+* `StdSimplexMeasure.Intrinsic`: formal background used by this module.
+* `StdSimplexMeasure.Aggregation`: formal background used by this module.
+* `StdSimplexMeasure.Coordinates`: formal background used by this module.
 -/
 
 @[expose] public noncomputable section StdSimplexCoordinateRealization

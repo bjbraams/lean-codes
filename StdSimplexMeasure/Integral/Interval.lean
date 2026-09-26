@@ -13,6 +13,17 @@ public import StdSimplexMeasure.Integral.Basic
 The affine parametrization `x ↦ ![x, 1 - x]` identifies the coordinate measure with
 Lebesgue measure, and the closed simplex with the closed unit interval. The integral
 formula applies to arbitrary functions into a normed real vector space.
+
+## Main results
+
+* `MeasureTheory.map_volume_pair_sub_eq_stdSimplexMeasure`: Lebesgue measure parametrizes the
+  two-coordinate affine simplex without a scale factor.
+* `MeasureTheory.integral_stdSimplex_fin_two`: The two-coordinate simplex integral is the
+  integral over the closed unit interval.
+
+## References
+
+* `StdSimplexMeasure.Integral.Basic`: formal background used by this module.
 -/
 
 public noncomputable section

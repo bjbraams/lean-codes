@@ -15,6 +15,24 @@ public import Mathlib.MeasureTheory.Measure.Haar.NormedSpace
 
 The last barycentric coordinate is reconstructed from the other coordinates. Separating
 the last free coordinate gives the one-dimensional slices used by the simplex FTC.
+
+## Main results
+
+* `MeasureTheory.continuous_finSimplexPoint`: Completing a free-coordinate vector to a simplex
+  point is continuous.
+* `MeasureTheory.integral_stdSimplex_fin`: The standard-simplex integral in the chart omitting
+  its last coordinate.
+* `MeasureTheory.integral_posSimplexFin_snoc`: Fubini with the last free coordinate integrated
+  first.
+* `MeasureTheory.integral_posSimplexFin_snoc_outer`: The same Fubini decomposition, with the
+  separated coordinate integrated last.
+* `MeasureTheory.integral_posSimplexFin_scale`: Dilation of the solid simplex.
+
+## References
+
+* `Mathlib.MeasureTheory.Integral.IntervalIntegral.FundThmCalculus`: formal background used by this module.
+* `Mathlib.MeasureTheory.Integral.Prod`: formal background used by this module.
+* `Mathlib.MeasureTheory.Measure.Haar.NormedSpace`: formal background used by this module.
 -/
 
 open MeasureTheory MeasureTheory.Measure

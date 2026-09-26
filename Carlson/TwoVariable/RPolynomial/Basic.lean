@@ -13,9 +13,13 @@ public import Carlson.RPolynomial.Basic
 
 The two-node specialization of the regularized Carlson R-polynomial.
 
-## Main definitions
+## Main statements
 
 * `Carlson.TwoVariable.regRPolynomial`: `regCarlsonRPolynomial n ![b₀, b₁] ![z₀, z₁]`.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Complex MeasureTheory ProbabilityTheory Filter Set

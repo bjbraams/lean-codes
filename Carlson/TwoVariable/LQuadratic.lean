@@ -5,7 +5,7 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import Analysis.Deriv
+public import ToMathlib.Analysis.Deriv
 public import Carlson.TwoVariable.EqualParameter
 public import Carlson.TwoVariable.ParameterSymmetry
 public import Carlson.L.Continuation
@@ -23,6 +23,24 @@ identifies this correction with the transformed L-term, yielding (6.4) and (6.5)
 All complex exponent and Dirichlet parameters are allowed. The input node domains
 are those of the R-identities; transformed ratios use the slit-plane interface.
 At exponent zero the correction vanishes, giving both identities (6.8).
+
+## Main results
+
+* `Carlson.TwoVariable.hasDerivAt_regEqualRContinued_L`: The equal-parameter regularized
+  L-function is the exponent derivative of the equal-parameter regularized R-function.
+* `Carlson.TwoVariable.equalLContinued_secondQuadratic`: The second quadratic transformation in
+  ordinary normalization, with the same genuine-pole convention as
+  `equalLContinued_firstQuadratic`.
+* `Carlson.TwoVariable.regRParameterTransfer_zero`: At degree zero a sum-preserving parameter
+  derivative vanishes.
+* `Carlson.TwoVariable.regEqualLContinued_firstQuadratic_zero`: Carlson (1987), first identity
+  (6.8), with no Dirichlet parameter exclusions.
+* `Carlson.TwoVariable.regEqualLContinued_secondQuadratic_zero`: Carlson (1987), second identity
+  (6.8), with no Dirichlet parameter exclusions.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet

@@ -13,6 +13,25 @@ public import Dirichlet.ParameterShift
 
 Coordinate multiplication, the simplex partition of unity, tangential differentiation,
 and permutation act on arbitrary kernels, independently of Carlson's affine substitution.
+
+## Main results
+
+* `Dirichlet.analyticAt_addDirichletUnit`: Parameter shifts are translations, hence entire.
+* `Dirichlet.regDirichletIntegral_perm`: Coordinate permutations preserve the native transform
+  when parameters and kernel coordinates are permuted together.
+* `Dirichlet.IsRegDirichletContinuation.perm`: Permuting a kernel permutes the arguments of its
+  entire transform.
+* `Dirichlet.IsRegDirichletContinuation.monomial_mul`: Multiplying by a monomial gives its
+  Pochhammer factor and the corresponding multi-shift.
+* `Dirichlet.IsRegDirichletContinuation.eq_zero_of_coordinate_mul`: A kernel divisible by a
+  simplex coordinate has zero transform when that parameter is zero.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977
+  (Dirichlet averages).
+* NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
+  https://dlmf.nist.gov/5.14.
 -/
 
 open Complex MeasureTheory ProbabilityTheory Set Filter

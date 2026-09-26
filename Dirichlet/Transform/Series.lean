@@ -14,6 +14,22 @@ import Mathlib.MeasureTheory.Integral.DominatedConvergence
 
 Uniform summable domination on the simplex permits termwise transformation on the
 native convergence region. No uniform-continuity claim outside that region is made.
+
+## Main results
+
+* `Dirichlet.hasSum_regDirichletIntegral`: A uniformly summably dominated series of simplex
+  kernels may be integrated termwise.
+* `Dirichlet.isRegDirichletContinuation_of_hasSumLocallyUniformlyOn`: A locally uniformly
+  convergent series of entire transforms represents the continued transform of the summed
+  kernel, provided native integration is justified by domination. Local uniform convergence of
+  the transformed series is an explicit hypothesis.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977
+  (Dirichlet averages).
+* NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
+  https://dlmf.nist.gov/5.14.
 -/
 
 open Complex MeasureTheory ProbabilityTheory Set Filter

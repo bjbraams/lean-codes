@@ -16,6 +16,23 @@ The three-node relation (3.3) and backward-shift relation (3.7) of Carlson (1987
 right-half-plane nodes and all complex Dirichlet parameters; their extension to slit-plane
 nodes is in `Carlson.L.SlitRelations`. The translation and Euler differential identities
 (2.9) and (2.8) are stated for native integrals.
+
+## Main results
+
+* `Carlson.isRegCarlsonContinuation_deriv_LKernel`: The derivative kernel has an entire
+  continuation expressed through L and R.
+* `Carlson.regCarlsonLIntegral_eq_sum_addDirichletUnit`: The first associated relation on the
+  native convergence region.
+* `Carlson.regCarlsonLIntegral_add_one_eq_sum_mul_addDirichletUnit`: The exponent-raising
+  relation on the native convergence region.
+* `Carlson.sum_carlsonPartialDeriv_regCarlsonLIntegral`: Equation (2.9): the
+  differential-difference identity for translations.
+* `Carlson.sum_mul_carlsonPartialDeriv_regCarlsonLIntegral`: Equation (2.8): Euler's identity
+  has the inhomogeneous term R.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet

@@ -27,6 +27,29 @@ rational expression.
 
 This reduction does not yet classify all integral or half-integral parameter
 configurations in terms of elementary functions.
+
+## Main results
+
+* `Carlson.exists_polynomial_regCarlsonR_option_neg_nat`: A nonpositive integral parameter can
+  be removed with polynomial coefficients, uniformly in the nodes. This is the
+  raising-and-deletion step in Theorems 8.5-1 and 8.5-3, on the entire regularized parameter
+  domain.
+* `Carlson.regCarlsonR_option_neg_one`: Explicit removal of the parameter `-1`, the first
+  nontrivial case of the finite reduction in Section 8.5. No division or node-distinctness is
+  required.
+* `Carlson.regCarlsonR_lower`: Carlson's lowering relation 8.5(1), in pole-free regularized
+  form. It is valid even at `a = 1` and coincident nodes, though solving for the left-hand
+  function then requires the usual nonvanishing hypotheses.
+* `Carlson.regCarlsonR_neg_sum_sub_nat`: If the complementary exponent is a nonpositive integer,
+  Euler's transformation reduces the function to a polynomial in reciprocal nodes times complex
+  powers. This is the second terminating case used in Section 8.5.
+* `Carlson.regCarlsonR_neg_sum_sub_nat_int`: For integral Dirichlet parameters the complementary
+  terminating case is explicitly rational in the nodes: integer powers times a polynomial in
+  their reciprocals. Negative and zero Dirichlet parameters are allowed.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet

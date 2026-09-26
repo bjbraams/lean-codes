@@ -24,6 +24,13 @@ symmetry, nonvanishing, and the effect of positive integer translates of the par
 ## Main results
 
 * `Complex.mvBeta_perm`, `Complex.mvBeta_ne_zero`, `Complex.mvBeta_addNat`.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977
+  (Dirichlet averages).
+* NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
+  https://dlmf.nist.gov/5.14.
 -/
 
 open Fintype

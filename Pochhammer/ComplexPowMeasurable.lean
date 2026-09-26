@@ -12,8 +12,21 @@ public import Mathlib.MeasureTheory.Constructions.BorelSpace.Complex
 /-!
 # Measurability of complex powers with a real base
 
-This file is a temporary home for a measurability result intended for the Mathlib theory of
-complex powers.  It is independent of the multivariate Beta function.
+For a fixed complex exponent, the principal complex power of a real base is measurable as a
+function of that base. The proof handles the value at zero separately from continuity away from
+zero.
+
+## Main results
+
+* `Complex.measurable_ofReal_cpow_const`: Raising a real number, regarded as a complex number,
+  to a fixed complex power is measurable. The possible discontinuity at zero does not affect
+  measurability.
+
+## References
+
+* `Mathlib.Analysis.SpecialFunctions.Pow.Continuity`: formal background used by this module.
+* `Mathlib.MeasureTheory.Constructions.BorelSpace.Basic`: formal background used by this module.
+* `Mathlib.MeasureTheory.Constructions.BorelSpace.Complex`: formal background used by this module.
 -/
 
 public noncomputable section

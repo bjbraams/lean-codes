@@ -15,6 +15,15 @@ public import Carlson.R.Explicit
 Every finite set of right-half-plane nodes fits in a disk of holomorphy of
 the principal power. Carlson's continued Taylor formula therefore deletes a
 zero parameter for every complex exponent and every remaining parameter vector.
+
+## Main results
+
+* `Carlson.regCarlsonR_option_zero`: Carlson's zero-parameter deletion for the general continued
+  R-function. The exponent and remaining Dirichlet parameters are arbitrary complex numbers.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet

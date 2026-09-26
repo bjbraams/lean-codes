@@ -30,6 +30,20 @@ witnesses on the parameters is claimed.
 The choice of common parameters also ensures Gamma regularity at both ends of the exponent
 recurrence, including the exceptional integral cases discussed by Carlson. The empty index
 type is handled separately. There are no admitted proofs in this file.
+
+## Main results
+
+* `Carlson.exists_polynomial_relation_associatedR`: Carlson's existence theorem 8.4-3: any `card
+  ι + 1` associated R-functions satisfy a nontrivial homogeneous relation with polynomial
+  coefficients.
+* `Carlson.exists_polynomial_relation_associatedCarlsonR`: Carlson's Theorem 8.4-3 for all
+  complex parameters and slit-plane nodes. Nontriviality is polynomial nontriviality, not a
+  pointwise assertion. The empty index type is included through the existing entire-parameter
+  theorem.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet
@@ -38,6 +52,7 @@ open Complex ProbabilityTheory
 namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
+/-- Complex-valued functions on the domain of right-half-plane node vectors. -/
 private abbrev CarlsonVariableFunctions (ι : Type*) :=
   {z : ι → ℂ // z ∈ carlsonRVariableDomain} → ℂ
 
@@ -48,6 +63,8 @@ local instance : Module (MvPolynomial ι ℂ)
     (fun z : {z : ι → ℂ // z ∈ carlsonRVariableDomain} => MvPolynomial.eval z.1))
 
 omit [Fintype ι] in
+/-- The polynomial scalar action on node functions is pointwise multiplication by polynomial
+evaluation. -/
 private theorem polynomial_smul_apply (p : MvPolynomial ι ℂ)
     (f : CarlsonVariableFunctions ι) (z : {z : ι → ℂ // z ∈ carlsonRVariableDomain}) :
     (p • f) z = p.eval z.1 * f z := rfl
@@ -123,6 +140,7 @@ private theorem carlsonRIntegral_mem_of_nat_shift
       ((Submodule.denominatorClosure P).smul_mem _ h₀)
           ((Submodule.denominatorClosure P).smul_mem _ h₁)
 
+/-- A complex number with positive real part is not a nonpositive integer, so it is Gamma-regular. -/
 private theorem isCarlsonGammaRegular_of_re_pos {w : ℂ} (hw : 0 < w.re) :
     IsCarlsonGammaRegular w := by
   intro n hn

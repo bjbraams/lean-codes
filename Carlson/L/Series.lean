@@ -20,6 +20,21 @@ the coefficients are explicit, giving the logarithmic series of Carlson (1987),
 The derivative-coefficient formulation is nonsingular at integral exponents.
 Explicit Pochhammer/digamma evaluations at general exponents, (5.3)–(5.7),
 are not yet supplied by this module.
+
+## Main results
+
+* `Carlson.carlsonLCoeff_zero`: The constant coefficient vanishes for every exponent.
+* `Carlson.hasSum_regCarlsonL`: The continued L-function has the R-polynomial Taylor
+  representation on the full unit polydisk, even at exceptional total parameters.
+* `Carlson.summable_norm_regCarlsonL_series`: Absolute convergence of the continued L-expansion.
+* `Carlson.carlsonLCoeff_exponent_zero`: At exponent zero the Taylor coefficients are those of
+  `log (1 + x)`.
+* `Carlson.hasSum_regCarlsonL_zero`: Equation (5.8), with the sign absorbed into the
+  coefficients of `z - 1`. The `n = 0` term is zero by totalized division.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Complex Set

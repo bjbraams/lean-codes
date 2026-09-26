@@ -9,9 +9,32 @@ public import Carlson.TwoVariable.Quadratic.Geometry
 public import Carlson.TwoVariable.PolynomialDifferential
 public import Pochhammer.Identities
 
-/-! # Polynomial quadratic transformations
+/-!
+# Polynomial quadratic transformations
 
-The squared-node regression theorem is retained alongside the correct involutive identity. -/
+The squared-node regression theorem is retained alongside the correct involutive identity.
+
+## Main results
+
+* `Carlson.TwoVariable.numerator₂_zero_right`: The two-variable Pochhammer numerator with a
+  vanishing second node.
+* `Carlson.TwoVariable.carlsonRPolynomialNumerator₂_firstQuadratic_even`: Division-free
+  polynomial form of the even-degree first quadratic transformation 6.9-8. It is valid at
+  exceptional parameters because no Pochhammer symbol is divided out.
+* `Carlson.TwoVariable.carlsonRPolynomialNumerator₂_firstQuadratic_odd`: Division-free
+  polynomial form of the odd-degree first quadratic transformation 6.9-9.
+* `Carlson.TwoVariable.secondQuadratic_unsquared_counterexample`: Regression check: the version
+  of the second quadratic identity with unsquared right-hand nodes is false, already for `n = β
+  = 1`, `x = 2`, `y = 0`.
+* `Carlson.TwoVariable.carlsonRPolynomialNumerator₂_secondQuadratic`: Division-free polynomial
+  form of Carlson's involutive transformation 6.10-3. Both transformed nodes must be squared:
+  both sides are homogeneous of degree `2 * n` in `x,y`. Omitting the squares gives the false
+  identity refuted above.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
+-/
 
 open Dirichlet
 open Complex MeasureTheory ProbabilityTheory Filter Set
@@ -28,6 +51,8 @@ lemma numerator₂_zero_right (n : ℕ) (p q x : ℂ) :
   ext i
   fin_cases i <;> simp [pair]
 
+/-- Two functions of two complex variables agree if they agree when the second variable is zero and
+their difference has zero derivative along every diagonal translate. -/
 private lemma eq_of_translate_sub_deriv_zero (F G : ℂ → ℂ → ℂ)
     (hzero : ∀ x, F x 0 = G x 0)
     (hd : ∀ x y w, HasDerivAt (fun t => F (x + t) (y + t) - G (x + t) (y + t)) 0 w)
@@ -36,6 +61,8 @@ private lemma eq_of_translate_sub_deriv_zero (F G : ℂ → ℂ → ℂ)
     (fun w => (hd x y w).deriv) 0 (-y)
   simpa only [add_zero, add_neg_cancel, hzero, sub_self, sub_eq_zero] using H
 
+/-- The diagonal derivative of a quadratic-transformed two-node numerator lowers its degree and
+introduces the sum of the translated nodes. -/
 private lemma hasDerivAt_numerator₂_quadratic_translate (n : ℕ) (p q x y w : ℂ) :
     HasDerivAt (fun t => carlsonRPolynomialNumerator₂ (n + 1) p q
       (arithmeticMeanSq (x + t) (y + t)) (geometricMeanSq (x + t) (y + t)))
@@ -56,6 +83,8 @@ private lemma hasDerivAt_numerator₂_quadratic_translate (n : ℕ) (p q x y w :
     dsimp [d, s, geometricMeanSq]; ring
   simpa only [Function.comp_def, hA, hG] using! H
 
+/-- When the second node is zero, multiplying a power of the squared arithmetic mean by `4 ^ n`
+gives `x ^ (2 * n)`. -/
 private lemma meanSq_zero_pow (n : ℕ) (x : ℂ) :
     4 ^ n * arithmeticMeanSq x 0 ^ n = x ^ (2 * n) := by
   rw [← mul_pow, pow_mul]
@@ -187,6 +216,8 @@ theorem carlsonRPolynomialNumerator₂_firstQuadratic_odd
   push_cast
   ring
 
+/-- Rotating the squared nodes by `x + y` and `x - y` transforms the quadratic numerator by
+parameter reflection and the factor `4 ^ n * (-1) ^ n`. -/
 private lemma numerator₂_rotated_quadratic (n : ℕ) (p q x y : ℂ) :
     carlsonRPolynomialNumerator₂ n (1 - p - q - n) q
       (arithmeticMeanSq ((x + y) ^ 2) ((x - y) ^ 2))

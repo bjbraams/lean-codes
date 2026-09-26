@@ -26,8 +26,8 @@ total parameter.
 
 ## References
 
-* B. C. Carlson, *A table of elliptic integrals of the third kind*, Math. Comp. 51 (1987);
-  cited as Carlson (1987).
+* B. C. Carlson, *Dirichlet averages of x^t log x*, SIAM J. Math. Anal. 18 (1987),
+  550–565, doi:10.1137/0518043.
 -/
 
 open Dirichlet

@@ -30,6 +30,12 @@ volume formula `r ^ n / n!`.
 
 * `volume_posSimplexFin`, `volume_posSimplex`: the volume formula.
 * `preimage_posSimplexSlices_of_mem`: slices are solid simplices of reduced radius.
+
+## References
+
+* `Mathlib.Analysis.SpecialFunctions.Integrals.Basic`: formal background used by this module.
+* `Mathlib.LinearAlgebra.Finsupp.Pi`: formal background used by this module.
+* `Mathlib.MeasureTheory.Integral.Bochner.Set`: formal background used by this module.
 -/
 
 open MeasureTheory

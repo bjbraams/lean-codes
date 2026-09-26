@@ -18,6 +18,21 @@ This file formalizes the confluence limit of [Carl77, Section 5.10].  Natural ex
 used first: this is the branch-independent form of Carlson's limit and is directly supported by
 Mathlib's theorem `Complex.tendsto_one_add_div_pow_exp`.
 
+
+## Main results
+
+* `Carlson.carlsonAffineForm_confluentVariables`: Carlson's affine form turns confluent
+  variables into the corresponding scalar confluent variable.
+* `Carlson.tendsto_carlsonAffineForm_confluentVariables_pow`: Pointwise confluence of the
+  natural-power Carlson kernel to the exponential kernel.
+* `Carlson.norm_carlsonAffineForm_confluentVariables_pow_le`: A uniform bound for the
+  natural-power kernels occurring in Carlson's confluence limit.
+* `Carlson.tendsto_regCarlsonRIntegral_confluent`: Carlson's confluence theorem 5.10-1 for the
+  native regularized integrals: natural-power `R` functions with variables coalescing at `1`
+  converge to the `S` function.
+* `Carlson.tendsto_carlsonRIntegral_confluent`: Carlson's confluence theorem 5.10-1 for the
+  native unregularized integrals.
+
 ## References
 
 * [Carl77] B. C. Carlson, *Special Functions of Applied Mathematics*, Section 5.10,

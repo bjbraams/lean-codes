@@ -8,7 +8,19 @@ module
 public import Carlson.TwoVariable.R.Inversion
 public import Carlson.TwoVariable.L.Inversion
 
-/-! # Two-variable R and L inversion
+/-!
+# Two-variable R and L inversion
 
 Combined import; the R-only identity does not depend on L theory.
+
+## Main results
+
+This module re-exports the following developments:
+
+* `Carlson.TwoVariable.R.Inversion`: Two-variable R-inversion on the full slit domain.
+* `Carlson.TwoVariable.L.Inversion`: Two-variable L-inversion.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/

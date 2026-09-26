@@ -14,6 +14,30 @@ public import Dirichlet.Beta.Complex
 Real monomial integrability supplies the majorants for the complex beta integral and its
 logarithmic moments. This module imports neither the Dirichlet probability measure nor
 several-complex-variable analyticity or continuation.
+
+## Main results
+
+* `Complex.integrableOn_mvBetaMonomial`: The complex Dirichlet monomial is integrable on the
+  simplex whenever every parameter has positive real part.
+* `Complex.integral_mvBetaMonomial_slice`: The inner integral of a simplex slice of the complex
+  Dirichlet monomial: the distinguished coordinate and the radial factor come out, leaving the
+  lower-dimensional monomial integral.
+* `Complex.cpow_natCast_mul_cpow_sum_sub_one`: The Jacobian power of a simplex slice merges with
+  the radial factor of the complex Dirichlet monomial into a single principal power of `1 - t`.
+* `Complex.mvBeta_eq_integral_of_subtype`: The induction step for the complex Dirichlet monomial
+  integral: slicing off the coordinate `i` reduces the integral over a nontrivial simplex to the
+  integral over the simplex of the remaining coordinates, whose value is supplied as a
+  hypothesis.
+* `Complex.mvBeta_eq_integral`: The absolutely convergent simplex integral representation of the
+  multivariate Beta function. The proof is a strong induction on the number of coordinates,
+  slicing off one coordinate at a time.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977
+  (Dirichlet averages).
+* NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
+  https://dlmf.nist.gov/5.14.
 -/
 
 open Complex Fintype Filter MeasureTheory MeasureTheory.Measure

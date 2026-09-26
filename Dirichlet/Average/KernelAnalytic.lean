@@ -14,6 +14,23 @@ public import Dirichlet.Complex.Parametric
 The first stage of Carlson's transform sends a scalar function to its composition
 with the affine simplex form. Its complexification supplies the holomorphic kernel
 needed by the general Dirichlet transform, with the nodes as auxiliary parameters.
+
+## Main results
+
+* `Dirichlet.carlsonComplexKernel_ofReal`: Restricting the complexified kernel to real weights
+  gives Carlson's affine kernel.
+* `Dirichlet.isOpen_carlsonNodeDomain`: A finite tuple of points in an open scalar domain varies
+  in an open set.
+* `Dirichlet.exists_analyticOnNhd_carlsonComplexKernel`: A holomorphic scalar function on a
+  convex open domain supplies an admissible kernel for the general Dirichlet transform on every
+  node vector in that domain.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977
+  (Dirichlet averages).
+* NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
+  https://dlmf.nist.gov/5.14.
 -/
 
 open Complex ProbabilityTheory Set

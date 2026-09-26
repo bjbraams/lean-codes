@@ -19,6 +19,18 @@ specializations: pairs `![x, y]` as functions on `Fin 2` and the coordinate tran
 
 * `Carlson.TwoVariable.pair`: the function `![x, y] : Fin 2 → ℂ`.
 * `Carlson.TwoVariable.swap`: the transposition of the two coordinates.
+
+## Main results
+
+* `Carlson.TwoVariable.pair_zero`: The zeroth entry of a pair is its first argument.
+* `Carlson.TwoVariable.pair_one`: The first entry of a pair is its second argument.
+* `Carlson.TwoVariable.sum_pair`: The sum of the entries of a pair.
+* `Carlson.TwoVariable.pair_comp_swap`: Composing a pair with the two-coordinate transposition
+  exchanges its entries.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Complex

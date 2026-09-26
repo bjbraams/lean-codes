@@ -13,6 +13,23 @@ public import Mathlib.MeasureTheory.Group.LIntegral
 
 The radial coordinate is the sum of the coordinates. Its angular measure is the
 coordinate-normalized standard-simplex measure, so the radial factor is `t^(card ι - 1)`.
+
+## Main results
+
+* `MeasureTheory.radial_slice_smul`: Scaling free coordinates in a slice of fixed coordinate sum
+  scales its simplex chart.
+* `MeasureTheory.lintegral_eq_lintegral_sum_slice`: Lebesgue integration with the sum of the
+  coordinates as the first coordinate.
+* `MeasureTheory.sum_radial_slice`: The affine slice with total `t` has coordinate sum `t`.
+* `MeasureTheory.nonneg_radial_slice_iff`: Nonnegative points on the slice of total `t` are
+  parametrized by the positive simplex of radius `t` in the free coordinates.
+* `MeasureTheory.lintegral_eq_radial_stdSimplex`: Radial integration for a measurable
+  nonnegative function supported on the positive orthant. The simplex measure is the
+  coordinate-normalized one, with no Euclidean area factor.
+
+## References
+
+* `Mathlib.MeasureTheory.Group.LIntegral`: formal background used by this module.
 -/
 
 @[expose] public noncomputable section

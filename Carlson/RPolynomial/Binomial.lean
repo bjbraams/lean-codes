@@ -9,12 +9,25 @@ public import Carlson.RPolynomial.Coefficients
 public import Carlson.RPolynomial.Basic
 public import Dirichlet.Average.Continuation
 
-/-! # The binomial theorem for Carlson's R-polynomials
+/-!
+# The binomial theorem for Carlson's R-polynomials
 
 Home for Carlson's Section 6.4 and its differential-difference consequences.
 
 The underlying Chu–Vandermonde identity for `ascPochhammer` is `ascPochhammer_eval_add` in
 `Pochhammer.Vandermonde`.
+
+## Main results
+
+* `Carlson.regCarlsonRPolynomial_add_const_of_mem_mvBetaConvergent`: Carlson's binomial
+  translation formula for R-polynomials on the native convergence domain; this is the polynomial
+  identity in [Carl77, Section 6.4].
+* `Carlson.regCarlsonRPolynomial_add_const`: Carlson's binomial translation identity on the full
+  parameter space. Gamma regularization removes every exclusion on the total parameter.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet

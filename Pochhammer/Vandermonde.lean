@@ -12,18 +12,25 @@ public import Mathlib.RingTheory.Binomial
 /-!
 # Chu–Vandermonde identities for the ascending Pochhammer polynomial
 
-Mathlib already records the falling-factorial Chu–Vandermonde identity as
-`Ring.descPochhammer_smeval_add`, and the binomial-ring form as `Ring.add_choose_eq`.
-The matching identities for the *rising* factorial `ascPochhammer` are not present.
+The ascending Pochhammer polynomial satisfies binary and multinomial Chu–Vandermonde identities
+over a commutative semiring. The binary formulas are given using polynomial evaluation and
+scalar evaluation, and the finite-family formula sums over multi-indices of prescribed total
+degree. These complement Mathlib’s falling-factorial identities in
+`Mathlib.RingTheory.Binomial`.
 
-This file is a temporary home. Intended Mathlib placement:
+## Main results
 
-* `ascPochhammer_smeval_add`, `ascPochhammer_eval_add`
-  → `Mathlib.RingTheory.Binomial`, immediately after `Ring.descPochhammer_smeval_add`
-* `ascPochhammer_eval_sum`
-  → the same file, after the binary identity
+* `ascPochhammer_eval_add`: **Chu–Vandermonde identity** for the rising factorial.
+* `ascPochhammer_smeval_add`: Smeval form of `ascPochhammer_eval_add`, matching the statement
+  shape of `Ring.descPochhammer_smeval_add`.
+* `ascPochhammer_eval_add_sum_range`: Range form of `ascPochhammer_eval_add`.
+* `ascPochhammer_eval_sum`: **Multinomial Chu–Vandermonde identity** for the rising factorial.
 
-TODO: if those lemmas land in Mathlib, delete this file and switch uses to the upstream names.
+## References
+
+* `Mathlib.Algebra.Order.Antidiag.Pi`: formal background used by this module.
+* `Mathlib.Data.Nat.Choose.Multinomial`: formal background used by this module.
+* `Mathlib.RingTheory.Binomial`: formal background used by this module.
 -/
 
 open Finset Polynomial

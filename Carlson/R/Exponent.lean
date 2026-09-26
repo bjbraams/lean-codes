@@ -14,6 +14,19 @@ public import ComplexAnalysis.ParametricIntegral
 Unlike the Dirichlet parameters, the exponent has no convergence restriction on the
 right-half-plane node domain. This is the continuation input for fixed-parameter
 recurrences initially obtained from a convergent single-integral representation.
+
+## Main results
+
+* `Carlson.hasDerivAt_regCarlsonRIntegral_exponent`: Differentiation in the exponent inserts the
+  logarithm of the affine form into the regularized Dirichlet integral.
+* `Carlson.analyticOnNhd_regCarlsonRIntegral_exponent`: The regularized native R-integral is
+  entire in its exponent.
+* `Carlson.analyticOnNhd_carlsonRIntegral_exponent`: The normalized native R-integral is entire
+  in its exponent.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet

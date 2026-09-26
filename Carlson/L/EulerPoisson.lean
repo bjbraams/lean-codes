@@ -13,6 +13,20 @@ public import Carlson.L.SlitDeriv
 Carlson (1987), (2.7), for all complex parameters and all slit-plane nodes.
 Joint holomorphy of the second node derivatives permits continuation first in the
 parameters and then in the nodes. Equal indices and coincident nodes are included.
+
+## Main results
+
+* `Carlson.analyticAt_carlsonEulerPoissonOperator_regCarlsonL_comp`: The entire Euler–Poisson
+  expression is jointly holomorphic in all its arguments.
+* `Carlson.carlsonEulerPoissonOperator_regCarlsonL`: Carlson (1987), (2.7), without convergence
+  restrictions or node-separation assumptions.
+* `Carlson.carlsonEulerPoissonOperator_carlsonL`: The ordinary normalization satisfies the same
+  homogeneous PDE wherever it represents the ordinary function; the identity also holds for
+  Lean's totalization at Gamma poles.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet
@@ -22,6 +36,8 @@ open scoped Topology
 namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
+/-- Second node derivatives of the regularized L-function are jointly analytic in the exponent,
+parameters, and slit-plane nodes. -/
 private theorem analyticOnNhd_secondPartial_regCarlsonL_joint (i j : ι) :
     AnalyticOnNhd ℂ (fun p : Option (ι ⊕ ι) → ℂ =>
       carlsonPartialDeriv i (carlsonPartialDeriv j
@@ -71,6 +87,8 @@ theorem analyticAt_carlsonEulerPoissonOperator_regCarlsonL_comp
     (((analyticAt_pi_iff.mp hb) i).mul (hfirst j))).sub
       (((analyticAt_pi_iff.mp hb) j).mul (hfirst i))
 
+/-- The regularized L-function satisfies the Euler–Poisson equation for convergent parameters and
+right-half-plane nodes. -/
 private theorem eulerPoisson_regCarlsonL_of_native (t : ℂ) {b z : ι → ℂ}
     (hb : b ∈ mvBetaConvergent) (hz : z ∈ carlsonRVariableDomain) (i j : ι) :
     carlsonEulerPoissonOperator i j b z (regCarlsonL t b) = 0 := by

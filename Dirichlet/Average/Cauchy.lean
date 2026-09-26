@@ -28,6 +28,24 @@ proved separately in `Dirichlet.Average.JointContinuation` by integration by par
 The general Jordan-curve representation, including its continued-parameter version,
 remains to be proved.
 
+
+## Main results
+
+* `Dirichlet.regCarlsonResolvent_eq_regDirichletIntegral`: The regularized resolvent is the
+  Dirichlet integral of the corresponding pointwise Cauchy kernel.
+* `Dirichlet.circleIntegral_regDirichletIntegral`: A continuous kernel on the circle times the
+  simplex may be integrated in either order against a native regularized Dirichlet density.
+  Compactness bounds the kernel; the density itself need not be continuous at the boundary.
+* `Dirichlet.circleIntegral_regCarlsonResolvent_mul`: Moving the integrated resolvent through a
+  circle integral.
+* `Dirichlet.regCarlsonDirichletAverage_iteratedDeriv_eq_circleIntegral`: Carlson's
+  Representation 5.11-2 on a circle, for every derivative order. The native integral requires
+  positive real parts of the Dirichlet parameters; no derivatives of `f` on the boundary circle
+  are assumed.
+* `Dirichlet.regCarlsonDirichletAverage_eq_cauchyRepresentation`: Carlson's averaged Cauchy
+  representation on a circle, for the zeroth derivative. The native integral requires positive
+  real parts of the Dirichlet parameters.
+
 ## References
 
 * [Carl77] B. C. Carlson, *Special Functions of Applied Mathematics*, Section 5.11,

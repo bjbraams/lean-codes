@@ -28,6 +28,13 @@ proof identifies moments and uses moment determination on the compact simplex.
   `dirichletMeasure b` along `stdSimplexAggregate f` is `dirichletMeasure` of the aggregated
   parameters.
 * `ProbabilityTheory.stdSimplexAggregate_withDensity`: the same statement through densities.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977
+  (Dirichlet averages).
+* NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
+  https://dlmf.nist.gov/5.14.
 -/
 
 open Dirichlet

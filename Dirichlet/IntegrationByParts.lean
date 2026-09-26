@@ -25,6 +25,27 @@ Products of these functions give the Dirichlet density in a free-coordinate char
 extended by zero outside the simplex. Mathlib's integration-by-parts theorem on the
 ambient coordinate space then gives `regDirichletIntegral_tangent_ibp` without a
 boundary term. This result uses only the native integral theory.
+
+## Main results
+
+* `Dirichlet.prod_positiveGammaPower_eq_regDirichletDensity`: On the sum-one hyperplane the
+  product of positive Gamma powers is the regularized Dirichlet density.
+* `Dirichlet.integrable_dirichletChartDensity_mul`: On the convergence region, chart-density
+  integrands of continuous functions are integrable.
+* `Dirichlet.dirichletChartDensity_lower`: Lowering one parameter by one isolates the
+  corresponding Gamma-power factor of the chart density.
+* `Dirichlet.hasLineDerivAt_dirichletChartDensity`: The line derivative of the chart density
+  along a free coordinate direction is a difference of lowered chart densities.
+* `Dirichlet.regDirichletIntegral_tangent_ibp`: Tangential integration by parts, initially with
+  exponents that vanish differentiably at every boundary face. The Gamma normalization removes
+  the usual exponent coefficients.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977
+  (Dirichlet averages).
+* NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
+  https://dlmf.nist.gov/5.14.
 -/
 
 open Complex MeasureTheory ProbabilityTheory MeasureTheory.Measure Set Filter

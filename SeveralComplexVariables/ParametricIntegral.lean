@@ -15,11 +15,23 @@ The parameter space is an arbitrary finite-dimensional complex normed space. Thi
 Mathlib's dominated Fréchet-differentiation theorem with the SCV holomorphy–analyticity theorem.
 The compact-integral derivative formulas in one complex parameter are imported from
 `ComplexAnalysis.ParametricIntegral`; general integration support remains in
-`Analysis.Integral.CompactSupport`.
+`ToMathlib.Analysis.Integral.CompactSupport`.
 
 `analyticOnNhd_integral_of_dominated_of_fderiv_le` packages the local dominated derivative
 criterion at every point of an open parameter domain. Its name remains in the root namespace,
 consistently with Mathlib's parametric-integral API.
+
+## Main results
+
+* `analyticOnNhd_integral_of_dominated_of_fderiv_le`: An integral on a finite-dimensional
+  complex parameter space is analytic if, locally at every parameter, its pointwise Fréchet
+  derivatives have an integrable uniform bound. The hypotheses are grouped pointwise so that the
+  dominating function and neighborhood may depend on the base parameter.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public section

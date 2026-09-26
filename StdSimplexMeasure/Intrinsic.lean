@@ -20,6 +20,25 @@ calculus; `range_coordinates` identifies it with the intrinsic object.
 The intrinsic simplex uses Mathlib's topology and compactness instance. For finite
 index types, Mathlib's coordinate embedding identifies this topology with the
 topology induced by the weights.
+
+## Main results
+
+* `Convexity.StdSimplex.mem_coordinateSet`: Membership in the coordinate set: nonnegative
+  coordinates summing to one.
+* `Convexity.StdSimplex.isEmbedding_coordinates`: The coordinate map is a topological embedding
+  of the intrinsic simplex.
+* `Convexity.StdSimplex.continuous_coordinates`: The coordinate map of the intrinsic simplex is
+  continuous.
+* `Convexity.StdSimplex.isClosedEmbedding_coordinates`: The coordinate map is a closed embedding
+  of the intrinsic simplex.
+* `Convexity.StdSimplex.measurableEmbedding_coordinates`: The coordinate map is a measurable
+  embedding of the real intrinsic simplex.
+
+## References
+
+* `Mathlib.Geometry.Convex.ConvexSpace.CompactSpaceStdSimplex`: formal background used by this module.
+* `Mathlib.Topology.Algebra.Module.FiniteDimension`: formal background used by this module.
+* `Mathlib.MeasureTheory.Constructions.BorelSpace.Basic`: formal background used by this module.
 -/
 
 @[expose] public noncomputable section
@@ -110,6 +129,8 @@ theorem isCompact_coordinateSet [CompactIccSpace R] [IsOrderedAddMonoid R] :
   isCompact_Icc.of_isClosed_subset (isClosed_coordinateSet R ι)
     (fun _ hu => ⟨fun i => hu.1 i, fun i => (mem_Icc_of_mem_coordinateSet hu i).2⟩)
 
+/-- The coordinate realization of the finite standard simplex is compact when closed intervals in
+the ordered coefficient space are compact. -/
 instance [CompactIccSpace R] [IsOrderedAddMonoid R] : CompactSpace (coordinateSet R ι) :=
   isCompact_iff_compactSpace.mp (isCompact_coordinateSet R ι)
 

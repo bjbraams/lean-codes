@@ -25,7 +25,7 @@ The ambient coordinate declarations remain in the root namespace. Declarations w
 Mathlib's intrinsic simplex are placed in `Convexity.StdSimplex`. None of this material belongs
 to a measure-theory namespace.
 
-## Main definitions and results
+## Main results
 
 * `stdSimplexAffineSet`: the affine hyperplane `∑ j, u j = 1`.
 * `stdSimplexAffineBasis`: the standard vertices as an affine basis of that hyperplane.
@@ -38,6 +38,12 @@ The affine hyperplane is identified with Mathlib's `fintypeAffineCoords`.  The s
 vertices form an affine basis of this hyperplane, and its barycentric coordinates are the
 ordinary ambient coordinates.  We nevertheless retain the explicit omitted-coordinate chart:
 its computational formulas are used by the measure and integral theory.
+
+## References
+
+* `Mathlib.Analysis.Convex.Combination`: formal background used by this module.
+* `Mathlib.Geometry.Convex.ConvexSpace.Defs`: formal background used by this module.
+* `Mathlib.Topology.Algebra.Module.FiniteDimension`: formal background used by this module.
 -/
 
 @[expose] public noncomputable section StdSimplexCoordinates
@@ -84,6 +90,7 @@ omit [Nonempty ι] in
   change Pi.single i 1 j = _
   simp [Pi.single_apply, eq_comm]
 
+/-- A nonempty coordinate index type supplies a vertex in the affine sum-one hyperplane. -/
 local instance : Nonempty (fintypeAffineCoords ι R) :=
   ⟨stdSimplexAffineVertex (Classical.choice ‹Nonempty ι›)⟩
 

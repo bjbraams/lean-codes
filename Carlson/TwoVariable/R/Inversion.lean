@@ -30,6 +30,8 @@ open scoped Topology
 @[expose] public noncomputable section
 namespace Carlson.TwoVariable
 
+/-- For right-half-plane nodes, two-variable inversion exchanges the parameters and replaces the
+exponent by its complementary value, with the principal-power prefactor. -/
 private theorem regCarlsonR_pair_inversion_of_right (t u v : ℂ) {x y : ℂ}
     (hx : 0 < x.re) (hy : 0 < y.re) :
     regCarlsonR t (pair u v) (pair x y) =

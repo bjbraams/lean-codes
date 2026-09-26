@@ -28,6 +28,12 @@ invariance, integrability of continuous functions, and the singleton case.
 * `MeasureTheory.integral_stdSimplex_eq_integral_freeCoords`: computation in a chart.
 * `MeasureTheory.integral_stdSimplex_comp_perm`: permutation invariance.
 * `ContinuousOn.integrableOn_stdSimplex`: integrability of continuous functions.
+
+## References
+
+* `Mathlib.MeasureTheory.Integral.Bochner.Set`: formal background used by this module.
+* `Mathlib.Analysis.SpecialFunctions.Gamma.Beta`: formal background used by this module.
+* `Mathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap`: formal background used by this module.
 -/
 
 open Fintype (card)

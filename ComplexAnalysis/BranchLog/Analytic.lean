@@ -14,6 +14,27 @@ import Mathlib.Analysis.Complex.CoveringMap
 A continuous logarithm branch of an analytic complex-valued function is analytic,
 also when its source is a complex normed space. This upgrades Mathlib's covering-space
 construction to analytic logarithms with auxiliary complex parameters.
+
+## Main results
+
+* `Complex.eqOn_logBranch_of_continuousOn`: Continuous logarithm branches on a preconnected set
+  agree if they agree at one point. No differentiability or complex structure on the source
+  space is required.
+* `Complex.analyticAt_logBranch`: A continuous logarithm of an analytic function is analytic
+  near the base point.
+* `Complex.analyticOnNhd_logBranch`: Continuous logarithm branches preserve analytic dependence
+  on any complex normed source.
+* `Complex.exists_analyticOnNhd_logBranch_of_analyticOnNhd`: A nonvanishing analytic function on
+  a simply connected open set has an analytic logarithm, including for normed source spaces with
+  auxiliary complex parameters.
+* `Complex.exists_analyticOnNhd_logBranch_zero_section`: A family equal to one on the zero
+  section admits a logarithm vanishing there. The domain must contain the zero section over each
+  of its fibers.
+
+## References
+
+* J. B. Conway, *Functions of One Complex Variable I*, second edition, Springer, 1978
+  (background on one-variable holomorphic functions).
 -/
 
 public section
@@ -40,7 +61,7 @@ theorem analyticAt_logBranch {g L : E → ℂ} {x : E}
     (heq : exp ∘ L =ᶠ[𝓝 x] g) : AnalyticAt ℂ L x := by
   have hx : exp (L x) = g x := heq.self_of_nhds
   have hg0 : g x ≠ 0 := hx ▸ exp_ne_zero (L x)
-  have ha : AnalyticAt ℂ (fun y => L x + log (g y / g x)) x :=
+  have ha : AnalyticAt ℂ (fun y ↦ L x + log (g y / g x)) x :=
     analyticAt_const.add ((hg.div_const (c := g x)).clog (by simp [hg0]))
   apply ha.congr
   have hband : ∀ᶠ y in 𝓝 x, (L y - L x).im ∈ Ioo (-Real.pi) Real.pi := by
@@ -59,7 +80,10 @@ theorem analyticOnNhd_logBranch {U : Set E} (hU : IsOpen U) {g L : E → ℂ}
     (heq.eventuallyEq_of_mem (hU.mem_nhds hx))
 
 /-- A nonvanishing analytic function on a simply connected open set has an analytic logarithm,
-including for normed source spaces with auxiliary complex parameters. -/
+including for normed source spaces with auxiliary complex parameters.
+
+For a one-variable disk-domain counterpart, see Geoffrey Irving's `ray` formalization. See
+`CREDITS.md`. -/
 theorem exists_analyticOnNhd_logBranch_of_analyticOnNhd
     {U : Set E} (hU : IsOpen U) (hUc : IsSimplyConnected U) {g : E → ℂ}
     (hg : AnalyticOnNhd ℂ g U) (hg0 : ∀ x ∈ U, g x ≠ 0) :
@@ -79,7 +103,7 @@ theorem exists_analyticOnNhd_logBranch_zero_section
       ∀ p : E, L (p, 0) = 0 := by
   obtain ⟨L, hL, he⟩ := exists_analyticOnNhd_logBranch_of_analyticOnNhd hW hWc hg hg0
   change ∀ p ∈ W, exp (L p) = g p at he
-  refine ⟨fun p => L p - L (p.1, 0), ?_, ?_, fun _ => sub_self _⟩
+  refine ⟨fun p ↦ L p - L (p.1, 0), ?_, ?_, fun _ ↦ sub_self _⟩
   · apply hL.sub
     intro p hp
     exact (hL _ (hsection p hp)).comp_of_eq

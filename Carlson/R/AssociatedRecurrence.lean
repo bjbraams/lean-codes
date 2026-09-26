@@ -20,6 +20,25 @@ The native-strip proof follows Carlson's pp. 245–246: the single-integral repr
 from Exercise 6.8-8, integration by parts with justified convergence and endpoint limits,
 the elementary-symmetric expansion, and beta/Gamma normalization. Analytic continuation
 then removes the strip restriction. There are no admitted proofs in this file.
+
+## Main results
+
+* `Carlson.analyticOnNhd_carlsonAssociatedRecurrenceResidual_exponent`: The division-free
+  recurrence residual is entire in its exponent parameter.
+* `Carlson.carlsonAssociatedRecurrenceResidual_eq_zero_in_strip`: The recurrence residual
+  vanishes in the absolutely convergent single-integral strip. Combine the ray
+  integration-by-parts identity with the elementary-symmetric expansion in Carlson's
+  (8.4-5)–(8.4-7), Exercise 6.8-8, and beta/Gamma normalization.
+* `Carlson.carlsonAssociatedRecurrenceResidual_eq_zero`: The division-free residual vanishes for
+  all native Dirichlet parameters and all exponents.
+* `Carlson.sum_carlsonAssociatedRecurrencePolynomial_mul_rIntegral`: Polynomial form of Relation
+  8.4-1, including the removable-singularity values `a = 0` and `a' = card ι`.
+* `Carlson.sum_carlsonAssociatedRecurrenceCoeff_mul_rIntegral`: Carlson's fixed-parameter
+  recurrence, Relation 8.4-1, on the native domain.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet
@@ -248,6 +267,8 @@ theorem integral_carlsonAssociatedRecurrenceKernel_derivative_eq_zero
         (hasDerivAt_cpow_mul_carlsonRayProduct a (fun i => 1 - b i) hz hx)
     _ = 0 := integral_carlsonRayDerivative_eq_zero (fun i => 1 - b i) hz ha hstrip
 
+/-- In the convergence range, the associated recurrence coefficient is a Gamma quotient times an
+elementary symmetric polynomial and its weighted derivatives. -/
 private theorem carlsonAssociatedRecurrenceCoeff_eq_Gamma
     {n : ℕ} (hn : n ≤ Fintype.card ι) {a a' : ℂ} (b z : ι → ℂ)
     (ha : 0 < a.re) (ha' : (Fintype.card ι : ℝ) < a'.re) :
@@ -275,6 +296,8 @@ private theorem carlsonAssociatedRecurrenceCoeff_eq_Gamma
     Gamma_add_one a ha0, Gamma_add_one _ hd0]
   field_simp
 
+/-- For convergent parameters and right-half-plane nodes, an associated recurrence term equals the
+corresponding Mellin transform with its common Gamma normalization. -/
 private theorem carlsonAssociatedRecurrence_term_eq_mellin [Nonempty ι]
     {n : ℕ} (hn : n ≤ Fintype.card ι) {a : ℂ} {b z : ι → ℂ}
     (hb : b ∈ mvBetaConvergent) (hz : z ∈ carlsonRVariableDomain)

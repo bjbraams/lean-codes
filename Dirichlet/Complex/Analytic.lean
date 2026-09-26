@@ -16,6 +16,26 @@ public import Mathlib.Analysis.Calculus.FDeriv.Mul
 
 This module proves parameter analyticity on the domain of absolute convergence.
 Continuation beyond that domain is developed separately in `Dirichlet.Transform`.
+
+## Main results
+
+* `Dirichlet.analyticOnNhd_prod_invGamma`: The product of reciprocal Gamma factors used to
+  regularize a Dirichlet integral is entire in the parameter vector.
+* `Dirichlet.hasFDerivAt_mvBetaMonomial`: The Dirichlet monomial `∏ i, (u i) ^ (b i - 1)` is
+  entire in the parameter vector at every interior simplex point.
+* `Dirichlet.norm_mvBetaMonomial_le_of_re_le`: Monotonicity of the Dirichlet monomial in the
+  real parts of the exponents, at a point with coordinates in `(0, 1]`.
+* `Dirichlet.regDirichletIntegral_analyticOn`: If `f` is continuous on the closed standard
+  simplex, then `b ↦ regDirichletIntegral b f` is analytic on the domain of absolute
+  convergence. The proof differentiates under the integral sign, dominating the derivative
+  kernel near each parameter vector by the logarithmic majorant at the halved real parts.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977
+  (Dirichlet averages).
+* NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
+  https://dlmf.nist.gov/5.14.
 -/
 
 open Complex Fintype Filter MeasureTheory MeasureTheory.Measure

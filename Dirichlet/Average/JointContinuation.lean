@@ -20,6 +20,25 @@ of every derivative of `f`. No common disk containing the nodes is required.
 The proof uses parametric tangential integration by parts, not Carlson's contour
 construction. The general rectifiable Jordan-curve representation in that theorem is
 a separate remaining assertion; this file does not prove that representation.
+
+## Main results
+
+* `Dirichlet.exists_joint_isRegCarlsonContinuation`: **Carlson 6.3-6, continuation assertion for
+  `n = 0`.** A regularized Dirichlet average has a continuation jointly holomorphic on `ℂ^ι ×
+  Ω^ι`, where `Ω` is any convex open set on which the averaged scalar function is holomorphic.
+* `Dirichlet.analyticOnNhd_joint_of_isRegCarlsonContinuation`: Any family already characterized
+  by the native integral and entire parameter dependence inherits joint holomorphy. No change of
+  its definition is necessary.
+* `Dirichlet.exists_joint_isRegCarlsonContinuation_iteratedDeriv`: **Carlson 6.3-6, continuation
+  assertion for every derivative order.** This is the joint holomorphic extension of `F⁽ⁿ⁾(b,z)
+  / Γ(∑ bᵢ)` to all complex Dirichlet parameters.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977
+  (Dirichlet averages).
+* NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
+  https://dlmf.nist.gov/5.14.
 -/
 
 open Complex MeasureTheory ProbabilityTheory Set

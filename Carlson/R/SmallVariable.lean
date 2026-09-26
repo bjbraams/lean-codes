@@ -23,6 +23,26 @@ assumes positive real parts for both endpoint exponents. The double-shift
 recurrence 8.3(5) is available for removing those restrictions; the corresponding
 induction on the limit, and continuation to larger slit-plane sectors, remain to
 be proved.
+
+## Main results
+
+* `Carlson.norm_le_of_mem_carlsonSmallVariableSector`: Every point of Carlson's small-variable
+  sector has norm at most its radius.
+* `Carlson.tendsto_regCarlsonRIntegral_update_zero`: Carlson's sectorial small-variable limit,
+  Theorem 8.3-1, in regularized form.
+* `Carlson.carlsonRVariableDomain_update`: Updating one node preserves the domain when the
+  replacement has positive real part.
+* `Carlson.regCarlsonR_eq_sum_double_shift`: Carlson's recurrence 8.3(5), used to move both
+  endpoint exponents into their convergence half-planes. This regularized form has no
+  denominators.
+* `Carlson.tendsto_regCarlsonR_update_zero_of_pos`: The small-variable limit for the continued
+  R-function with unrestricted individual Dirichlet parameters. The approach can be any filter
+  in the right half-plane; no narrower angular sector is needed. The positive endpoint-exponent
+  hypotheses are still required here.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet
@@ -51,6 +71,8 @@ def eraseCarlsonParameter (i : ι) (b : ι → ℂ) : {j // j ≠ i} → ℂ :=
 def eraseCarlsonVariable (i : ι) (z : ι → ℂ) : {j // j ≠ i} → ℂ :=
   fun j => z j
 
+/-- For positive endpoint exponents and convergent parameters, the unit-interval Euler integral is
+the native regularized R-integral multiplied by the two endpoint Gamma factors. -/
 private lemma unitIntervalIntegral_eq_gamma_mul_reg
     {κ : Type*} [Fintype κ] {a a' : ℂ} {b z : κ → ℂ}
     (ha : 0 < a.re) (ha' : 0 < a'.re) (hsum : a + a' = ∑ j, b j)

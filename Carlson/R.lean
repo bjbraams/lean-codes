@@ -41,6 +41,43 @@ associated-function theory, confluence, and Laplace representation of Carlson's 
 The regularized slit-plane function is jointly entire in the exponent and Dirichlet
 parameters and holomorphic in all nodes off the nonpositive real axis.
 Node differentiation, the homogeneity recurrence, and polynomial dependence of
-associated functions are available on this full slit domain. See `Carlson/R/Coverage.md`
+associated functions are available on this full slit domain. See `CarlsonRCoverage.md`
 for implemented results and known remaining work.
+
+## Main results
+
+This module re-exports the following developments:
+
+* `Carlson.R.Basic`: Carlson's R-function: basic definitions.
+* `Carlson.R.Integral`: Carlson's R-function: native integral representation.
+* `Carlson.R.Continuation`: Carlson's R-function: continuation in the Dirichlet parameters.
+* `Carlson.R.Deriv`: Carlson's R-function: analyticity and differentiation.
+* `Carlson.R.Exponent`: Analytic dependence on the exponent of Carlson's R-integral.
+* `Carlson.R.Relations`: Carlson's R-function: homogeneity and associated-function relations.
+* `Carlson.R.JointParameter`: Joint dependence on the exponent and Dirichlet parameters.
+* `Carlson.R.Confluence`: Confluence of Carlson's R-function to the S-function.
+* `Carlson.R.Laplace`: The Laplace representation of Carlson's R-function.
+* `Carlson.R.SlitPlane`: Slit-plane domains for Carlson's R-function.
+* `Carlson.R.SingleIntegral`: Single-integral representations of R.
+* `Carlson.R.SingleIntegralAnalytic`: Joint analyticity of Carlson's single integral.
+* `Carlson.R.Explicit`: Explicit definition of the regularized Carlson R-function.
+* `Carlson.R.SlitIntegral`: Native-integral agreement on the slit plane.
+* `Carlson.R.RayKernel`: Convergence of Carlson ray kernels.
+* `Carlson.R.ContourKernel`: Compactified exterior-path kernels for Carlson continuation.
+* `Carlson.R.EulerTransform`: Euler transformations of Carlson's R-function.
+* `Carlson.R.IntegralEvaluation`: Evaluation of Euler-type integrals by Carlson R-functions.
+* `Carlson.R.SmallVariable`: Dependence of Carlson's R-function on a small variable.
+* `Carlson.R.AssociatedRecurrence`: Fixed-parameter recurrence for associated Carlson
+  R-functions.
+* `Carlson.R.ZeroParameter`: Zero-parameter deletion for the continued R-function.
+* `Carlson.R.IntegerParameters`: Reduction of integral Dirichlet parameters.
+* `Carlson.R.AssociatedDependence`: Polynomial dependence of associated Carlson R-functions.
+* `Carlson.R.SlitDeriv`: Differentiation of R on the full slit domain.
+* `Carlson.R.SlitRelations`: Associated R-relations on the full slit domain.
+* `Carlson.R.EulerPoisson`: The R Euler–Poisson system on the full slit domain.
+* `Carlson.R.JointRecurrence`: Polynomial coefficients in parameters and nodes.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/

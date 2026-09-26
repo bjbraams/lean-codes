@@ -20,6 +20,24 @@ Dirichlet parameters.  It contains the abstract continuation predicate, the poly
 construction, and the native resolvent average. R-polynomial Taylor-series constructions
 are developed in `Carlson.RPolynomial.PowerSeries`.
 
+
+## Main results
+
+* `Dirichlet.IsRegCarlsonContinuation.mk'`: Construct a regularized Carlson continuation from
+  entire dependence on `b` and agreement with the native integral on the convergence region.
+* `Dirichlet.IsRegCarlsonContinuation.eq`: The entire regularized Carlson continuation, if it
+  exists, is unique.
+* `Dirichlet.IsRegCarlsonContinuation.mk_of_eqOn_realDirichletDomain`: An entire candidate can
+  be recognized as a Carlson continuation by comparison on positive real parameters with any
+  already established continuation.
+* `Dirichlet.IsRegCarlsonContinuation.mk_of_eq_realCarlsonDirichletAverage`: An entire candidate
+  which has the probability-average values on positive real parameters is a Carlson
+  continuation, provided one continuation is already known to exist. The reference continuation
+  is used only for uniqueness.
+* `Dirichlet.exists_isRegCarlsonContinuation`: A holomorphic scalar function on a convex open
+  set admits an entire regularized Dirichlet-parameter continuation at every node vector in that
+  set.
+
 ## References
 
 * [Carl77] B. C. Carlson, *Special Functions of Applied Mathematics*, Chapter 6,

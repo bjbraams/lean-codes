@@ -14,6 +14,26 @@ public import SeveralComplexVariables.RealUniqueness
 A general continuation specification and the unique transform of a smooth simplex kernel.
 The interface distinguishes analytic continuation from the totalized native integral.
 Linearity and independence of extensions are proved by uniqueness.
+
+## Main results
+
+* `Dirichlet.exists_isRegDirichletContinuation`: Every smooth simplex kernel has an entire
+  regularized Dirichlet transform.
+* `Dirichlet.analyticOnNhd_regDirichletTransform`: The selected transform is entire in all
+  Dirichlet parameters.
+* `Dirichlet.regDirichletTransform_eq_integral`: On the native convergence region, the selected
+  transform is the integral.
+* `Dirichlet.regDirichletTransform_add`: The canonical entire transform is additive on smooth
+  kernels.
+* `Dirichlet.regDirichletTransform_smul`: The canonical entire transform commutes with complex
+  scalar multiplication.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977
+  (Dirichlet averages).
+* NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
+  https://dlmf.nist.gov/5.14.
 -/
 
 open Complex MeasureTheory ProbabilityTheory Set Filter

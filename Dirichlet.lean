@@ -32,6 +32,8 @@ public import Dirichlet.Average
 
 Umbrella module for the Dirichlet theory underlying Carlson's special functions.
 
+## Main results
+
 * `Dirichlet.Beta`: the real and complex multivariate beta functions and their simplex integral
   evaluations.
 * `Dirichlet.Integral`, `Dirichlet.Real`, `Dirichlet.Complex`, `Dirichlet.Bridge`: real Dirichlet

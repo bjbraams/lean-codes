@@ -22,6 +22,13 @@ Carlson's associated functions.
 
 * `Dirichlet.mul_regDirichletDensity_addDirichletUnit`: the density identity.
 * `Dirichlet.mul_regDirichletIntegral_addDirichletUnit`: the integral identity.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977
+  (Dirichlet averages).
+* NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
+  https://dlmf.nist.gov/5.14.
 -/
 
 open Complex MeasureTheory ProbabilityTheory Filter Set

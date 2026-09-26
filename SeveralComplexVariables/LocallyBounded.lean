@@ -21,6 +21,11 @@ equicontinuity estimate used in Montel's theorem.
 separately holomorphic map into a joint local Lipschitz bound, hence into joint continuity.
 `analyticOnNhd_of_separately_analytic_locally_bounded` is the corresponding analyticity
 statement, using Osgood after that continuity.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public section

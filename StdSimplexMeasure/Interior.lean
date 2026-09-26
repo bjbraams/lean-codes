@@ -12,6 +12,23 @@ public import StdSimplexMeasure.IntrinsicMeasure
 # The positive-coordinate interior of the standard simplex
 
 The definition and measurability result are independent of Dirichlet parameters.
+
+## Main results
+
+* `measurableSet_stdSimplexInterior`: The `stdSimplexInterior` is a measurable set.
+* `mem_stdSimplexInterior_fin_two`: Under `x ↦ ![x, 1 - x]`, the relative interior of the
+  two-coordinate simplex corresponds to the open unit interval.
+* `Convexity.StdSimplex.isOpen_positiveInterior`: The positive-coordinate interior is open in
+  the intrinsic simplex.
+* `Convexity.StdSimplex.image_coordinates_positiveInterior`: The intrinsic interior has exactly
+  the existing ambient positive-coordinate image.
+* `Convexity.StdSimplex.ae_mem_positiveInterior`: Almost every intrinsic point has strictly
+  positive coordinates.
+
+## References
+
+* `StdSimplexMeasure.Measure`: formal background used by this module.
+* `StdSimplexMeasure.IntrinsicMeasure`: formal background used by this module.
 -/
 
 @[expose] public noncomputable section

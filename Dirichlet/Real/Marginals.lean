@@ -28,6 +28,13 @@ parameters.
   ordinary beta function.
 * `ProbabilityTheory.map_dirichletMeasure_fin_two`: the first-coordinate marginal is
   `ProbabilityTheory.betaMeasure`.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977
+  (Dirichlet averages).
+* NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
+  https://dlmf.nist.gov/5.14.
 -/
 
 open Dirichlet

@@ -14,6 +14,20 @@ public import Dirichlet.Average.PowerSeries
 This file provides the native integral representation and the Taylor-series
 definition. `Carlson.RPolynomial.TaylorContinuation` proves convergence on the
 full disk of holomorphy and joint analyticity in parameters and nodes.
+
+## Main results
+
+* `Carlson.hasSum_regCarlsonR_of_powerSeries`: Carlson's Representation 5.7-2 in regularized
+  form. The hypotheses state uniform summable domination and pointwise summation of the scalar
+  power series on the convex hull of the supplied variables.
+* `Carlson.differentiable_regCarlsonTaylorTerm`: Each term of Carlson's Taylor-series
+  construction is entire in the Dirichlet parameters.
+* `Carlson.differentiable_regCarlsonTaylorPartialSum`: Every finite partial sum in Carlson's
+  Taylor-series construction is entire in the Dirichlet parameters.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet

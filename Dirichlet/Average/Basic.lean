@@ -18,6 +18,19 @@ at the affine form `∑ i, u i * z i`.  It contains the algebraic and convex-geo
 used by both the native integral theory of Carlson's Chapter 5 and its analytic continuation
 in Chapter 6.
 
+
+## Main results
+
+* `Dirichlet.eval_carlsonAffinePolynomial`: Evaluation of `carlsonAffinePolynomial` gives the
+  corresponding affine form.
+* `Dirichlet.isOpen_carlsonRightHalfPlane`: The right half-plane is open.
+* `Dirichlet.convex_carlsonRightHalfPlane`: The right half-plane is convex over the real
+  scalars.
+* `Dirichlet.regCarlsonDirichletAverage_const_mul`: A complex scalar can be pulled through a
+  regularized Carlson average.
+* `Dirichlet.regCarlsonDirichletAverage_finsetSum`: A finite sum can be passed through a
+  regularized Carlson average on the native convergence domain.
+
 ## References
 
 * [Carl77] B. C. Carlson, *Special Functions of Applied Mathematics*, Chapters 5 and 6,

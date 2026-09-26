@@ -23,6 +23,11 @@ domain.
 `norm_partialDeriv_le_of_slice` is the one-variable slice form.
 `AnalyticOnNhd.exists_cthickening_deriv_bound` bounds derivatives uniformly on a closed
 thickening of a compact subset of a one-variable domain.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public section

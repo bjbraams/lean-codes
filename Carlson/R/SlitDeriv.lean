@@ -17,6 +17,23 @@ Carlson's node derivative and the translation and Euler differential identities
 hold for every complex exponent and Dirichlet parameter vector, and throughout
 the product slit plane. Joint holomorphy of a node derivative permits continuation
 first in the parameters, then in the nodes. No L-function theory is used.
+
+## Main results
+
+* `Carlson.analyticOnNhd_carlsonPartialDeriv_regCarlsonR_joint`: A coordinate derivative of R is
+  jointly holomorphic in all its arguments.
+* `Carlson.sum_carlsonPartialDeriv_regCarlsonR`: The translation differential identity of
+  Theorem 5.9-2 on the full domain.
+* `Carlson.sum_mul_carlsonPartialDeriv_regCarlsonR`: Euler's differential identity of Theorem
+  5.9-2, including the empty index type.
+* `Carlson.hasDerivAt_regCarlsonR_translate`: Scalar translation is differentiable wherever the
+  translated nodes avoid the cut.
+* `Carlson.mul_carlsonPartialDeriv_add_mul_regCarlsonR`: Relation 5.9-6(10) on the full
+  parameter and slit-node domain.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet
@@ -70,6 +87,8 @@ theorem analyticAt_carlsonPartialDeriv_regCarlsonR_comp
     | inl j => exact (analyticAt_pi_iff.mp hb) j
     | inr j => exact (analyticAt_pi_iff.mp hz) j
 
+/-- At right-half-plane nodes, a node derivative of the regularized R-function lowers the exponent
+and raises the corresponding parameter. -/
 private theorem partialDeriv_regCarlsonR_of_right (t : ℂ) (b : ι → ℂ)
     {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain) (i : ι) :
     carlsonPartialDeriv i (regCarlsonR t b) z =

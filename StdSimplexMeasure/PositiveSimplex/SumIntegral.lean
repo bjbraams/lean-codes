@@ -24,6 +24,12 @@ one-dimensional integral with the power weight `s ^ (n - 1) / (n - 1)!`.
 ## Main results
 
 * `lintegral_posSimplexFin_comp_sum`, `lintegral_posSimplex_comp_sum`.
+
+## References
+
+* `Mathlib.Analysis.SpecialFunctions.Integrals.Basic`: formal background used by this module.
+* `Mathlib.LinearAlgebra.Finsupp.Pi`: formal background used by this module.
+* `Mathlib.MeasureTheory.Integral.Bochner.Set`: formal background used by this module.
 -/
 
 open MeasureTheory

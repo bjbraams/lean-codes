@@ -1,9 +1,9 @@
 /- Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bastiaan J Braams -/
-import Algebra
-import Analysis
-import Topology
+import ToMathlib.Algebra
+import ToMathlib.Analysis
+import ToMathlib.Topology
 import Pochhammer
 import ComplexAnalysis
 import SeveralComplexVariables

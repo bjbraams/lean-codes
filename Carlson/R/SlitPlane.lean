@@ -8,12 +8,30 @@ module
 public import Carlson.R.Basic
 public import Mathlib.Analysis.Complex.Convex
 
-/-! # Slit-plane domains for Carlson's R-function
+/-!
+# Slit-plane domains for Carlson's R-function
 
 The product slit plane is star-convex about the constant node vector `1`. The segment
 from `1` to each node stays on the principal branch, as required by the single-integral
 construction in Carlson's Section 6.8. Arbitrary convex combinations of nodes need not
 stay on this branch; the original simplex integral is therefore not used on this domain.
+
+## Main results
+
+* `Carlson.carlsonRVariableDomain_subset_slitDomain`: The right-half-plane node domain is
+  contained in the slit node domain.
+* `Carlson.isPreconnected_carlsonRSlitDomain`: The slit node domain is preconnected.
+* `Carlson.carlsonRSegment_mem_slitPlane`: Each factor of the single-integral kernel avoids the
+  branch cut on the closed interval.
+* `Carlson.carlsonRSlitDomain_inv`: Taking coordinatewise reciprocals preserves the full
+  principal-branch node domain.
+* `Carlson.eqOn_carlsonRSlitDomain_of_eqOn_rightHalfPlane`: Agreement on the right half-plane
+  determines a holomorphic function on the product slit plane uniquely. This is the
+  node-variable permanence principle.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Complex

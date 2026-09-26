@@ -18,6 +18,23 @@ exactly the ambient measure restricted to the coordinate carrier.
 
 No probability normalization is applied: for a nonempty index type the mass
 is `1 / (card ι - 1)!`. Empty and singleton index types are included explicitly.
+
+## Main results
+
+* `Convexity.StdSimplex.map_coordinates_coordinateMeasure`: Embedding the intrinsic measure
+  recovers the restricted ambient measure.
+* `Convexity.StdSimplex.coordinateMeasure_univ`: The total intrinsic mass is `1 / (card ι - 1)!`
+  for a nonempty index type.
+* `Convexity.StdSimplex.coordinateMeasure_empty`: With an empty index type the intrinsic measure
+  is zero.
+* `Convexity.StdSimplex.coordinateMeasure_univ_unique`: On a singleton index type the intrinsic
+  simplex has total mass one.
+* `Convexity.StdSimplex.integral_coordinateMeasure`: Integrating an ambient function over the
+  intrinsic simplex is precisely the existing restricted hyperplane integral.
+
+## References
+
+* `Mathlib.MeasureTheory.Integral.Bochner.Basic`: formal background used by this module.
 -/
 
 open MeasureTheory MeasureTheory.Measure
@@ -47,6 +64,8 @@ theorem coordinateMeasure_apply (s : Set (StdSimplex ℝ ι)) :
     coordinateMeasure s = stdSimplexMeasure (coordinates '' s) :=
   measurableEmbedding_coordinates.comap_apply _ _
 
+/-- The intrinsic coordinate measure on the standard simplex is finite, including for an empty index
+type. -/
 instance : IsFiniteMeasure (coordinateMeasure (ι := ι)) := by
   have hm : IsFiniteMeasure (Measure.map coordinates (coordinateMeasure (ι := ι))) := by
     rw [map_coordinates_coordinateMeasure]

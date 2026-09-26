@@ -55,6 +55,10 @@ function on `Option (ι ⊕ ι)`: the exponent at `none`, the parameters at `som
 and the nodes at `some (Sum.inr i)`. `Carlson.carlsonRJointStrip m n` is the joint domain on
 which `regCarlsonRAux m n` is analytic, and `Carlson.carlsonRJointDomain` is the union of
 these strips.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet
@@ -80,14 +84,17 @@ def carlsonRJointParameters (q : Option (ι ⊕ ι) → ℂ) (i : ι) : ℂ := q
 def carlsonRJointNodes (q : Option (ι ⊕ ι) → ℂ) (i : ι) : ℂ := q (some (Sum.inr i))
 
 omit [Fintype ι] in
+/-- Extracting the exponent from a joint point recovers the original exponent. -/
 @[simp] theorem carlsonRJointExponent_jointPoint (t : ℂ) (b z : ι → ℂ) :
     carlsonRJointExponent (carlsonRJointPoint t b z) = t := rfl
 
 omit [Fintype ι] in
+/-- Extracting the parameter vector from a joint point recovers the original parameters. -/
 @[simp] theorem carlsonRJointParameters_jointPoint (t : ℂ) (b z : ι → ℂ) :
     carlsonRJointParameters (carlsonRJointPoint t b z) = b := rfl
 
 omit [Fintype ι] in
+/-- Extracting the node vector from a joint point recovers the original nodes. -/
 @[simp] theorem carlsonRJointNodes_jointPoint (t : ℂ) (b z : ι → ℂ) :
     carlsonRJointNodes (carlsonRJointPoint t b z) = z := rfl
 
@@ -111,28 +118,34 @@ theorem continuous_carlsonRJointPoint :
   · exact (continuous_apply i).comp continuous_snd
 
 omit [Fintype ι] in
+/-- The exponent projection from the joint coordinate space is continuous. -/
 theorem continuous_carlsonRJointExponent :
     Continuous (carlsonRJointExponent (ι := ι)) := continuous_apply none
 
 omit [Fintype ι] in
+/-- The parameter projection from the joint coordinate space is continuous. -/
 theorem continuous_carlsonRJointParameters :
     Continuous (carlsonRJointParameters (ι := ι)) :=
   continuous_pi fun i => continuous_apply (some (Sum.inl i))
 
 omit [Fintype ι] in
+/-- The node projection from the joint coordinate space is continuous. -/
 theorem continuous_carlsonRJointNodes :
     Continuous (carlsonRJointNodes (ι := ι)) :=
   continuous_pi fun i => continuous_apply (some (Sum.inr i))
 
+/-- The exponent projection is entire on the joint coordinate space. -/
 theorem analyticOnNhd_carlsonRJointExponent :
     AnalyticOnNhd ℂ (carlsonRJointExponent (ι := ι)) univ := fun q _ =>
   (ContinuousLinearMap.proj none : (Option (ι ⊕ ι) → ℂ) →L[ℂ] ℂ).analyticAt q
 
+/-- The parameter projection is entire on the joint coordinate space. -/
 theorem analyticOnNhd_carlsonRJointParameters :
     AnalyticOnNhd ℂ (carlsonRJointParameters (ι := ι)) univ := fun q _ =>
   analyticAt_pi_iff.mpr fun i =>
     (ContinuousLinearMap.proj (some (Sum.inl i)) : (Option (ι ⊕ ι) → ℂ) →L[ℂ] ℂ).analyticAt q
 
+/-- The node projection is entire on the joint coordinate space. -/
 theorem analyticOnNhd_carlsonRJointNodes :
     AnalyticOnNhd ℂ (carlsonRJointNodes (ι := ι)) univ := fun q _ =>
   analyticAt_pi_iff.mpr fun i =>
@@ -149,18 +162,22 @@ def carlsonRJointStrip (m n : ℕ) : Set (Option (ι ⊕ ι) → ℂ) :=
     -(n : ℝ) < ((∑ i, carlsonRJointParameters q i) + carlsonRJointExponent q).re ∧
     carlsonRJointNodes q ∈ carlsonRSlitDomain}
 
+/-- Every joint convergence strip lies in the domain of slit-plane nodes. -/
 theorem carlsonRJointStrip_subset_domain (m n : ℕ) :
     carlsonRJointStrip m n ⊆ (carlsonRJointDomain : Set (Option (ι ⊕ ι) → ℂ)) :=
   fun _ hq => hq.2.2
 
+/-- Increasing either recursion bound enlarges the associated joint convergence strip. -/
 theorem carlsonRJointStrip_mono {m m' n n' : ℕ} (hm : m ≤ m') (hn : n ≤ n') :
     carlsonRJointStrip m n ⊆ (carlsonRJointStrip m' n' : Set (Option (ι ⊕ ι) → ℂ)) :=
   fun _ hq => ⟨hq.1.trans_le (by exact_mod_cast hm),
     (neg_le_neg (by exact_mod_cast hn)).trans_lt hq.2.1, hq.2.2⟩
 
+/-- The joint domain of arbitrary exponents and parameters with slit-plane nodes is open. -/
 theorem isOpen_carlsonRJointDomain : IsOpen (carlsonRJointDomain : Set (Option (ι ⊕ ι) → ℂ)) :=
   isOpen_carlsonRSlitDomain.preimage continuous_carlsonRJointNodes
 
+/-- Each joint convergence strip is open. -/
 theorem isOpen_carlsonRJointStrip (m n : ℕ) :
     IsOpen (carlsonRJointStrip m n : Set (Option (ι ⊕ ι) → ℂ)) := by
   simp only [carlsonRJointStrip, Set.ofPred_and]
@@ -221,6 +238,7 @@ theorem carlsonRJointDomain_eq_image :
   · rintro ⟨⟨⟨t, b⟩, z⟩, ⟨-, h3⟩, rfl⟩
     exact h3
 
+/-- Each joint convergence strip is preconnected. -/
 theorem isPreconnected_carlsonRJointStrip (m n : ℕ) :
     IsPreconnected (carlsonRJointStrip m n : Set (Option (ι ⊕ ι) → ℂ)) := by
   rw [carlsonRJointStrip_eq_image]
@@ -228,6 +246,7 @@ theorem isPreconnected_carlsonRJointStrip (m n : ℕ) :
     isPreconnected_carlsonRSlitDomain).image _ continuous_carlsonRJointPoint.continuousOn
 
 omit [Fintype ι] in
+/-- The joint domain of slit-plane nodes is preconnected. -/
 theorem isPreconnected_carlsonRJointDomain :
     IsPreconnected (carlsonRJointDomain : Set (Option (ι ⊕ ι) → ℂ)) := by
   rw [carlsonRJointDomain_eq_image]
@@ -239,6 +258,7 @@ nonempty. -/
 def carlsonRJointBase : Option (ι ⊕ ι) → ℂ :=
   carlsonRJointPoint (-1) (fun _ => 2) (fun _ => 1)
 
+/-- For a nonempty index type, the common base point belongs to every joint convergence strip. -/
 theorem carlsonRJointBase_mem_strip [Nonempty ι] (m n : ℕ) :
     (carlsonRJointBase : Option (ι ⊕ ι) → ℂ) ∈ carlsonRJointStrip m n := by
   have hcard : (1 : ℝ) ≤ Fintype.card ι := Nat.one_le_cast.mpr Fintype.card_pos
@@ -251,6 +271,7 @@ theorem carlsonRJointBase_mem_strip [Nonempty ι] (m n : ℕ) :
       natCast_im, re_ofNat, im_ofNat, neg_re, one_re]
     linarith [(Nat.cast_nonneg n : (0 : ℝ) ≤ n)]
 
+/-- For a nonempty index type, the common base point belongs to the joint slit domain. -/
 theorem carlsonRJointBase_mem_domain [Nonempty ι] :
     (carlsonRJointBase : Option (ι ⊕ ι) → ℂ) ∈ carlsonRJointDomain :=
   carlsonRJointStrip_subset_domain 0 0 (carlsonRJointBase_mem_strip 0 0)
@@ -306,16 +327,22 @@ product. -/
 def carlsonR (t : ℂ) (b z : ι → ℂ) : ℂ :=
   Gamma (∑ i, b i) * regCarlsonR t b z
 
+/-- With no parameter-raising steps, the recursion is the regularized Euler integral. -/
 theorem regCarlsonRRaise_zero (t : ℂ) (b z : ι → ℂ) :
     regCarlsonRRaise 0 t b z = regCarlsonREuler t b z := rfl
 
+/-- One additional parameter-raising step is the sum of the shifted values weighted by the Dirichlet
+parameters. -/
 theorem regCarlsonRRaise_succ (n : ℕ) (t : ℂ) (b z : ι → ℂ) :
     regCarlsonRRaise (n + 1) t b z =
       ∑ i, b i * regCarlsonRRaise n t (addDirichletUnit b i) z := rfl
 
+/-- With no exponent-lowering steps, the auxiliary recursion is the parameter-raising recursion. -/
 theorem regCarlsonRAux_zero (n : ℕ) (t : ℂ) (b z : ι → ℂ) :
     regCarlsonRAux 0 n t b z = regCarlsonRRaise n t b z := rfl
 
+/-- One additional exponent-lowering step sums the shifted values weighted by the products of
+parameters and nodes. -/
 theorem regCarlsonRAux_succ (m n : ℕ) (t : ℂ) (b z : ι → ℂ) :
     regCarlsonRAux (m + 1) n t b z =
       ∑ i, b i * z i * regCarlsonRAux m n (t - 1) (addDirichletUnit b i) z := rfl
@@ -349,6 +376,7 @@ theorem regCarlsonRAux_eq_zero_of_isEmpty [IsEmpty ι] {m n : ℕ} (h : m ≠ 0 
   · rw [regCarlsonRAux_succ]
     simp
 
+/-- The regularized R-function is zero when the coordinate index type is empty. -/
 theorem regCarlsonR_eq_zero_of_isEmpty [IsEmpty ι] (t : ℂ) (b z : ι → ℂ) :
     regCarlsonR t b z = 0 := by
   unfold regCarlsonR
@@ -475,17 +503,22 @@ private def nativeJointSet : Set (Option (ι ⊕ ι) → ℂ) :=
   carlsonRJointStrip 0 0 ∩ {q | carlsonRJointParameters q ∈ mvBetaConvergent ∧
     carlsonRJointNodes q ∈ carlsonRVariableDomain}
 
+/-- The joint overlap of the Euler and native Dirichlet convergence domains is open. -/
 private theorem isOpen_nativeJointSet :
     IsOpen (nativeJointSet : Set (Option (ι ⊕ ι) → ℂ)) :=
   (isOpen_carlsonRJointStrip 0 0).inter
     ((isOpen_mvBetaConvergent.preimage continuous_carlsonRJointParameters).inter
       (isOpen_carlsonRVariableDomain.preimage continuous_carlsonRJointNodes))
 
+/-- For a nonempty index type, the common base point lies in the overlap with the native convergence
+domain. -/
 private theorem carlsonRJointBase_mem_nativeJointSet [Nonempty ι] :
     (carlsonRJointBase : Option (ι ⊕ ι) → ℂ) ∈ nativeJointSet :=
   ⟨carlsonRJointBase_mem_strip 0 0, fun _ => by change (0 : ℝ) < (2 : ℂ).re; norm_num,
     fun _ => by change (0 : ℝ) < (1 : ℂ).re; norm_num⟩
 
+/-- Membership in the native joint overlap is equivalent to the Euler-strip inequalities, convergent
+Dirichlet parameters, and right-half-plane and slit-plane node conditions. -/
 private theorem mem_nativeJointSet_iff {q : Option (ι ⊕ ι) → ℂ} :
     q ∈ nativeJointSet ↔ (carlsonRJointExponent q).re < 0 ∧
       0 < ((∑ i, carlsonRJointParameters q i) + carlsonRJointExponent q).re ∧

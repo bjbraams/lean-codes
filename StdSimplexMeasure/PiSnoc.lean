@@ -25,6 +25,20 @@ This is a temporary project home. Intended Mathlib placement:
   → `Mathlib.MeasureTheory.Constructions.Pi`, after `volume_preserving_piFinSuccAbove`
 
 TODO: if those lemmas land in Mathlib, delete this file and switch uses to the upstream names.
+
+## Main results
+
+* `MeasurableEquiv.piFinSnoc_apply`: The forward map of `piFinSnoc` is `Fin.snoc`.
+* `MeasurableEquiv.piFinSnoc_symm_apply`: The inverse of `piFinSnoc` splits off the last
+  coordinate.
+* `MeasureTheory.measurePreserving_piFinSnoc`: Last-coordinate splitting preserves a finite
+  product of sigma-finite measures.
+* `MeasureTheory.volume_preserving_piFinSnoc`: Last-coordinate splitting preserves product
+  volume.
+
+## References
+
+* `Mathlib.MeasureTheory.Constructions.Pi`: formal background used by this module.
 -/
 
 open MeasureTheory MeasureTheory.Measure

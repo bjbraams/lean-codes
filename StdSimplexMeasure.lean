@@ -34,6 +34,8 @@ public import StdSimplexMeasure.Complex.NewtonTaylor
 Umbrella module for the ambient coordinate description of the standard simplex used by the
 Dirichlet and Carlson developments.
 
+## Main results
+
 * `StdSimplexMeasure.Coordinates`, `Intrinsic`, `CoordinateRealization`, `Normalization`: the
   affine coordinate hyperplane, the coordinate embedding of Mathlib's intrinsic
   `Convexity.StdSimplex`, free-coordinate charts, and normalization by coordinate sum.
@@ -50,4 +52,10 @@ Dirichlet and Carlson developments.
   coincident nodes, exact Newton and Taylor remainders, and repeated segment integration.
   These are the only modules of the library that mention complex analysis; they depend on
   Mathlib alone and keep `ComplexAnalysis` independent of the simplex measure.
+
+## References
+
+* `StdSimplexMeasure.Normalization`: formal background used by this module.
+* `StdSimplexMeasure.Aggregation`: formal background used by this module.
+* `StdSimplexMeasure.Coordinates`: formal background used by this module.
 -/

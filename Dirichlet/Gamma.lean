@@ -6,7 +6,7 @@ Authors: Bastiaan J Braams
 module
 
 public import StdSimplexMeasure.Normalization
-public import Analysis.Integral.Pi
+public import ToMathlib.Analysis.Integral.Pi
 public import Dirichlet.Real
 public import StdSimplexMeasure.Radial
 public import Mathlib.Probability.Distributions.Gamma
@@ -29,6 +29,27 @@ is not a probability measure. The normalization denominator is almost surely pos
 
 The proof uses the elementary radial integration formula from `StdSimplexMeasure.Radial`;
 neither complex Dirichlet measures nor analytic continuation is involved.
+
+## Main results
+
+* `ProbabilityTheory.pi_gammaMeasure_eq_withDensity`: The finite product of Gamma measures has
+  the product of their densities.
+* `ProbabilityTheory.iIndepFun.hasLaw_sum_gamma`: The sum of independent Gamma variables with a
+  common rate is Gamma-distributed, with shape the sum of the shapes.
+* `ProbabilityTheory.iIndepFun.hasLaw_dirichlet_of_gamma`: Gamma normalization constructs a
+  Dirichlet random vector. In particular, take `r = 1` for the unit-rate Gamma-ratio
+  characterization.
+* `ProbabilityTheory.iIndepFun.indepFun_sum_simplexNormalize_gamma`: The total of independent
+  Gamma variables is independent of their ratios to that total.
+* `ProbabilityTheory.iIndepFun.ae_pos_sum_gamma`: The denominator in the Gamma-ratio
+  construction is almost surely strictly positive.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977
+  (Dirichlet averages).
+* NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
+  https://dlmf.nist.gov/5.14.
 -/
 
 @[expose] public noncomputable section

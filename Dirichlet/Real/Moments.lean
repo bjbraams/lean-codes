@@ -24,6 +24,13 @@ covariance of two distinct coordinates.
   `ProbabilityTheory.integral_dirichletMeasure_power_product`.
 * `ProbabilityTheory.variance_dirichletMeasure_coordinate`,
   `ProbabilityTheory.covariance_dirichletMeasure_coordinate`.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977
+  (Dirichlet averages).
+* NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
+  https://dlmf.nist.gov/5.14.
 -/
 
 open Dirichlet

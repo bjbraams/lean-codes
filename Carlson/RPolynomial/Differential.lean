@@ -11,10 +11,25 @@ public import Dirichlet.Average.Continuation
 import Mathlib.Analysis.Calculus.Deriv.Pi
 import Mathlib.Analysis.Calculus.Deriv.Prod
 
-/-! # Differentiation of Carlson's Pochhammer numerators
+/-!
+# Differentiation of Carlson's Pochhammer numerators
 
 The coordinate derivative identity is first obtained from the native Dirichlet integral.
 Joint analyticity of the finite Pochhammer sum then extends it to all parameters.
+
+## Main results
+
+* `Carlson.analyticOnNhd_carlsonRPolynomialNumerator_joint`: The Pochhammer numerator is jointly
+  entire in its parameters and nodes.
+* `Carlson.carlsonPartialDeriv_carlsonRPolynomialNumerator_succ`: Differentiating a node lowers
+  the degree and raises the corresponding parameter. The numerator formulation has no
+  exceptional-parameter exclusions.
+* `Carlson.hasDerivAt_carlsonRPolynomialNumerator_update_succ`: Derivative form of the
+  coordinate differentiation identity.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet

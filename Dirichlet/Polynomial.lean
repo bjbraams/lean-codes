@@ -11,6 +11,30 @@ public import Mathlib.Analysis.Analytic.Polynomial
 
 /-!
 # Polynomial Dirichlet transforms
+
+Regularized Dirichlet integrals of monomials are products of ascending Pochhammer factors times
+reciprocal Gamma of the shifted total parameter. Finite sums give the corresponding multivariate
+polynomial transforms. These formulas extend the transforms analytically beyond the integral’s
+initial convergence domain to all complex parameter vectors.
+
+## Main results
+
+* `Dirichlet.regDirichletIntegral_monomial`: On its domain of definition the regularized
+  integral of a monomial equals its explicit Pochhammer--Gamma transform.
+* `Dirichlet.regDirichletIntegral_mvPolynomial`: On its domain of definition the
+  `regDirichletIntegral` of a multivariate polynomial equals its regularized Dirichlet
+  polynomial transform.
+* `Dirichlet.analyticOnNhd_regDirichletMonomialTransform`: The regularized Dirichlet monomial
+  transform is analytic in all Dirichlet parameters.
+* `Dirichlet.analyticOnNhd_regDirichletMvPolynomialTransform`: The regularized Dirichlet
+  transform of a multivariate polynomial is analytic in all Dirichlet parameters.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977
+  (Dirichlet averages).
+* NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
+  https://dlmf.nist.gov/5.14.
 -/
 
 open Complex MeasureTheory ProbabilityTheory MeasureTheory.Measure Set Filter
@@ -34,8 +58,7 @@ def regDirichletMonomialTransform (m : ι → ℕ) (b : ι → ℂ) : ℂ :=
   mvPochhammer b m * (Gamma (∑ i, (b i + m i : ℂ)))⁻¹
 
 /-- The explicit Pochhammer--Gamma formula for the regularized transform of a monomial.
-This theorem exposes the useful formula while keeping the shorthand `mvPochhammer` local to
-this file. -/
+The product of rising factorials is written using `mvPochhammer`. -/
 theorem regDirichletMonomialTransform_eq (m : ι → ℕ) (b : ι → ℂ) :
     regDirichletMonomialTransform m b =
       (∏ i, (ascPochhammer ℂ (m i)).eval (b i)) *

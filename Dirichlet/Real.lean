@@ -31,6 +31,20 @@ The construction uses the standard-simplex coordinate measure and integral API e
 `StdSimplexMeasure.Measure` and `StdSimplexMeasure.Integral`. The coordinate constructions are
 provided transitively by `StdSimplexMeasure.Coordinates`.
 
+
+## Main results
+
+* `ProbabilityTheory.measurable_dirichletPdfReal`: The real-valued Dirichlet density is a
+  measurable function.
+* `ProbabilityTheory.dirichletMeasureUniform_one`: The case of all `b` parameters equal to 1
+  reduces to scaled Lebesgue measure.
+* `ProbabilityTheory.dirichletPdf_perm`: Simultaneously permuting the parameters and coordinates
+  leaves the Dirichlet density unchanged.
+* `ProbabilityTheory.measurePreserving_dirichletMeasure_perm`: Permuting coordinates together
+  with parameters is a measure-preserving transformation of `dirichletMeasure`.
+* `Dirichlet.integral_dirichletMeasure_complex`: A complex-valued integral against a real
+  Dirichlet measure can be written using its real density and the standard-simplex measure.
+
 ## References
 
 [KBJ00] Kotz, Samuel, Narayanaswamy Balakrishnan, and Norman L. Johnson. "Continuous

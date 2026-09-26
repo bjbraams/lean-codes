@@ -28,6 +28,12 @@ the target simplex.
 ## Main results
 
 * `lintegral_posSimplex_comp_aggregate`: the aggregation formula for nonnegative integrands.
+
+## References
+
+* `Mathlib.Analysis.SpecialFunctions.Integrals.Basic`: formal background used by this module.
+* `Mathlib.LinearAlgebra.Finsupp.Pi`: formal background used by this module.
+* `Mathlib.MeasureTheory.Integral.Bochner.Set`: formal background used by this module.
 -/
 
 open MeasureTheory

@@ -14,6 +14,17 @@ public import Mathlib.Analysis.SpecialFunctions.Gamma.Beta
 This file is the home for the general integral evaluations of [Carl77, Section 8.1].  We
 first use the unit-interval parameterization; oriented complex line-segment versions can be
 derived from it without building phase choices into the basic definition.
+
+## Main results
+
+* `Carlson.carlsonEulerSegmentIntegral_eq_rIntegral`: Carlson's Formula 8.1-1 in unit-interval
+  form, with the principal-log compatibility hypothesis needed to extract the endpoint powers.
+* `Carlson.carlsonEulerRayIntegral_eq_rIntegral`: Carlson's Formulas 8.1-2 and 8.1-3, with the
+  principal-log compatibility hypothesis needed to extract the ray-direction powers.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Complex MeasureTheory ProbabilityTheory

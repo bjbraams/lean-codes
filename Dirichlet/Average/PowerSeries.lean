@@ -17,6 +17,13 @@ This file supplies the dominated-convergence form of Carlson's Representation 5.
 summable numerical majorant, uniform on the standard simplex, permits termwise application of
 the regularized Carlson Dirichlet average.
 
+
+## Main results
+
+* `Dirichlet.hasSum_regCarlsonDirichletAverage`: A uniformly summably dominated series may be
+  averaged term by term with respect to the regularized Dirichlet density. This is the general
+  analytic core of Carlson's Representation 5.7-2.
+
 ## References
 
 * [Carl77] B. C. Carlson, *Special Functions of Applied Mathematics*, Section 5.7,

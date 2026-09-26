@@ -21,6 +21,26 @@ circle-Cauchy representation.
 Nodewise membership in the slit plane alone is not enough for native integral
 agreement: the convex hull may meet the cut. The general simply connected
 continuation theorem for arbitrary scalar kernels is still separate work.
+
+## Main results
+
+* `Carlson.isJointRegCarlsonContinuationOn_regCarlsonR`: The slit R-function satisfies the
+  general-average characterization, with native agreement wherever the full node convex hull
+  lies in the slit plane.
+* `Carlson.isRegCarlsonRContinuation_regCarlsonR_of_convexHull`: The entire-parameter
+  R-continuation is characterized by its native integral on every convex-hull-admissible slit
+  tuple.
+* `Carlson.regCarlsonR_eq_regCarlsonRIntegral_of_convexHull`: Principal-branch native agreement
+  on the full admissible convex-hull domain.
+* `Carlson.carlsonR_eq_carlsonRIntegral_of_convexHull`: The same native agreement with the
+  ordinary normalization.
+* `Carlson.regCarlsonR_eq_circleIntegral`: The circle form of the generalized Cauchy
+  representation for `R_t`, at all complex parameters. This is the power-kernel specialization
+  of 6.3-4, not the different beta-resolvent ellipse formula 6.8-7.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet

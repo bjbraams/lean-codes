@@ -16,6 +16,19 @@ public import Carlson.R.Explicit
 These specializations of the general continuation theorem impose no restrictions
 on the Dirichlet parameters. The `R` function retains its right-half-plane node
 domain; the polynomial and `S` statements allow arbitrary complex nodes.
+
+## Main results
+
+* `Carlson.regCarlsonR_aggregate`: Equal-node aggregation for the entire regularized `R`
+  function.
+* `Carlson.regCarlsonRPolynomial_aggregate`: Equal-node aggregation for regularized `R`
+  polynomials at every complex parameter.
+* `Carlson.regCarlsonSSeries_aggregate`: Equal-node aggregation for the entire regularized `S`
+  function.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet

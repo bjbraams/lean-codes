@@ -15,6 +15,22 @@ public import Mathlib.Analysis.SpecialFunctions.Complex.Analytic
 The native L-integral satisfies Carlson (1987), (2.7) and (3.5). Node
 analyticity and the Euler–Poisson system are instances of the general Dirichlet
 average theorems, not independent integration-by-parts proofs.
+
+## Main results
+
+* `Carlson.analyticOnNhd_carlsonLKernel`: The power-logarithm kernel is holomorphic on the
+  principal slit plane.
+* `Carlson.analyticOnNhd_regCarlsonLIntegral_nodes`: On the native convergence region, L is
+  holomorphic jointly in all nodes.
+* `Carlson.carlsonEulerPoissonOperator_regCarlsonLIntegral`: Equation (2.7): the complete
+  Euler–Poisson system, including equal indices.
+* `Carlson.regCarlsonDirichletAverage_deriv_LKernel`: Averaging the derivative of the kernel
+  gives the inhomogeneous lowering formula.
+* `Carlson.carlsonPartialDeriv_regCarlsonLIntegral`: Equation (3.5), in regularized form.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet

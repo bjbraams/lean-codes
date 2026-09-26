@@ -22,6 +22,21 @@ The proof uses joint node holomorphy and agreement near `(1,1)`. It does not
 claim every component of the algebraic preimage of the slit plane: branches
 on larger domains still require separate analysis. The finer equal-parameter
 normalization and its L-function transformations are not extended by this file.
+
+## Main results
+
+* `Carlson.TwoVariable.meanSquares_mem_slitDomain`: The two transformed mean squares stay on the
+  principal slit branch.
+* `Carlson.TwoVariable.regRSlit_firstQuadratic`: First quadratic transformation, with no
+  restriction on the real parts of the transformed mean squares and no Dirichlet-parameter
+  exclusions.
+* `Carlson.TwoVariable.regRSlit_secondQuadratic`: Second quadratic transformation on the whole
+  positive-real-part square-root domain. The squared input nodes and both transformed nodes may
+  have negative real parts.
+
+## References
+
+* B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
 open Dirichlet
@@ -40,14 +55,17 @@ theorem meanSquares_mem_slitDomain {x y : ℂ} (hx : 0 < x.re) (hy : 0 < y.re) :
     positivity
   · exact mul_mem_slitPlane_of_re_pos hx hy
 
+/-- The domain of two right-half-plane nodes is real convex. -/
 private theorem convex_right_node_domain : Convex ℝ (carlsonRVariableDomain (ι := Fin 2)) := by
   intro z hz w hw a b ha hb hab i
   exact convex_carlsonRightHalfPlane (hz i) (hw i) ha hb hab
 
+/-- A function on `Fin 2` is recovered from its two coordinate values. -/
 private theorem pair_eta (w : Fin 2 → ℂ) : pair (w 0) (w 1) = w := by
   ext i
   fin_cases i <;> rfl
 
+/-- Both quadratic branch domains contain a neighborhood of the constant unit node vector. -/
 private theorem eventually_quadraticDomains_one :
     ∀ᶠ w : Fin 2 → ℂ in 𝓝 (fun _ => 1),
       FirstQuadraticDomain (w 0) (w 1) ∧ SecondQuadraticDomain (w 0) (w 1) := by
@@ -72,6 +90,7 @@ private theorem eventually_quadraticDomains_one :
     with w hw hm hs
   exact ⟨⟨by simpa only [pair_eta] using hw, hm⟩, ⟨hs, hm⟩⟩
 
+/-- The map to the squared arithmetic and geometric means is analytic at every pair of nodes. -/
 private theorem analyticAt_meanSquares (w : Fin 2 → ℂ) :
     AnalyticAt ℂ (fun q : Fin 2 → ℂ =>
       pair (arithmeticMeanSq (q 0) (q 1)) (geometricMeanSq (q 0) (q 1))) w := by
