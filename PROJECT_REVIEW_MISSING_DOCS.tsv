@@ -1,0 +1,198 @@
+file	line	kind	source_name	visibility_modifier
+Carlson/L/EulerPoisson.lean	25	theorem	analyticOnNhd_secondPartial_regCarlsonL_joint	private
+Carlson/L/EulerPoisson.lean	74	theorem	eulerPoisson_regCarlsonL_of_native	private
+Carlson/L/SlitDeriv.lean	72	theorem	partialDeriv_regCarlsonL_of_right	private
+Carlson/R/AssociatedDependence.lean	41	abbrev	CarlsonVariableFunctions	private
+Carlson/R/AssociatedDependence.lean	51	theorem	polynomial_smul_apply	private
+Carlson/R/AssociatedDependence.lean	126	theorem	isCarlsonGammaRegular_of_re_pos	private
+Carlson/R/AssociatedRecurrence.lean	251	theorem	carlsonAssociatedRecurrenceCoeff_eq_Gamma	private
+Carlson/R/AssociatedRecurrence.lean	278	theorem	carlsonAssociatedRecurrence_term_eq_mellin	private
+Carlson/R/EulerTransform.lean	36	theorem	integral_Ioo_one_sub	private
+Carlson/R/EulerTransform.lean	73	theorem	regCarlsonR_euler_of_pos	private
+Carlson/R/Explicit.lean	83	theorem	carlsonRJointExponent_jointPoint	not private
+Carlson/R/Explicit.lean	87	theorem	carlsonRJointParameters_jointPoint	not private
+Carlson/R/Explicit.lean	91	theorem	carlsonRJointNodes_jointPoint	not private
+Carlson/R/Explicit.lean	114	theorem	continuous_carlsonRJointExponent	not private
+Carlson/R/Explicit.lean	118	theorem	continuous_carlsonRJointParameters	not private
+Carlson/R/Explicit.lean	123	theorem	continuous_carlsonRJointNodes	not private
+Carlson/R/Explicit.lean	127	theorem	analyticOnNhd_carlsonRJointExponent	not private
+Carlson/R/Explicit.lean	131	theorem	analyticOnNhd_carlsonRJointParameters	not private
+Carlson/R/Explicit.lean	136	theorem	analyticOnNhd_carlsonRJointNodes	not private
+Carlson/R/Explicit.lean	152	theorem	carlsonRJointStrip_subset_domain	not private
+Carlson/R/Explicit.lean	156	theorem	carlsonRJointStrip_mono	not private
+Carlson/R/Explicit.lean	161	theorem	isOpen_carlsonRJointDomain	not private
+Carlson/R/Explicit.lean	164	theorem	isOpen_carlsonRJointStrip	not private
+Carlson/R/Explicit.lean	224	theorem	isPreconnected_carlsonRJointStrip	not private
+Carlson/R/Explicit.lean	231	theorem	isPreconnected_carlsonRJointDomain	not private
+Carlson/R/Explicit.lean	242	theorem	carlsonRJointBase_mem_strip	not private
+Carlson/R/Explicit.lean	254	theorem	carlsonRJointBase_mem_domain	not private
+Carlson/R/Explicit.lean	309	theorem	regCarlsonRRaise_zero	not private
+Carlson/R/Explicit.lean	312	theorem	regCarlsonRRaise_succ	not private
+Carlson/R/Explicit.lean	316	theorem	regCarlsonRAux_zero	not private
+Carlson/R/Explicit.lean	319	theorem	regCarlsonRAux_succ	not private
+Carlson/R/Explicit.lean	352	theorem	regCarlsonR_eq_zero_of_isEmpty	not private
+Carlson/R/Explicit.lean	478	theorem	isOpen_nativeJointSet	private
+Carlson/R/Explicit.lean	484	theorem	carlsonRJointBase_mem_nativeJointSet	private
+Carlson/R/Explicit.lean	489	theorem	mem_nativeJointSet_iff	private
+Carlson/R/Recurrence/Coefficients.lean	154	lemma	X_mul_pderiv_esymm_card	private
+Carlson/R/Recurrence/JointCoefficients.lean	32	theorem	eval_recurrencePochhammer	private
+Carlson/R/Relations.lean	140	lemma	sum_addDirichletUnit_mul	private
+Carlson/R/SlitDeriv.lean	73	theorem	partialDeriv_regCarlsonR_of_right	private
+Carlson/R/SmallVariable.lean	54	lemma	unitIntervalIntegral_eq_gamma_mul_reg	private
+Carlson/RPolynomial/TaylorContinuation.lean	30	lemma	affine_sub_center	private
+Carlson/RPolynomial/Transform.lean	109	lemma	carlsonRTransformVariables_update	private
+Carlson/RPolynomial/Transform.lean	122	lemma	carlsonRTransformParameters_addDirichletUnit	private
+Carlson/TwoVariable/EqualParameter.lean	46	theorem	isRegEqualRContinuation_of_quadratic	private
+Carlson/TwoVariable/EqualParameter.lean	88	lemma	secondQuadraticDomain_of_right_roots	private
+Carlson/TwoVariable/L.lean	42	theorem	regAverage_one_one	private
+Carlson/TwoVariable/L.lean	69	theorem	one_one_mem_mvBetaConvergent	private
+Carlson/TwoVariable/ParameterSymmetry.lean	41	theorem	parameterSymmetry_native_near_one	private
+Carlson/TwoVariable/ParameterSymmetry.lean	68	theorem	parameterSymmetry_near_one	private
+Carlson/TwoVariable/Quadratic/Geometry.lean	66	lemma	re_affine_prod_pos	private
+Carlson/TwoVariable/Quadratic/Integral.lean	36	lemma	Gamma_mul_regRPolynomial	private
+Carlson/TwoVariable/Quadratic/Integral.lean	55	lemma	Gamma_mul_regRPolynomial_even_opposite	private
+Carlson/TwoVariable/Quadratic/Integral.lean	69	lemma	rIntegral_firstQuadratic_near_one	private
+Carlson/TwoVariable/Quadratic/Integral.lean	142	lemma	rIntegral_smul_of_re_pos	private
+Carlson/TwoVariable/Quadratic/Integral.lean	295	lemma	rIntegral_firstQuadratic_of_normalized	private
+Carlson/TwoVariable/Quadratic/Integral.lean	443	lemma	rIntegral_secondQuadratic_of_re_pos	private
+Carlson/TwoVariable/Quadratic/Polynomial.lean	31	lemma	eq_of_translate_sub_deriv_zero	private
+Carlson/TwoVariable/Quadratic/Polynomial.lean	39	lemma	hasDerivAt_numerator₂_quadratic_translate	private
+Carlson/TwoVariable/Quadratic/Polynomial.lean	59	lemma	meanSq_zero_pow	private
+Carlson/TwoVariable/Quadratic/Polynomial.lean	190	lemma	numerator₂_rotated_quadratic	private
+Carlson/TwoVariable/QuadraticSeries.lean	70	lemma	quadraticSeriesCoeff_eq_binomial	private
+Carlson/TwoVariable/QuadraticSlit.lean	43	theorem	convex_right_node_domain	private
+Carlson/TwoVariable/QuadraticSlit.lean	47	theorem	pair_eta	private
+Carlson/TwoVariable/QuadraticSlit.lean	51	theorem	eventually_quadraticDomains_one	private
+Carlson/TwoVariable/QuadraticSlit.lean	75	theorem	analyticAt_meanSquares	private
+Carlson/TwoVariable/R/Inversion.lean	33	theorem	regCarlsonR_pair_inversion_of_right	private
+Carlson/ZeroParameter.lean	64	lemma	aggregate_option_zero	private
+ComplexAnalysis/Blaschke.lean	57	theorem	blaschkeFactor_eq_mul_discMobius	not private
+ComplexAnalysis/Blaschke.lean	61	theorem	blaschkeFactor_zero_right	not private
+ComplexAnalysis/Blaschke.lean	66	theorem	norm_neg_norm_div	not private
+ComplexAnalysis/Blaschke.lean	70	theorem	norm_blaschkeFactor	not private
+ComplexAnalysis/Blaschke.lean	74	theorem	norm_blaschkeFactor_lt_one	not private
+ComplexAnalysis/Blaschke.lean	79	theorem	norm_blaschkeFactor_le_one	not private
+ComplexAnalysis/Blaschke.lean	84	theorem	blaschkeFactor_eq_zero_iff	not private
+ComplexAnalysis/Blaschke.lean	90	theorem	differentiableOn_blaschkeFactor_ball	not private
+ComplexAnalysis/Blaschke.lean	192	theorem	blaschkeProduct_eq_tprod_one_add	not private
+ComplexAnalysis/Blaschke.lean	196	theorem	differentiableOn_blaschkeFactor_sub_one	not private
+ComplexAnalysis/CanonicalProduct.lean	95	theorem	canonicalProduct_eq_tprod_one_add	not private
+ComplexAnalysis/CanonicalProduct.lean	99	theorem	differentiableOn_elementaryFactor_div	not private
+ComplexAnalysis/CanonicalProduct.lean	125	theorem	canonicalProduct_zero	not private
+ComplexAnalysis/CanonicalProduct/Bounds.lean	47	theorem	inv_pow_eq_rpow_neg	not private
+ComplexAnalysis/Cayley.lean	52	theorem	isOpen_upperHalfPlaneSet	not private
+ComplexAnalysis/Cayley.lean	55	theorem	add_I_ne_zero	not private
+ComplexAnalysis/Cayley.lean	61	theorem	normSq_add_I_sub_normSq_sub_I	not private
+ComplexAnalysis/Cayley.lean	74	theorem	cayley_ne_one	not private
+ComplexAnalysis/Cayley.lean	79	theorem	im_cayleyInv	not private
+ComplexAnalysis/Cayley.lean	96	theorem	cayleyInv_cayley	not private
+ComplexAnalysis/Cayley.lean	103	theorem	cayley_cayleyInv	not private
+ComplexAnalysis/Cayley.lean	115	theorem	hasDerivAt_cayley	not private
+ComplexAnalysis/Cayley.lean	123	theorem	differentiableOn_cayley	not private
+ComplexAnalysis/Cayley.lean	126	theorem	hasDerivAt_cayleyInv	not private
+ComplexAnalysis/Cayley.lean	135	theorem	differentiableOn_cayleyInv	not private
+ComplexAnalysis/Cayley.lean	143	theorem	mapsTo_cayley	not private
+ComplexAnalysis/Cayley.lean	146	theorem	mapsTo_cayleyInv	not private
+ComplexAnalysis/Cayley.lean	149	theorem	cayley_injOn	not private
+ComplexAnalysis/Cycle.lean	96	theorem	loop_mem_range	not private
+ComplexAnalysis/Cycle.lean	99	theorem	loop_extend_mem_range	not private
+ComplexAnalysis/Cycle.lean	102	theorem	range_subset_iff	not private
+ComplexAnalysis/Cycle.lean	105	theorem	loop_ne_of_notMem_range	not private
+ComplexAnalysis/Cycle.lean	109	theorem	isCompact_range	not private
+ComplexAnalysis/Cycle.lean	112	theorem	isClosed_range	not private
+ComplexAnalysis/Cycle.lean	114	theorem	isBounded_range	not private
+ComplexAnalysis/Cycle.lean	116	theorem	isOpen_compl_range	not private
+ComplexAnalysis/Cycle.lean	118	theorem	range_loop_subset	not private
+ComplexAnalysis/Cycle.lean	194	theorem	integral_add	not private
+ComplexAnalysis/Cycle.lean	198	theorem	integral_sub	not private
+ComplexAnalysis/Cycle.lean	202	theorem	integral_smul	not private
+ComplexAnalysis/Cycle.lean	269	theorem	_root_.Complex.Loop.zsign_of_nonneg	not private
+ComplexAnalysis/Cycle.lean	273	theorem	_root_.Complex.Loop.zsign_of_neg	not private
+ComplexAnalysis/Cycle.lean	280	theorem	replicate_range_subset	not private
+ComplexAnalysis/Cycle.lean	284	theorem	replicate_isC1	not private
+ComplexAnalysis/Cycle.lean	288	theorem	replicate_integral	not private
+ComplexAnalysis/Cycle.lean	293	theorem	replicate_index	not private
+ComplexAnalysis/Cycle.lean	298	theorem	append_loop_castAdd	not private
+ComplexAnalysis/Cycle.lean	302	theorem	append_loop_natAdd	not private
+ComplexAnalysis/Cycle.lean	306	theorem	append_range	not private
+ComplexAnalysis/Cycle.lean	318	theorem	append_isC1	not private
+ComplexAnalysis/Cycle.lean	324	theorem	append_integral	not private
+ComplexAnalysis/Cycle.lean	333	theorem	append_index	not private
+ComplexAnalysis/Cycle.lean	342	theorem	zsmulLoop_range_subset	not private
+ComplexAnalysis/Cycle.lean	349	theorem	zsmulLoop_isC1	not private
+ComplexAnalysis/Cycle.lean	358	theorem	zsmulLoop_integral	not private
+ComplexAnalysis/Cycle.lean	369	theorem	zsmulLoop_index	not private
+ComplexAnalysis/DirichletDisc.lean	251	theorem	poissonExtension_of_mem	not private
+ComplexAnalysis/DirichletDisc.lean	258	theorem	poissonExtension_of_notMem	not private
+ComplexAnalysis/DirichletDisc.lean	264	theorem	sphere_notMem_ball	not private
+ComplexAnalysis/DiscMobius.lean	68	theorem	norm_one_sub_conj_mul_sq_sub_norm_sub_sq	not private
+ComplexAnalysis/DiscMobius.lean	73	theorem	discMobius_self	not private
+ComplexAnalysis/DiscMobius.lean	76	theorem	discMobius_zero_right	not private
+ComplexAnalysis/DiscMobius.lean	79	theorem	discMobius_zero_left	not private
+ComplexAnalysis/DiscMobius.lean	82	theorem	norm_discMobius	not private
+ComplexAnalysis/DiscMobius.lean	109	theorem	mapsTo_discMobius_ball	not private
+ComplexAnalysis/DiscMobius.lean	131	theorem	discMobius_eq_zero_iff	not private
+ComplexAnalysis/DiscMobius.lean	160	theorem	differentiableAt_discMobius	not private
+ComplexAnalysis/DiscMobius.lean	164	theorem	differentiableOn_discMobius_closedBall	not private
+ComplexAnalysis/DiscMobius.lean	169	theorem	differentiableOn_discMobius_ball	not private
+ComplexAnalysis/DiscMobius.lean	173	theorem	deriv_discMobius	not private
+ComplexAnalysis/DiscMobius.lean	177	theorem	deriv_discMobius_zero	not private
+ComplexAnalysis/DiscMobius.lean	181	theorem	deriv_discMobius_self	not private
+ComplexAnalysis/InfiniteProduct.lean	46	theorem	HasSummableBoundOn.mono	not private
+ComplexAnalysis/InfiniteProduct.lean	50	theorem	HasSummableBoundOn.comp_subtype	not private
+ComplexAnalysis/KoebeGrowth.lean	60	theorem	hasDerivAt_distortionUpperAnti	not private
+ComplexAnalysis/KoebeGrowth.lean	83	theorem	hasDerivAt_distortionLowerAnti	not private
+ComplexAnalysis/KoebeGrowth.lean	106	theorem	hasDerivAt_growthAnti	not private
+ComplexAnalysis/MittagLeffler.lean	56	theorem	mlHull_mono	not private
+ComplexAnalysis/MittagLeffler.lean	60	theorem	isCompact_mlHull	not private
+ComplexAnalysis/MittagLeffler.lean	63	theorem	mlHull_subset	not private
+ComplexAnalysis/NaturalBoundary.lean	45	theorem	norm_pow_two_pow_le	not private
+ComplexAnalysis/NaturalBoundary.lean	49	theorem	summable_lacunary	not private
+ComplexAnalysis/Perron.lean	232	theorem	isPerronMember_const	not private
+ComplexAnalysis/Perron.lean	237	theorem	IsPerronMember.sup	not private
+ComplexAnalysis/Perron.lean	268	theorem	bddAbove_range_perron	not private
+ComplexAnalysis/Perron.lean	275	theorem	IsPerronMember.le_perronFunction	not private
+ComplexAnalysis/Perron.lean	280	theorem	perronFunction_le	not private
+ComplexAnalysis/Perron.lean	305	theorem	le_runningMax	not private
+ComplexAnalysis/Perron.lean	310	theorem	runningMax_mono	not private
+ComplexAnalysis/Perron.lean	313	theorem	runningMax_le	not private
+ComplexAnalysis/Perron.lean	319	theorem	IsPerronMember.runningMax	not private
+ComplexAnalysis/RieszFactorization.lean	414	theorem	norm_finset_prod_blaschkeFactor_eq_one	not private
+ComplexAnalysis/Runge/OpenSet.lean	54	theorem	isClosed_rungeHull	not private
+ComplexAnalysis/Runge/OpenSet.lean	63	theorem	isCompact_rungeHull	not private
+ComplexAnalysis/Runge/OpenSet.lean	66	theorem	rungeHull_subset	not private
+ComplexAnalysis/Runge/OpenSet.lean	73	theorem	rungeHull_mono	not private
+ComplexAnalysis/Runge/PolePushing.lean	52	theorem	of_mem	not private
+ComplexAnalysis/Runge/PolePushing.lean	83	theorem	add	not private
+ComplexAnalysis/Runge/PolePushing.lean	95	theorem	smul	not private
+ComplexAnalysis/Runge/PolePushing.lean	106	theorem	mul	not private
+ComplexAnalysis/Runge/PolePushing.lean	135	theorem	pow	not private
+ComplexAnalysis/Runge/PolePushing.lean	141	theorem	finsetSum	not private
+ComplexAnalysis/SchwarzPick.lean	49	theorem	schwarzPickAux_zero	not private
+ComplexAnalysis/SchwarzPick.lean	54	theorem	mapsTo_schwarzPickAux	not private
+ComplexAnalysis/SchwarzPick.lean	61	theorem	differentiableOn_schwarzPickAux	not private
+ComplexAnalysis/WeierstrassFactor.lean	50	theorem	elementaryFactor_eq	not private
+ComplexAnalysis/WeierstrassFactor.lean	53	theorem	differentiable_elementaryExponent	not private
+ComplexAnalysis/WeierstrassFactor.lean	57	theorem	differentiable_elementaryFactor	not private
+ComplexAnalysis/WeierstrassFactor.lean	61	theorem	analyticAt_elementaryFactor	not private
+ComplexAnalysis/WeierstrassFactor.lean	64	theorem	elementaryFactor_eq_zero_iff	not private
+ComplexAnalysis/WeierstrassFactor.lean	67	theorem	elementaryFactor_zero_apply	not private
+ComplexAnalysis/WeierstrassProduct.lean	82	theorem	weierstrassProduct_eq_tprod_one_add	not private
+ComplexAnalysis/WeierstrassProduct.lean	109	theorem	weierstrassProduct_zero	not private
+Dirichlet/Average/Deriv.lean	27	lemma	carlson_tangent_fderiv	private
+Dirichlet/Average/Deriv.lean	39	lemma	continuousOn_carlson_comp	private
+Dirichlet/Average/Deriv.lean	48	lemma	addDirichletUnit_eq_add_single	private
+Dirichlet/Beta/Complex/Integral.lean	180	theorem	piFinSnoc_preimage_mvBetaSimplex	private
+Dirichlet/Transform.lean	325	theorem	analyticOnNhd_shiftedDirichletIntegral	private
+Dirichlet/Transform.lean	349	theorem	shiftedDirichletIntegral_eq	private
+Pochhammer/PochhammerTransform.lean	121	def	signedStirlingSecond	private
+Pochhammer/PochhammerTransform.lean	123	theorem	signedStirlingSecond_succ_succ	private
+Pochhammer/PochhammerTransform.lean	129	theorem	signedStirlingSecond_succ_zero	private
+Pochhammer/PochhammerTransform.lean	132	theorem	ascPochhammer_mul_X	private
+Pochhammer/PochhammerTransform.lean	138	theorem	sum_signedStirlingSecond_mul_ascPochhammer	private
+Pochhammer/PochhammerTransform.lean	187	theorem	neg_one_pow_sub_mul_stirlingSecond	private
+StdSimplexMeasure/Coordinates.lean	87	instance	(anonymous instance)	local
+StdSimplexMeasure/Intrinsic.lean	113	instance	(anonymous instance)	not private
+StdSimplexMeasure/IntrinsicMeasure.lean	50	instance	(anonymous instance)	not private
+StdSimplexMeasure/ProdSlices.lean	46	theorem	indicator_swap	private
+StdSimplexMeasure/ProdSlices.lean	134	theorem	prod_Icc_slice_preimage	private

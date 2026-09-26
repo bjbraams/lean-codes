@@ -1,0 +1,114 @@
+file	declaration_line	source_name	proof_start	proof_end	physical_lines	nonblank_code_lines	review_status	priority	recommendation
+ComplexAnalysis/PringsheimVivanti.lean	262	exists_gt_summable_of_forall_nonneg_of_differentiableOn_union_ball	268	484	217	217	implemented	high	Separate disc geometry, translated coefficients, and nonnegative binomial-series summability.
+ComplexAnalysis/MittagLeffler.lean	113	mittagLeffler	117	317	201	194	implemented	high	Extract exhaustion layers, corrected-series holomorphy, and the principal-part germ lemma.
+ComplexAnalysis/Hadamard.lean	109	hadamard_factorization	116	295	180	173	implemented	medium	Extract logarithmic-quotient growth and polynomiality from real-part bounds on arbitrarily large circles.
+ComplexAnalysis/KoebeGrowth.lean	132	distortion_le_of_class_S	135	306	172	166	implemented	medium	Separate radial logarithmic derivative, differential bounds, and scalar integration/exponentiation.
+ComplexAnalysis/RieszFactorization.lean	147	summable_analyticOrderAt_toNat_mul_one_sub_norm_of_bounded_of_ne_zero	151	296	146	143	implemented	high	Place weighted Jensen/Blaschke estimates upstream of both consumers; derive unweighted summability.
+ComplexAnalysis/Koebe.lean	64	norm_taylorCoeff_two_le	65	205	141	135	length flag only		
+ComplexAnalysis/KoebeDistortion.lean	101	norm_one_sub_normSq_mul_deriv_deriv_div_deriv_sub_two_conj_le	104	238	135	132	length flag only		
+ComplexAnalysis/Blaschke.lean	291	summable_one_sub_norm_of_bounded_of_ne_zero	293	426	134	129	implemented	high	Share the Jensen/Blaschke-condition proof with its multiplicity-weighted version.
+ComplexAnalysis/Cycle/Parallelogram.lean	615	curveIndex_parallelogramLoop_eq_one	617	744	128	127	implemented	medium	Separate four edge-turning bounds, total-turning bounds, and index identification.
+ComplexAnalysis/RieszFactorization.lean	715	exists_rieszFactorization	721	847	127	124	length flag only		
+ComplexAnalysis/DirichletDisc.lean	121	tendsto_poissonIntegral	123	243	121	116	length flag only		
+ComplexAnalysis/Runge/Kernel.lean	67	exists_finset_approx_setIntegral_inv_sub	71	180	110	107	length flag only		
+ComplexAnalysis/Perron.lean	53	SubharmonicOn.le_of_frontier	55	163	109	106	length flag only		
+ComplexAnalysis/RiemannMapping.lean	201	ball_subset_image_of_forall_norm_deriv_le	203	307	105	100	length flag only		
+ComplexAnalysis/ThreeCircles.lean	69	norm_le_rpow_mul_rpow_of_nonvanishing	76	180	105	98	length flag only		
+Pochhammer/IncompleteMellin.lean	463	regIncompleteMellin_eq_taylor_peano	470	572	103	103	implemented	high	Add congruence and finite-sum linearity lemmas; evaluate the Taylor polynomial separately.
+ComplexAnalysis/AreaTheorem.lean	251	circleIntegral_deriv_div_sub_sigma	255	356	102	102	length flag only		
+ComplexAnalysis/Cycle/Cauchy.lean	118	integral_dslope_eq_zero	121	220	100	100	length flag only		
+ComplexAnalysis/LocalMapping.lean	64	exists_forall_ncard_preimage_eq	68	167	100	96	length flag only		
+ComplexAnalysis/AreaTheorem.lean	360	circleIntegral_conj_mul_deriv_sigma	364	460	97	92	length flag only		
+ComplexAnalysis/AreaTheorem.lean	129	integral_ball_circleIntegral_deriv_div_sub	133	227	95	89	length flag only		
+ComplexAnalysis/Cycle/Residue.lean	51	integral_eq_sum_index_smul_residue	55	149	95	95	length flag only		
+ComplexAnalysis/Runge/Cutoff.lean	80	exists_cauchyPompeiu_representation	83	175	93	91	length flag only		
+StdSimplexMeasure/Measure/Aggregation.lean	335	map_stdSimplexMeasure_restrict_stdSimplex_aggregate	342	433	92	92	inspected	medium	Extract the nontrivial-target integral identity; retain explicit empty/singleton dispatch.
+ComplexAnalysis/Koebe.lean	217	ball_subset_image_of_injOn	219	308	90	87	length flag only		
+ComplexAnalysis/ArgumentPrinciple.lean	61	circleIntegral_logDeriv_eq_sum_divisor	66	154	89	89	length flag only		
+ComplexAnalysis/KoebeGrowth.lean	312	norm_le_div_one_sub_sq_of_class_S	314	402	89	87	length flag only		
+SeveralComplexVariables/WeierstrassDivision.lean	419	exists_isWeierstrassDivisionOn_of_bounded	432	519	88	84	inspected	lower	Already uses substantial helper lemmas; optional quotient-bound extraction only.
+ComplexAnalysis/Cycle/ArgumentPrinciple.lean	71	integral_logDeriv_eq_two_pi_I_mul_finsum	77	163	87	87	length flag only		
+ComplexAnalysis/DiscCauchyTransform.lean	148	integral_ball_inv_sub	149	235	87	84	length flag only		
+ComplexAnalysis/WeierstrassProduct.lean	192	exists_differentiable_ne_zero_mul_of_analyticOrderAt_eq	195	280	86	83	length flag only		
+ComplexAnalysis/CircleReflection.lean	283	analyticOnNhd_circleReflection	289	373	85	85	length flag only		
+ComplexAnalysis/Perron/Barrier.lean	64	tendsto_perronFunction_of_isBarrier	67	151	85	79	length flag only		
+Pochhammer/IncompleteMellin.lean	236	continuousOn_mellinPeanoRemainder	238	322	85	85	length flag only		
+SeveralComplexVariables/LeviConvexity/Necessity.lean	442	IsDomainOfHolomorphy.isLeviPseudoconvex_fin	443	527	85	82	length flag only		
+SeveralComplexVariables/WeierstrassDivision.lean	288	normalized_division_germ_unique	304	387	84	82	length flag only		
+ComplexAnalysis/FiniteOrder.lean	151	summable_norm_rpow_neg_of_ncard_le	154	236	83	83	length flag only		
+Carlson/RPolynomial/Estimates.lean	56	norm_carlsonRPolynomialNumerator_le	59	140	82	82	implemented	high	Use the already imported multinomial expansion; isolate the product Pochhammer bound.
+Carlson/RPolynomial/Generating.lean	72	carlsonGeneratingCoeff_cons_antidiag	81	162	82	82	inspected	medium	Extract the pointwise coefficient factorization; share the two product-splitting arguments.
+ComplexAnalysis/Perron/Barrier.lean	155	isBarrier_log_of_exteriorDisc	158	238	81	79	length flag only		
+ComplexAnalysis/HarmonicLimit.lean	180	exists_harmonicOnNhd_tendstoLocallyUniformlyOn_of_monotone	184	262	79	75	length flag only		
+ComplexAnalysis/Perron.lean	353	harmonicOnNhd_perronFunction	355	433	79	74	length flag only		
+ComplexAnalysis/RieszFactorization.lean	59	exists_differentiableOn_ne_zero_mul_of_analyticOrderAt_eq_ball	64	142	79	76	length flag only		
+Dirichlet/Beta/Complex/Integral.lean	405	mvBetaIntegral_eq_mvBeta_aux	410	487	78	78	length flag only		
+SeveralComplexVariables/LeviConvexity/Peak.lean	359	IsLocalDefiningFunction.exists_holomorphic_support	362	439	78	73	length flag only		
+SeveralComplexVariables/AnalyticGerm/Order.lean	640	exists_coordinate_change_order	644	720	77	77	length flag only		
+StdSimplexMeasure/Integral/Monomial.lean	55	integral_stdSimplex_explicit_monomial_succ	60	136	77	77	length flag only		
+StdSimplexMeasure/PositiveSimplex/Aggregation.lean	46	lintegral_posSimplex_split_pred	51	127	77	77	length flag only		
+ComplexAnalysis/RieszFactorization.lean	486	norm_le_of_finset_factorization	491	566	76	75	length flag only		
+SeveralComplexVariables/LeviConvexity/Peak.lean	268	exists_leviForm_add_normSq_ge	271	346	76	70	length flag only		
+SeveralComplexVariables/WeierstrassDivision/CoordinatePower.lean	392	coordinatePower_eq_of_lt	398	473	76	76	length flag only		
+SeveralComplexVariables/WeierstrassDivision/CoordinatePower.lean	658	coordinatePower_division	669	744	76	76	length flag only		
+ComplexAnalysis/PringsheimVivanti.lean	61	circleIntegral_zpow_mul_tsum_add_eq	64	138	75	75	length flag only		
+Dirichlet/Integral/Complex.lean	112	integrableOn_mvBetaMonomial_mul_log	117	191	75	75	length flag only		
+SeveralComplexVariables/Pseudoconvexity.lean	448	IsDomainOfHolomorphy.satisfiesHolomorphicContinuityPrinciple_fin	449	523	75	72	length flag only		
+Dirichlet/Average/Deriv.lean	77	regCarlsonDirichletAverage_tangent	84	157	74	74	length flag only		
+SeveralComplexVariables/AnalyticGerm/Noetherian.lean	50	ideal_fg_of_orderInLastVariable_eq_nat	53	126	74	74	length flag only		
+Carlson/RPolynomial/SharpEstimates.lean	88	exists_summable_norm_carlsonTaylor_bounded_variables	93	165	73	73	length flag only		
+SeveralComplexVariables/LeviConvexity/Independence.lean	67	exists_parabola_bound	70	142	73	73	length flag only		
+SeveralComplexVariables/LeviConvexity/Independence.lean	191	IsLocalDefiningFunction.fderiv_fderiv_le	194	266	73	71	length flag only		
+SeveralComplexVariables/Pseudoconvexity.lean	174	IsDomainOfHolomorphy.plurisubharmonicOn_neg_log_infDist	176	248	73	70	length flag only		
+Carlson/TwoVariable/Quadratic/Polynomial.lean	96	numerator₂_firstQuadratic	104	175	72	72	length flag only		
+SeveralComplexVariables/CompactHole.lean	294	exists_analyticOnNhd_extension_of_isCompact_prod	297	368	72	72	length flag only		
+SeveralComplexVariables/HartogsContinuation.lean	46	exists_extension_hartogsCylinder	50	121	72	72	length flag only		
+SeveralComplexVariables/InjectiveMapping/Immersion.lean	113	exists_injective_fderiv_aux	117	188	72	72	length flag only		
+ComplexAnalysis/AreaTheorem.lean	520	tsum_mul_norm_taylorCoeff_sq_mul_pow_le	522	592	71	67	length flag only		
+ComplexAnalysis/GreenFunction.lean	70	exists_greenFunction	75	145	71	69	length flag only		
+ComplexAnalysis/SokhotskiPlemelj.lean	61	circleIntegral_zpow_mul_tsum_zpow_eq	64	134	71	71	length flag only		
+ComplexAnalysis/SokhotskiPlemelj.lean	208	circleLaurentCoeff_laurentBoundaryValue	210	279	70	70	length flag only		
+SeveralComplexVariables/AnalyticGerm/Weierstrass.lean	57	existsUnique_division	62	131	70	70	length flag only		
+SeveralComplexVariables/SeparateAnalytic.lean	149	analyticOnNhd_of_separately_analytic_option	154	223	70	66	length flag only		
+SeveralComplexVariables/WeierstrassDivision.lean	73	exists_coordinatePower_leadingFactor_ne_zero	83	152	70	70	length flag only		
+Carlson/RPolynomial/Estimates.lean	143	exists_summable_norm_regCarlsonR_div_factorial_bounded_variables	146	214	69	69	length flag only		
+Dirichlet/Transform/Parametric.lean	195	exists_joint_regDirichletContinuation_kernel	205	273	69	69	length flag only		
+SeveralComplexVariables/CauchyIntegral.lean	109	two_pi_I_pow_inv_smul_torusIntegral_prod_sub_inv_smul	116	184	69	69	length flag only		
+StdSimplexMeasure/Measure/Aggregation.lean	141	stdSimplexAggregate_coordMap_split	144	212	69	69	length flag only		
+StdSimplexMeasure/PositiveSimplex/Aggregation.lean	455	lintegral_posSimplex_mul_aggregateDensity_split	461	529	69	69	length flag only		
+Analysis/SpecialFunctions/Gamma.lean	109	hasDerivAt_integral_cpow_mul_exp_neg_mul_Ioi	115	182	68	68	length flag only		
+ComplexAnalysis/Cycle/Parallelogram.lean	407	im_edge_integral_mem_Ioo	414	481	68	66	length flag only		
+SeveralComplexVariables/CartanThullen.lean	174	IsHolomorphicallyConvex.exists_domainOfExistence	176	243	68	68	length flag only		
+SeveralComplexVariables/HartogsSeries.lean	137	differentiableOn_hartogsTaylorCoeff_and_hasSumLocallyUniformlyOn	142	209	68	68	length flag only		
+SeveralComplexVariables/Pseudoconvexity.lean	322	IsPseudoconvex.satisfiesContinuityPrinciple	323	390	68	66	length flag only		
+Carlson/TwoVariable/Quadratic/Integral.lean	75	rIntegral_firstQuadratic_near_one	80	146	67	67	length flag only		
+ComplexAnalysis/CanonicalProduct/Bounds.lean	357	exists_exp_neg_le_norm_canonicalProduct	361	427	67	65	length flag only		
+ComplexAnalysis/CanonicalProduct/GoodRadii.lean	40	frequently_forall_norm_sub_ge	42	108	67	63	length flag only		
+SeveralComplexVariables/HolomorphicConvexity/Exhaustion.lean	188	isHolomorphicallyConvex_iff_unbounded_on_escaping_sequences	193	259	67	67	length flag only		
+ComplexAnalysis/Hadamard.lean	333	exists_hadamard_factorization	338	403	66	64	length flag only		
+ComplexAnalysis/RiemannMapping.lean	129	exists_forall_norm_deriv_le_of_riemannFamily	131	196	66	62	length flag only		
+SeveralComplexVariables/CartanUniqueness.lean	51	eqOn_id_of_mapsTo_of_fderiv_eq_id	56	121	66	66	length flag only		
+SeveralComplexVariables/WeierstrassDivision/Picard.lean	453	eqOn_of_isWeierstrassDivisionOn_selfPerturbed	462	527	66	66	length flag only		
+Carlson/R/SingleIntegral/Series.lean	195	hasSum_regCarlsonRIntegral_near_one	200	264	65	65	length flag only		
+SeveralComplexVariables/BallAutomorphisms.lean	195	ballMobius_ballMobius	196	260	65	65	length flag only		
+SeveralComplexVariables/LeviConvexity/Necessity.lean	311	IsLocalDefiningFunction.exists_disc_estimate	318	382	65	61	length flag only		
+Carlson/R/SingleIntegral/PositiveRay.lean	99	ray_substitution_point	108	171	64	64	length flag only		
+Carlson/R/SmallVariable.lean	192	tendsto_unitIntervalIntegral_update_zero	199	262	64	64	length flag only		
+ComplexAnalysis/HolomorphicIntegral.lean	148	continuousOn_dslope_prod_of_differentiableOn	150	213	64	64	length flag only		
+ComplexAnalysis/PringsheimVivanti.lean	165	circleIntegral_negSucc_mul_add_pow	167	230	64	64	length flag only		
+SeveralComplexVariables/LaurentApproximation.lean	45	exists_laurentCoeffCLM	50	113	64	64	length flag only		
+StdSimplexMeasure/PositiveSimplex/Aggregation.lean	288	lintegral_posSimplex_comp_aggregate_of_unique	293	356	64	64	length flag only		
+ComplexAnalysis/DiscAutomorphism.lean	139	eqOn_of_riemannMap	144	206	63	60	length flag only		
+ComplexAnalysis/Subharmonic/SmoothCriterion.lean	139	exists_circleAverage_sub_le	141	203	63	60	length flag only		
+Dirichlet/Complex/Analytic.lean	194	regDirichletIntegral_analyticOn	196	258	63	63	length flag only		
+SeveralComplexVariables/LeviConvexity.lean	195	IsLocalDefiningFunction.fderiv_fderiv_nonneg_of_convex	197	259	63	60	length flag only		
+SeveralComplexVariables/WeierstrassDivision/Picard.lean	133	picardApprox_diff_bound	141	203	63	63	length flag only		
+SeveralComplexVariables/WeierstrassDivision/Picard.lean	282	tendstoUniformlyOn_picardRemainder	297	359	63	63	length flag only		
+ComplexAnalysis/HarmonicLimit.lean	71	harmonicOnNhd_of_tendstoLocallyUniformlyOn	73	134	62	61	length flag only		
+ComplexAnalysis/RieszFactorization.lean	606	norm_le_of_blaschkeProduct_bounded	612	673	62	62	length flag only		
+Dirichlet/Average/Associated/Deriv.lean	73	hasDerivAt_regCarlsonDirichletAverage_update_of_bound	87	148	62	62	length flag only		
+SeveralComplexVariables/Derivatives.lean	259	iteratedPartialDeriv_replicate_mul	264	325	62	62	length flag only		
+Carlson/S/Series.lean	143	hasSum_regCarlsonR_div_factorial_eq_regCarlsonSIntegral	146	206	61	61	length flag only		
+ComplexAnalysis/Subharmonic/SmoothCriterion.lean	284	subharmonicOn_of_laplacian_nonneg	285	345	61	60	length flag only		
+SeveralComplexVariables/HolomorphicConvexity/Thullen.lean	178	taylor_continuation_on_holomorphicHull	187	247	61	61	length flag only		
+SeveralComplexVariables/WeierstrassDivision/Picard.lean	208	exists_tendstoUniformlyOn_picardApprox	218	278	61	61	length flag only		
