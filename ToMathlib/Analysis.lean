@@ -11,6 +11,7 @@ public import ToMathlib.Analysis.Deriv
 public import ToMathlib.Analysis.GeometricBounds
 public import ToMathlib.Analysis.Holomorphic.FunctionSpace
 public import ToMathlib.Analysis.Holomorphic.NormalFamily
+public import ToMathlib.Analysis.Holomorphic.PolynomialApproximation
 public import ToMathlib.Analysis.Integral.CompactSupport
 public import ToMathlib.Analysis.Integral.CurveIntegral
 public import ToMathlib.Analysis.Integral.CurveIntegral.Map
@@ -47,6 +48,8 @@ This module re-exports the following developments:
 * `ToMathlib.Analysis.Deriv`: Differentiation along the diagonal.
 * `ToMathlib.Analysis.GeometricBounds`: Real root limits and geometric bounds.
 * `ToMathlib.Analysis.Holomorphic.FunctionSpace`: Shared spaces of holomorphic maps.
+* `ToMathlib.Analysis.Holomorphic.PolynomialApproximation`: Polynomial approximation
+  of holomorphic functions on disks and entire functions on the plane.
 * `ToMathlib.Analysis.Holomorphic.NormalFamily`: Shared Montel and Vitali arguments.
 * `ToMathlib.Analysis.Integral.CompactSupport`: Integration helpers for compactly supported
   and weighted functions.

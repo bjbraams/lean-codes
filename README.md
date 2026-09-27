@@ -64,7 +64,23 @@ determined coefficients on cycles of nonzero index. The second-kind normalizatio
 `x^(n+1) qₙ(x) → 1` holds in all
 complex directions when the Gamma normalization is regular. For complex parameters
 `re α, re β > -1`, a weighted Cauchy-integral representation gives the symmetric
-boundary jump across any nondegenerate complex endpoint segment.
+boundary jump across any nondegenerate complex endpoint segment. For arbitrary
+complex parameters and endpoints, series `∑ aₙ qₙ(z)` with `‖aₙ‖ ≤ C Rⁿ` converge
+absolutely and locally uniformly where distance from the segment exceeds `R`,
+and their sum is holomorphic there. Geometric polynomial bounds also yield Jacobi
+expansions of functions holomorphic on disks under sufficient separation conditions.
+Every entire function has an absolutely and locally uniformly convergent Jacobi
+expansion throughout the plane when `α+β+2` is not a nonpositive integer. Coefficients
+may be computed on any fixed index-one `C¹` cycle off the endpoint segment.
+The Cauchy-kernel expansion is proved for sufficiently distant poles, uniformly on
+compact product sets, and on the exact circular domain for coincident endpoints.
+Joukowski coordinates establish connectedness of elliptic exteriors and the
+identity-principle step, conditional on local uniform convergence there.
+For second-kind series, the elliptic exponential upper rate is proved on both
+exterior focal rays, at arbitrary complex parameters, and transported by complex
+affine maps. The corresponding complex saddle curve has the required norm bound
+and stays in the principal branch domains of both endpoint weights; the Euler
+integral is deformed onto that curve, which gives the sharp exterior decay.
 Legendre and Chebyshev are identified with
 Mathlib's existing polynomials, and Gegenbauer polynomials are connected to
 symmetric Jacobi polynomials by an identity valid at exceptional parameters;
@@ -74,11 +90,16 @@ domain. Bilinear orthogonality and squared integrals hold for `re α, re β > -1
 Weighted coefficient integrals extend to `Cⁿ` functions on the closed interval,
 and squared norms are evaluated throughout the orthogonality range; the shifted
 Legendre norm follows by specialization. Confocal elliptic disks are convex, have
-compact closures, and form neighborhoods of the endpoint segment. Separate boundary
-values and principal-value formulas, branches for contours crossing the endpoint
-segment, large-degree asymptotics, existence and convergence of infinite expansions,
-the Gegenbauer addition theorem and the
-Laguerre/Hermite limits remain further work.
+compact closures, and form neighborhoods of the endpoint segment. The sharp growth
+limits `‖pₙ(x)‖^{1/n} → μ(x)` and `‖qₙ(y)‖^{1/n} → 1/μ(y)` hold off the segment, the
+Cauchy-kernel identity holds on its full elliptic domain, and a function holomorphic on
+an open elliptic disk is the sum of its Jacobi series there, with Carlson's coefficient
+formula (7.6-8). Rodrigues' formula and orthogonality hold on arbitrary complex segments,
+and the Laguerre and Hermite polynomials are obtained as limits, with Rodrigues formulas,
+weighted representations and orthogonality. Separate boundary values and principal-value
+formulas, branches for contours crossing the endpoint segment, the asymptotic formulas of
+§7.4, and the Gegenbauer addition theorem remain further work. See
+`CarlsonChapter7Coverage.md` for a section-by-section account.
 
 Dependencies flow from the support libraries and simplex foundations to
 `Dirichlet`, then to `Carlson`. The simplex foundation never imports either

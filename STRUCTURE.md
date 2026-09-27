@@ -317,8 +317,32 @@ parameter continuation of the native average and commutes with affine substituti
 | `Jacobi.SecondKindBoundary` | Jacobi boundary jumps at interior points of the unit segment and their transport to distinct complex endpoints |
 | `Jacobi.ComplexRodrigues` | Principal complex weights and Rodrigues' formula at all complex parameters |
 | `Jacobi.ComplexOrthogonality` | Complex derivative-tower integrals, bilinear orthogonality and squared integrals for `re α, re β > -1` |
-| `Jacobi.ComplexSecondKind` | Euler and weighted Cauchy representations at these complex parameters, and symmetric jumps on arbitrary nondegenerate complex segments |
+| `Jacobi.ComplexSecondKind` | Euler representations at arbitrary endpoints under degree-shifted positivity; weighted Cauchy representations for `re α, re β > -1`, and symmetric jumps on nondegenerate complex segments |
+| `Jacobi.SecondKindBounds` | Degree-dependent bounds from shifted Euler weights, including estimates that retain the combined weight-resolvent factor |
+| `Jacobi.SecondKindRayBounds` | Elliptic-rate upper bounds and absolute convergence on exterior focal rays at arbitrary complex parameters, transported by invertible complex affine maps |
+| `Jacobi.SaddleGeometry` | Compatible endpoint square roots, the fractional linear saddle curve, its elliptic norm bound, and principal-branch membership; the deformation itself is in `Jacobi.SecondKindSaddle` |
+| `Jacobi.SecondKindSeries` | Absolute and locally uniform convergence, and holomorphy of second-kind series with geometrically bounded coefficients on a sufficient distance-based region |
+| `Jacobi.PolynomialBounds` | Explicit large-degree bounds from the Carlson numerator, and geometric bounds uniform on compact sets, with arbitrary complex parameters and endpoints |
+| `Jacobi.KernelSeries` | Summable majorants and uniform convergence for polynomial–second-kind products on sufficiently separated sets |
+| `Jacobi.CauchyKernel` | Cauchy-kernel coefficient identity; kernel expansion for sufficiently distant poles, uniformly on compact products; exact circular case; extension to elliptic exteriors conditional on local uniform convergence |
+| `Jacobi.EllipseCoordinates` | Branch-independent square-root formula, characteristic roots and their strict exterior dominance, Joukowski coordinates, and preconnected elliptic exteriors |
+| `Jacobi.AnalyticExpansion` | Passage from polynomial approximation to Jacobi expansions; sufficient disk criteria; absolute and locally uniform convergence to every entire function, using any fixed index-one cycle off the segment |
 | `Jacobi.Ellipse` | Confocal mean-radius geometry, convex open disks, compact closed disks, affine covariance and elliptic neighborhoods of the focal segment |
+| `Jacobi.Recurrence` | Denominator-free three-term recurrence for shifted Jacobi polynomials and Carlson's monic recurrence (Exercise 7.1-6) with coefficients `V n`, `W n` |
+| `Jacobi.PolynomialGrowth` | Perturbed constant-coefficient recurrences; `‖pₙ(x)‖ ≤ C (ρ + ε)ⁿ` on closed elliptic disks via the maximum modulus principle |
+| `Jacobi.SecondKindSaddle` | Deformation of the Euler integral onto the saddle curve by a real Möbius substitution and the identity theorem; `‖qₙ(y)‖ ≤ C (1/σ + ε)ⁿ` on closed elliptic exteriors |
+| `Jacobi.EllipseContour` | Confocal ellipses as `C¹` cycles (Joukowski images of circles) and their winding numbers |
+| `Jacobi.EllipticExpansion` | Lemma 7.6-1 on `μ(x) < μ(y)` and Theorem 7.6-2 on open elliptic disks, with uniform convergence on closed subdisks |
+| `Jacobi.GrowthLimits` | Lower bounds by analytic continuation and recurrence dichotomies; Theorem 7.5-1 for `pₙ`, Theorem 7.5-3, uniqueness and the maximal ellipse of convergence |
+| `Jacobi.SecondKindLimits` | The second-kind recurrence for large degrees, Theorem 7.5-1 for `qₙ`, and divergence of second-kind series inside the critical ellipse |
+| `Jacobi.GrowthMaxima` | The maxima `p̂ₙ(ρ)`, `q̂ₙ(σ)` on confocal ellipses and their root limits (Theorem 7.5-2) |
+| `Jacobi.PlaneWave` | The plane-wave expansion of Example 7.7-1 with Carlson `S`-function coefficients |
+| `Jacobi.EllipseCoefficient` | The coefficient formula (7.6-8) on confocal ellipses, as a continued Dirichlet average of `f⁽ⁿ⁾` |
+| `Jacobi.FourierCosine` | The Fourier cosine expansion of Example 7.7-2, equation (5) |
+| `Jacobi.SegmentOrthogonality` | Carlson's segment integral at arbitrary distinct complex endpoints; Representation 7.8-2 and Theorem 7.8-3 |
+| `Jacobi.EndpointRodrigues` | Rodrigues' formula (7.8-1) at arbitrary complex endpoints on the principal branch |
+| `Jacobi.Laguerre`, `Jacobi.LaguerreRepresentation` | Monic Laguerre polynomials: the Jacobi limit (Theorem 7.9-1), Rodrigues' formula (7.9-8), the weighted representation (Theorem 7.9-3) and orthogonality (Theorem 7.9-4) |
+| `Jacobi.Hermite`, `Jacobi.HermiteRepresentation` | Monic Hermite polynomials: the Jacobi limit (Theorem 7.10-1), Rodrigues' formula (7.10-6), the weighted representation (Theorem 7.10-3) and orthogonality (Theorem 7.10-4) |
 
 The finite complex theorem includes coincident endpoints and recovers Taylor's
 formula there. Its parameter restriction concerns the total `α+β+2`, not the real
@@ -348,8 +372,8 @@ The contour coefficient functional is bounded for the uniform norm on each
 fixed cycle. Uniform convergence of Jacobi partial sums there therefore permits
 coefficient extraction. If the cycle has nonzero index, two series with the same
 uniform limit have identical coefficients. This proves conditional uniqueness
-without assuming absolute convergence; sufficient conditions for the existence
-and convergence of infinite expansions remain to be established.
+without assuming absolute convergence. The existence results below use summable
+majorants to establish convergence independently.
 
 The real §7.8 results include nonintegral Rodrigues formulas and weighted
 coefficient integrals for `Cⁿ` functions, using derivatives within the closed
@@ -379,19 +403,71 @@ The elliptic mean radius has minimum `‖r-s‖/4`, attained exactly on the foca
 segment. Its open disks above that radius are convex; its closed disks are compact.
 Every open neighborhood of the segment contains a closed disk of strictly larger
 radius. Affine covariance includes zero scales, and coincident endpoints recover
-ordinary circular disks. These are geometric foundations, not yet root-growth
-estimates or convergence theorems for Jacobi series.
+ordinary circular disks. Sharp root-growth estimates in this mean radius remain
+to be proved.
+
+A preliminary convergence theorem uses distance from the endpoint segment instead.
+For arbitrary complex parameters and endpoints, coefficients satisfying
+`‖aₙ‖ ≤ C Rⁿ`, with `C, R ≥ 0`, give absolute and locally uniform convergence of
+`∑ aₙ qₙ(z)` on `dist(z, [r,s]) > R`, with holomorphic sum. The proof shifts past
+a finite initial set of degrees to a bounded Euler weight. The simultaneous
+reciprocal-beta normalization has consecutive ratio tending to `4`, proved in
+`Pochhammer.BetaShift`, which compensates for the weight's `4⁻ⁿ` decay. This is a
+sufficient region, not the sharp confocal-ellipse convergence theorem.
+
+Keeping the combined Euler factor intact improves this result on the exterior
+focal rays. For every complex parameter pair, `∑ aₙ qₙ(z)` converges absolutely
+on either ray when `‖aₙ‖ ≤ C Rⁿ` and `R < μ(z)`; every exponential upper rate
+strictly greater than `1/μ(z)` bounds the second-kind degree sequence. The proof
+first treats real endpoints and then uses complex affine covariance, including
+coincident endpoints. It does not prove a matching lower estimate.
+
+For a general point off the segment, compatible square roots `a²=z-r`,
+`b²=z-s` exist with `Re(a conj(b)) > 0`. The fractional linear curve
+`u=bt/(a(1-t)+bt)` stays in the principal branch domains of both endpoint
+weights, and its Euler factor is bounded by `1/(4μ(z))`. These geometric facts
+are proved, but deformation of the Euler integral onto the curve, with endpoint
+justification, remains to be formalized.
+
+For the monic polynomials, the Carlson numerator bound and a Pochhammer lower
+bound give a geometric estimate uniform on every compact set. Combined with the
+second-kind bounds, this gives summable majorants for the candidate kernel series
+on sufficiently separated product sets, and for contour-coefficient expansion
+terms. Dominated convergence then transports finite polynomial expansions to
+limits of polynomial approximations. `ToMathlib.Analysis.Holomorphic.PolynomialApproximation`
+supplies those approximations from Mathlib's power-series theory.
+
+Consequently a function holomorphic on a closed disk has its Jacobi expansion at
+interior points when a cycle inside that disk meets the stated separation condition.
+For an entire function, an auxiliary large circle and contour invariance remove
+that separation condition: the expansion converges absolutely at every point and
+uniformly on every compact set to the function. Coefficients use any fixed `C¹`
+cycle of index one about the segment, avoiding the segment. The only parameter
+restriction for identification with the function is that `α+β+2` is not a
+nonpositive integer; endpoints may coincide.
+
+For Lemma 7.6-1, the Cauchy kernel's contour coefficient is now proved to equal
+`qₙ(y)` at every complex parameter pair when the pole is outside the enclosing
+circle. The existing disk expansion theorem then proves
+`∑ pₙ(x) qₙ(y) = (y-x)⁻¹` for sufficiently distant `y`. The radius can be chosen
+uniformly for `x` in a compact set, with uniform convergence on compact product
+sets. Coincident endpoints have the full circular-domain identity.
+
+The mean radius also has Carlson's branch-independent square-root expression.
+The exterior Joukowski coordinate has modulus exactly equal to that radius and
+maps a circular exterior onto the corresponding elliptic exterior. This proves
+preconnectedness and the identity-principle extension of the kernel identity,
+conditional on local uniform convergence. The missing step for the full
+`μ(x) < μ(y)` domain is the sharp degree-growth control from §§7.4–7.5, rather
+than the contour-coefficient calculation or analytic-continuation argument.
 
 Remaining work includes separate second-kind boundary values and principal-value
 formulas, and boundary theory beyond the range `re α, re β > -1`;
 branches adapted to contours crossing the endpoint segment;
-transport of the complex weighted integral formulas to arbitrary endpoints and
-further classical norm specializations;
-the Gegenbauer addition theorem; asymptotics and existence and convergence of
-infinite Jacobi expansions;
-and the Laguerre and Hermite developments of §§7.9–7.10. Section 7.4's uniform
-ratio-asymptotic formulation requires care at oscillatory zeros: the first analytic
-series target should be locally uniform root-growth estimates off the segment.
+the Gegenbauer addition theorem; the asymptotic formulas of §7.4 with their constants;
+the Bessel-function examples 7.7-3 and 7.7-4; and the second-kind limits of §§7.9–7.10.
+The sharp growth limits of §7.5 and the elliptic expansion theorems of §7.6 are proved
+without the §7.4 asymptotics. `CarlsonChapter7Coverage.md` records the coverage in detail.
 
 ### R-function analytic construction
 
@@ -405,8 +481,8 @@ series target should be locally uniform root-growth estimates off the segment.
 `Carlson.R.SingleIntegralAnalytic` retains the original import path for joint analyticity.
 
 The unit-interval representation at arbitrary Dirichlet parameters is a theorem of
-`R.Explicit`; ray-kernel arguments use `PositiveRay`. The contour formula (6.8-7) is still a separate
-mathematical task and has no module of its own.
+`R.Explicit`; ray-kernel arguments use `PositiveRay`. The contour formula (6.8-7) on `C¹`
+cycles is proved in `R.ContourRepresentation`.
 
 The slit-domain API separates `SlitRelations` (parameter-shift identities),
 `SlitDeriv` (node derivatives and differential identities), and
@@ -487,8 +563,9 @@ the finer equal-parameter normalization, and differentiated L-transformations
 remain in `QuadraticContinuation`, `EqualParameter`, and `LQuadratic`.
 `QuadraticSlit` extends the raw regularized R identities to all square-root
 variables with positive real parts, without requiring their squared or
-mean-square nodes to have positive real parts. The finer equal-parameter
-and L interfaces retain their original node domains and normalization.
+mean-square nodes to have positive real parts. `EqualParameterSlit` defines the finer
+equal-parameter normalization `regEqualR` without proof arguments, jointly holomorphic on
+slit-plane nodes, and extends the finer R and L quadratic identities to the same domain.
 
 `Carlson.S` re-exports `S.Basic`, `S.Series`, `S.Analytic`, `S.Continuation`,
 `S.Deriv`, and `S.Properties`: native definitions, series continuation, joint
@@ -499,13 +576,16 @@ and defines its ordinary Gamma normalization `carlsonS b z`.
 
 ### T-function continuation
 
-`Carlson.T` re-exports three modules:
+`Carlson.T` re-exports `Basic`, `Slit` (which imports `SlitSeries`), `TwoF0`, `TwoF0Sector`, and `TwoF0Connection`:
 
 | Module | Responsibility |
 | --- | --- |
 | `Carlson.T.Basic` | Native integrals, the zero-avoiding convex-hull node domain, and named joint continuations `regCarlsonT` and `carlsonT` |
 | `Carlson.T.SlitSeries` | Cauchy bounds for negative integral R-functions, locally uniform convergence of their reciprocal-factorial series, and joint holomorphy of `regCarlsonTSlit` |
 | `Carlson.T.Slit` | Agreement with native integrals, compatibility of the two regularized branches, and ordinary `carlsonTSlit` |
+| `Carlson.T.TwoF0` | Carlson's `₂F₀` (Section 5.12): Euler double and single integrals, continuation through the remainder representation (5.12-10), symmetry, holomorphy (5.12-4), and the error bound and asymptotic expansion in `re x ≤ 0` |
+| `Carlson.T.TwoF0Sector` | Continuation of `₂F₀` to the sector `|ph(-x)| < 3π/2` (5.12-6) via rotated Euler rays, with the error bound (5.12-15) and asymptotic expansion (5.12-17) on the sector |
+| `Carlson.T.TwoF0Connection` | The single integral (5.12-7) for `|ph(-x)| < π` and the connection formulas (5.12-18), (5.12-20) (Theorems 5.12-8, 5.12-9) |
 
 The native T node domain is `0 ∉ convexHull ℝ (range z)`. The principal T-series
 is defined on all tuples of slit-plane nodes, including tuples outside that native
@@ -514,3 +594,23 @@ plane; membership of each node in the slit plane alone is not the compatibility
 hypothesis. Both regularized continuations are entire in all Dirichlet parameters
 and jointly holomorphic with the nodes on their respective domains. The empty
 index type is included, with both continuations equal to zero.
+
+### Further Chapter 5 and 6 results
+
+| Module | Responsibility |
+| --- | --- |
+| `Dirichlet.Average.Intertwining` | The operator identity (5.3-4) for every power |
+| `Dirichlet.Average.CauchyCycle` | Cauchy's formula for derivatives on `C¹` cycles, Representation 5.11-2 on cycles, and the contour form of 6.3-6 |
+| `Carlson.R.Homogeneity` | Homogeneity (5.9-3) on the slit node domain under the principal branch condition |
+| `Carlson.R.Confluence` | Confluence (5.10-1) with complex exponent tending to infinity, and the refinement (5.10-9) |
+| `Carlson.R.ContourRepresentation` | Formula (6.8-7) on `C¹` cycles, for all complex parameters |
+| `Carlson.RPolynomial.Concentration` | The concentration limits of Theorem 6.2-5 |
+| `Carlson.Normalization.EqualParameter` | Equal parameters: removable Gamma singularities of `Γ(β) F/Γ(kβ)` (Theorems 6.2-6, 6.8-4, Corollary 6.3-7), by one-variable pole removal and Hartogs' theorem |
+| `Carlson.RPolynomial.Growth` | Theorem 6.6-2 (upper bound; lower bound for distinct nodes) and the counterexample to the printed statement |
+| `Carlson.TwoVariable.FractionalIntegral` | The fractional integral (5.5-14) and its Riemann–Liouville form (5.5-15) |
+| `Carlson.TwoVariable.SEqualParameter` | Theorem 6.9-2: `S(β, β; x, y)` as an exponential times `₀F₁` |
+| `Carlson.TwoVariable.QuadraticHybrid` | The hybrid transformation 6.10-4, `R_K` and Gauss's AGM formula, `R_C`, Borchardt's algorithm, and the elementary `R_C` values of 6.9-4 |
+| `Carlson.TwoVariable.BilateralGenerating` | Generating Relation 6.11-1 and Meixner's formula 6.11-2 in the Euler strip |
+| `Carlson.Jacobi.GegenbauerProduct` | Formula (6.7-21), the Gegenbauer generating function, Ossicini's formula 6.11-3, and Gegenbauer's product formula 6.11-4 |
+
+The coverage against the book is recorded in `CarlsonChapters5And6Coverage.md`.

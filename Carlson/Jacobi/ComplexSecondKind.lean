@@ -18,9 +18,14 @@ of a complex Jacobi density. The weight uses principal powers on the real unit
 interval. Its symmetric boundary jump is `-2πi` times that density. Affine
 covariance transports the jump to every nondegenerate complex segment.
 These are limits of differences; no separate boundary limits are asserted.
+The underlying Euler representation holds at arbitrary complex endpoints, including
+coincident endpoints, whenever the degree-shifted parameters have positive real
+parts. Thus every complex parameter pair admits it at sufficiently large degrees.
 
 ## Main results
 
+* `jacobiSecondKind_eq_complexEulerIntegral_on_segment`: the Euler representation
+  at arbitrary endpoints under degree-shifted positivity.
 * `jacobiSecondKind_eq_complexEulerIntegral`: the native weighted resolvent.
 * `jacobiSecondKind_eq_complexCauchyIntegral`: the Jacobi Cauchy representation.
 * `tendsto_jacobiSecondKind_sub_complex`: the jump on the unit segment.
@@ -42,8 +47,59 @@ def jacobiCauchyCoefficient (α β : ℂ) (n : ℕ) : ℂ :=
   (-1 : ℂ) ^ n * Gamma (α + n + 1 + (β + n + 1)) /
     (Gamma (α + n + 1) * Gamma (β + n + 1))
 
-/-- The Euler representation of the second-kind function, with complex exponents
-in the full convergence range and evaluation point off the unit segment. -/
+/-- The Euler representation whenever the degree-shifted parameters have positive
+real parts. Every pair of complex parameters satisfies this for sufficiently large degrees. -/
+theorem jacobiSecondKind_eq_complexEulerIntegral_on_segment {α β : ℂ}
+    (r s : ℂ) (n : ℕ) (hα : 0 < (α + n + 1).re) (hβ : 0 < (β + n + 1).re)
+    {z : ℂ} (hz : z ∉ segment ℝ r s) :
+    jacobiSecondKind α β r s n z =
+      (Gamma (α + n + 1 + (β + n + 1)) /
+        (Gamma (α + n + 1) * Gamma (β + n + 1))) *
+      ∫ t in (0 : ℝ)..1, complexJacobiWeight (α + n) (β + n) t *
+        (z - ((t : ℂ) * r + (1 - t) * s)) ^ (-(n + 1 : ℤ)) := by
+  have hb : pair (α + n + 1) (β + n + 1) ∈ mvBetaConvergent := by
+    intro i
+    fin_cases i
+    · exact hα
+    · exact hβ
+  rw [jacobiSecondKind_eq_native _ _ _ _ _ n hb hz,
+    carlsonDirichletAverage, sum_pair, regCarlsonDirichletAverage]
+  have he : regDirichletIntegral (pair (α + n + 1) (β + n + 1))
+      (fun u => (z - carlsonAffineForm (pair r s) u) ^ (-(n + 1 : ℤ))) =
+      regDirichletIntegral (pair (α + n + 1) (β + n + 1))
+        (fun u => (z - ((u 0 : ℂ) * r + (1 - u 0) * s)) ^ (-(n + 1 : ℤ))) := by
+    apply regDirichletIntegral_congr
+    intro u hu
+    have hu1 : (u 1 : ℂ) = 1 - (u 0 : ℂ) := by
+      have hu' : (u 0 : ℂ) + (u 1 : ℂ) = 1 := by
+        exact_mod_cast (show u 0 + u 1 = 1 by simpa only [Fin.sum_univ_two] using hu.2)
+      linear_combination hu'
+    simp only [carlsonAffineForm, Fin.sum_univ_two, pair_zero, pair_one, hu1]
+  rw [he]
+  change Gamma _ * regDirichletIntegral ![α + n + 1, β + n + 1]
+    (fun u => (z - ((u 0 : ℂ) * r + (1 - u 0) * s)) ^ (-(n + 1 : ℤ))) = _
+  rw [regDirichletIntegral_fin_two _ _
+    (fun t : ℝ => (z - ((t : ℂ) * r + (1 - t) * s)) ^ (-(n + 1 : ℤ))),
+    regEulerIntegral, ← mul_assoc, ← div_eq_mul_inv,
+    intervalIntegral.integral_of_le zero_le_one, ← integral_Icc_eq_integral_Ioc,
+    integral_Icc_eq_integral_Ioo]
+  simp only [add_sub_cancel_right, complexJacobiWeight]
+
+/-- The unit-segment Euler representation requires positivity only after the
+degree shift, rather than positivity of the original Jacobi weight. -/
+theorem jacobiSecondKind_eq_complexEulerIntegral_of_re_add_nat_pos {α β : ℂ}
+    (n : ℕ) (hα : 0 < (α + n + 1).re) (hβ : 0 < (β + n + 1).re)
+    {z : ℂ} (hz : z ∉ segment ℝ (1 : ℂ) 0) :
+    jacobiSecondKind α β 1 0 n z =
+      (Gamma (α + n + 1 + (β + n + 1)) /
+        (Gamma (α + n + 1) * Gamma (β + n + 1))) *
+      ∫ t in (0 : ℝ)..1, complexJacobiWeight (α + n) (β + n) t *
+        (z - t) ^ (-(n + 1 : ℤ)) := by
+  simpa only [mul_one, mul_zero, add_zero] using
+    jacobiSecondKind_eq_complexEulerIntegral_on_segment 1 0 n hα hβ hz
+
+/-- The Euler representation for complex Jacobi parameters in the orthogonality
+range, at every degree and at evaluation points off the unit segment. -/
 theorem jacobiSecondKind_eq_complexEulerIntegral {α β : ℂ} (hα : -1 < α.re)
     (hβ : -1 < β.re) (n : ℕ) {z : ℂ} (hz : z ∉ segment ℝ (1 : ℂ) 0) :
     jacobiSecondKind α β 1 0 n z =
@@ -51,22 +107,9 @@ theorem jacobiSecondKind_eq_complexEulerIntegral {α β : ℂ} (hα : -1 < α.re
         (Gamma (α + n + 1) * Gamma (β + n + 1))) *
       ∫ t in (0 : ℝ)..1, complexJacobiWeight (α + n) (β + n) t *
         (z - t) ^ (-(n + 1 : ℤ)) := by
-  have hb : pair (α + n + 1) (β + n + 1) ∈ mvBetaConvergent := by
-    intro i
-    fin_cases i <;> simp [pair]
-    all_goals have := Nat.cast_nonneg (α := ℝ) n; linarith
-  rw [jacobiSecondKind_eq_native _ _ _ _ _ n hb hz,
-    carlsonDirichletAverage, sum_pair, regCarlsonDirichletAverage]
-  have he (u : Fin 2 → ℝ) : carlsonAffineForm (pair 1 0) u = (u 0 : ℂ) := by
-    simp [carlsonAffineForm, Fin.sum_univ_two]
-  simp_rw [he]
-  change Gamma _ * regDirichletIntegral ![α + n + 1, β + n + 1]
-    (fun u => (z - (u 0 : ℂ)) ^ (-(n + 1 : ℤ))) = _
-  rw [regDirichletIntegral_fin_two _ _ (fun t : ℝ => (z - t) ^ (-(n + 1 : ℤ))),
-    regEulerIntegral, ← mul_assoc, ← div_eq_mul_inv,
-    intervalIntegral.integral_of_le zero_le_one, ← integral_Icc_eq_integral_Ioc,
-    integral_Icc_eq_integral_Ioo]
-  simp only [add_sub_cancel_right, complexJacobiWeight]
+  apply jacobiSecondKind_eq_complexEulerIntegral_of_re_add_nat_pos n _ _ hz
+  all_goals simp only [add_re, natCast_re, one_re]
+  all_goals have := Nat.cast_nonneg (α := ℝ) n; linarith
 
 /-- Integration by parts converts the higher complex resolvent into a simple
 Cauchy kernel with the complex Jacobi polynomial density. -/

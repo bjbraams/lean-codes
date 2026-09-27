@@ -6,6 +6,7 @@ Authors: Bastiaan J Braams
 module
 
 public import Carlson.Normalization.Basic
+public import Carlson.Normalization.EqualParameter
 public import Carlson.R.Explicit
 public import Carlson.L.Continuation
 public import Carlson.S.Continuation
@@ -23,6 +24,9 @@ residue `(-1)^m / m!` times the regularized value. The singularity on this trans
 is removable exactly when that value vanishes; its finite limit is the same Gamma residue
 times the derivative of the regularized slice. This pointwise condition must not be confused
 with divisibility along an entire exceptional hypersurface in several variables.
+
+`Carlson.Normalization.EqualParameter` treats the equal-parameter case, where multiplication
+by `Γ(β)` has removable singularities only (Theorems 6.2-6, 6.8-4 and Corollary 6.3-7).
 
 ## Main results
 

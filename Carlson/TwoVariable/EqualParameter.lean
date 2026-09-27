@@ -21,7 +21,8 @@ integral on `re β > 0`. Square roots in the positive component allow the second
 quadratic identity to supply existence for any right-half-plane nodes. Both
 quadratic transformations then identify this canonical continuation, including
 its removable values. The ordinary function is analytic wherever `β + 1/2` is
-not a nonpositive integer. No extension of the node domains is asserted here.
+not a nonpositive integer. No extension of the node domains is asserted here;
+`TwoVariable.EqualParameterSlit` gives the normalization on slit-plane nodes.
 
 ## Main results
 

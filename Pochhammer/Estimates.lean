@@ -26,6 +26,8 @@ real part and a specialized bound for the half-integer parameter.
   the open right half-plane.
 * `Complex.norm_ascPochhammer_eval_le_factorial_mul_pow`: A geometric bound for binomial
   coefficients, uniform in the degree.
+* `Complex.pow_le_norm_ascPochhammer_eval`: A power lower bound from a nonnegative
+  lower bound on the real part.
 * `Complex.norm_ascPochhammer_half_le`: The half-integer Pochhammer factors are a lower bound
   for the denominator.
 
@@ -117,6 +119,18 @@ theorem norm_ascPochhammer_eval_le_factorial_mul_pow (a : ℂ) (n : ℕ) :
       _ ≤ ((n.factorial : ℝ) * (‖a‖ + 1) ^ n) * ((n + 1) * (‖a‖ + 1)) :=
         mul_le_mul ih h (norm_nonneg _) (by positivity)
       _ = _ := by rw [Nat.factorial_succ, Nat.cast_mul, Nat.cast_add, Nat.cast_one, pow_succ]; ring
+
+/-- A nonnegative lower bound on the real part gives a power lower bound for
+an ascending Pochhammer symbol. -/
+theorem pow_le_norm_ascPochhammer_eval {a : ℂ} {d : ℝ} (hd : 0 ≤ d)
+    (ha : d ≤ a.re) (n : ℕ) :
+    d ^ n ≤ ‖(ascPochhammer ℂ n).eval a‖ := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    rw [pow_succ, ascPochhammer_succ_eval, norm_mul]
+    apply mul_le_mul ih _ hd (norm_nonneg _)
+    exact (ha.trans (by simp only [add_re, natCast_re]; exact le_add_of_nonneg_right (Nat.cast_nonneg n))).trans (re_le_norm _)
 
 /-- The half-integer Pochhammer factors are a lower bound for the denominator. -/
 theorem norm_ascPochhammer_half_le {c : ℂ} (hc : 1 / 2 ≤ c.re) (n : ℕ) :

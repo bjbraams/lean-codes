@@ -32,6 +32,8 @@ public import Carlson.R.SlitDeriv
 public import Carlson.R.SlitRelations
 public import Carlson.R.EulerPoisson
 public import Carlson.R.JointRecurrence
+public import Carlson.R.Homogeneity
+public import Carlson.R.ContourRepresentation
 
 /-!
 # Carlson's multivariate R-function

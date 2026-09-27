@@ -16,8 +16,13 @@ public import Carlson.TwoVariable.T
 public import Carlson.TwoVariable.Quadratic
 public import Carlson.TwoVariable.QuadraticContinuation
 public import Carlson.TwoVariable.QuadraticSlit
+public import Carlson.TwoVariable.QuadraticHybrid
+public import Carlson.TwoVariable.BilateralGenerating
+public import Carlson.TwoVariable.SEqualParameter
+public import Carlson.TwoVariable.FractionalIntegral
 public import Carlson.TwoVariable.EqualParameter
 public import Carlson.TwoVariable.LQuadratic
+public import Carlson.TwoVariable.EqualParameterSlit
 
 /-!
 # Two-variable Carlson functions and polynomials

@@ -56,17 +56,17 @@ theorem meanSquares_mem_slitDomain {x y : ℂ} (hx : 0 < x.re) (hy : 0 < y.re) :
   · exact mul_mem_slitPlane_of_re_pos hx hy
 
 /-- The domain of two right-half-plane nodes is real convex. -/
-private theorem convex_right_node_domain : Convex ℝ (carlsonRVariableDomain (ι := Fin 2)) := by
+theorem convex_right_node_domain : Convex ℝ (carlsonRVariableDomain (ι := Fin 2)) := by
   intro z hz w hw a b ha hb hab i
   exact convex_carlsonRightHalfPlane (hz i) (hw i) ha hb hab
 
 /-- A function on `Fin 2` is recovered from its two coordinate values. -/
-private theorem pair_eta (w : Fin 2 → ℂ) : pair (w 0) (w 1) = w := by
+theorem pair_eta (w : Fin 2 → ℂ) : pair (w 0) (w 1) = w := by
   ext i
   fin_cases i <;> rfl
 
 /-- Both quadratic branch domains contain a neighborhood of the constant unit node vector. -/
-private theorem eventually_quadraticDomains_one :
+theorem eventually_quadraticDomains_one :
     ∀ᶠ w : Fin 2 → ℂ in 𝓝 (fun _ => 1),
       FirstQuadraticDomain (w 0) (w 1) ∧ SecondQuadraticDomain (w 0) (w 1) := by
   have hone : (fun _ : Fin 2 => (1 : ℂ)) ∈ carlsonRVariableDomain :=
@@ -91,7 +91,7 @@ private theorem eventually_quadraticDomains_one :
   exact ⟨⟨by simpa only [pair_eta] using hw, hm⟩, ⟨hs, hm⟩⟩
 
 /-- The map to the squared arithmetic and geometric means is analytic at every pair of nodes. -/
-private theorem analyticAt_meanSquares (w : Fin 2 → ℂ) :
+theorem analyticAt_meanSquares (w : Fin 2 → ℂ) :
     AnalyticAt ℂ (fun q : Fin 2 → ℂ =>
       pair (arithmeticMeanSq (q 0) (q 1)) (geometricMeanSq (q 0) (q 1))) w := by
   have h0 := (ContinuousLinearMap.proj 0 : (Fin 2 → ℂ) →L[ℂ] ℂ).analyticAt w

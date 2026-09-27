@@ -14,6 +14,8 @@ public import Dirichlet.Average.ResolventContinuation
 public import Dirichlet.Average.ResolventDeriv
 public import Dirichlet.Average.ResolventInfinity
 public import Dirichlet.Average.CauchyContinuation
+public import Dirichlet.Average.CauchyCycle
+public import Dirichlet.Average.Intertwining
 public import Dirichlet.Average.NewtonTaylor
 public import Dirichlet.Average.Continuation
 public import Dirichlet.Average.JointContinuation
@@ -45,6 +47,10 @@ This module re-exports the following developments:
   infinity, with an analytic reciprocal chart and arbitrary complex parameters.
 * `Dirichlet.Average.CauchyContinuation`: Continued Cauchy representations of Dirichlet
   averages.
+* `Dirichlet.Average.CauchyCycle`: Cauchy representations on `C¹` cycles homologous to zero,
+  and Cauchy's formula for derivatives on cycles.
+* `Dirichlet.Average.Intertwining`: averaging intertwines Carlson's operators `δ` and `Δ`
+  (formula (5.3-4)).
 * `Dirichlet.Average.NewtonTaylor`: Dirichlet-average identities for divided differences and
   repeated integrals.
 * `Dirichlet.Average.Continuation`: Analytic continuation of Carlson's Dirichlet averages.

@@ -12,6 +12,8 @@ public import Carlson.RPolynomial.SharpEstimates
 public import Carlson.RPolynomial.Binomial
 public import Carlson.RPolynomial.Transform
 public import Carlson.RPolynomial.Generating
+public import Carlson.RPolynomial.Concentration
+public import Carlson.RPolynomial.Growth
 public import Carlson.RPolynomial.PowerSeries
 public import Carlson.RPolynomial.TaylorContinuation
 public import Carlson.RPolynomial.Differential
@@ -32,6 +34,7 @@ This module re-exports the following developments:
 * `Carlson.RPolynomial.Binomial`: The binomial theorem for Carlson's R-polynomials.
 * `Carlson.RPolynomial.Transform`: Linear transformations of Carlson's R-polynomials.
 * `Carlson.RPolynomial.Generating`: Generating functions of Carlson's R-polynomials.
+* `Carlson.RPolynomial.Growth`: Exponential growth of Carlson's R-polynomials.
 * `Carlson.RPolynomial.PowerSeries`: Power-series representations using Carlson R-polynomials.
 * `Carlson.RPolynomial.TaylorContinuation`: Carlson's continued Taylor representation.
 * `Carlson.RPolynomial.Differential`: Differentiation of Carlson's Pochhammer numerators.
