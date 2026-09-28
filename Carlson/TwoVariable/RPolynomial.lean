@@ -218,5 +218,20 @@ theorem carlsonPowerPolynomial_pair_smul (n : ℕ) (a x y : ℂ) :
   rw [h]
   exact carlsonPowerPolynomial_smul n a (pair x y)
 
+/-- The two-node polynomial numerator with second node zero has one surviving term. -/
+theorem carlsonRPolynomialNumerator₂_zero_right (n : ℕ) (a b x : ℂ) :
+    carlsonRPolynomialNumerator₂ n a b x 0 = (ascPochhammer ℂ n).eval a * x ^ n := by
+  unfold carlsonRPolynomialNumerator₂
+  rw [Finset.sum_eq_single (n, 0)]
+  · simp
+  · intro ij hij hne
+    have hj : ij.2 ≠ 0 := by
+      intro h
+      apply hne
+      have hs := Finset.mem_antidiagonal.mp hij
+      ext <;> simp_all
+    simp [zero_pow hj]
+  · simp
+
 end Carlson.TwoVariable
 end CarlsonTwoVariable

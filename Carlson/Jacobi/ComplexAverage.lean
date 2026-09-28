@@ -35,21 +35,6 @@ public noncomputable section
 namespace Carlson.TwoVariable
 open Polynomial Dirichlet Complex
 
-/-- The two-node polynomial numerator with second node zero has one surviving term. -/
-theorem carlsonRPolynomialNumerator₂_zero_right (n : ℕ) (a b x : ℂ) :
-    carlsonRPolynomialNumerator₂ n a b x 0 = (ascPochhammer ℂ n).eval a * x ^ n := by
-  unfold carlsonRPolynomialNumerator₂
-  rw [Finset.sum_eq_single (n, 0)]
-  · simp
-  · intro ij hij hne
-    have hj : ij.2 ≠ 0 := by
-      intro h
-      apply hne
-      have hs := Finset.mem_antidiagonal.mp hij
-      ext <;> simp_all
-    simp [zero_pow hj]
-  · simp
-
 /-- The beta moments are the ordinary normalization of the continued Carlson moments. -/
 theorem carlsonPolynomialAverage_pair_one_zero (a b : ℂ)
     (hc : IsCarlsonGammaRegular (a + b)) :

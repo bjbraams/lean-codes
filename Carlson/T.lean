@@ -10,6 +10,7 @@ public import Carlson.T.Slit
 public import Carlson.T.TwoF0
 public import Carlson.T.TwoF0Sector
 public import Carlson.T.TwoF0Connection
+public import Carlson.T.ZeroNode
 
 /-!
 # Carlson's reciprocal-exponential average
@@ -31,6 +32,8 @@ whole node convex hull lies in the slit plane; that restriction records the bran
   (Theorem 5.12-6), with the error bound and asymptotic expansion there (`Carlson.T.TwoF0Sector`).
 * `Carlson.regCarlsonS_pair_eq_twoF0`, `Carlson.carlson2F0Sector_eq_carlsonS`: the connection
   formulas (5.12-18) and (5.12-20) (`Carlson.T.TwoF0Connection`).
+* `Carlson.tendsto_regCarlsonT_pair_zero`, `Carlson.regCarlsonTIntegral_pair_zero_eq`: the
+  zero-node limit (5.12-2) and formula (5.12-3) (`Carlson.T.ZeroNode`).
 
 ## References
 

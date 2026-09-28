@@ -23,6 +23,8 @@ public import Carlson.TwoVariable.FractionalIntegral
 public import Carlson.TwoVariable.EqualParameter
 public import Carlson.TwoVariable.LQuadratic
 public import Carlson.TwoVariable.EqualParameterSlit
+public import Carlson.TwoVariable.ConfluentHypergeometric
+public import Carlson.TwoVariable.Borchardt
 
 /-!
 # Two-variable Carlson functions and polynomials
@@ -30,11 +32,17 @@ public import Carlson.TwoVariable.EqualParameterSlit
 Umbrella module for the two-node specializations of Carlson's functions: the R-polynomials
 and R-, L-, S- and T-functions on the index type `Fin 2`, their associated and inversion
 identities, the quadratic transformations 6.9-3 and 6.10-1, the equal-parameter family, and
-parameter symmetries.
-
-## References
+parameter symmetries. The S-function is identified with Mathlib's confluent hypergeometric and
+Bessel functions.
 
 ## Main results
+
+* `Carlson.TwoVariable.regularizedHGFun_kummer_second`: Kummer's second formula (6.9-6).
+* `Carlson.TwoVariable.quadraticGammaRatio_mul_besselJ`: Bessel functions as S-functions (6.9-18).
+* `Carlson.TwoVariable.exists_borchardtSigma_expansion`: the accelerated Borchardt algorithm
+  (6.10-28).
+
+## References
 
 * [Carl77] B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 * [Carl87] B. C. Carlson, *Dirichlet averages of `x^t log x`*, SIAM J. Math. Anal. 18 (1987).

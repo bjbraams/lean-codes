@@ -23,7 +23,10 @@ public import ToMathlib.Analysis.Integral.Reciprocal
 public import ToMathlib.Analysis.Integral.Tail
 public import ToMathlib.Analysis.LinearFunctional
 public import ToMathlib.Analysis.OpenMapping
+public import ToMathlib.Analysis.SpecialFunctions.Bessel
+public import ToMathlib.Analysis.SpecialFunctions.CosOrthogonality
 public import ToMathlib.Analysis.SpecialFunctions.Gamma
+public import ToMathlib.Analysis.SpecialFunctions.GammaRatio
 public import ToMathlib.Analysis.TaylorBounds
 
 /-!
@@ -67,6 +70,12 @@ This module re-exports the following developments:
   functionals.
 * `ToMathlib.Analysis.OpenMapping`: Open mapping for complete metrizable real or complex
   vector spaces.
+* `ToMathlib.Analysis.SpecialFunctions.Bessel`: Series and bounds for Bessel functions of
+  integer order.
+* `ToMathlib.Analysis.SpecialFunctions.CosOrthogonality`: Orthogonality of the cosines on
+  `[0, π]`.
+* `ToMathlib.Analysis.SpecialFunctions.GammaRatio`: The bound `Γ(x)/|Γ(x + iy)| ≤ √(cosh (π y))`
+  for `x ≥ 1/2`.
 * `ToMathlib.Analysis.SpecialFunctions.Gamma`: The Gamma integral with a complex Laplace parameter.
 * `ToMathlib.Analysis.TaylorBounds`: Elementary bounds for Taylor remainders.
 

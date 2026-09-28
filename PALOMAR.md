@@ -21,7 +21,7 @@ threshold and the 1,000-line / 100-KiB hard limits.
 The intended 22 placeholders are confined to Statement: 21 theorem declarations
 and the construction of `PalomarSnapshot.regR`. The latter is listed in
 `definition_names`; joint holomorphy and native agreement characterize it on
-the slit domain. Its solution is the existing `regCarlsonRSlit`, not an
+the slit domain. Its solution is the existing `regCarlsonR` (in `Carlson/R/Explicit.lean`), not an
 arbitrary function satisfying only functional equations. The elementary measure,
 density, and average definitions have explicit bodies in both modules.
 
@@ -43,10 +43,10 @@ names are visible in the short proofs in Solution.
 | Selected declarations | Existing proof modules |
 | --- | --- |
 | joint_average_continuation | Dirichlet/Average/JointContinuation.lean |
-| r_joint, r_native | Carlson/R/SlitJointAnalytic.lean; SlitIntegral.lean |
+| r_joint, r_native | Carlson/R/Explicit.lean; SlitIntegral.lean |
 | r_euler, r_euler_poisson | Carlson/R/EulerTransform.lean; EulerPoisson.lean |
 | r_first_quadratic, r_second_quadratic | Carlson/TwoVariable/QuadraticSlit.lean |
-| l_joint, l_native, l_exponent_derivative | Carlson/L/SlitContinuation.lean; SlitIntegral.lean |
+| l_joint, l_native, l_exponent_derivative | Carlson/L/Continuation.lean; SlitIntegral.lean |
 
 The retained but unselected wrapper theorems are `gamma_shift`, `vandermonde`,
 `holomorphic_analytic`, `osgood`, `cauchy_derivatives`,

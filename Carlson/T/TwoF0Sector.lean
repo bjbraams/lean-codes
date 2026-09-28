@@ -6,6 +6,7 @@ Authors: Bastiaan J Braams
 module
 
 public import Carlson.T.TwoF0
+public import ToMathlib.Analysis.SpecialFunctions.GammaRatio
 
 /-!
 # Carlson's `₂F₀` on the sector `|ph(-x)| < 3π/2`
@@ -44,6 +45,7 @@ asymptotic expansion (5.12-17) uniformly on closed subsectors.
 * `Carlson.carlson2F0Sector_eq_carlson2F0`: agreement with Theorem 5.12-4 for `|ph(-x)| < π/2`.
 * `Carlson.carlson2F0Sector_comm`: Theorem 5.12-2 on the sector.
 * `Carlson.norm_carlson2F0Sector_sub_sum_le`: the error bound (5.12-15).
+* `Carlson.norm_carlson2F0Sector_sub_sum_le_two_rpow`: the simplified bound (5.12-16).
 * `Carlson.exists_norm_carlson2F0Sector_sub_sum_le`: the asymptotic expansion (5.12-17).
 
 ## References
@@ -833,5 +835,61 @@ theorem exists_norm_carlson2F0Sector_sub_sum_le (α β : ℂ) (n : ℕ) {δ : �
       _ = c N * K * ‖x‖ ^ N := by ring
       _ ≤ c N * K * ‖x‖ ^ n := this
   nlinarith
+
+/-- The total variation of a rotated Euler measure is at most `2^{re a} e^{π |im a|}` when
+`re a ≥ 1/2` and the angle is at most `π/3`. -/
+theorem rotEulerVariation_le_two_rpow {a : ℂ} (ha : 1 / 2 ≤ a.re) {θ : ℝ} (hθ : |θ| ≤ π / 3) :
+    rotEulerVariation a θ ≤ 2 ^ a.re * Real.exp (π * |a.im|) := by
+  unfold rotEulerVariation
+  have hG : Real.Gamma a.re / ‖Gamma a‖ ≤ Real.exp (π * |a.im| / 2) := by
+    have := Complex.Gamma_div_norm_Gamma_le_exp ha a.im
+    rwa [re_add_im] at this
+  have hcos : 1 / 2 ≤ Real.cos θ := by
+    rw [← Real.cos_abs, ← Real.cos_pi_div_three]
+    exact Real.cos_le_cos_of_nonneg_of_le_pi (abs_nonneg _) (by linarith [Real.pi_pos]) hθ
+  have hre : 0 < a.re := by linarith
+  have hc : (1 / 2 : ℝ) ^ a.re ≤ Real.cos θ ^ a.re := Real.rpow_le_rpow (by norm_num) hcos hre.le
+  have hc0 : 0 < (1 / 2 : ℝ) ^ a.re := Real.rpow_pos_of_pos (by norm_num) _
+  have he : Real.exp (-(θ * a.im)) ≤ Real.exp (π * |a.im| / 3) := by
+    apply Real.exp_le_exp.mpr
+    calc -(θ * a.im) ≤ |θ| * |a.im| := by rw [← abs_mul]; exact neg_le_abs _
+      _ ≤ π / 3 * |a.im| := mul_le_mul_of_nonneg_right hθ (abs_nonneg _)
+      _ = π * |a.im| / 3 := by ring
+  have h2 : 1 / (1 / 2 : ℝ) ^ a.re = 2 ^ a.re := by
+    rw [Real.div_rpow (by norm_num) (by norm_num), Real.one_rpow, one_div_one_div]
+  calc Real.Gamma a.re / ‖Gamma a‖ * (Real.exp (-(θ * a.im)) / Real.cos θ ^ a.re)
+      ≤ Real.exp (π * |a.im| / 2) * (Real.exp (π * |a.im| / 3) / (1 / 2 : ℝ) ^ a.re) := by
+        gcongr
+    _ = 2 ^ a.re * Real.exp (π * |a.im| * (5 / 6)) := by
+        rw [div_eq_mul_one_div (Real.exp _), h2, ← mul_assoc, ← Real.exp_add]; ring_nf
+    _ ≤ 2 ^ a.re * Real.exp (π * |a.im|) := by
+        refine mul_le_mul_of_nonneg_left (Real.exp_le_exp.mpr ?_) (by positivity)
+        nlinarith [mul_nonneg Real.pi_pos.le (abs_nonneg a.im)]
+
+/-- **Theorem 5.12-7, error bound (5.12-16)**: if `|ph(-x)| ≤ π` and
+`re (α + n), re (β + n) > 1/2`, the error of the `n`-th partial sum of the `₂F₀` series is at most
+the first omitted term times `2^{re(α+β)+2n} e^{π|im α| + π|im β|}`. -/
+theorem norm_carlson2F0Sector_sub_sum_le_two_rpow (n : ℕ) {α β ζ : ℂ}
+    (hα : 1 / 2 < (α + n).re) (hβ : 1 / 2 < (β + n).re) (hζ : |ζ.im| ≤ π) :
+    ‖carlson2F0Sector α β ζ - ∑ m ∈ Finset.range n, twoF0Term m α β (-exp ζ)‖ ≤
+      ‖twoF0Term n α β (-exp ζ)‖ *
+        (2 ^ ((α + β).re + 2 * n) * Real.exp (π * |α.im| + π * |β.im|)) := by
+  have hζ' : |ζ.im| < 3 * π / 2 := by linarith [Real.pi_pos]
+  have hθ : |twoF0Angle ζ| ≤ π / 3 := by
+    rw [twoF0Angle, abs_div, abs_neg, abs_of_pos (by norm_num : (0 : ℝ) < 3)]; linarith
+  refine (norm_carlson2F0Sector_sub_sum_le n (by linarith) (by linarith) hζ').trans ?_
+  refine mul_le_mul_of_nonneg_left ?_ (norm_nonneg _)
+  refine (mul_le_mul (rotEulerVariation_le_two_rpow hα.le hθ)
+    (rotEulerVariation_le_two_rpow hβ.le hθ) ?_ (by positivity)).trans (le_of_eq ?_)
+  · unfold rotEulerVariation
+    have := Real.Gamma_pos_of_pos (show 0 < (β + n).re by linarith)
+    have hc : 0 < Real.cos (twoF0Angle ζ) := Real.cos_pos_of_mem_Ioo
+      ⟨by linarith [abs_le.mp hθ, Real.pi_pos], by linarith [abs_le.mp hθ, Real.pi_pos]⟩
+    have := Real.rpow_pos_of_pos hc (β + n).re
+    positivity
+  · simp only [add_re, natCast_re, add_im, natCast_im, add_zero]
+    rw [show (2 : ℝ) ^ (α.re + β.re + 2 * (n : ℝ)) = 2 ^ (α.re + n) * 2 ^ (β.re + n) by
+      rw [← Real.rpow_add (by norm_num : (0 : ℝ) < 2)]; ring_nf, Real.exp_add]
+    ring
 
 end Carlson

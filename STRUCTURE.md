@@ -33,6 +33,9 @@ that matches the underlying API.
 
 | Module | Content |
 | --- | --- |
+| `ToMathlib.Analysis.SpecialFunctions.Bessel` | The series of the regularized hypergeometric functions, bounds for Bessel functions of integer order, and the modified Bessel function `I_a` |
+| `ToMathlib.Analysis.SpecialFunctions.GammaRatio` | `Γ(x)/|Γ(x + iy)| ≤ √(cosh πy)` for `x ≥ 1/2`, and `|Γ(1/2 + iy)|² = π/cosh πy` |
+| `ToMathlib.Analysis.SpecialFunctions.CosOrthogonality` | Orthogonality of `cos (kθ)` on `[0, π]` |
 | `ToMathlib.Analysis.SpecialFunctions.Gamma` | Complex-rate Gamma/Laplace kernel bounds, integrability, differentiation, holomorphy, and evaluation |
 | `ToMathlib.Analysis.Deriv` | Diagonal chain rule over a nontrivially normed field, with normed-space targets |
 | `ToMathlib.Analysis.Integral.Pi` | Nonnegative integration of coordinate products over finite dependent product measure spaces |
@@ -339,9 +342,14 @@ parameter continuation of the native average and commutes with affine substituti
 | `Jacobi.PlaneWave` | The plane-wave expansion of Example 7.7-1 with Carlson `S`-function coefficients |
 | `Jacobi.EllipseCoefficient` | The coefficient formula (7.6-8) on confocal ellipses, as a continued Dirichlet average of `f⁽ⁿ⁾` |
 | `Jacobi.FourierCosine` | The Fourier cosine expansion of Example 7.7-2, equation (5) |
+| `Jacobi.Bessel` | Bessel applications of Section 7.7: the spherical-Bessel plane wave (7.7-1 (3)), the cosine coefficients (7.7-2 (6)), and the Jacobi–Anger expansions and Bessel generating functions (7.7-3 (7)–(10), with `Jₘ` and `Iₘ`), using Mathlib's `Complex.besselJ` |
 | `Jacobi.SegmentOrthogonality` | Carlson's segment integral at arbitrary distinct complex endpoints; Representation 7.8-2 and Theorem 7.8-3 |
 | `Jacobi.EndpointRodrigues` | Rodrigues' formula (7.8-1) at arbitrary complex endpoints on the principal branch |
 | `Jacobi.Laguerre`, `Jacobi.LaguerreRepresentation` | Monic Laguerre polynomials: the Jacobi limit (Theorem 7.9-1), Rodrigues' formula (7.9-8), the weighted representation (Theorem 7.9-3) and orthogonality (Theorem 7.9-4) |
+| `Jacobi.HermiteSecondKind` | The Hermite function of the second kind (Definition 7.10-2) as the limit (7.10-3), via rotation, the first quadratic transformation, and a shifted confluence limit |
+| `Jacobi.GegenbauerAddition` | Formula (7.3-7), Gegenbauer's addition theorem 7.3-1, its Jacobi form, `P_n^{-k}` with the reflection (6.10-19), and both forms of the Legendre addition theorem (7.3-11) |
+| `Jacobi.ChebyshevSecondKind` | Lemma 7.4-1: `R_{-n-1}(1/2+n, 1/2+n; x², y²) = (xy)⁻¹((x+y)/2)^{-2n}` on `re (x ȳ) > 0`, by the second quadratic transformation and the identity theorem |
+| `Jacobi.LaguerreSecondKind` | The Laguerre function of the second kind `q̃ₙ` (Definition 7.9-2) as the limit (7.9-4), and Theorem 7.9-5 with its converse, from the connection formula (5.12-18) |
 | `Jacobi.Hermite`, `Jacobi.HermiteRepresentation` | Monic Hermite polynomials: the Jacobi limit (Theorem 7.10-1), Rodrigues' formula (7.10-6), the weighted representation (Theorem 7.10-3) and orthogonality (Theorem 7.10-4) |
 
 The finite complex theorem includes coincident endpoints and recovers Taylor's
@@ -576,7 +584,7 @@ and defines its ordinary Gamma normalization `carlsonS b z`.
 
 ### T-function continuation
 
-`Carlson.T` re-exports `Basic`, `Slit` (which imports `SlitSeries`), `TwoF0`, `TwoF0Sector`, and `TwoF0Connection`:
+`Carlson.T` re-exports `Basic`, `Slit` (which imports `SlitSeries`), `TwoF0`, `TwoF0Sector`, `TwoF0Connection`, and `ZeroNode`:
 
 | Module | Responsibility |
 | --- | --- |
@@ -584,8 +592,9 @@ and defines its ordinary Gamma normalization `carlsonS b z`.
 | `Carlson.T.SlitSeries` | Cauchy bounds for negative integral R-functions, locally uniform convergence of their reciprocal-factorial series, and joint holomorphy of `regCarlsonTSlit` |
 | `Carlson.T.Slit` | Agreement with native integrals, compatibility of the two regularized branches, and ordinary `carlsonTSlit` |
 | `Carlson.T.TwoF0` | Carlson's `₂F₀` (Section 5.12): Euler double and single integrals, continuation through the remainder representation (5.12-10), symmetry, holomorphy (5.12-4), and the error bound and asymptotic expansion in `re x ≤ 0` |
-| `Carlson.T.TwoF0Sector` | Continuation of `₂F₀` to the sector `|ph(-x)| < 3π/2` (5.12-6) via rotated Euler rays, with the error bound (5.12-15) and asymptotic expansion (5.12-17) on the sector |
+| `Carlson.T.TwoF0Sector` | Continuation of `₂F₀` to the sector `|ph(-x)| < 3π/2` (5.12-6) via rotated Euler rays, with the error bounds (5.12-15), (5.12-16) and asymptotic expansion (5.12-17) on the sector |
 | `Carlson.T.TwoF0Connection` | The single integral (5.12-7) for `|ph(-x)| < π` and the connection formulas (5.12-18), (5.12-20) (Theorems 5.12-8, 5.12-9) |
+| `Carlson.T.ZeroNode` | The zero-node limit (5.12-2) of the two-variable T-function and formula (5.12-3), also in terms of `₂F₀` |
 
 The native T node domain is `0 ∉ convexHull ℝ (range z)`. The principal T-series
 is defined on all tuples of slit-plane nodes, including tuples outside that native
@@ -609,7 +618,9 @@ index type is included, with both continuations equal to zero.
 | `Carlson.RPolynomial.Growth` | Theorem 6.6-2 (upper bound; lower bound for distinct nodes) and the counterexample to the printed statement |
 | `Carlson.TwoVariable.FractionalIntegral` | The fractional integral (5.5-14) and its Riemann–Liouville form (5.5-15) |
 | `Carlson.TwoVariable.SEqualParameter` | Theorem 6.9-2: `S(β, β; x, y)` as an exponential times `₀F₁` |
+| `Carlson.TwoVariable.ConfluentHypergeometric` | `S(a, b; x, 0) = ₁F₁` (5.8-6), Kummer's second formula (6.9-6), and `J_μ`, `I_μ` of every complex order as S-functions (6.9-18), (6.9-21), with Mathlib's regularized hypergeometric functions |
 | `Carlson.TwoVariable.QuadraticHybrid` | The hybrid transformation 6.10-4, `R_K` and Gauss's AGM formula, `R_C`, Borchardt's algorithm, and the elementary `R_C` values of 6.9-4 |
+| `Carlson.TwoVariable.Borchardt` | The accelerated Borchardt algorithm (6.10-27)–(6.10-29), from a cubic expansion of `R_C` near the diagonal |
 | `Carlson.TwoVariable.BilateralGenerating` | Generating Relation 6.11-1 and Meixner's formula 6.11-2 in the Euler strip |
 | `Carlson.Jacobi.GegenbauerProduct` | Formula (6.7-21), the Gegenbauer generating function, Ossicini's formula 6.11-3, and Gegenbauer's product formula 6.11-4 |
 

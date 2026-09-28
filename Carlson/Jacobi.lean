@@ -68,6 +68,11 @@ public import Carlson.Jacobi.SegmentOrthogonality
 public import Carlson.Jacobi.EndpointRodrigues
 public import Carlson.Jacobi.Laguerre
 public import Carlson.Jacobi.LaguerreRepresentation
+public import Carlson.Jacobi.LaguerreSecondKind
+public import Carlson.Jacobi.HermiteSecondKind
+public import Carlson.Jacobi.GegenbauerAddition
+public import Carlson.Jacobi.ChebyshevSecondKind
+public import Carlson.Jacobi.Bessel
 public import Carlson.Jacobi.Hermite
 public import Carlson.Jacobi.GegenbauerProduct
 public import Carlson.Jacobi.HermiteRepresentation
@@ -187,6 +192,16 @@ exceptional parameters.
   `Carlson.TwoVariable.integral_mul_monicHermite_mul_exp`: Theorems 7.9-3 and 7.10-3.
 * `Carlson.TwoVariable.tendsto_eval_jacobiOn_monicLaguerre`,
   `Carlson.TwoVariable.integral_monicLaguerre_mul_monicLaguerre`: Theorems 7.9-1 and 7.9-4.
+* `Carlson.tendsto_laguerreSecondKind`, `Carlson.tendsto_norm_regCarlsonS_pair_neg_atTop`: the
+  Laguerre function of the second kind as a limit (7.9-4) and Theorem 7.9-5.
+* `Carlson.tendsto_hermiteSecondKind`: the Hermite function of the second kind as a limit (7.10-3).
+* `Carlson.TwoVariable.gegenbauer_addition`, `Carlson.TwoVariable.legendre_addition`: the addition
+  theorems 7.3-1 and (7.3-11).
+* `Carlson.regCarlsonDirichletAverage_chebyshev`: the Chebyshev function of the second kind
+  in closed form (Lemma 7.4-1).
+* `Carlson.TwoVariable.hasSum_exp_I_mul_mul_legendre`,
+  `Carlson.TwoVariable.hasSum_zpow_mul_besselJ`: the Bessel expansions of Section 7.7, including
+  the generating function of the Bessel coefficients.
 * `Carlson.TwoVariable.tendsto_eval_jacobiOn_monicHermite`,
   `Carlson.TwoVariable.gaussianFunctional_monicHermite_mul_monicHermite`: Theorems 7.10-1 and
   7.10-4.

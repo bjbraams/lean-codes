@@ -48,7 +48,24 @@ The regularized functions are entire in the Dirichlet parameters: R and L on
 principal slit-plane nodes, S on all nodes, and T on its native zero-avoiding
 convex-hull domain and on a separately defined principal slit-plane branch.
 `Carlson.Normalization` treats ordinary Gamma normalization, exceptional-parameter
-residues, and removable transverse parameter slices for all four families.
+residues, and removable transverse parameter slices for all four families, and the
+removable singularities of the equal-parameter functions `Γ(β) F(β, …, β; z)/Γ(kβ)`
+(Theorems 6.2-6, 6.8-4 and Corollary 6.3-7).
+
+Chapters 5 and 6 of Carlson's book are covered in large part. Beyond the general
+average and R-polynomial machinery this includes the operator identity (5.3-4), confluence
+with complex exponent (5.10-1), Cauchy representations of averages on `C¹` cycles (5.11-2,
+6.3-6) and the contour formula (6.8-7), Carlson's `₂F₀` function with its continuation to the
+sector `|ph(-x)| < 3π/2`, error bounds, asymptotic expansion and connection formulas with the
+S-function (5.12-4 to 5.12-9), the zero-node limit of T (5.12-2, 5.12-3), the concentration and
+growth theorems for R-polynomials (6.2-5, 6.6-2 with a corrected hypothesis and a counterexample
+to the printed statement), the S-function with equal parameters (6.9-2), its identification with
+Mathlib's confluent hypergeometric and Bessel functions (5.8-6, Kummer's second formula 6.9-6,
+6.9-18 to 6.9-25), the quadratic transformations with their hybrid, the arithmetic–geometric
+mean and Borchardt's algorithm with Carlson's acceleration (Section 6.10), the associated
+Legendre functions of negative order (6.10-18, 6.10-19), the finer equal-parameter
+normalization on the full slit domain, and the product formulas of Section 6.11. See
+`CarlsonChapters5And6Coverage.md` for a section-by-section account.
 
 `Carlson.Jacobi` develops Chapter 7 from standard Jacobi polynomials: derivatives,
 differential equations, monic normalization and weighted orthogonality for real
@@ -96,9 +113,16 @@ Cauchy-kernel identity holds on its full elliptic domain, and a function holomor
 an open elliptic disk is the sum of its Jacobi series there, with Carlson's coefficient
 formula (7.6-8). Rodrigues' formula and orthogonality hold on arbitrary complex segments,
 and the Laguerre and Hermite polynomials are obtained as limits, with Rodrigues formulas,
-weighted representations and orthogonality. Separate boundary values and principal-value
-formulas, branches for contours crossing the endpoint segment, the asymptotic formulas of
-§7.4, and the Gegenbauer addition theorem remain further work. See
+weighted representations and orthogonality. The Laguerre function of the second kind is a
+confluent limit of R-functions, as is the Hermite function of the second kind, and Theorem 7.9-5
+follows from the connection formula (5.12-18). Gegenbauer's addition theorem (7.3-1) and both
+forms of the addition theorem for Legendre polynomials hold for all complex angles. Lemma 7.4-1 gives the
+Chebyshev function of the second kind in closed form. With Mathlib's `Complex.besselJ`, the
+Bessel examples of §7.7 follow: the plane wave in spherical Bessel functions, the Jacobi–Anger
+expansions, and the generating function `exp (x (t - 1/t)/2) = ∑ tᵐ Jₘ(x)`.
+Separate boundary values and principal-value
+formulas, branches for contours crossing the endpoint segment, Gegenbauer's addition theorem
+for Bessel functions, and the asymptotic formulas of §7.4 remain further work. See
 `CarlsonChapter7Coverage.md` for a section-by-section account.
 
 Dependencies flow from the support libraries and simplex foundations to
@@ -202,7 +226,8 @@ local identities by parameter and joint-node analyticity, paralleling Carlson's
 permanence of functional relations and the slit continuation of Section 6.8.
 Arbitrary branch components, multiply connected or Riemann-surface continuation,
 general nonconvex simply connected average continuation, the contour formula
-6.8-7, and complete coverage of the L article are not claimed.
+6.8-7 (proved in the project on `C¹` cycles, but not selected), and complete coverage of the L
+article are not claimed.
 
 Work toward Carlson's 1969 nonconvex-domain construction now includes
 Gamma-regularized Euler integrals with joint entire continuation, normalized
