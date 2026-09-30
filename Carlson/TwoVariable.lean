@@ -25,6 +25,9 @@ public import Carlson.TwoVariable.LQuadratic
 public import Carlson.TwoVariable.EqualParameterSlit
 public import Carlson.TwoVariable.ConfluentHypergeometric
 public import Carlson.TwoVariable.Borchardt
+public import Carlson.TwoVariable.GaussHypergeometric
+public import Carlson.TwoVariable.Reduction
+public import Carlson.TwoVariable.R.Elementary
 
 /-!
 # Two-variable Carlson functions and polynomials
@@ -41,6 +44,9 @@ Bessel functions.
 * `Carlson.TwoVariable.quadraticGammaRatio_mul_besselJ`: Bessel functions as S-functions (6.9-18).
 * `Carlson.TwoVariable.exists_borchardtSigma_expansion`: the accelerated Borchardt algorithm
   (6.10-28).
+* `Carlson.TwoVariable.regCarlsonR_pair_one_one_log`: `(x - y) R_{-1}(1, 1; x, y) = log x - log y`
+  (Exercise 5.9-13).
+* `Carlson.hasSum_gaussCoeff`, `Carlson.ordinaryHypergeometric_one`: Gauss's theorem (8.3-4).
 
 ## References
 

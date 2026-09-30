@@ -15,6 +15,7 @@ public import Carlson.TwoVariable
 public import Carlson.Aggregation
 public import Carlson.ZeroParameter
 public import Carlson.Jacobi
+public import Carlson.Elliptic
 
 /-!
 # Carlson special functions

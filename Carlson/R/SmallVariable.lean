@@ -87,7 +87,7 @@ private lemma unitIntervalIntegral_eq_gamma_mul_reg
 /-- A bound for the principal power of the segment point `(1 - u) + u * w`, for `u` in the
 open unit interval and `w` in the open unit disc of the closed right half-plane. The bound is
 uniform in `w`, with the argument of the power controlled by `π`. -/
-private lemma norm_segment_cpow_le {u : ℝ} (hu : u ∈ Set.Ioo (0 : ℝ) 1) {w : ℂ}
+theorem norm_segment_cpow_le {u : ℝ} (hu : u ∈ Set.Ioo (0 : ℝ) 1) {w : ℂ}
     (hw : 0 ≤ w.re) (hsmall : ‖w‖ < 1) (c : ℂ) :
     ‖((1 - u : ℂ) + (u : ℂ) * w) ^ (-c)‖ ≤
       ((1 - u) ^ (-c.re) + 2 ^ (-c.re)) * Real.exp (Real.pi * |c.im|) := by
@@ -125,7 +125,7 @@ private lemma norm_segment_cpow_le {u : ℝ} (hu : u ∈ Set.Ioo (0 : ℝ) 1) {w
 
 /-- A segment point `(1 - u) + u * w` with `u ∈ [0, 1]` and `w` in the open right half-plane lies
 in the slit plane. -/
-private lemma segment_mem_slitPlane {u : ℝ} (hu : u ∈ Set.Icc (0 : ℝ) 1) {w : ℂ}
+theorem segment_mem_slitPlane {u : ℝ} (hu : u ∈ Set.Icc (0 : ℝ) 1) {w : ℂ}
     (hw : 0 < w.re) : (1 - u : ℂ) + (u : ℂ) * w ∈ slitPlane := by
   apply carlsonRightHalfPlane_subset_slitPlane
   change 0 < ((1 - u : ℂ) + (u : ℂ) * w).re
@@ -136,7 +136,7 @@ private lemma segment_mem_slitPlane {u : ℝ} (hu : u ∈ Set.Icc (0 : ℝ) 1) {
       (mul_pos (lt_of_le_of_ne hu.1 (Ne.symm hu0)) hw)
 
 /-- Absorbing a real power of `1 - u` into the beta kernel `u ^ (a - 1) * (1 - u) ^ (a' - 1)`. -/
-private lemma norm_betaKernel_mul_rpow {u : ℝ} (hu1 : 0 < 1 - u) (a a' c : ℂ) :
+theorem norm_betaKernel_mul_rpow {u : ℝ} (hu1 : 0 < 1 - u) (a a' c : ℂ) :
     ‖(u : ℂ) ^ (a - 1) * (1 - u : ℂ) ^ (a' - 1)‖ * (1 - u) ^ (-c.re) =
       ‖(u : ℂ) ^ (a - 1) * (1 - u : ℂ) ^ (a' - c - 1)‖ := by
   rw [norm_mul, norm_mul]

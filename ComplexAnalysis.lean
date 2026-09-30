@@ -20,6 +20,8 @@ public import ComplexAnalysis.ExteriorPath
 public import ComplexAnalysis.HalfPlane
 public import ComplexAnalysis.HasPrimitives
 public import ComplexAnalysis.HolomorphicIntegral
+public import ComplexAnalysis.HolomorphicInverse
+public import ComplexAnalysis.Injective
 public import ComplexAnalysis.Integral.CirclePath
 public import ComplexAnalysis.LogDerivIntegral
 public import ComplexAnalysis.ParametricIntegral
@@ -56,6 +58,8 @@ This module re-exports the following developments:
 * `ComplexAnalysis.HasPrimitives`: Primitives on simply connected open domains.
 * `ComplexAnalysis.HolomorphicIntegral`: Holomorphic dependence of interval integrals on a complex
   parameter.
+* `ComplexAnalysis.HolomorphicInverse`: Inverses of injective holomorphic functions.
+* `ComplexAnalysis.Injective`: Nonsingularity of injective holomorphic functions of one variable.
 * `ComplexAnalysis.Integral.CirclePath`: Circles as paths.
 * `ComplexAnalysis.LogDerivIntegral`: Integrals of logarithmic derivatives along curves.
 * `ComplexAnalysis.ParametricIntegral`: Differentiation of compact integrals in one complex

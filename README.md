@@ -61,69 +61,104 @@ S-function (5.12-4 to 5.12-9), the zero-node limit of T (5.12-2, 5.12-3), the co
 growth theorems for R-polynomials (6.2-5, 6.6-2 with a corrected hypothesis and a counterexample
 to the printed statement), the S-function with equal parameters (6.9-2), its identification with
 Mathlib's confluent hypergeometric and Bessel functions (5.8-6, Kummer's second formula 6.9-6,
-6.9-18 to 6.9-25), the quadratic transformations with their hybrid, the arithmetic–geometric
+selected Bessel identities in §6.9), the quadratic transformations with their hybrid, the arithmetic–geometric
 mean and Borchardt's algorithm with Carlson's acceleration (Section 6.10), the associated
 Legendre functions of negative order (6.10-18, 6.10-19), the finer equal-parameter
-normalization on the full slit domain, and the product formulas of Section 6.11. See
+normalization on the full slit domain, and product formulas of Section 6.11 (6.11-1 and
+6.11-2 currently in the Euler strip). See
 `CarlsonChapters5And6Coverage.md` for a section-by-section account.
 
-`Carlson.Jacobi` develops Chapter 7 from standard Jacobi polynomials: derivatives,
-differential equations, monic normalization and weighted orthogonality for real
-parameters `α, β > -1`. Finite expansions use continued Dirichlet averages of
-derivatives at arbitrary complex endpoints and admissible complex parameters;
-coincident endpoints recover Taylor's formula. The second-kind functions are
-jointly analytic off the endpoint segment; their adjoint differential equation,
-parameter-shift differentiation rule, biorthogonality and polynomial coefficient
-extraction on `C¹` cycles avoiding the segment are proved, with winding number
-explicit. Contour coefficients are invariant under homologous contour changes
-within the holomorphy domain. Uniformly convergent Jacobi series have uniquely
-determined coefficients on cycles of nonzero index. The second-kind normalization
-`x^(n+1) qₙ(x) → 1` holds in all
-complex directions when the Gamma normalization is regular. For complex parameters
-`re α, re β > -1`, a weighted Cauchy-integral representation gives the symmetric
-boundary jump across any nondegenerate complex endpoint segment. For arbitrary
-complex parameters and endpoints, series `∑ aₙ qₙ(z)` with `‖aₙ‖ ≤ C Rⁿ` converge
-absolutely and locally uniformly where distance from the segment exceeds `R`,
-and their sum is holomorphic there. Geometric polynomial bounds also yield Jacobi
-expansions of functions holomorphic on disks under sufficient separation conditions.
-Every entire function has an absolutely and locally uniformly convergent Jacobi
-expansion throughout the plane when `α+β+2` is not a nonpositive integer. Coefficients
-may be computed on any fixed index-one `C¹` cycle off the endpoint segment.
-The Cauchy-kernel expansion is proved for sufficiently distant poles, uniformly on
-compact product sets, and on the exact circular domain for coincident endpoints.
-Joukowski coordinates establish connectedness of elliptic exteriors and the
-identity-principle step, conditional on local uniform convergence there.
-For second-kind series, the elliptic exponential upper rate is proved on both
-exterior focal rays, at arbitrary complex parameters, and transported by complex
-affine maps. The corresponding complex saddle curve has the required norm bound
-and stays in the principal branch domains of both endpoint weights; the Euler
-integral is deformed onto that curve, which gives the sharp exterior decay.
-Legendre and Chebyshev are identified with
-Mathlib's existing polynomials, and Gegenbauer polynomials are connected to
-symmetric Jacobi polynomials by an identity valid at exceptional parameters;
-their derivatives of every order follow from Jacobi, for all complex parameters.
-Rodrigues' formula holds for arbitrary complex parameters on the principal branch
-domain. Bilinear orthogonality and squared integrals hold for `re α, re β > -1`.
-Weighted coefficient integrals extend to `Cⁿ` functions on the closed interval,
-and squared norms are evaluated throughout the orthogonality range; the shifted
-Legendre norm follows by specialization. Confocal elliptic disks are convex, have
-compact closures, and form neighborhoods of the endpoint segment. The sharp growth
-limits `‖pₙ(x)‖^{1/n} → μ(x)` and `‖qₙ(y)‖^{1/n} → 1/μ(y)` hold off the segment, the
-Cauchy-kernel identity holds on its full elliptic domain, and a function holomorphic on
-an open elliptic disk is the sum of its Jacobi series there, with Carlson's coefficient
-formula (7.6-8). Rodrigues' formula and orthogonality hold on arbitrary complex segments,
-and the Laguerre and Hermite polynomials are obtained as limits, with Rodrigues formulas,
-weighted representations and orthogonality. The Laguerre function of the second kind is a
-confluent limit of R-functions, as is the Hermite function of the second kind, and Theorem 7.9-5
-follows from the connection formula (5.12-18). Gegenbauer's addition theorem (7.3-1) and both
-forms of the addition theorem for Legendre polynomials hold for all complex angles. Lemma 7.4-1 gives the
-Chebyshev function of the second kind in closed form. With Mathlib's `Complex.besselJ`, the
-Bessel examples of §7.7 follow: the plane wave in spherical Bessel functions, the Jacobi–Anger
-expansions, and the generating function `exp (x (t - 1/t)/2) = ∑ tᵐ Jₘ(x)`.
-Separate boundary values and principal-value
-formulas, branches for contours crossing the endpoint segment, Gegenbauer's addition theorem
-for Bessel functions, and the asymptotic formulas of §7.4 remain further work. See
-`CarlsonChapter7Coverage.md` for a section-by-section account.
+`Carlson.Jacobi` develops the monic Jacobi polynomials and their adjoint functions of
+the second kind at complex endpoints. Biorthogonality and coefficient extraction hold
+on `C¹` cycles, with winding number explicit; coincident endpoints recover Taylor's
+formula. Sharp pointwise root-growth limits and ellipse-maxima limits are proved.
+The Cauchy-kernel expansion holds on the full domain `μ(x) < μ(y)`, and functions
+holomorphic on an elliptic disk have absolutely convergent Jacobi expansions there,
+uniformly on compact subsets. These convergence proofs are independent of the saddle-point
+asymptotic equivalents of §7.4.
+
+`Carlson.Jacobi.SaddleLaplace` applies the quantitative Laplace estimates to the
+actual Jacobi saddle integral. It proves the pointwise second-kind equivalent
+`qₙ(z) ∼ C (4/Λ(z))ⁿ`, with `C ≠ 0`, for arbitrary complex parameters and points
+off the focal segment, including coincident endpoints. Here
+`Λ(z) = (z-r)(1+c)²`, with `c` the principal square root of `(z-s)/(z-r)`, and
+`‖Λ(z)‖ = 4μ(z)`. The proof controls the central Gaussian error and the outer
+pieces, then cancels the Gamma normalization by comparison with the beta integral.
+`Carlson.Jacobi.SaddleUniform` upgrades this to relative convergence uniformly on
+every compact set off the fixed focal segment, with one nonzero coefficient
+function for the full degree sequence. Joint analyticity of the amplitude gives
+the common derivative bound needed for the uniform Laplace estimate.
+`Carlson.Jacobi.SaddleJoint` allows both endpoints to vary and proves Theorem
+7.4-3 in Carlson's R-average notation, jointly uniformly on compact subsets of
+`W`, including coincident square arguments. The parameters are arbitrary complex
+numbers, and the coefficient is nonzero throughout `W`.
+
+Rodrigues formulas, weighted representations and orthogonality are available, including
+complex segments when `re α, re β > -1`. In this range, the second-kind Jacobi
+function has separate upper and lower boundary values, with a principal-value
+formula and a symmetric real-axis truncation limit. The boundary formulas extend
+to distinct complex endpoints by affine covariance. The reusable segment Plemelj
+theorems are in `ToMathlib.Analysis.Integral.CauchyBoundary`.
+Gegenbauer and Legendre polynomial addition,
+plane-wave and Fourier/Bessel expansions, and Laguerre/Hermite polynomial and second-kind
+limits are proved. The Laguerre second-kind limit retains `re(1+β+n) > 0`; the weighted
+Laguerre/Hermite representations impose growth bounds also on the highest derivative.
+Remaining Chapter 7 work includes the general-parameter polynomial asymptotics
+of §7.4, compact-uniform root limits, the Bessel addition theorem of Example 7.7-4, and continued boundary theory
+beyond the current orthogonality range. `Carlson.Jacobi.AsymptoticZeros` records a
+qualification to the printed ratio definition in Theorem 7.4-2: odd-degree
+Chebyshev zeros prevent an unextended quotient from tending to one at the
+midpoint. `Carlson.Jacobi.PolynomialSaddle` proves the exact Chebyshev two-term
+formula (7.4-1), including cancellation points, and its compact-uniform
+dominant-term relative limit on `W`. The general polynomial expansion still
+needs an error formulation accounting for zeros. See [CarlsonChapter7Coverage.md](CarlsonChapter7Coverage.md).
+
+Chapter 8 includes straight-segment and ray integral evaluations with explicit principal
+phase and endpoint-convergence conditions; the Schwarz–Christoffel map, its boundary
+extension and bijection onto a convex polygon; and the Weierstrass/Jacobi inverses on
+rectangles, with their half-periods and differential equations. Doubly periodic
+meromorphic continuation is not yet formalized.
+
+The small-variable limit holds for continued complex parameters satisfying
+`re(a' - bₖ) > 0`, with right-half-plane nodes and approach, also jointly in the nodes.
+The Gauss-function identification is on the unit disk, its boundary limit approaches
+1 from inside that disk, and Gauss summation assumes `re(γ-α-β) > 0`.
+The associated-function dependence theorem 8.4-3 is proved for fixed arbitrary complex
+parameters on slit-plane nodes. Integer log-rational reduction 8.5-1, Table 8.5-1 and
+Example 8.5-5 are proved. General reductions 8.5-3/8.5-4, the connection formula (8.3-10),
+the full logarithmic expansion of `R_K`, and the wider slit-sector limits remain.
+See [CarlsonChapter8Coverage.md](CarlsonChapter8Coverage.md).
+
+Chapter 9 has the symmetric standard functions `R_F`, `R_G`, `R_H`, `R_K`, `R_E`, `R_L`,
+their symmetries and several zero-variable limits. Legendre's `F`, `E`, `Π`, `K` and
+complete `E` are defined; `F` and `E` are represented as R-functions and `K` is identified
+with `R_K`. Both incomplete and complete `Π` now have R-function representations and
+reductions to `R_F`, `R_H` and to `R_K`, `R_L`, respectively. These hold for real arguments
+with `k² < 1`, `0 < φ < π/2`, and `n sin² φ < 1` in the incomplete case, and `n < 1`
+in the complete case. Two rows each of Tables 9.3-3 and 9.3-4 are proved on the full
+complex slit domain, including coincident nodes. The remaining table rows and the
+standard-basis reduction of `E` are still missing. The transformation results include:
+
+- Landen's Theorem 9.5-1 for all complex exponents, with positive real source and
+  transformed variables, and its ascending/descending algorithms;
+- duplication on the slit domain and convergence of Algorithm 9.6-2 for positive
+  real initial values;
+- addition for positive real variables and the zero-variable form (9.7-17);
+- zero-variable duplication and ascending Landen with `s₀ = 0`;
+- quartic reduction 9.8-1 when the source and transformed square roots have positive
+  real parts, together with a `D = 0` boundary case.
+
+`Carlson.Elliptic.Asymptotic` proves the leading logarithmic equivalents
+`R_F(x,y,z) ∼ log(4√z/(√x+√y))/√z` as `z → ∞` for fixed positive `x,y`
+(9.2-10), and `R_K(x,y) ∼ log(16x/y)/(π√x)` as `y → 0+` for fixed positive
+`x` (8.3-16). The proofs use real integral comparison, elementary `R_C`,
+duplication and homogeneity. The full logarithmic series, its complex-sector
+extension and additive constant-term limits are not asserted by these equivalents.
+
+The standard-basis independence theorem 9.2-1, the remaining reductions of §9.3, applications §9.4,
+algorithmic error estimates, complex duplication iteration, and the practical quartic
+integration formulas (9.8-10)–(9.8-13) remain priorities.
+See [CarlsonChapter9Coverage.md](CarlsonChapter9Coverage.md) for detailed coverage.
 
 Dependencies flow from the support libraries and simplex foundations to
 `Dirichlet`, then to `Carlson`. The simplex foundation never imports either

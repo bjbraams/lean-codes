@@ -48,6 +48,7 @@ public import Carlson.Jacobi.SaddleGeometry
 public import Carlson.Jacobi.EllipseCoordinates
 public import Carlson.Jacobi.AnalyticExpansion
 public import Carlson.Jacobi.ComplexSecondKind
+public import Carlson.Jacobi.SecondKindPlemelj
 public import Carlson.Jacobi.ComplexOrthogonality
 public import Carlson.Jacobi.ComplexRodrigues
 public import Carlson.Jacobi.AnalyticRodrigues
@@ -58,6 +59,11 @@ public import Carlson.Jacobi.Raising
 public import Carlson.Jacobi.Recurrence
 public import Carlson.Jacobi.PolynomialGrowth
 public import Carlson.Jacobi.SecondKindSaddle
+public import Carlson.Jacobi.SaddleLaplace
+public import Carlson.Jacobi.SaddleUniform
+public import Carlson.Jacobi.SaddleJoint
+public import Carlson.Jacobi.AsymptoticZeros
+public import Carlson.Jacobi.PolynomialSaddle
 public import Carlson.Jacobi.EllipseContour
 public import Carlson.Jacobi.EllipticExpansion
 public import Carlson.Jacobi.GrowthLimits
@@ -115,11 +121,16 @@ Jacobi series there, with coefficients computed on any confocal ellipse inside t
 Analytic continuation across the pole of the Cauchy kernel, a recurrence for the second-kind
 functions derived from the polynomial one, and elementary dichotomies for perturbed
 recurrences give the growth limits `‖pₙ(x)‖^{1/n} → μ(x)` and `‖qₙ(y)‖^{1/n} → 1/μ(y)` off the
-segment, and with them the ellipses of convergence of Jacobi series of both kinds. The
+segment, and with them the ellipses of convergence of Jacobi series of both kinds.
+The separate Laplace argument in `SaddleLaplace` gives the pointwise second-kind
+asymptotic `qₙ(z) ∼ C (4/Λ(z))ⁿ`, with `C ≠ 0` and `‖Λ(z)‖ = 4μ(z)`, for arbitrary
+complex parameters and points off the segment. Its compact-uniform version remains open. The
 plane-wave expansion, orthogonality on arbitrary complex segments, and the Laguerre and
 Hermite limits with their orthogonality relations complete the main applications. For complex
-parameters with real parts greater than `-1`, Cauchy-integral representations yield symmetric
-boundary jumps at interior points of any nondegenerate complex segment.
+parameters with real parts greater than `-1`, Cauchy-integral representations yield separate
+upper and lower boundary values at interior points of any nondegenerate complex segment.
+On the unit segment, their common principal-value term is also the limit of symmetric
+real-axis truncations.
 Real-variable Rodrigues formulas, weighted coefficient integrals for `Cⁿ` functions
 and squared norms complement the polynomial expansion theory. Complex Rodrigues
 formulas hold on the principal branch domain; complex weighted integrals give
@@ -221,6 +232,22 @@ exceptional parameters.
   local uniform convergence of those expansions throughout the plane.
 * `Carlson.TwoVariable.summable_norm_mul_jacobiSecondKind_on_ray`: second-kind
   series converge at the elliptic upper rate on either exterior focal ray.
+* `Carlson.TwoVariable.exists_isEquivalent_jacobiSecondKind_geometric`: the pointwise
+  second-kind asymptotic with a nonzero coefficient, for all complex parameters.
+* `Carlson.TwoVariable.exists_tendstoUniformlyOn_jacobiSecondKind_div_geometric`:
+  the relative second-kind equivalent uniformly on compact sets off the focal
+  segment, for arbitrary complex parameters and fixed endpoints, including coincident endpoints.
+* `Carlson.TwoVariable.exists_tendstoUniformlyOn_carlsonR_secondKind_div`: Theorem 7.4-3,
+  jointly uniform on compact subsets of `W`, for arbitrary complex parameters and
+  including coincident square arguments.
+* `Carlson.TwoVariable.carlsonRPolynomial_chebyshev`: exact two-term formula (7.4-1),
+  including cancellation points; `tendstoUniformlyOn_carlsonRPolynomial_chebyshev_div`
+  gives the dominant-term relative limit uniformly on compact subsets of `W`.
+* `Carlson.TwoVariable.carlson_polynomial_two_saddle_ratio_counterexample`:
+  odd-degree Chebyshev zeros obstruct the literal unextended ratio interpretation
+  of Theorem 7.4-2 at `(x,y) = (1,I)`; a formulation accounting for zeros is needed.
+* `Carlson.TwoVariable.norm_integral_jacobiSaddleKernel_tail_le`: explicit geometric
+  decay of the integral outside a central saddle interval.
 * `Carlson.TwoVariable.exists_jacobiEulerSaddle_bound`: the complex saddle curve
   has the required geometric bound.
 * `Carlson.TwoVariable.norm_jacobiSecondKind_add_le`: degree-dependent uniform
@@ -233,6 +260,11 @@ exceptional parameters.
   Cauchy representation off the unit segment, for `re α, re β > -1`.
 * `Carlson.TwoVariable.tendsto_jacobiSecondKind_sub_complex_affine`: the symmetric
   boundary jump for these complex parameters and distinct complex endpoints.
+* `Carlson.TwoVariable.tendsto_jacobiSecondKind_upper_affine` and
+  `Carlson.TwoVariable.tendsto_jacobiSecondKind_lower_affine`: separate perpendicular
+  boundary limits with the normalized principal-value term.
+* `Carlson.TwoVariable.tendsto_jacobiSecondKind_principalValue`: the normalized
+  symmetric real-axis truncation limit on the unit segment.
 * `Carlson.TwoVariable.exists_jacobiClosedEllipseDisk_subset`: every open
   neighborhood of the focal segment contains a nondegenerate closed elliptic disk.
 * `Polynomial.integral_mul_shiftedJacobi_eq_zero`: weighted orthogonality against
@@ -261,10 +293,11 @@ exceptional parameters.
 * `Polynomial.iterate_derivative_gegenbauer`: derivatives of every order at all
   complex parameters, derived from Jacobi derivatives.
 
-Branches adapted to contours crossing the endpoint segment,
-separate second-kind boundary values and principal-value formulas, the asymptotic formulas of
-§7.4 with their constants, the Gegenbauer addition theorem, the Bessel-function examples
-7.7-3 and 7.7-4, and the second-kind limits of §§7.9–7.10 remain further work.
+Branches adapted to contours crossing the endpoint segment, boundary values outside
+the integrable-weight range and endpoint finite parts, the polynomial asymptotics
+of §7.4 at general parameters with an error formulation accounting for zeros,
+compact-uniform root limits, and the Bessel addition
+theorem of Example 7.7-4 remain further work.
 
 ## References
 

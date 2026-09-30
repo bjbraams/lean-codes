@@ -98,7 +98,7 @@ private lemma prod_cpow_same_base
 unit-interval integrands. -/
 private lemma ray_substitution_point
     {a a' : ℂ} {b z : ι → ℂ}
-    (hsum : a + a' = ∑ i, b i) (hz : z ∈ carlsonRVariableDomain)
+    (hsum : a + a' = ∑ i, b i) (hz : z ∈ carlsonRSlitDomain)
     {s : ℝ} (hs : s ∈ Set.Ioi 0) :
     |-((s + 1) ^ 2)⁻¹| •
         (((((s + 1)⁻¹ : ℝ) : ℂ) ^ (a' - 1) *
@@ -127,11 +127,10 @@ private lemma ray_substitution_point
     ring
   have hzi (i : ι) : z i + (s : ℂ) ≠ 0 := by
     intro h
-    have hre := congrArg Complex.re h
-    simp only [add_re, ofReal_re, zero_re] at hre
+    have hzs : z i = ((-s : ℝ) : ℂ) := by push_cast; linear_combination h
     have := hz i
-    dsimp only [carlsonRightHalfPlane, Set.mem_ofPred_eq] at this
-    linarith
+    rw [hzs] at this
+    exact (ofReal_mem_slitPlane.mp this).not_ge (by linarith)
   have hprod :
       (∏ i, ((r : ℂ) * (z i + (s : ℂ))) ^ (-b i)) =
         (r : ℂ) ^ (∑ i, -b i) * ∏ i, (z i + (s : ℂ)) ^ (-b i) := by
@@ -174,7 +173,7 @@ private lemma ray_substitution_point
 integral with the unit-interval integral having its beta exponents interchanged. -/
 theorem carlsonRPositiveRayIntegral_eq_unitInterval
     {a a' : ℂ} {b z : ι → ℂ}
-    (hsum : a + a' = ∑ i, b i) (hz : z ∈ carlsonRVariableDomain) :
+    (hsum : a + a' = ∑ i, b i) (hz : z ∈ carlsonRSlitDomain) :
     carlsonRPositiveRayIntegral a b z = carlsonRUnitIntervalIntegral a' a b z := by
   let φ : ℝ → ℝ := fun s => (s + 1)⁻¹
   let φ' : ℝ → ℝ := fun s => -((s + 1) ^ 2)⁻¹
@@ -207,20 +206,22 @@ theorem carlsonRPositiveRayIntegral_eq
     (hz : z ∈ carlsonRVariableDomain) :
     carlsonRPositiveRayIntegral a b z =
       betaIntegral a a' * carlsonRIntegral (-a') b z := by
-  rw [carlsonRPositiveRayIntegral_eq_unitInterval hsum hz]
+  rw [carlsonRPositiveRayIntegral_eq_unitInterval hsum
+    (carlsonRVariableDomain_subset_slitDomain hz)]
   rw [carlsonRUnitIntervalIntegral_eq ha' ha (by simpa [add_comm] using hsum) hb hz]
   rw [betaIntegral_symm]
 
-/-- The positive-ray representation with no individual Dirichlet-parameter
-restrictions; only the two endpoint convergence conditions remain. -/
+/-- The positive-ray representation (Carlson's (6.8-6)) with no individual Dirichlet-parameter
+restrictions and on all slit-plane nodes; only the two endpoint convergence conditions
+remain. -/
 theorem carlsonRPositiveRayIntegral_eq_gamma_mul_regCarlsonR
     {a a' : ℂ} {b z : ι → ℂ}
     (ha : 0 < a.re) (ha' : 0 < a'.re)
-    (hsum : a + a' = ∑ i, b i) (hz : z ∈ carlsonRVariableDomain) :
+    (hsum : a + a' = ∑ i, b i) (hz : z ∈ carlsonRSlitDomain) :
     carlsonRPositiveRayIntegral a b z =
       (Gamma a * Gamma a') * regCarlsonR (-a') b z := by
   rw [carlsonRPositiveRayIntegral_eq_unitInterval hsum hz,
     carlsonRUnitIntervalIntegral_eq_gamma_mul_regCarlsonR ha' ha (by simpa [add_comm] using hsum)
-        (carlsonRVariableDomain_subset_slitDomain hz), mul_comm (Gamma a')]
+        hz, mul_comm (Gamma a')]
 
 end Carlson

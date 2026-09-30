@@ -24,12 +24,16 @@ public import Carlson.R.ContourKernel
 public import Carlson.R.EulerTransform
 public import Carlson.R.IntegralEvaluation
 public import Carlson.R.SmallVariable
+public import Carlson.R.SmallVariableContinuation
+public import Carlson.R.SmallVariableJoint
 public import Carlson.R.AssociatedRecurrence
 public import Carlson.R.ZeroParameter
 public import Carlson.R.IntegerParameters
 public import Carlson.R.AssociatedDependence
 public import Carlson.R.SlitDeriv
 public import Carlson.R.SlitRelations
+public import Carlson.R.AssociatedExercises
+public import Carlson.R.IntegerReduction
 public import Carlson.R.EulerPoisson
 public import Carlson.R.JointRecurrence
 public import Carlson.R.Homogeneity
@@ -69,6 +73,9 @@ This module re-exports the following developments:
 * `Carlson.R.EulerTransform`: Euler transformations of Carlson's R-function.
 * `Carlson.R.IntegralEvaluation`: Evaluation of Euler-type integrals by Carlson R-functions.
 * `Carlson.R.SmallVariable`: Dependence of Carlson's R-function on a small variable.
+* `Carlson.R.SmallVariableJoint`: The joint small-variable limit, with the other nodes varying.
+* `Carlson.R.SmallVariableContinuation`: The small-variable limit for all complex parameters
+  (Theorem 8.3-2).
 * `Carlson.R.AssociatedRecurrence`: Fixed-parameter recurrence for associated Carlson
   R-functions.
 * `Carlson.R.ZeroParameter`: Zero-parameter deletion for the continued R-function.
@@ -76,6 +83,9 @@ This module re-exports the following developments:
 * `Carlson.R.AssociatedDependence`: Polynomial dependence of associated Carlson R-functions.
 * `Carlson.R.SlitDeriv`: Differentiation of R on the full slit domain.
 * `Carlson.R.SlitRelations`: Associated R-relations on the full slit domain.
+* `Carlson.R.AssociatedExercises`: Zill's relation and Carlson's Exercises 5.9-7 to 5.9-9.
+* `Carlson.R.IntegerReduction`: Theorem 8.5-1, integral parameters give rational functions and
+  logarithms.
 * `Carlson.R.EulerPoisson`: The R Euler–Poisson system on the full slit domain.
 * `Carlson.R.JointRecurrence`: Polynomial coefficients in parameters and nodes.
 

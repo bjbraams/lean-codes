@@ -21,6 +21,8 @@ domain; the polynomial and `S` statements allow arbitrary complex nodes.
 
 * `Carlson.regCarlsonR_aggregate`: Equal-node aggregation for the entire regularized `R`
   function.
+* `Carlson.regCarlsonR_aggregate_of_slit`: the same on all slit-plane nodes.
+* `Carlson.regCarlsonR_comp_perm`: permutation symmetry on all slit-plane nodes.
 * `Carlson.regCarlsonRPolynomial_aggregate`: Equal-node aggregation for regularized `R`
   polynomials at every complex parameter.
 * `Carlson.regCarlsonSSeries_aggregate`: Equal-node aggregation for the entire regularized `S`
@@ -68,6 +70,32 @@ theorem regCarlsonSSeries_aggregate {q : ι → κ} (hq : Function.Surjective q)
   exact IsRegCarlsonContinuation.aggregate hq
     (isRegCarlsonSContinuation_series (z ∘ q)) (isRegCarlsonSContinuation_series z)
     (Complex.continuous_exp.comp (continuous_carlsonAffineForm z)).continuousOn b
+
+/-- Equal-node aggregation for the regularized `R` function on all slit-plane nodes. -/
+theorem regCarlsonR_aggregate_of_slit {q : ι → κ}
+    (hq : Function.Surjective q) (t : ℂ) {z : κ → ℂ} (hz : z ∈ carlsonRSlitDomain) (b : ι → ℂ) :
+    regCarlsonR t b (z ∘ q) = regCarlsonR t (stdSimplexAggregate q b) z := by
+  have hcomp : AnalyticOnNhd ℂ (fun w : κ → ℂ => regCarlsonR t b (w ∘ q)) carlsonRSlitDomain :=
+    fun w hw => analyticAt_regCarlsonR_comp analyticAt_const analyticAt_const
+      (analyticAt_pi_iff.mpr fun i => (ContinuousLinearMap.proj (R := ℂ) (φ := fun _ : κ => ℂ)
+        (q i)).analyticAt w) (fun i => hw (q i))
+  exact eqOn_carlsonRSlitDomain_of_eqOn_rightHalfPlane hcomp
+    (analyticOnNhd_regCarlsonR t _) (fun w hw => regCarlsonR_aggregate hq t hw b) hz
+
+/-- **Permutation symmetry** of the regularized `R` function on all slit-plane nodes: permuting the
+nodes is the same as permuting the parameters inversely. -/
+theorem regCarlsonR_comp_perm (σ : Equiv.Perm ι) (t : ℂ) {z : ι → ℂ}
+    (hz : z ∈ carlsonRSlitDomain) (b : ι → ℂ) :
+    regCarlsonR t b (z ∘ σ) = regCarlsonR t (b ∘ σ.symm) z := by
+  classical
+  rw [regCarlsonR_aggregate_of_slit σ.surjective t hz b]
+  congr 1
+  funext k
+  rw [stdSimplexAggregate, FunOnFinite.linearMap_apply_apply]
+  have : (Finset.univ.filter fun x => σ x = k) = {σ.symm k} := by
+    ext j; simp [Equiv.eq_symm_apply]
+  rw [this, Finset.sum_singleton]
+  rfl
 
 end Carlson
 end

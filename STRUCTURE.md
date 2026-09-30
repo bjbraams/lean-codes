@@ -39,6 +39,8 @@ that matches the underlying API.
 | `ToMathlib.Analysis.SpecialFunctions.Gamma` | Complex-rate Gamma/Laplace kernel bounds, integrability, differentiation, holomorphy, and evaluation |
 | `ToMathlib.Analysis.Deriv` | Diagonal chain rule over a nontrivially normed field, with normed-space targets |
 | `ToMathlib.Analysis.Integral.Pi` | Nonnegative integration of coordinate products over finite dependent product measure spaces |
+| `ToMathlib.Analysis.Integral.ProdAbsRPow` | Integrability on `ℝ` of `∏ |σ - xᵢ|^{-bᵢ}` for distinct nodes, `0 < bᵢ < 1` and `∑ bᵢ > 1` |
+| `ToMathlib.Analysis.UpperHalfPlaneMaximum` | Minimum principle for `im f` on the upper half-plane, for `f` holomorphic, continuous up to the axis, with a limit at infinity |
 | `ToMathlib.Analysis.Connected` | Connected shells and complements of balls in real normed spaces |
 | `ToMathlib.Analysis.ConvexHullDomain` | Path connectedness of configurations whose convex hull stays in a path-connected set; arbitrary index types and real topological vector spaces |
 | `ToMathlib.Analysis.LinearFunctional` | Scalar actions and continuous linear functional lemmas |
@@ -46,6 +48,8 @@ that matches the underlying API.
 | `ToMathlib.Analysis.TaylorBounds` | `ContDiffAt.exists_taylor_bound` and real Taylor-remainder inequalities |
 | `ToMathlib.Analysis.GeometricBounds` | Real root limits and geometric majorants extracted from the Hartogs proof |
 | `ToMathlib.Analysis.Integral.CompactSupport` | Compact weighted integrability over a normed field and half-line integration support |
+| `ToMathlib.Analysis.Integral.CauchyBoundary` | Real-line and segment Cauchy jumps; separate vertical Plemelj limits, symmetric-truncation principal values, and integrability of the regularized quotient from differentiability at the pole |
+| `ToMathlib.Analysis.Integral.Laplace` | Complex-phase Laplace asymptotics for measurable amplitudes and quadratic coefficients; absolute integrability, Gaussian moments, explicit normalized error `(L/c + M B/c²)/√n`, uniform parameter limits, finite-interval variants, and a nonzero-leading-term asymptotic equivalent |
 | `ToMathlib.Analysis.Integral.Parametric` | Fréchet differentiation of compact integrals with fixed integrable weights and real or complex parameters |
 | `ToMathlib.Analysis.Integral.CurveIntegral` | Endpoint formulas for exact one-forms on real or complex normed spaces, with Banach-valued potentials |
 | `ToMathlib.Analysis.Integral.CurveIntegral.Map` | Pullback of one-forms under differentiable maps and identification of finite-interval parametrizations with Mathlib curve integrals |
@@ -59,6 +63,7 @@ that matches the underlying API.
 | `ToMathlib.Topology.CompactExhaustion`, `Frontier`, `Path` | Compact exhaustions, frontier membership, and first exit of paths |
 | `ToMathlib.Topology.Graph`, `UpperSemicontinuous` | Graph homeomorphisms and semicontinuity operations |
 | `ToMathlib.Topology.SeparateContinuous` | Baire boundedness for separately continuous maps on a product with a compact factor |
+| `ToMathlib.Topology.ProperCovering` | Continuous open locally injective maps are local homeomorphisms; proper local homeomorphisms are covering maps; coverings of simply connected spaces from path-connected spaces are injective |
 
 The generic Baire and real-estimate blocks were separated from the SCV Hartogs proof.
 General curve integration lives in `ToMathlib.Analysis`; its complex-specific
@@ -97,6 +102,7 @@ do not import the application layers, `StdSimplexMeasure`, or several-variable f
 | `ComplexAnalysis.Cycle` | Cycles as finite families of closed curves with base points; integrals and indices summed over the family; integer, locally constant and eventually vanishing index; length-type integral bounds; concatenation and integer multiples of a closed curve |
 | `ComplexAnalysis.Cycle.Cauchy` | Homology form of Cauchy's theorem and Cauchy's formula for Banach-valued functions: for a `C¹` cycle whose index vanishes outside the open set (Dixon's proof) |
 | `ComplexAnalysis.HolomorphicIntegral` | Fubini for interval integrals with continuous integrands, continuity and holomorphy of parametric interval integrals, and joint continuity of the divided slope of a holomorphic function |
+| `ComplexAnalysis.Injective`, `HolomorphicInverse` | Nonvanishing derivative of injective holomorphic functions; the inverse of an injective holomorphic function is holomorphic on the open image |
 | `ComplexAnalysis.ParametricIntegral`, `RealUniqueness` | Compact integration in one complex parameter and uniqueness from real parameters |
 | `ComplexAnalysis.Subharmonic.Submean` | Circle submean inequality for positive powers of norms of holomorphic functions |
 
@@ -316,18 +322,24 @@ parameter continuation of the native average and commutes with affine substituti
 | `Jacobi.SecondKindInfinity` | Affine covariance, the analytic reciprocal chart, and normalization at infinity in every complex direction |
 | `Jacobi.ComplexWeightedIntegral` | The weighted derivative-tower identity for complex-valued functions, derived from the real identity |
 | `Jacobi.SecondKindIntegral` | Euler and weighted Jacobi Cauchy representations off the entire unit segment, for real parameters greater than `-1` |
-| `Jacobi.BoundaryKernel` | Symmetric vertical jumps for real-line and interval Cauchy integrals with integrable densities continuous at the approach point |
+| `Jacobi.BoundaryKernel` | Compatibility import of the general Cauchy boundary theory in `ToMathlib.Analysis.Integral.CauchyBoundary` |
 | `Jacobi.SecondKindBoundary` | Jacobi boundary jumps at interior points of the unit segment and their transport to distinct complex endpoints |
+| `Jacobi.SecondKindPlemelj` | Separate upper and lower limits for `re α, re β > -1`, the normalized principal value as a symmetric-truncation limit, and affine transport to distinct complex endpoints |
 | `Jacobi.ComplexRodrigues` | Principal complex weights and Rodrigues' formula at all complex parameters |
 | `Jacobi.ComplexOrthogonality` | Complex derivative-tower integrals, bilinear orthogonality and squared integrals for `re α, re β > -1` |
 | `Jacobi.ComplexSecondKind` | Euler representations at arbitrary endpoints under degree-shifted positivity; weighted Cauchy representations for `re α, re β > -1`, and symmetric jumps on nondegenerate complex segments |
 | `Jacobi.SecondKindBounds` | Degree-dependent bounds from shifted Euler weights, including estimates that retain the combined weight-resolvent factor |
 | `Jacobi.SecondKindRayBounds` | Elliptic-rate upper bounds and absolute convergence on exterior focal rays at arbitrary complex parameters, transported by invertible complex affine maps |
 | `Jacobi.SaddleGeometry` | Compatible endpoint square roots, the fractional linear saddle curve, its elliptic norm bound, and principal-branch membership; the deformation itself is in `Jacobi.SecondKindSaddle` |
+| `Jacobi.SaddleLaplace` | Explicit centered phase and tail estimates; Gaussian limits for the actual Möbius integral; pointwise second-kind asymptotics with a nonzero degree-independent coefficient for all complex parameters, including coincident endpoints |
+| `Jacobi.SaddleUniform` | Joint analytic amplitude, common derivative and Gaussian bounds on compact sets; compact-uniform relative second-kind asymptotics for arbitrary complex parameters and fixed endpoints, including coincident endpoints, with the degree shift removed |
+| `Jacobi.SaddleJoint` | Joint endpoint Gaussian and relative limits; Theorem 7.4-3 in Carlson's R-average notation, uniformly on compact subsets of `W`, for all complex parameters, including the diagonal |
+| `Jacobi.PolynomialSaddle` | Exact Chebyshev two-saddle formula (7.4-1), including cancellation points; difference-based equivalent and compact-uniform dominant-term relative convergence on `W`, with exact error `‖(x-y)/(x+y)‖^(2n)` |
+| `Jacobi.AsymptoticZeros` | Odd-degree Chebyshev midpoint zeros and their Carlson numerator form; counterexample to the literal unextended ratio interpretation of Theorem 7.4-2 at `(1,I)`, with nonsingular polynomial normalization |
 | `Jacobi.SecondKindSeries` | Absolute and locally uniform convergence, and holomorphy of second-kind series with geometrically bounded coefficients on a sufficient distance-based region |
 | `Jacobi.PolynomialBounds` | Explicit large-degree bounds from the Carlson numerator, and geometric bounds uniform on compact sets, with arbitrary complex parameters and endpoints |
 | `Jacobi.KernelSeries` | Summable majorants and uniform convergence for polynomial–second-kind products on sufficiently separated sets |
-| `Jacobi.CauchyKernel` | Cauchy-kernel coefficient identity; kernel expansion for sufficiently distant poles, uniformly on compact products; exact circular case; extension to elliptic exteriors conditional on local uniform convergence |
+| `Jacobi.CauchyKernel` | Cauchy-kernel coefficient identity; kernel expansion for sufficiently distant poles, uniformly on compact products; exact circular case; identity-principle extension under local uniform convergence, subsequently supplied by `Jacobi.EllipticExpansion` |
 | `Jacobi.EllipseCoordinates` | Branch-independent square-root formula, characteristic roots and their strict exterior dominance, Joukowski coordinates, and preconnected elliptic exteriors |
 | `Jacobi.AnalyticExpansion` | Passage from polynomial approximation to Jacobi expansions; sufficient disk criteria; absolute and locally uniform convergence to every entire function, using any fixed index-one cycle off the segment |
 | `Jacobi.Ellipse` | Confocal mean-radius geometry, convex open disks, compact closed disks, affine covariance and elliptic neighborhoods of the focal segment |
@@ -404,82 +416,104 @@ For complex `re α, re β > -1`, the second-kind function is the Cauchy transfor
 `(-1)^n / B(α+n+1, β+n+1)` times the shifted Jacobi weight and polynomial.
 The upper-minus-lower difference tends to `-2πi` times that density on the unit
 segment. Affine covariance gives the corresponding perpendicular jump across
-any nondegenerate complex segment. This proves a limit of the difference, without
-asserting existence of the separate boundary limits.
+any nondegenerate complex segment. `Jacobi.SecondKindPlemelj` also proves the
+separate perpendicular limits: the principal value minus or plus `πi` times
+the normalized density. On the unit segment, the principal value is the limit
+of symmetric real-axis truncations. The general support theorem requires an
+integrable density and an integrable regularized difference quotient;
+differentiability at the interior point supplies the latter condition for the
+Jacobi density, while allowing its integrable endpoint singularities.
 
 The elliptic mean radius has minimum `‖r-s‖/4`, attained exactly on the focal
 segment. Its open disks above that radius are convex; its closed disks are compact.
-Every open neighborhood of the segment contains a closed disk of strictly larger
-radius. Affine covariance includes zero scales, and coincident endpoints recover
-ordinary circular disks. Sharp root-growth estimates in this mean radius remain
-to be proved.
+Joukowski coordinates describe connected elliptic exteriors, and confocal ellipses
+are `C¹` cycles of index one. Affine covariance includes zero scales; coincident
+endpoints recover circular disks.
 
-A preliminary convergence theorem uses distance from the endpoint segment instead.
-For arbitrary complex parameters and endpoints, coefficients satisfying
-`‖aₙ‖ ≤ C Rⁿ`, with `C, R ≥ 0`, give absolute and locally uniform convergence of
-`∑ aₙ qₙ(z)` on `dist(z, [r,s]) > R`, with holomorphic sum. The proof shifts past
-a finite initial set of degrees to a bounded Euler weight. The simultaneous
-reciprocal-beta normalization has consecutive ratio tending to `4`, proved in
-`Pochhammer.BetaShift`, which compensates for the weight's `4⁻ⁿ` decay. This is a
-sufficient region, not the sharp confocal-ellipse convergence theorem.
+The preliminary distance-to-segment and exterior-ray bounds are strengthened to
+sharp bounds on closed elliptic disks and exteriors. `Jacobi.SaddleGeometry` constructs
+the fractional linear curve `u=bt/(a(1-t)+bt)` for compatible square roots
+`a²=z-r`, `b²=z-s`; `Jacobi.SecondKindSaddle` proves the Euler integral deformation
+and the resulting exponential upper bound. `Jacobi.PolynomialGrowth` derives the
+polynomial upper bound from the recurrence. `Jacobi.GrowthLimits` and
+`Jacobi.SecondKindLimits` prove matching pointwise root limits off the segment,
+using the Cauchy kernel and perturbed recurrences. `Jacobi.GrowthMaxima` proves
+the root limits for maxima on confocal ellipses.
 
-Keeping the combined Euler factor intact improves this result on the exterior
-focal rays. For every complex parameter pair, `∑ aₙ qₙ(z)` converges absolutely
-on either ray when `‖aₙ‖ ≤ C Rⁿ` and `R < μ(z)`; every exponential upper rate
-strictly greater than `1/μ(z)` bounds the second-kind degree sequence. The proof
-first treats real endpoints and then uses complex affine covariance, including
-coincident endpoints. It does not prove a matching lower estimate.
+`Jacobi.EllipticExpansion` proves `∑ pₙ(x) qₙ(y) = (y-x)⁻¹` on the full domain
+`μ(x) < μ(y)`, uniformly on a closed elliptic disk times a larger closed exterior.
+Integrating the kernel expansion gives Theorem 7.6-2 on open elliptic disks, with
+absolute convergence, uniform convergence on closed subdisks, contour independence
+and uniqueness. The coefficient is also the continued average of the nth derivative
+(7.6-8). Entire functions have expansions throughout the plane. The general theory
+allows complex endpoints and parameters with `α+β+2` away from nonpositive integers;
+coincident endpoints give Taylor series.
 
-For a general point off the segment, compatible square roots `a²=z-r`,
-`b²=z-s` exist with `Re(a conj(b)) > 0`. The fractional linear curve
-`u=bt/(a(1-t)+bt)` stays in the principal branch domains of both endpoint
-weights, and its Euler factor is bounded by `1/(4μ(z))`. These geometric facts
-are proved, but deformation of the Euler integral onto the curve, with endpoint
-justification, remains to be formalized.
+Gegenbauer and Legendre polynomial addition theorems and the Bessel expansions of
+Examples 7.7-1 through 7.7-3 are proved. Laguerre and Hermite polynomials and their
+second-kind functions are obtained as confluent limits; the Laguerre second-kind
+limit assumes `re(1+β+n) > 0`. Their weighted coefficient representations require
+growth control also on the nth derivative.
 
-For the monic polynomials, the Carlson numerator bound and a Pochhammer lower
-bound give a geometric estimate uniform on every compact set. Combined with the
-second-kind bounds, this gives summable majorants for the candidate kernel series
-on sufficiently separated product sets, and for contour-coefficient expansion
-terms. Dominated convergence then transports finite polynomial expansions to
-limits of polynomial approximations. `ToMathlib.Analysis.Holomorphic.PolynomialApproximation`
-supplies those approximations from Mathlib's power-series theory.
+`ToMathlib.Analysis.Integral.Laplace` supplies the quantitative Gaussian estimate.
+`Jacobi.SaddleLaplace` applies it after centering the Möbius curve at `t = 1/2`.
+For `w = ((c-1)/(c+1))²`, with `c = jacobiSaddleRatio r s z`, the normalized kernel
+is `(1-u²)/(1-wu²)` and `‖w‖ < 1`. Its logarithmic phase coefficient differs from
+`1-w` by at most `2u²` on `|u| ≤ 1/2`. The outer pieces have the explicit bound
+`‖A‖₁ (1-(1-‖w‖)δ²)ⁿ`. Differentiability of the actual amplitude at zero supplies
+the local variation bound; a fixed degree shift makes it integrable at both endpoints.
 
-Consequently a function holomorphic on a closed disk has its Jacobi expansion at
-interior points when a cycle inside that disk meets the stated separation condition.
-For an entire function, an auxiliary large circle and contour invariance remove
-that separation condition: the expansion converges absolutely at every point and
-uniformly on every compact set to the function. Coefficients use any fixed `C¹`
-cycle of index one about the segment, avoiding the segment. The only parameter
-restriction for identification with the function is that `α+β+2` is not a
-nonpositive integer; endpoints may coincide.
+The full Möbius integral therefore has a nonzero Gaussian leading constant.
+Comparison with the reference beta integral cancels the Gamma normalization and
+proves `qₙ(z) ∼ C (4/Λ(z))ⁿ`, where `C ≠ 0` and
+`Λ(z) = (z-r)(1+c)²`. The theorem `exists_isEquivalent_jacobiSecondKind_geometric`
+has no restrictions on the complex Jacobi parameters, only that `z` is outside
+the endpoint segment. Coincident endpoints are included. `norm_jacobiSaddleScale`
+identifies `‖Λ(z)‖ = 4μ(z)`.
 
-For Lemma 7.6-1, the Cauchy kernel's contour coefficient is now proved to equal
-`qₙ(y)` at every complex parameter pair when the pole is outside the enclosing
-circle. The existing disk expansion theorem then proves
-`∑ pₙ(x) qₙ(y) = (y-x)⁻¹` for sufficiently distant `y`. The radius can be chosen
-uniformly for `x` in a compact set, with uniform convergence on compact product
-sets. Coincident endpoints have the full circular-domain identity.
+`Jacobi.SaddleUniform` proves the relative limit uniformly on every compact set
+outside the fixed focal segment. Joint analyticity of the centered amplitude
+supplies a common derivative bound. Compactness keeps the shape strictly inside
+the unit disk, and gives common amplitude and tail bounds. The beta comparison
+preserves uniformity; removing the fixed degree shift gives
+`exists_tendstoUniformlyOn_jacobiSecondKind_div_geometric`, with a single nonzero
+coefficient function for all compact exterior sets. This proves the second-kind
+part of Corollary 7.4-4.
 
-The mean radius also has Carlson's branch-independent square-root expression.
-The exterior Joukowski coordinate has modulus exactly equal to that radius and
-maps a circular exterior onto the corresponding elliptic exterior. This proves
-preconnectedness and the identity-principle extension of the kernel identity,
-conditional on local uniform convergence. The missing step for the full
-`μ(x) < μ(y)` domain is the sharp degree-growth control from §§7.4–7.5, rather
-than the contour-coefficient calculation or analytic-continuation argument.
+`Jacobi.SaddleJoint` extends the amplitude and its derivative jointly in both
+endpoints. The uniform Gaussian and relative limits then hold for compact
+families of endpoint pairs whose segments avoid the origin. For endpoints
+`-x²,-y²` on Carlson's `W`, the saddle ratio is `y/x` and the scale is `(x+y)²`.
+The theorem `exists_tendstoUniformlyOn_carlsonR_secondKind_div` is Theorem 7.4-3:
+one nonzero coefficient function gives relative convergence uniformly on every
+compact subset of `W`, for arbitrary complex parameters. Coincident arguments
+are included. A fixed degree threshold identifies the continued function with
+Carlson's ordinary Dirichlet average; no condition on the initial degrees is needed.
 
-Remaining work includes separate second-kind boundary values and principal-value
-formulas, and boundary theory beyond the range `re α, re β > -1`;
-branches adapted to contours crossing the endpoint segment;
-the Gegenbauer addition theorem; the asymptotic formulas of §7.4 with their constants;
-the Bessel-function examples 7.7-3 and 7.7-4; and the second-kind limits of §§7.9–7.10.
-The sharp growth limits of §7.5 and the elliptic expansion theorems of §7.6 are proved
-without the §7.4 asymptotics. `CarlsonChapter7Coverage.md` records the coverage in detail.
+`Jacobi.AsymptoticZeros` checks an issue in Theorem 7.4-2's printed definition of
+relative asymptotics. At `α = β = -1/2` and `(x,y) = (1,I)`, the polynomial is
+zero in every odd degree, while its Pochhammer normalization is nonzero at every
+degree. No unextended quotient by any sequence tends to one there. This does
+not disprove a version with removable extensions or an additive error controlled
+by the magnitudes of the two saddle contributions.
+
+`Jacobi.PolynomialSaddle` proves the exact Chebyshev formula (7.4-1) for all
+complex argument pairs in positive degree. It gives a difference-based asymptotic
+equivalent even where the sum vanishes. On `W` the dominant-term relative error
+is exactly `‖(x-y)/(x+y)‖^(2n)`, and tends to zero uniformly on compact sets.
+
+Remaining work includes the general-parameter polynomial asymptotics of §7.4
+with a formulation accounting for zeros, the compact-uniform root limits
+asserted in 7.5-1, Bessel addition
+Example 7.7-4, and boundary theory beyond `re α, re β > -1`. Continuation of the
+boundary formulas to all admissible parameters, endpoint regularization, and
+branches for contours crossing the segment remain open.
+The physical examples in §§7.9–7.10 and many exercises are not formalized.
+[CarlsonChapter7Coverage.md](CarlsonChapter7Coverage.md) records the section-level inventory.
 
 ### R-function analytic construction
 
-`Carlson.R.SingleIntegral` is an umbrella over five steps:
+`Carlson.R.SingleIntegral` is an umbrella over four steps:
 
 1. `SingleIntegral.Series`: unit-interval definition and near-one series.
 2. `SingleIntegral.Analytic`: joint analyticity in endpoint exponents, parameters, and nodes.
@@ -495,6 +529,9 @@ cycles is proved in `R.ContourRepresentation`.
 The slit-domain API separates `SlitRelations` (parameter-shift identities),
 `SlitDeriv` (node derivatives and differential identities), and
 `EulerPoisson` (the second-order system).
+`AssociatedExercises` adds Zill's relation and Carlson's Exercises 5.9-7 to 5.9-9, and
+`TwoVariable.R.Elementary` the two-variable Exercises 5.9-10 and 5.9-13
+(`R_t(1, 0; x, y) = x^t`, `(x - y) R_{-1}(1, 1; x, y) = log x - log y`).
 
 The R-function has one definition. `R.Explicit` defines `regCarlsonR t b z` for all
 complex exponents and parameters by a finite recursion in the style of `Complex.Gamma`:
@@ -535,7 +572,7 @@ it does not by itself establish removability along the whole parameter hypersurf
 
 | Module | Responsibility |
 | --- | --- |
-| `Carlson.Associated.LinearDependence` | Generic denominator-clearing and finite-dimensional dependence; no Carlson or Dirichlet imports |
+| `ToMathlib.Algebra.LinearDependence` | Generic denominator-clearing and finite-dimensional dependence; no Carlson or Dirichlet imports |
 | `Carlson.Associated.Shift` | Shift indices and rational-coefficient data |
 | `Carlson.R.Recurrence.Coefficients` | Symmetric-polynomial recurrence coefficients, independently of R-functions |
 | `Carlson.R.AssociatedRecurrence` | Native homogeneity recurrence |
@@ -625,3 +662,62 @@ index type is included, with both continuations equal to zero.
 | `Carlson.Jacobi.GegenbauerProduct` | Formula (6.7-21), the Gegenbauer generating function, Ossicini's formula 6.11-3, and Gegenbauer's product formula 6.11-4 |
 
 The coverage against the book is recorded in `CarlsonChapters5And6Coverage.md`.
+
+### Chapter 8: averages of `xᵗ`
+
+| Module | Chapter 8 scope |
+| --- | --- |
+| `Carlson.R.IntegralEvaluation` | Formula 8.1-1 on the straight path from `x` to `y` for all complex Dirichlet parameters when each affine factor stays in the slit plane (the continuous phase is then the principal one), and Formulas 8.1-2 and 8.1-3 on rays with the principal-phase condition explicit; the earlier unit-interval and ray forms with compatible logarithms |
+| `Carlson.R.SmallVariableContinuation` | Theorem 8.3-2: the small-variable limit for all complex `a, b` with `re (a' - bₖ) > 0`, by the recurrence 8.3(5), induction, and the identity theorem in the parameters; the one-node value of `R` |
+| `Carlson.R.SmallVariableJoint` | The joint small-variable limit: `R` is continuous as `z → z₀` with `z₀ₖ = 0`, through the right half-plane, with the other nodes varying (the joint form of Theorem 8.3-2) |
+| `Carlson.TwoVariable.GaussHypergeometric` | (8.3-7) with Mathlib's regularized Gauss function, Corollary 8.3-3, and Gauss's theorem 8.3-4 (with Abel's theorem and Euler's limit formula for `Γ`) |
+| `Carlson.TwoVariable.Reduction` | Table 8.5-1 (all seven rows) and Example 8.5-5, equation (6) |
+| `Carlson.R.AssociatedDependence` | Theorem 8.4-3: any `k+1` associated R-functions admit a nontrivial polynomial relation on slit-plane nodes, for each fixed exponent and parameter vector; coefficient dependence on those parameters is not asserted |
+| `Carlson.R.IntegerReduction` | Theorem 8.5-1: with integral exponent and parameters, `R_t(b; z)` is log-rational on the slit domain (`Q(z) R = P₀(z) + ∑ Pᵢ(z) log zᵢ`, polynomials `Q ≠ 0`, `P₀`, `Pᵢ`); deletion of a zero parameter and `R_t(β eᵢ; z) = zᵢ^t` on the slit domain; `(zᵢ - zⱼ) R_{-1}(eᵢ + eⱼ; z) = log zᵢ - log zⱼ` (8.5-2) |
+| `Carlson.Elliptic.RF` | `R_F` (8.2-6), its symmetry, the integral (8.2-5), `R_F(x, y, y) = R_C(x, y)` (8.2-13), and `R_F(x, y, 0) = (π/2) R_K(x, y)` (8.3-17) |
+| `Carlson.Elliptic.SchwarzChristoffel` | The Schwarz–Christoffel differential equation (8.2-1) and integral (8.2-2), (8.2-3), the phase of the boundary derivative, the half-periods (8.2-8)–(8.2-10), (8.2-20) and (8.2-21) as real integrals, the elementary cases (8.2-14), (8.2-16), and the `sn` integral (8.2-18) |
+| `Carlson.Elliptic.VertexLimits` | The Schwarz–Christoffel map `scMap` on the closed upper half-plane: agreement with `R_{-a}(b; z - x)`, continuity up to the real axis by dominated convergence, the boundary limits and vertices `w(xᵢ)`, `w(z) → 0` at infinity by complex homogeneity, and closure of the polygon |
+| `Carlson.Elliptic.Polygon` | Carlson's direction `θ` of the boundary derivative and the turning angles; convexity of the polygon for `a ≤ 1` (monotone direction of total range at most `2π`); the open polygon `scPolygon` as an intersection of half-planes; `w` maps the upper half-plane into it (minimum principle) and the real axis to its boundary; the sides as explicit integrals |
+| `Carlson.Elliptic.Mapping` | Theorem 8.2-1: `w` is a bijection from the upper half-plane onto the polygon (proper local homeomorphism onto a convex set), with holomorphic inverse and derivative `1/w'` |
+| `Carlson.Elliptic.Inversion` | Examples 8.2-2 and 8.2-3: `R_F(z - x₁, z - x₂, z - x₃)` maps the upper half-plane onto the rectangle with half-periods `K₁, K₃`, and its inverse satisfies (8.2-11), (8.2-12); Carlson's `v(y)` maps onto the rectangle `(-K, K) × (0, K')`, agrees with (8.2-18) on `(0, 1)`, and its inverse `sn` satisfies `(sn')² = (1 - sn²)(1 - k² sn²)` |
+
+The small-variable theorems use right-half-plane nodes and approach to zero;
+Carlson's wider slit-sector approach is still open. The Gauss identification is
+on the unit disk, and its limit approaches 1 within that disk; the summation
+formula assumes `re(γ-α-β) > 0`. General reduction Theorems 8.5-3/8.5-4 and the
+branch-point splitting formula are not yet proved. The rectangle inverses do not
+yet have a doubly periodic meromorphic continuation. Further details are in
+[CarlsonChapter8Coverage.md](CarlsonChapter8Coverage.md).
+
+### Chapter 9: elliptic integrals
+
+| Module | Chapter 9 scope |
+| --- | --- |
+| `Carlson.Elliptic.Asymptotic` | Positive-real node comparison for `R_F`; `isEquivalent_carlsonRF_atTop` (9.2-10) and `isEquivalent_carlsonRK_zero` (8.3-16), from comparison with elementary `R_C`, zero-variable duplication and homogeneity |
+| `Carlson.Elliptic.Standard` | `R_G`, `R_H`, `R_E`, `R_L` (9.2-1), (9.2-2) and their symmetries; the zero-variable limits (9.2-3); Legendre's `F`, `E`, `Π`, `K`, `E(k)`, with `F` and `E` as `R` functions (9.2-11), (9.3-2) and `K(k) = (π/2) R_K(1 - k², 1)` (9.2-14) |
+| `Carlson.Elliptic.LegendreThird` | Incomplete and complete `Π` as R-functions (9.2-11), (9.2-14), and their reductions to `R_F`, `R_H` and to `R_K`, `R_L`; Tables 9.3-3 (rows 2, 4) and 9.3-4 (rows 1, 4) on the full complex slit domain, including coincident nodes |
+| `Carlson.Elliptic.Addition` | The addition theorem 9.7-1 for positive variables (Euler's algebraic solution, constancy along the branch, and the limit `λ → 0`); the duplication theorem 9.6-1 on the whole slit domain (from positive reals by uniqueness, one variable at a time); Algorithm 9.6-2 for strictly positive real initial values; homogeneity of `R_F` |
+| `Carlson.Elliptic.Landen` | Theorem 9.5-1 for all complex `t` in regularized form (positive `x, y, z, v, w` with `v² + w² = z² + xy`, `vw = zu`), via the substitution `r = s(s + xy)/(s + u²)` and continuation in `t`; Landen's transformation of `R_F` (9.5-4), with Carlson's explicit `v, w` |
+| `Carlson.Elliptic.LandenAlgorithm` | Algorithms 9.5-2 (ascending Landen) and 9.5-3 (descending Gauss), with the limits `(1/M) arcsinh(M/S)` and `(1/M) arcsin(M/T)`; the descending algorithm assumes `t₀ > a₀`, excluding the equality endpoint |
+| `Carlson.Elliptic.ZeroVariable` | A vanishing variable: the joint limit (8.3-17), (9.2-4), Algorithm 9.5-2 with `s₀ = 0`, the duplication theorem with one variable `0`, and (9.7-17) |
+| `Carlson.Elliptic.QuarticReduction` | Theorem 9.8-1: (9.8-3) for positive `A, B, C, D` by Carlson's substitution, and (9.8-4) `R_{-1}(1/2, 1/2, 1/2, 1/2; A², B², C², D²) = 2 R_F(X², Y², Z²)` where `A, …, D, X, Y, Z` have positive real parts (identity theorem one variable at a time); the case `D = 0` |
+
+The logarithmic results are leading asymptotic equivalents: for fixed positive
+`x,y`, `R_F(x,y,z) ∼ log(4√z/(√x+√y))/√z` as `z → ∞`; for fixed positive
+`x`, `R_K(x,y) ∼ log(16x/y)/(π√x)` as `y → 0+`. The full logarithmic
+series and complex-sector extension are not included, nor are limits of the
+additive remainder after subtracting the leading logarithm.
+
+The Legendre third-kind identities assume real arguments with `k² < 1`. The
+incomplete case requires `0 < φ < π/2` and `n sin² φ < 1`; the complete
+case requires `n < 1`. They cover zero and negative characteristics, but not
+principal-value integrals or complex amplitudes. The polynomial-coefficient
+reduction identities themselves hold for arbitrary slit-plane nodes.
+
+Remaining Chapter 9 work includes standard-function independence 9.2-1,
+the remaining rows of the reduction tables of §9.3, the standard-basis
+reduction of Legendre's `E`, applications §9.4, duplication error estimates and complex iteration, and the practical
+quartic integration formulas (9.8-10)–(9.8-13). The conditional complex Landen
+extension and some zero/equality endpoint cases are also missing. The `D = 0`
+quartic theorem does not cover every permitted zero transformed variable.
+See [CarlsonChapter9Coverage.md](CarlsonChapter9Coverage.md).

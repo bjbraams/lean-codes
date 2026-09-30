@@ -12,13 +12,16 @@ public import ToMathlib.Analysis.GeometricBounds
 public import ToMathlib.Analysis.Holomorphic.FunctionSpace
 public import ToMathlib.Analysis.Holomorphic.NormalFamily
 public import ToMathlib.Analysis.Holomorphic.PolynomialApproximation
+public import ToMathlib.Analysis.Integral.CauchyBoundary
 public import ToMathlib.Analysis.Integral.CompactSupport
 public import ToMathlib.Analysis.Integral.CurveIntegral
 public import ToMathlib.Analysis.Integral.CurveIntegral.Map
 public import ToMathlib.Analysis.Integral.CurveIntegral.Improper
 public import ToMathlib.Analysis.Integral.CurveIntegral.Bounds
+public import ToMathlib.Analysis.Integral.Laplace
 public import ToMathlib.Analysis.Integral.Parametric
 public import ToMathlib.Analysis.Integral.Pi
+public import ToMathlib.Analysis.Integral.ProdAbsRPow
 public import ToMathlib.Analysis.Integral.Reciprocal
 public import ToMathlib.Analysis.Integral.Tail
 public import ToMathlib.Analysis.LinearFunctional
@@ -28,6 +31,7 @@ public import ToMathlib.Analysis.SpecialFunctions.CosOrthogonality
 public import ToMathlib.Analysis.SpecialFunctions.Gamma
 public import ToMathlib.Analysis.SpecialFunctions.GammaRatio
 public import ToMathlib.Analysis.TaylorBounds
+public import ToMathlib.Analysis.UpperHalfPlaneMaximum
 
 /-!
 # General analysis support
@@ -54,6 +58,8 @@ This module re-exports the following developments:
 * `ToMathlib.Analysis.Holomorphic.PolynomialApproximation`: Polynomial approximation
   of holomorphic functions on disks and entire functions on the plane.
 * `ToMathlib.Analysis.Holomorphic.NormalFamily`: Shared Montel and Vitali arguments.
+* `ToMathlib.Analysis.Integral.CauchyBoundary`: Segment Plemelj formulas, separate
+  vertical boundary limits and symmetric-truncation principal values.
 * `ToMathlib.Analysis.Integral.CompactSupport`: Integration helpers for compactly supported
   and weighted functions.
 * `ToMathlib.Analysis.Integral.CurveIntegral`: Integrating exact one-forms along curves.
@@ -62,8 +68,12 @@ This module re-exports the following developments:
   integrals of exact one-forms.
 * `ToMathlib.Analysis.Integral.CurveIntegral.Bounds`: Norm bounds and vanishing criteria for curve
   integrals.
+* `ToMathlib.Analysis.Integral.Laplace`: Quantitative complex-phase Laplace asymptotics,
+  explicit Gaussian error bounds and uniform finite-interval limits.
 * `ToMathlib.Analysis.Integral.Parametric`: Differentiation of weighted compact integrals.
 * `ToMathlib.Analysis.Integral.Pi`: Nonnegative integration on finite product spaces.
+* `ToMathlib.Analysis.Integral.ProdAbsRPow`: Integrability of products of powers with distinct
+  real singularities.
 * `ToMathlib.Analysis.Integral.Reciprocal`: Compactifying a positive half-line by inversion.
 * `ToMathlib.Analysis.Integral.Tail`: Uniform control of integral tails.
 * `ToMathlib.Analysis.LinearFunctional`: Elementary facts on scalar actions and continuous linear
@@ -78,6 +88,8 @@ This module re-exports the following developments:
   for `x ≥ 1/2`.
 * `ToMathlib.Analysis.SpecialFunctions.Gamma`: The Gamma integral with a complex Laplace parameter.
 * `ToMathlib.Analysis.TaylorBounds`: Elementary bounds for Taylor remainders.
+* `ToMathlib.Analysis.UpperHalfPlaneMaximum`: A minimum principle for the imaginary part on the
+  upper half-plane.
 
 ## References
 
