@@ -73,7 +73,6 @@ that matches the underlying API.
 | `ToMathlib.Topology.LocallyConstantGluing` | Unique normalized gluing of functions with locally constant quotients or differences on an open cover, for arbitrary groups or additive groups; local-domain versions and uniqueness under preconnectedness |
 | `ToMathlib.Topology.Frontier` | Frontiers and complementary components |
 | `ToMathlib.Topology.Order.IntermediateValue`, `Path` | First exit through the frontier for continuous functions on real intervals and for paths |
-| `ToMathlib.Topology.Graph` | Graph homeomorphisms |
 | `ToMathlib.Topology.Baire.Bounded` | Local uniform upper bounds for pointwise bounded families of lower semicontinuous real functions, and the dense open set of local uniform boundedness |
 | `ToMathlib.Topology.SeparateContinuous` | The Baire bound for separately continuous maps into seminormed groups, with a compact parameter set |
 | `ToMathlib.Topology.ProperCovering` | Continuous open locally injective maps are local homeomorphisms; proper local homeomorphisms are covering maps; coverings of simply connected spaces from path-connected spaces are injective |
