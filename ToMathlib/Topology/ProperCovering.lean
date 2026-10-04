@@ -5,7 +5,7 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import Mathlib.Topology.Homotopy.Lifting
+public import TauCeti.Topology.Homotopy.Covering
 public import Mathlib.Topology.Maps.Proper.Basic
 
 /-!
@@ -14,7 +14,9 @@ public import Mathlib.Topology.Maps.Proper.Basic
 A proper local homeomorphism from a Hausdorff space is a covering map: its fibres are compact and
 discrete, hence finite, and a proper map is closed. A covering map from a path-connected space
 onto a simply connected space is injective: a path between two points of a fibre maps to a loop,
-which is null-homotopic, and the lifts of homotopic paths have the same endpoint.
+which is null-homotopic, and the lifts of homotopic paths have the same endpoint. The latter
+result uses the imported proof of the Tau Ceti contributors in `TauCeti.Topology.Homotopy.Covering`.
+The properness criterion remains local, retaining its general topological hypotheses.
 
 This is the topological core of the classical argument that a Schwarz–Christoffel map is
 one-to-one onto its polygon.
@@ -59,27 +61,12 @@ theorem IsLocalHomeomorph.isCoveringMap_of_isProperMap [T2Space E] (hf : IsLocal
     obtain ⟨φ, hφ, hfφ⟩ := hf e
     exact ⟨φ, hφ, hfφ.symm⟩)
 
-/-- A covering map from a path-connected space onto a simply connected space is injective. -/
+/-- A covering map from a path-connected space onto a simply connected space is injective.
+
+Uses `IsCoveringMap.injective` from `TauCeti.Topology.Homotopy.Covering`. -/
 theorem IsCoveringMap.injective_of_simplyConnectedSpace [PathConnectedSpace E]
-    [SimplyConnectedSpace X] (hf : IsCoveringMap f) : Function.Injective f := by
-  intro e₀ e₁ he
-  let γ : Path e₀ e₁ := PathConnectedSpace.somePath e₀ e₁
-  let δ : Path (f e₀) (f e₀) := (γ.map hf.continuous).cast rfl he
-  have hhom : Path.Homotopic δ (Path.refl (f e₀)) := SimplyConnectedSpace.paths_homotopic _ _
-  have h0 : δ.toContinuousMap 0 = f e₀ := by simp
-  have h0' : (Path.refl (f e₀)).toContinuousMap 0 = f e₀ := by simp
-  have hlift := hf.liftPath_apply_one_eq_of_homotopicRel hhom e₀ h0 h0'
-  have hγ : γ.toContinuousMap = hf.liftPath δ.toContinuousMap e₀ h0 := by
-    rw [hf.eq_liftPath_iff']
-    refine ⟨?_, by simp⟩
-    funext t
-    simp [δ]
-  have hc : hf.liftPath (Path.refl (f e₀)).toContinuousMap e₀ h0' = ContinuousMap.const _ e₀ := by
-    symm
-    rw [hf.eq_liftPath_iff']
-    exact ⟨by funext t; simp, by simp⟩
-  rw [← hγ, hc] at hlift
-  simpa using hlift.symm
+    [SimplyConnectedSpace X] (hf : IsCoveringMap f) : Function.Injective f :=
+  hf.injective
 
 /-- A proper local homeomorphism from a path-connected Hausdorff space onto a simply connected
 space is injective. -/

@@ -5,13 +5,14 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import Mathlib.MeasureTheory.Integral.Pi
+public import TauCeti.MeasureTheory.Integral.Pi
 
 /-!
 # Nonnegative integration on finite product spaces
 
 Finite-product versions of Tonelli's theorem for products of almost-everywhere measurable coordinate
-functions. The coordinate spaces may differ and the index type may be empty.
+functions. The coordinate spaces may differ and the index type may be empty. The theorem
+adapts the imported proof of the Tau Ceti contributors in `TauCeti.MeasureTheory.Integral.Pi`.
 
 ## Main results
 
@@ -21,62 +22,21 @@ functions. The coordinate spaces may differ and the index type may be empty.
 
 ## References
 
-* `Mathlib.MeasureTheory.Integral.Pi`: formal background used by this module.
+* `TauCeti.MeasureTheory.Integral.Pi`: the finite-product lower-integral formula.
 -/
 
 public noncomputable section
 open scoped ENNReal
 namespace MeasureTheory
 
-set_option backward.isDefEq.respectTransparency false in
-/-- A nonnegative product of coordinate functions integrates as the product of its integrals,
-for a dependent family indexed by `Fin n`, including the empty product. -/
-private theorem lintegral_fin_nat_prod_eq_prod {n : ℕ} {E : Fin n → Type*}
-    {mE : ∀ i, MeasurableSpace (E i)} {μ : (i : Fin n) → Measure (E i)}
-    [∀ i, SigmaFinite (μ i)] (f : (i : Fin n) → E i → ℝ≥0∞) (hf : ∀ i, Measurable (f i)) :
-    ∫⁻ x, ∏ i, f i (x i) ∂Measure.pi μ = ∏ i, ∫⁻ x, f i x ∂μ i := by
-  induction n with
-  | zero => simp
-  | succ n ih =>
-    rw [← (measurePreserving_piFinSuccAbove μ 0).symm.lintegral_comp_emb
-      (MeasurableEquiv.measurableEmbedding _) (fun x => ∏ i, f i (x i))]
-    simp_rw [MeasurableEquiv.piFinSuccAbove_symm_apply, Fin.insertNthEquiv,
-      Fin.prod_univ_succ, Fin.insertNth_zero, Equiv.coe_fn_mk, Fin.cons_succ,
-      Fin.zero_succAbove, cast_eq, Fin.cons_zero]
-    have hg : Measurable (fun x : (i : Fin n) → E i.succ => ∏ i, f i.succ (x i)) := by fun_prop
-    have : SFinite (Measure.pi fun j : Fin n => μ j.succ) := inferInstance
-    rw [lintegral_prod_mul (hf 0).aemeasurable hg.aemeasurable,
-      ih _ (fun i => hf i.succ)]
-
-/-- A nonnegative product of coordinate functions integrates as the product of its integrals
-on an arbitrary finite dependent product of sigma-finite measure spaces. -/
-private theorem lintegral_fintype_prod_eq_prod_measurable {ι : Type*} [Fintype ι] {E : ι → Type*}
-    {mE : ∀ i, MeasurableSpace (E i)} {μ : (i : ι) → Measure (E i)}
-    [∀ i, SigmaFinite (μ i)] (f : (i : ι) → E i → ℝ≥0∞) (hf : ∀ i, Measurable (f i)) :
-    ∫⁻ x, ∏ i, f i (x i) ∂Measure.pi μ = ∏ i, ∫⁻ x, f i x ∂μ i := by
-  let e := (Fintype.equivFin ι).symm
-  rw [← (measurePreserving_piCongrLeft _ e).lintegral_comp_emb
-    (MeasurableEquiv.measurableEmbedding _) (fun x => ∏ i, f i (x i))]
-  simp_rw [← e.prod_comp, MeasurableEquiv.coe_piCongrLeft, Equiv.piCongrLeft_apply_apply]
-  exact lintegral_fin_nat_prod_eq_prod _ (fun i => hf (e i))
-
 /-- Tonelli's formula for a finite dependent product of almost-everywhere measurable factors.
-The index type may be empty. -/
+The index type may be empty. Uses `TauCeti.lintegral_fintype_prod_eq_prod₀`. -/
 theorem lintegral_fintype_prod_eq_prod {ι : Type*} [Fintype ι] {E : ι → Type*}
     {mE : ∀ i, MeasurableSpace (E i)} {μ : (i : ι) → Measure (E i)}
     [∀ i, SigmaFinite (μ i)] (f : (i : ι) → E i → ℝ≥0∞)
     (hf : ∀ i, AEMeasurable (f i) (μ i)) :
-    ∫⁻ x, ∏ i, f i (x i) ∂Measure.pi μ = ∏ i, ∫⁻ x, f i x ∂μ i := by
-  classical
-  let g := fun i => (hf i).mk (f i)
-  calc
-    _ = ∫⁻ x, ∏ i, g i (x i) ∂Measure.pi μ := by
-      apply lintegral_congr_ae
-      filter_upwards [Measure.ae_eq_pi (fun i => (hf i).ae_eq_mk)] with x hx
-      exact congrArg (fun h : ι → ℝ≥0∞ => ∏ i, h i) hx
-    _ = ∏ i, ∫⁻ x, g i x ∂μ i :=
-      lintegral_fintype_prod_eq_prod_measurable g (fun i => (hf i).measurable_mk)
-    _ = _ := Finset.prod_congr rfl (fun i _ => lintegral_congr_ae (hf i).ae_eq_mk.symm)
+    ∫⁻ x, ∏ i, f i (x i) ∂Measure.pi μ = ∏ i, ∫⁻ x, f i x ∂μ i :=
+  TauCeti.lintegral_fintype_prod_eq_prod₀ μ hf
 
 end MeasureTheory
 end

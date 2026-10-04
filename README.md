@@ -8,9 +8,9 @@ The foundational developments are intended as potential Mathlib contributions.
 There are seven main directories.
 
 - `ToMathlib/`.
-General support that depends only on Mathlib, in the namespaces of the Mathlib APIs it
+General support that uses Mathlib and the pinned TauCeti, in the namespaces of the Mathlib APIs it
 extends: `ToMathlib/Algebra` (submodule and linear-dependence support),
-`ToMathlib/Topology` (compactness, path, graph, semicontinuity, and Baire-theorem support),
+`ToMathlib/Topology` (compactness, path, semicontinuity, and Baire-theorem support),
 and `ToMathlib/Analysis` (normed-space, functional-analysis, Taylor-estimate, and integration
 support, including the Gamma integral with a complex Laplace parameter).
 
@@ -165,7 +165,7 @@ Dependencies flow from the support libraries and simplex foundations to
 application layer; `Dirichlet` never imports `Carlson`. The support libraries never
 import the application layers, and remain independent of the simplex foundation.
 
-`ToMathlib` depends only on Mathlib. `ComplexAnalysis` builds on it;
+`ToMathlib` may depend on Mathlib and TauCeti. `ComplexAnalysis` builds on it;
 `SeveralComplexVariables` builds on both. The support libraries extend the
 corresponding Mathlib namespaces (`Complex`, `MeasureTheory`, `Submodule`, and so on) and
 several-variable theory uses the `SeveralComplexVariables` namespace. The real Dirichlet
@@ -183,6 +183,21 @@ simplex measure, and the one-variable complex analysis used here),
 [SYNOPSIS_SCV.md](SYNOPSIS_SCV.md) (the several-variable analysis used here) and
 [SYNOPSIS_CARLSON.md](SYNOPSIS_CARLSON.md) (Dirichlet averages and Carlson's functions). The
 full one- and several-variable theories are documented in their own projects.
+
+## Dependencies and upstream reuse
+
+The project uses Lean `v4.35.0-rc3`, Mathlib revision
+`5e0c4e5239cb0a2d86d68a884bf52cfd963fce22`, and TauCeti revision
+`a780c7ad6beb23f60a17351a492d177878020ad5`, matching the companion CA and SCV projects.
+Prefer existing results in **Mathlib, then TauCeti, then local code**, preserving hypotheses
+and conclusions. Import the particular module, for example
+`public import TauCeti.Analysis.Complex.SlitPlane`; `import TauCeti` is not an umbrella.
+The shared `.lake` symlink remains in place and this project's outputs use `.lake/build-codes`.
+
+The copied CA and SCV directories contain only the transitive dependency subsets needed here.
+Make changes in their primary projects, then synchronize the relevant copies.
+See [TauCetiReview.md](TauCetiReview.md) for reuse opportunities and checked replacements,
+and [CREDITS.md](CREDITS.md) for attribution.
 
 ## Registry statement
 

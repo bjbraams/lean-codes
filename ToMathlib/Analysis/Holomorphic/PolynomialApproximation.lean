@@ -6,14 +6,18 @@ Authors: Bastiaan J Braams
 module
 
 public import Mathlib.Analysis.Complex.CauchyIntegral
-public import Mathlib.Topology.Algebra.Polynomial
+public import ToMathlib.Analysis.Analytic.PolynomialApproximation
 
 /-!
 # Polynomial approximation on complex disks and the plane
 
-Partial sums of a complex power series can be represented by ordinary complex
-polynomials. They converge locally uniformly on the disk of convergence; for an
-entire function this gives approximation throughout the plane.
+The approximation results build on Mathlib's Cauchy power-series expansion and locally
+uniform convergence of power-series partial sums, as cited below. The explicit polynomial
+construction is shared with `ToMathlib.Analysis.Analytic.PolynomialApproximation`.
+
+The general explicit polynomial partial sums are provided by
+`ToMathlib.Analysis.Analytic.PolynomialApproximation`. This module applies them
+to holomorphic functions on disks and entire functions on the plane.
 
 ## Main results
 
@@ -34,25 +38,6 @@ public noncomputable section
 namespace Complex
 open Polynomial Set Filter
 open scoped Topology NNReal ENNReal
-
-/-- A power-series expansion over a nontrivially normed field is the locally uniform limit of ordinary
-polynomials on its open disk of convergence. -/
-theorem _root_.HasFPowerSeriesOnBall.exists_polynomial_tendstoLocallyUniformlyOn
-    {𝕜 : Type*} [NontriviallyNormedField 𝕜]
-    {f : 𝕜 → 𝕜} {a : FormalMultilinearSeries 𝕜 𝕜 𝕜} {c : 𝕜} {ρ : ℝ≥0∞}
-    (hf : HasFPowerSeriesOnBall f a c ρ) :
-    ∃ p : ℕ → 𝕜[X], TendstoLocallyUniformlyOn (fun N z => (p N).eval z) f atTop
-      (Metric.eball c ρ) := by
-  let p := fun N => ∑ n ∈ Finset.range N, C (a n (fun _ => 1)) * (X - C c) ^ n
-  have he (N : ℕ) (z : 𝕜) : (p N).eval z = a.partialSum N (z - c) := by
-    simp only [p, eval_finsetSum, eval_mul, eval_C, eval_pow, eval_sub, eval_X,
-      FormalMultilinearSeries.partialSum]
-    apply Finset.sum_congr rfl
-    intro n _
-    simpa only [smul_eq_mul, mul_one, Finset.prod_const, Finset.card_fin, mul_comm] using
-      ((a n).map_smul_univ (fun _ => z - c) (fun _ => 1)).symm
-  refine ⟨p, ?_⟩
-  simpa only [he] using hf.tendstoLocallyUniformlyOn'
 
 /-- Every entire complex function is the locally uniform limit of a sequence
 of complex polynomials. -/

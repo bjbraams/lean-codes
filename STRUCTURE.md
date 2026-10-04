@@ -6,11 +6,20 @@ The project's mathematical libraries are the general support in `ToMathlib` (`Al
 and simplex geometry/integration (`StdSimplexMeasure`) feed into `Dirichlet`, then `Carlson`.
 The support libraries do not import either application layer, and Dirichlet theory
 does not import Carlson functions. The complex-analytic libraries (`ToMathlib`,
-`ComplexAnalysis`, `SeveralComplexVariables`) depend only on Mathlib and on each other;
+`ComplexAnalysis`, `SeveralComplexVariables`) may depend on Mathlib, the pinned TauCeti and earlier support layers;
 complex kernels integrated over simplices (divided differences, repeated integrals) live in
 `StdSimplexMeasure.Complex`.
 
 The root modules and the topic umbrellas below are convenient entry points.
+
+
+TauCeti is pinned to the same revision as the CA and SCV companion projects. Prefer Mathlib,
+then TauCeti, then local proofs. [TauCetiReview.md](TauCetiReview.md) records checked reuse
+candidates and the dependency-closure audit: all 23 copied CA files and 21 copied SCV files
+are needed and match their primary sources byte for byte. The synchronized injectivity,
+holomorphic-inverse, half-plane quotient and exterior-connectedness proofs now use TauCeti.
+The simplex moment-determination theorem, finite-product lower-integral formula and covering-map
+injectivity also adapt TauCeti, preserving their existing local interfaces and hypotheses.
 
 ## General algebra
 
@@ -38,7 +47,7 @@ independence and dependence results.
 the complex-analytic and application libraries. Files that also exist in `lean-CA` or
 `lean-SCV` are kept identical there; some (the holomorphic function spaces and the open mapping
 theorem) are used only by those projects.
-Both depend only on Mathlib. Complex analysis and SCV import individual support modules
+Both may use Mathlib and the pinned TauCeti. Complex analysis and SCV import individual support modules
 as needed; the general foundations do not import either complex function-theory library.
 Their directory names are not blanket namespaces. Existing namespaces such as
 `ContinuousLinearMap`, `ContDiffAt`, `MeasureTheory`, `IsOpen`, `Path`, `Homeomorph`,
@@ -68,8 +77,10 @@ that matches the underlying API.
 | `ToMathlib.Analysis.Integral.CurveIntegral.Bounds` | Operator-norm and speed estimates, vanishing connector integrals, and explicit power-decay rates for growing paths |
 | `ToMathlib.Analysis.Integral.Reciprocal` | Inversion change of variables on arbitrary measurable sets avoiding zero, with half-line corollaries |
 | `ToMathlib.Analysis.Integral.Tail` | Uniformly vanishing tails under a common integrable majorant, uniform finite-interval approximation, and a quantitative power-decay tail estimate |
-| `ToMathlib.Analysis.Holomorphic.FunctionSpace` | Shared compact-open holomorphic maps, evaluation, restriction, and the equivalence between function-space convergence and locally uniform convergence; closedness is supplied separately by each variable theory |
-| `ToMathlib.Analysis.Holomorphic.NormalFamily` | Equicontinuity under compact-local bounds, Montel compactness and subsequences with closedness as input, and Vitali convergence with a uniqueness-set hypothesis |
+| `ToMathlib.Analysis.Holomorphic.FunctionSpace` | Bundled compact-open holomorphic maps, pointwise algebra, evaluation and restriction as continuous linear maps, and convergence directly on the domain |
+| `ToMathlib.Analysis.Holomorphic.LocallyUniformLimit` | Closedness and completeness on open subsets of the complex plane with Banach targets, using Mathlib's Weierstrass theorem |
+| `ToMathlib.Analysis.Holomorphic.NormalFamily` | Equicontinuity under compact-local bounds; Montel compactness, subsequences, and Vitali convergence on planar domains with finite-dimensional targets; general-source versions retain a closedness hypothesis. Related work: RMT4, [Mathlib PR #33505](https://github.com/leanprover-community/mathlib4/pull/33505), and TauCeti (links in the module header) |
+| `ToMathlib.Analysis.Analytic.PolynomialApproximation`, `Holomorphic.PolynomialApproximation` | Explicit polynomial partial sums over normed fields, and complex disk/entire-function approximation; used by `Carlson.Jacobi.AnalyticExpansion` |
 | `ToMathlib.Topology.LocallyConstantGluing` | Unique normalized gluing of functions with locally constant quotients or differences on an open cover, for arbitrary groups or additive groups; local-domain versions and uniqueness under preconnectedness |
 | `ToMathlib.Topology.Frontier` | Frontiers and complementary components |
 | `ToMathlib.Topology.Order.IntermediateValue`, `Path` | First exit through the frontier for continuous functions on real intervals and for paths |

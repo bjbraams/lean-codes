@@ -5,12 +5,19 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import Mathlib.MeasureTheory.Integral.CurveIntegral.Basic
 public import Mathlib.Analysis.Normed.Group.Continuity
 public import Mathlib.Analysis.SpecialFunctions.Pow.Asymptotics
+public import Mathlib.MeasureTheory.Integral.CurveIntegral.Basic
 
 /-!
 # Norm bounds and vanishing criteria for curve integrals
+
+Related work on the curve-integral API includes
+[Mathlib PR #39524](https://github.com/leanprover-community/mathlib4/pull/39524),
+line-segment integrability and the fundamental theorem of calculus by FordUniver, and
+[Mathlib PR #39254](https://github.com/leanprover-community/mathlib4/pull/39254),
+complex contour integrals by Yury Kudryashov. Our code here will be reviewed upon the
+anticipated adoption of those PRs, comparing the results and their assumptions separately.
 
 The operator norm of a one-form and the speed of a path control the norm of
 its curve integral. These estimates apply to forms on real or complex normed
@@ -66,9 +73,10 @@ theorem norm_curveIntegral_le_mul_integral_norm_derivWithin
   exact (ω (γ ⟨t, htI⟩)).le_of_opNorm_le (hω ⟨t, htI⟩) _
 
 /-- Bounds on the form and path speed give the usual product estimate for a curve integral. -/
-theorem norm_curveIntegral_le_mul_of_derivWithin_le (hC : 0 ≤ C)
+theorem norm_curveIntegral_le_mul_of_derivWithin_le
     (hω : ∀ t, ‖ω (γ t)‖ ≤ C) (hγ : ∀ t ∈ I, ‖derivWithin γ.extend I t‖ ≤ L) :
     ‖curveIntegral ω γ‖ ≤ C * L := by
+  have hC : 0 ≤ C := (norm_nonneg _).trans (hω 0)
   let : NormedSpace ℝ F := .restrictScalars ℝ 𝕜 F
   rw [curveIntegral_def]
   simpa only [sub_zero, abs_one, mul_one] using
@@ -83,22 +91,21 @@ theorem norm_curveIntegral_le_mul_of_derivWithin_le (hC : 0 ≤ C)
 /-- Connecting-path integrals vanish if the products of form and speed bounds tend to zero. -/
 theorem tendsto_curveIntegral_zero_of_bounds
     {α : Type*} {ℱ : Filter α} {x y : α → E} {η : ∀ i, Path (x i) (y i)}
-    {ω : α → E → E →L[𝕜] F} {C L : α → ℝ} (hC : ∀ i, 0 ≤ C i)
+    {ω : α → E → E →L[𝕜] F} {C L : α → ℝ}
     (hω : ∀ i t, ‖ω i (η i t)‖ ≤ C i)
     (hη : ∀ i t, t ∈ I → ‖derivWithin (η i).extend I t‖ ≤ L i)
     (hlim : Tendsto (fun i => C i * L i) ℱ (𝓝 0)) :
     Tendsto (fun i => curveIntegral (ω i) (η i)) ℱ (𝓝 0) :=
   squeeze_zero_norm
-    (fun i => norm_curveIntegral_le_mul_of_derivWithin_le (hC i) (hω i) (hη i)) hlim
+    (fun i => norm_curveIntegral_le_mul_of_derivWithin_le (hω i) (hη i)) hlim
 
 /-- A power bound on the form and a linear bound on speed give an explicit decay rate
 for the curve integral. -/
-theorem norm_curveIntegral_le_rpow {R p K : ℝ} (hR : 0 < R) (hC : 0 ≤ C)
+theorem norm_curveIntegral_le_rpow {R p K : ℝ} (hR : 0 < R)
     (hω : ∀ t, ‖ω (γ t)‖ ≤ C * R ^ (-p))
     (hγ : ∀ t ∈ I, ‖derivWithin γ.extend I t‖ ≤ K * R) :
     ‖curveIntegral ω γ‖ ≤ (C * K) * R ^ (1 - p) := by
-  convert norm_curveIntegral_le_mul_of_derivWithin_le
-    (mul_nonneg hC (Real.rpow_nonneg hR.le _)) hω hγ using 1
+  convert norm_curveIntegral_le_mul_of_derivWithin_le hω hγ using 1
   rw [show 1 - p = -p + 1 by ring, Real.rpow_add_one hR.ne']
   ring
 
@@ -106,11 +113,11 @@ theorem norm_curveIntegral_le_rpow {R p K : ℝ} (hR : 0 < R) (hC : 0 ≤ C)
 families of paths whose speeds grow at most linearly with that radius. -/
 theorem tendsto_curveIntegral_zero_of_rpow_bounds
     {α : Type*} {ℱ : Filter α} {x y : α → E} {η : ∀ i, Path (x i) (y i)}
-    {ω : α → E → E →L[𝕜] F} {R : α → ℝ} {p K : ℝ} (hp : 1 < p) (hC : 0 ≤ C)
+    {ω : α → E → E →L[𝕜] F} {R : α → ℝ} {p K : ℝ} (hp : 1 < p)
     (hR : ∀ i, 0 < R i) (hRlim : Tendsto R ℱ atTop)
     (hω : ∀ i t, ‖ω i (η i t)‖ ≤ C * (R i) ^ (-p))
     (hη : ∀ i t, t ∈ I → ‖derivWithin (η i).extend I t‖ ≤ K * R i) :
     Tendsto (fun i => curveIntegral (ω i) (η i)) ℱ (𝓝 0) := by
-  apply squeeze_zero_norm (fun i => norm_curveIntegral_le_rpow (hR i) hC (hω i) (hη i))
+  apply squeeze_zero_norm (fun i => norm_curveIntegral_le_rpow (hR i) (hω i) (hη i))
   simpa only [neg_sub, mul_zero, Function.comp_apply] using
     ((tendsto_rpow_neg_atTop (sub_pos.mpr hp)).comp hRlim).const_mul (C * K)

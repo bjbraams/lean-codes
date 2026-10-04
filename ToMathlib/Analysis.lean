@@ -5,6 +5,7 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import ToMathlib.Analysis.Analytic.PolynomialApproximation
 public import ToMathlib.Analysis.Connected
 public import ToMathlib.Analysis.Calculus.MeanWeights
 public import ToMathlib.Analysis.Convex.GeometricMean
@@ -13,6 +14,7 @@ public import ToMathlib.Analysis.Convex.NegativePower
 public import ToMathlib.Analysis.Convex.NormalizedAddition
 public import ToMathlib.Analysis.ConvexHullDomain
 public import ToMathlib.Analysis.Holomorphic.FunctionSpace
+public import ToMathlib.Analysis.Holomorphic.LocallyUniformLimit
 public import ToMathlib.Analysis.Holomorphic.NormalFamily
 public import ToMathlib.Analysis.Holomorphic.PolynomialApproximation
 public import ToMathlib.Analysis.Integral.CauchyBoundary
@@ -64,10 +66,16 @@ This module re-exports the following developments:
 * `ToMathlib.Analysis.Convex.NormalizedAddition`: Strict convexity and concavity under
   normalization by positive homogeneous quantities.
 * `ToMathlib.Analysis.ConvexHullDomain`: Connectedness of convex-hull-admissible configurations.
-* `ToMathlib.Analysis.Holomorphic.FunctionSpace`: Shared spaces of holomorphic maps.
+* `ToMathlib.Analysis.Analytic.PolynomialApproximation`: Explicit polynomial partial sums
+  and locally uniform convergence over a nontrivially normed field.
+* `ToMathlib.Analysis.Holomorphic.FunctionSpace`: Bundled holomorphic maps with evaluation,
+  restriction, and the compact-open topology.
+* `ToMathlib.Analysis.Holomorphic.LocallyUniformLimit`: Closedness and completeness of
+  holomorphic-map spaces on open subsets of the complex plane.
 * `ToMathlib.Analysis.Holomorphic.PolynomialApproximation`: Polynomial approximation
   of holomorphic functions on disks and entire functions on the plane.
-* `ToMathlib.Analysis.Holomorphic.NormalFamily`: Shared Montel and Vitali arguments.
+* `ToMathlib.Analysis.Holomorphic.NormalFamily`: Montel and Vitali theorems on the complex
+  plane, and conditional versions for general finite-dimensional sources.
 * `ToMathlib.Analysis.Integral.CauchyBoundary`: Segment Plemelj formulas, separate
   vertical boundary limits and symmetric-truncation principal values.
 * `ToMathlib.Analysis.Integral.CompactSupport`: Integration helpers for compactly supported
