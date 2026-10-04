@@ -14,9 +14,23 @@ The root modules and the topic umbrellas below are convenient entry points.
 
 ## General algebra
 
-`ToMathlib.Algebra.LinearDependence` develops denominator closure and denominator-cleared
-linear dependence over integral domains in namespace `Submodule`. It imports only
-Mathlib; the associated Carlson-function arguments import this algebraic support.
+`ToMathlib.Algebra.Submodule.Saturation` defines `Submodule.IsSaturated S` and the
+saturation of a submodule at a multiplicative set `S`. The closure is the inverse image
+of Mathlib's `S`-torsion submodule of the quotient; it includes a closure operator and
+the equivalence between saturation at non-zero-divisors and a torsion-free quotient.
+`ToMathlib.Algebra.Submodule.SaturationLocalization` identifies this closure with the
+inverse image of the localized submodule.
+
+`ToMathlib.Algebra.LinearDependence` proves finite independence bounds and existence of
+nontrivial relations in saturated finite spans over commutative rings, assuming only
+that `0 ∉ S`. It uses Mathlib's localization and span-cardinality results. The associated
+Carlson-function arguments specialize this support to nonzero polynomial denominators.
+All three support modules depend only on Mathlib and each other.
+
+The proposed upstream homes are `Mathlib/Algebra/Module/Submodule/Saturation.lean` for
+the basic API, additions to `Mathlib/Algebra/Module/LocalizedModule/Submodule.lean` for
+the localization bridge, and `Mathlib/LinearAlgebra/Dimension/Saturation.lean` for the
+independence and dependence results.
 
 ## General analysis and topology
 
@@ -28,41 +42,40 @@ Both depend only on Mathlib. Complex analysis and SCV import individual support 
 as needed; the general foundations do not import either complex function-theory library.
 Their directory names are not blanket namespaces. Existing namespaces such as
 `ContinuousLinearMap`, `ContDiffAt`, `MeasureTheory`, `IsOpen`, `Path`, `Homeomorph`,
-`Set`, `UpperSemicontinuousOn`, and `Real` are used, with root-level results where
+`Set` and `Real` are used, with root-level results where
 that matches the underlying API.
 
 | Module | Content |
 | --- | --- |
+| `ToMathlib.Algebra.LinearMap.Ordered` | Half-space inclusion and nonnegative or positive proportionality of linear functionals over ordered fields |
 | `ToMathlib.Analysis.SpecialFunctions.Bessel` | The series of the regularized hypergeometric functions, bounds for Bessel functions of integer order, and the modified Bessel function `I_a` |
-| `ToMathlib.Analysis.SpecialFunctions.GammaRatio` | `Γ(x)/|Γ(x + iy)| ≤ √(cosh πy)` for `x ≥ 1/2`, and `|Γ(1/2 + iy)|² = π/cosh πy` |
-| `ToMathlib.Analysis.SpecialFunctions.CosOrthogonality` | Orthogonality of `cos (kθ)` on `[0, π]` |
+| `ToMathlib.Analysis.SpecialFunctions.GammaRatio` | Monotonicity of `Γ(x)/|Γ(x + iy)|` for `x > 0`, the bound `√(cosh πy)` for `x ≥ 1/2`, and `|Γ(1/2 + iy)|² = π/cosh πy` |
 | `ToMathlib.Analysis.SpecialFunctions.Gamma` | Complex-rate Gamma/Laplace kernel bounds, integrability, differentiation, holomorphy, and evaluation |
-| `ToMathlib.Analysis.Deriv` | Diagonal chain rule over a nontrivially normed field, with normed-space targets |
-| `ToMathlib.Analysis.Integral.Pi` | Nonnegative integration of coordinate products over finite dependent product measure spaces |
-| `ToMathlib.Analysis.Integral.ProdAbsRPow` | Integrability on `ℝ` of `∏ |σ - xᵢ|^{-bᵢ}` for distinct nodes, `0 < bᵢ < 1` and `∑ bᵢ > 1` |
+| `ToMathlib.Analysis.Integral.Pi` | Nonnegative integration of almost-everywhere measurable coordinate products over finite dependent product measure spaces |
+| `ToMathlib.Analysis.Integral.ProdAbsRPow` | Integrability on `ℝ` of `∏ |σ - xᵢ|^{-bᵢ}` for distinct nodes, `bᵢ < 1` and `∑ bᵢ > 1`, allowing nonsingular positive powers |
 | `ToMathlib.Analysis.UpperHalfPlaneMaximum` | Minimum principle for `im f` on the upper half-plane, for `f` holomorphic, continuous up to the axis, with a limit at infinity |
 | `ToMathlib.Analysis.Connected` | Connected shells and complements of balls in real normed spaces |
 | `ToMathlib.Analysis.ConvexHullDomain` | Path connectedness of configurations whose convex hull stays in a path-connected set; arbitrary index types and real topological vector spaces |
-| `ToMathlib.Analysis.LinearFunctional` | Scalar actions and continuous linear functional lemmas |
-| `ToMathlib.Analysis.OpenMapping` | Open mapping for complete metrizable real or complex vector spaces |
-| `ToMathlib.Analysis.TaylorBounds` | `ContDiffAt.exists_taylor_bound` and real Taylor-remainder inequalities |
-| `ToMathlib.Analysis.GeometricBounds` | Real root limits and geometric majorants extracted from the Hartogs proof |
-| `ToMathlib.Analysis.Integral.CompactSupport` | Compact weighted integrability over a normed field and half-line integration support |
-| `ToMathlib.Analysis.Integral.CauchyBoundary` | Real-line and segment Cauchy jumps; separate vertical Plemelj limits, symmetric-truncation principal values, and integrability of the regularized quotient from differentiability at the pole |
+| `ToMathlib.Analysis.OpenMapping` | Open mapping for complete metrizable vector spaces over any nontrivially normed field |
+| `ToMathlib.Analysis.TaylorBounds` | Vector-valued second-order Taylor bounds, the Taylor–Peano little-o remainder, and the real-valued corollary |
+| `ToMathlib.Analysis.Integral.CompactSupport` | Compact weighted integrability over a normed ring with a bounded scalar action and half-line integration support |
+| `ToMathlib.Analysis.Integral.CauchyBoundary` | Real-line and segment Cauchy jumps; continuity of the regularized integral at zero height, height-based vertical Plemelj limits, symmetric-truncation principal values, and integrability of the regularized quotient from differentiability at the pole |
 | `ToMathlib.Analysis.Integral.Laplace` | Complex-phase Laplace asymptotics for measurable amplitudes and quadratic coefficients; absolute integrability, Gaussian moments, explicit normalized error `(L/c + M B/c²)/√n`, uniform parameter limits, finite-interval variants, and a nonzero-leading-term asymptotic equivalent |
-| `ToMathlib.Analysis.Integral.Parametric` | Fréchet differentiation of compact integrals with fixed integrable weights and real or complex parameters |
+| `ToMathlib.Analysis.Integral.Parametric` | Fréchet differentiation of compact integrals with fixed integrable weights and arbitrary real or complex normed parameter spaces |
 | `ToMathlib.Analysis.Integral.CurveIntegral` | Endpoint formulas for exact one-forms on real or complex normed spaces, with Banach-valued potentials |
 | `ToMathlib.Analysis.Integral.CurveIntegral.Map` | Pullback of one-forms under differentiable maps and identification of finite-interval parametrizations with Mathlib curve integrals |
-| `ToMathlib.Analysis.Integral.CurveIntegral.Improper` | Exact-form endpoint formulas on half-lines and open intervals, limits determined by endpoint potentials, and convergence of finite curve integrals to integrable half-line pullbacks |
+| `ToMathlib.Analysis.Integral.CurveIntegral.Improper` | Limits determined by endpoint potentials, and convergence of finite curve integrals to integrable half-line pullbacks |
 | `ToMathlib.Analysis.Integral.CurveIntegral.Bounds` | Operator-norm and speed estimates, vanishing connector integrals, and explicit power-decay rates for growing paths |
-| `ToMathlib.Analysis.Integral.Reciprocal` | Inversion change of variables between a positive half-line and a bounded interval, for both integrals and integrability |
+| `ToMathlib.Analysis.Integral.Reciprocal` | Inversion change of variables on arbitrary measurable sets avoiding zero, with half-line corollaries |
 | `ToMathlib.Analysis.Integral.Tail` | Uniformly vanishing tails under a common integrable majorant, uniform finite-interval approximation, and a quantitative power-decay tail estimate |
 | `ToMathlib.Analysis.Holomorphic.FunctionSpace` | Shared compact-open holomorphic maps, evaluation, restriction, and the equivalence between function-space convergence and locally uniform convergence; closedness is supplied separately by each variable theory |
 | `ToMathlib.Analysis.Holomorphic.NormalFamily` | Equicontinuity under compact-local bounds, Montel compactness and subsequences with closedness as input, and Vitali convergence with a uniqueness-set hypothesis |
-| `ToMathlib.Topology.LocallyConstantGluing` | Gluing functions with locally constant additive differences over simply connected spaces, via a discrete-fiber covering bundle |
-| `ToMathlib.Topology.CompactExhaustion`, `Frontier`, `Path` | Compact exhaustions, frontier membership, and first exit of paths |
-| `ToMathlib.Topology.Graph`, `UpperSemicontinuous` | Graph homeomorphisms and semicontinuity operations |
-| `ToMathlib.Topology.SeparateContinuous` | Baire boundedness for separately continuous maps on a product with a compact factor |
+| `ToMathlib.Topology.LocallyConstantGluing` | Unique normalized gluing of functions with locally constant quotients or differences on an open cover, for arbitrary groups or additive groups; local-domain versions and uniqueness under preconnectedness |
+| `ToMathlib.Topology.Frontier` | Frontiers and complementary components |
+| `ToMathlib.Topology.Order.IntermediateValue`, `Path` | First exit through the frontier for continuous functions on real intervals and for paths |
+| `ToMathlib.Topology.Graph` | Graph homeomorphisms |
+| `ToMathlib.Topology.Baire.Bounded` | Local uniform upper bounds for pointwise bounded families of lower semicontinuous real functions, and the dense open set of local uniform boundedness |
+| `ToMathlib.Topology.SeparateContinuous` | The Baire bound for separately continuous maps into seminormed groups, with a compact parameter set |
 | `ToMathlib.Topology.ProperCovering` | Continuous open locally injective maps are local homeomorphisms; proper local homeomorphisms are covering maps; coverings of simply connected spaces from path-connected spaces are injective |
 
 The generic Baire and real-estimate blocks were separated from the SCV Hartogs proof.
@@ -192,6 +205,10 @@ Simplex integral evaluation.
 
 Real probability results. `Dirichlet.Real.Moments` → `Real.Aggregation` → `Real.Marginals`.
 Probability statements about moments, aggregation, and beta marginals are downstream of the real distribution.
+`Dirichlet.Real.Average` supplies integrability on the compact simplex, Jensen bounds,
+and mixed affine moments. Almost-sure equality of affine combinations is equivalent
+to equality of their node vectors. `Dirichlet.Real.StrictAverage` uses this to prove
+strict Jensen bounds and strict convexity or concavity in the nodes for general kernels.
 
 ### `Dirichlet.Complex`
 
@@ -269,6 +286,70 @@ The scalar Gamma/Laplace integral is independent support in
 `ToMathlib.Analysis.SpecialFunctions.Gamma`, under namespace `Complex`. Carlson's Laplace module
 retains the R/S integral definitions and the inverse-confluence theorems, importing this
 scalar API. The foundation uses only Mathlib, including its positive-real-rate evaluation.
+
+### Hypergeometric means
+
+`Carlson.Mean` re-exports the complex definitions and the positive-real inequality theory.
+The order convention is `R_t = E[(∑ uᵢ xᵢ)^t]`, so the real mean is `R_t^(1/t)`
+away from zero and `exp(E[log(∑ uᵢ xᵢ)])` at zero. Positive nodes and parameters
+allow every real order, without restricting to the Euler integral's convergence strip.
+
+| Module | Content |
+| --- | --- |
+| `Carlson.Mean.Basic` | Complex means, ratio means, power-transformed means, and their analytic continuation and branch hypotheses |
+| `Carlson.Mean.Weights` | Complex derivative weights and removable limits at zero order or power |
+| `Carlson.Mean.Real` | Real probability-integral definitions and agreement with the complex functions |
+| `Carlson.Mean.Inequalities` | Weak and strict arithmetic-power, weighted-power, and logarithmic Jensen bounds |
+| `Carlson.Mean.Order` | Monotonicity across the entire real order axis |
+| `Carlson.Mean.Properties` | Normalization, homogeneity, strict node monotonicity, and bounds by node extrema |
+| `Carlson.Mean.Euler` | Euler inversion and identification of order minus the total parameter with the geometric mean |
+| `Carlson.Mean.StrictOrder` | Strict order monotonicity for nonconstant nodes and exact equality conditions for order, arithmetic, and geometric comparisons |
+| `Carlson.Mean.Minkowski` | Minkowski and reverse Minkowski at all real orders, proportional-vector equality cases, and convexity or concavity in the nodes |
+| `Carlson.Mean.LogConvex` | Convexity of log R in the order, strict for nonconstant nodes; equivalently convexity of order times log mean |
+| `Carlson.Mean.Ratio` | Real ratio-mean normalization, homogeneity, and comparison with one |
+| `Carlson.Mean.Holder` | Hölder for nonnegative orders, its reversal below minus the total parameter, the geometric endpoint identity, and exact equality cases |
+| `Carlson.Mean.Dresher` | Beckenbach–Dresher for `0 < s ≤ 1 ≤ t`, `s < t`, including proportional-vector equality cases |
+| `Carlson.Mean.Bounds` | All five strict chains in Carlson (1966), Theorem 2; exceptional values and refinements of the minima |
+| `Carlson.Mean.ConcentrationZero` | Zero-concentration limits for complex R and L, and real weighted-power/geometric mean limits |
+| `Carlson.Mean.Concentration` | Continuity in positive concentration and infinite-concentration limits for R, L, and every real-order mean |
+| `Carlson.Mean.ConcentrationQuadratic` | Exact quadratic concentration formula, strict decrease, strict log-convexity, and negative derivative for arbitrary finite nonconstant real nodes |
+| `Carlson.Mean.ConcentrationTwo` | Strict concentration monotonicity of two-node R and means in every real order range, including the logarithmic mean |
+| `Carlson.Mean.OrderLimits` | Limits at positive and negative infinite order: maximum and minimum node |
+
+The positive-parameter theory now covers the comparison, continuity, endpoint limits,
+log-convexity, Euler inversion, Minkowski, Hölder, and Beckenbach–Dresher results of
+Carlson (1965), together with the five bound chains of Carlson (1966), Theorem 2.
+The zero-concentration results are limits; they do not redefine the original
+functions at the singular parameter vector zero. All real orders are allowed.
+Strict results require nonconstant nodes or nonproportional vectors as appropriate;
+constant and singleton cases are retained in the weak inequalities and limits.
+
+The new probability support is in `Dirichlet.Real.Support` (equivalent null sets
+for positive Dirichlet laws and exact essential affine bounds) and
+`Dirichlet.Real.Concentration` (coordinate deviation estimates and convergence of
+Lipschitz or continuously differentiable simplex averages).
+
+Carlson–Tobey (1968) is now partly formalized. For two distinct positive nodes and
+positive, possibly unnormalized parameters, R strictly decreases in concentration
+for `t < 0` and `t > 1`, and increases for `0 < t < 1`. The mean increases for
+`t < 1` (including zero) and decreases for `t > 1`. These are finite-difference
+monotonicity results; the paper's strict derivative signs are not yet formalized
+except at quadratic order. At order two, arbitrary finite real node sets satisfy
+`R₂(cw; x) = A² + V / (c + 1)` for positive normalized weights. Nonconstant nodes
+give strict decrease, strict log-convexity, and a strictly negative derivative;
+the mean consequence additionally assumes positive nodes.
+
+The reusable support includes exact affine second moments in
+`Dirichlet.Real.Variance`, beta-average conversion in `Dirichlet.Real.BetaAverage`,
+a general two-crossing integral comparison, and strict convex comparison of beta
+laws. The scalar Pochhammer ratio `(cw)ₙ / (c)ₙ` is also proved decreasing and
+log-convex for `0 < w < 1`, strictly so for `n ≥ 2`.
+
+Remaining Carlson–Tobey work includes arbitrary finite-node concentration
+monotonicity, strict derivative signs beyond the quadratic case, log-convexity at
+negative orders and integer orders above two, concavity for `0 < t < 1`, and
+convexity for `1 < t < 2`. The paper only conjectures log-convexity for all real
+orders greater than one. Carlson–Gustafson remains deferred.
 
 ### Chapter 7: Jacobi polynomials
 
@@ -572,7 +653,9 @@ it does not by itself establish removability along the whole parameter hypersurf
 
 | Module | Responsibility |
 | --- | --- |
-| `ToMathlib.Algebra.LinearDependence` | Generic denominator-clearing and finite-dimensional dependence; no Carlson or Dirichlet imports |
+| `ToMathlib.Algebra.Submodule.Saturation` | Saturated submodules and the saturation closure operator |
+| `ToMathlib.Algebra.Submodule.SaturationLocalization` | Identification with the inverse image of a localized submodule |
+| `ToMathlib.Algebra.LinearDependence` | Independence bounds and dependence in saturated finite spans; no Carlson or Dirichlet imports |
 | `Carlson.Associated.Shift` | Shift indices and rational-coefficient data |
 | `Carlson.R.Recurrence.Coefficients` | Symmetric-polynomial recurrence coefficients, independently of R-functions |
 | `Carlson.R.AssociatedRecurrence` | Native homogeneity recurrence |

@@ -15,6 +15,12 @@ public import Dirichlet.ParameterShift
 public import Dirichlet.Complex.Analytic
 public import Dirichlet.Bridge
 public import Dirichlet.Moments
+public import Dirichlet.Real.Average
+public import Dirichlet.Real.Variance
+public import Dirichlet.Real.BetaAverage
+public import Dirichlet.Real.StrictAverage
+public import Dirichlet.Real.Support
+public import Dirichlet.Real.Concentration
 public import Dirichlet.Gamma
 public import Dirichlet.Polynomial
 public import Dirichlet.IntegrationByParts
@@ -39,6 +45,15 @@ Umbrella module for the Dirichlet theory underlying Carlson's special functions.
 * `Dirichlet.Integral`, `Dirichlet.Real`, `Dirichlet.Complex`, `Dirichlet.Bridge`: real Dirichlet
   monomial integrals and the Dirichlet probability distribution; regularized complex Dirichlet
   densities and integrals; compatibility between the two.
+* `Dirichlet.Real.Average`, `Dirichlet.Real.StrictAverage`, `Dirichlet.Real.Support`:
+  Jensen inequalities, strictness and equality conditions, and exact essential bounds
+  of affine combinations under positive Dirichlet laws.
+* `Dirichlet.Real.Variance`: Exact second moments of affine combinations, including
+  the concentration formula `A² + V / (c + 1)` for normalized weights.
+* `Dirichlet.Real.BetaAverage`: Beta representations of two-node averages and strict
+  concentration comparison for continuous strictly convex or concave kernels.
+* `Dirichlet.Real.Concentration`: Coordinate deviation bounds and large-concentration
+  convergence for Lipschitz and continuously differentiable simplex kernels.
 * `Dirichlet.Moments`, `Dirichlet.ParameterShift`, `Dirichlet.Polynomial`,
   `Dirichlet.IntegrationByParts`, `Dirichlet.Gamma`: moments, unit parameter shifts, polynomial
   transforms, integration by parts, and the Gamma-variable construction of the distribution.

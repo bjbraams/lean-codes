@@ -156,8 +156,8 @@ theorem isPreconnected_jacobiEllipse_exterior (r s : ℂ) {ρ : ℝ}
   have hρ0 : 0 < ρ := lt_of_le_of_lt (by positivity) hρ
   rw [← image_jacobiJoukowski_exterior r s hρ]
   have hpre : IsPreconnected {w : ℂ | ρ < ‖w‖} := by
-    convert (isPreconnected_compl_closedBall_zero (E := ℂ)
-      (by rw [Complex.rank_real_complex]; norm_num) hρ0.le) using 1
+    convert (isPreconnected_compl_closedBall (E := ℂ)
+      (by rw [Complex.rank_real_complex]; norm_num) 0 ρ) using 1
     ext w
     simp only [mem_ofPred_eq, mem_compl_iff, Metric.mem_closedBall, dist_zero_right, not_le]
   apply hpre.image

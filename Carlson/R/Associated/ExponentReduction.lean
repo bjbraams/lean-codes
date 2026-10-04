@@ -86,8 +86,9 @@ attribute [local instance] moduleOfEval
 shifts. -/
 private def exponentReductionClosure (t : ℂ) (b : ι → ℂ) :
     Submodule (MvPolynomial ι ℂ) ({z : ι → ℂ // z ∈ carlsonRVariableDomain} → ℂ) :=
-  Submodule.denominatorClosure (Submodule.span (MvPolynomial ι ℂ)
-    (Set.range (fun j : Fin (Fintype.card ι) => rIntegralOnDomain b (t - (j : ℕ)))))
+  (Submodule.span (MvPolynomial ι ℂ)
+    (Set.range (fun j : Fin (Fintype.card ι) => rIntegralOnDomain b (t - (j : ℕ))))).saturation
+      (nonZeroDivisors (MvPolynomial ι ℂ))
 
 /-- One application of the homogeneity recurrence inside the denominator closure: among
 `card ι + 1` consecutive exponent shifts, a shift with nonzero recurrence coefficient lies in
@@ -98,10 +99,10 @@ private lemma rIntegralOnDomain_mem_of_forall_ne [Nonempty ι] (t : ℂ) {b : ι
     (hrest : ∀ j ∈ Finset.range (Fintype.card ι + 1), j ≠ i →
       rIntegralOnDomain b (-a - j) ∈ exponentReductionClosure t b) :
     rIntegralOnDomain b (-a - i) ∈ exponentReductionClosure t b := by
-  apply Submodule.mem_denominatorClosure_of_sum_smul_eq_zero _
-    (C := fun j => carlsonAssociatedRecurrencePolynomial j a ((∑ l, b l) - a) b)
-    (F := fun j => rIntegralOnDomain b (-a - j)) (s := Finset.range (Fintype.card ι + 1)) _
-    (Finset.mem_range.mpr (by omega)) hci hrest
+  apply (Submodule.isSaturated_saturation _ _).mem_of_sum_smul_eq_zero
+    (c := fun j => carlsonAssociatedRecurrencePolynomial j a ((∑ l, b l) - a) b)
+    (v := fun j => rIntegralOnDomain b (-a - j)) (s := Finset.range (Fintype.card ι + 1)) _
+    (Finset.mem_range.mpr (by omega)) (mem_nonZeroDivisors_iff_ne_zero.mpr hci) hrest
   ext z
   simp only [Finset.sum_apply, Pi.zero_apply]
   exact sum_carlsonAssociatedRecurrencePolynomial_mul_rIntegral a hb z.2
@@ -113,7 +114,7 @@ private lemma rIntegralOnDomain_sub_natCast_mem [Nonempty ι] (t : ℂ) {b : ι 
   induction m using Nat.strong_induction_on with
   | h m ih =>
     by_cases hm : m < Fintype.card ι
-    · exact Submodule.mem_denominatorClosure _ (Submodule.subset_span ⟨⟨m, hm⟩, rfl⟩)
+    · exact Submodule.le_saturation _ _ (Submodule.subset_span ⟨⟨m, hm⟩, rfl⟩)
     have he : t - (m : ℂ) = -(-t + (m - Fintype.card ι : ℕ)) - Fintype.card ι := by
       rw [Nat.cast_sub (by omega : Fintype.card ι ≤ m)]
       ring
@@ -187,7 +188,7 @@ theorem exists_polynomial_carlsonAssociated_exponent_reduction
       | negSucc m =>
         simpa [Int.cast_negSucc, sub_eq_add_neg] using
           rIntegralOnDomain_sub_natCast_mem t hb ht (m + 1)
-    obtain ⟨d, hd, hspan⟩ := hn
+    obtain ⟨d, hd, hspan⟩ := (Submodule.mem_saturation_nonZeroDivisors_iff _).mp hn
     obtain ⟨p, hp⟩ := (Submodule.mem_span_range_iff_exists_fun (MvPolynomial ι ℂ)).mp hspan
     refine ⟨d, hd, p, ?_⟩
     intro z hz

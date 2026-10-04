@@ -87,7 +87,7 @@ theorem isClosed_closedUpperHalfPlane : IsClosed closedUpperHalfPlane :=
 variable {a : ℝ} {b x : ι → ℝ}
 
 theorem integrable_scDensity (h : SchwarzChristoffelParams a b x) : Integrable (scDensity b x) :=
-  integrable_prod_abs_sub_rpow_neg h.injective h.pos h.lt_one h.one_lt_sum
+  integrable_prod_abs_sub_rpow_neg h.injective h.lt_one h.one_lt_sum
 
 theorem scDensity_nonneg (σ : ℝ) : 0 ≤ scDensity b x σ :=
   Finset.prod_nonneg fun _ _ => Real.rpow_nonneg (abs_nonneg _) _

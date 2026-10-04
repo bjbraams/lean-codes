@@ -17,7 +17,6 @@ integer `m`.
 ## Main results
 
 * `Complex.hasSum_regularizedHGFun_zero_singleton`: the series of the regularized `₀F₁`.
-* `Complex.besselJ_natCast`: `Jₙ(x) = (x/2)ⁿ ₀F₁(n + 1; -(x/2)²) / n!` with an integral power.
 * `Complex.norm_besselJ_intCast_le`: the bound for integer orders.
 * `Complex.hasSum_regularizedHGFun`: the series of an entire regularized hypergeometric function.
 * `Complex.besselI`: the modified Bessel function `Iₐ`, with `Jₘ(ix) = iᵐ Iₘ(x)`
@@ -41,12 +40,6 @@ theorem hasSum_regularizedHGFun_zero_singleton (c z : ℂ) :
   simp [regularizedHGFunCoeff, div_eq_mul_inv, mul_comm]
 
 
-/-- For natural orders the power in `besselJ` is an ordinary power. -/
-theorem besselJ_natCast (n : ℕ) (x : ℂ) :
-    besselJ n x = (x / 2) ^ n * regularizedHGFun 0 {(n : ℂ) + 1} (-(x / 2) ^ 2) := by
-  rw [besselJ_def]; simp only [cpow_natCast]
-
-
 /-- The regularized `₀F₁(n + 1; z)` is bounded by `exp ‖z‖ / n!`. -/
 theorem norm_regularizedHGFun_natCast_add_one_le (n : ℕ) (z : ℂ) :
     ‖regularizedHGFun 0 {(n : ℂ) + 1} z‖ ≤ Real.exp ‖z‖ / n.factorial := by
@@ -61,7 +54,8 @@ theorem norm_regularizedHGFun_natCast_add_one_le (n : ℕ) (z : ℂ) :
 /-- A bound for the Bessel functions of natural order. -/
 theorem norm_besselJ_natCast_le (n : ℕ) (x : ℂ) :
     ‖besselJ n x‖ ≤ Real.exp (‖x‖ ^ 2 / 4) * ((‖x‖ / 2) ^ n / n.factorial) := by
-  rw [besselJ_natCast, norm_mul, norm_pow, norm_div, RCLike.norm_ofNat]
+  simp only [besselJ_def, cpow_natCast]
+  rw [ norm_mul, norm_pow, norm_div, RCLike.norm_ofNat]
   have h := norm_regularizedHGFun_natCast_add_one_le n (-(x / 2) ^ 2)
   rw [norm_neg, norm_pow, norm_div, RCLike.norm_ofNat] at h
   calc (‖x‖ / 2) ^ n * ‖regularizedHGFun 0 {(n : ℂ) + 1} (-(x / 2) ^ 2)‖
@@ -77,19 +71,23 @@ theorem norm_besselJ_intCast_le (m : ℤ) (x : ℂ) :
       norm_mul, norm_zpow, norm_neg, norm_one, one_zpow, one_mul]
     simpa using norm_besselJ_natCast_le k x
 
-/-- The regularized hypergeometric function is the sum of its series when the series is
-entire. -/
-theorem hasSum_regularizedHGFun {a b : Multiset ℂ} (h : a.card ≤ b.card) (z : ℂ) :
+/-- The regularized hypergeometric series sums to its function throughout its convergence ball. -/
+theorem hasSum_regularizedHGFun_of_mem_eball {a b : Multiset ℂ} {z : ℂ}
+    (hz : z ∈ Metric.eball 0 (regularizedHGFunSeries a b).radius) :
     HasSum (fun n : ℕ => regularizedHGFunCoeff a b n * z ^ n) (regularizedHGFun a b z) := by
-  have h' := (regularizedHGFunSeries a b).hasSum
-    (x := z) (by simp [radius_regularizedHGFunSeries_eq_top h])
+  have h := (regularizedHGFunSeries a b).hasSum hz
   show HasSum _ ((regularizedHGFunSeries a b).sum z)
-  convert h' using 1
+  convert h using 1
   funext n
   rw [regularizedHGFunSeries, FormalMultilinearSeries.ofScalars_apply_eq, smul_eq_mul]
 
+/-- In the entire case the regularized hypergeometric series converges at every point. -/
+theorem hasSum_regularizedHGFun {a b : Multiset ℂ} (h : a.card ≤ b.card) (z : ℂ) :
+    HasSum (fun n : ℕ => regularizedHGFunCoeff a b n * z ^ n) (regularizedHGFun a b z) :=
+  hasSum_regularizedHGFun_of_mem_eball (by simp [radius_regularizedHGFunSeries_eq_top h])
+
 /-- The modified Bessel function of the first kind,
-`Iₐ(x) = (x/2)^a ₀F₁(a + 1; (x/2)²) / Γ(a + 1)`, with the regularized `₀F₁`. -/
+`Iₐ(x) = (x/2)^a ₀F₁(a + 1; (x/2)²)`, with the regularized `₀F₁`. -/
 def besselI (a x : ℂ) : ℂ := (x / 2) ^ a * regularizedHGFun 0 {a + 1} ((x / 2) ^ 2)
 
 /-- `J_a(i x) = iᵃ I_a(x)` for integer orders. -/

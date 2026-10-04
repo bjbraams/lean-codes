@@ -45,9 +45,9 @@ variable {ι F : Type*} [NormedAddCommGroup F] [NormedSpace ℝ F]
   {μ : Measure ℝ} {a : ℝ} {f : ι → ℝ → F} {g : ℝ → ℝ}
 
 /-- A common integrable majorant gives uniformly vanishing half-line tails. -/
-theorem tendstoUniformly_integral_Ioi_zero_of_norm_le
+theorem tendstoUniformly_integral_Ioi_zero_of_ae_norm_le
     (hg : IntegrableOn g (Ioi a) μ)
-    (hbound : ∀ i, ∀ t ∈ Ioi a, ‖f i t‖ ≤ g t) :
+    (hbound : ∀ i, ∀ᵐ t ∂μ.restrict (Ioi a), ‖f i t‖ ≤ g t) :
     TendstoUniformly (fun R i => ∫ t in Ioi R, f i t ∂μ) (fun _ => 0) atTop := by
   rw [Metric.tendstoUniformly_iff]
   intro ε hε
@@ -58,25 +58,41 @@ theorem tendstoUniformly_integral_Ioi_zero_of_norm_le
   rw [dist_zero_left]
   apply lt_of_le_of_lt _ hR
   apply norm_integral_le_of_norm_le (hg.mono_set (Ioi_subset_Ioi haR))
-  filter_upwards [ae_restrict_mem measurableSet_Ioi] with t ht
-  exact hbound i t (lt_of_le_of_lt haR ht)
+  exact ae_restrict_of_ae_restrict_of_subset (Ioi_subset_Ioi haR) (hbound i)
 
 /-- Finite-interval integrals converge uniformly to half-line integrals when the family
 is integrable and has a common integrable majorant. -/
-theorem tendstoUniformly_intervalIntegral_integral_Ioi_of_norm_le
+theorem tendstoUniformly_intervalIntegral_integral_Ioi_of_ae_norm_le
     (hf : ∀ i, IntegrableOn (f i) (Ioi a) μ) (hg : IntegrableOn g (Ioi a) μ)
-    (hbound : ∀ i, ∀ t ∈ Ioi a, ‖f i t‖ ≤ g t) :
+    (hbound : ∀ i, ∀ᵐ t ∂μ.restrict (Ioi a), ‖f i t‖ ≤ g t) :
     TendstoUniformly (fun R i => ∫ t in a..R, f i t ∂μ)
       (fun i => ∫ t in Ioi a, f i t ∂μ) atTop := by
   rw [Metric.tendstoUniformly_iff]
   intro ε hε
   have htail := Metric.tendstoUniformly_iff.mp
-    (tendstoUniformly_integral_Ioi_zero_of_norm_le hg hbound) ε hε
+    (tendstoUniformly_integral_Ioi_zero_of_ae_norm_le hg hbound) ε hε
   filter_upwards [htail, eventually_ge_atTop a] with R hR haR
   intro i
   rw [dist_eq_norm, ← intervalIntegral.integral_Ioi_sub_Ioi (hf i) haR,
     sub_sub_cancel]
   simpa only [dist_zero_left] using hR i
+
+/-- Pointwise domination is sufficient for uniformly vanishing half-line tails. -/
+theorem tendstoUniformly_integral_Ioi_zero_of_norm_le
+    (hg : IntegrableOn g (Ioi a) μ)
+    (hbound : ∀ i, ∀ t ∈ Ioi a, ‖f i t‖ ≤ g t) :
+    TendstoUniformly (fun R i => ∫ t in Ioi R, f i t ∂μ) (fun _ => 0) atTop :=
+  tendstoUniformly_integral_Ioi_zero_of_ae_norm_le hg
+    (fun i => ae_restrict_of_forall_mem measurableSet_Ioi (hbound i))
+
+/-- Pointwise domination gives uniform approximation by finite-interval integrals. -/
+theorem tendstoUniformly_intervalIntegral_integral_Ioi_of_norm_le
+    (hf : ∀ i, IntegrableOn (f i) (Ioi a) μ) (hg : IntegrableOn g (Ioi a) μ)
+    (hbound : ∀ i, ∀ t ∈ Ioi a, ‖f i t‖ ≤ g t) :
+    TendstoUniformly (fun R i => ∫ t in a..R, f i t ∂μ)
+      (fun i => ∫ t in Ioi a, f i t ∂μ) atTop :=
+  tendstoUniformly_intervalIntegral_integral_Ioi_of_ae_norm_le hf hg
+    (fun i => ae_restrict_of_forall_mem measurableSet_Ioi (hbound i))
 
 /-- A power-decay majorant gives an explicit bound on a half-line integral.
 The exponent must be strictly greater than one. -/

@@ -10,7 +10,7 @@ public import Carlson.Jacobi.PlaneWave
 public import Carlson.Jacobi.GegenbauerAddition
 public import Carlson.TwoVariable.SEqualParameter
 public import ToMathlib.Analysis.SpecialFunctions.Bessel
-public import ToMathlib.Analysis.SpecialFunctions.CosOrthogonality
+public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Chebyshev.Orthogonality
 
 /-!
 # Bessel functions in Carlson's Section 7.7
@@ -99,7 +99,8 @@ theorem hasSum_exp_I_mul_mul_cos (x θ : ℂ) :
   have hS : carlsonDirichletAverage (pair (1 / 2 + (n : ℂ)) (1 / 2 + n)) (pair (-(I * x)) (I * x))
       exp = carlsonS (pair (1 / 2 + (n : ℂ)) (1 / 2 + n)) (pair (-(I * x)) (I * x)) :=
     (carlsonS_eq_integral hb).symm
-  rw [hS, carlsonS_pair_self_neg_I_mul hre, besselJ_natCast,
+  simp only [besselJ_def, cpow_natCast]
+  rw [hS, carlsonS_pair_self_neg_I_mul hre,
     show 1 / 2 + (n : ℂ) + 1 / 2 = n + 1 by ring, Gamma_nat_eq_factorial]
   have hfac : (n.factorial : ℂ) ≠ 0 := by exact_mod_cast n.factorial_ne_zero
   rw [div_pow]
@@ -315,6 +316,20 @@ theorem integral_fourier_cosine (A B : ℂ) (hB : B ≠ 0) {h : ℝ} (hh : 0 < h
     intervalIntegrable_const
     (Filter.Eventually.of_forall fun θ _ =>
       (hser θ (by simp; exact hh)).mul_right (cos (n * θ)))
+  have horth (k n : ℕ) :
+      ∫ θ in (0 : ℝ)..π, Real.cos (k * θ) * Real.cos (n * θ) =
+        if k = n then (if n = 0 then π else π / 2) else 0 := by
+    have hrewrite (j k : ℕ) := Polynomial.Chebyshev.integral_measureT_eq_integral_cos
+      (f := fun x => (Polynomial.Chebyshev.T ℝ j).eval x *
+        (Polynomial.Chebyshev.T ℝ k).eval x)
+    simp only [Polynomial.Chebyshev.T_real_cos, Int.cast_natCast] at hrewrite
+    rw [← hrewrite k n]
+    split_ifs with hkn hn
+    · subst k; subst n
+      exact Polynomial.Chebyshev.integral_eval_T_real_mul_self_measureT_zero
+    · subst k
+      exact Polynomial.Chebyshev.integral_T_real_mul_self_measureT_of_ne_zero hn
+    · exact Polynomial.Chebyshev.integral_eval_T_real_mul_eval_T_real_measureT_of_ne hkn
   have hk : ∀ k : ℕ, ∫ θ in (0 : ℝ)..π, a k * cos (k * θ) * cos (n * θ) =
       if k = n then a n * (if n = 0 then (π : ℂ) else π / 2) else 0 := by
     intro k
@@ -323,7 +338,7 @@ theorem integral_fourier_cosine (A B : ℂ) (hB : B ≠ 0) {h : ℝ} (hh : 0 < h
       intro θ; push_cast; ring
     simp_rw [hc]
     rw [intervalIntegral.integral_const_mul, intervalIntegral.integral_ofReal,
-      integral_cos_mul_cos]
+      horth]
     split_ifs with h1 h2 <;> first | (subst h1; simp_all) | simp_all
   simp_rw [hk] at hint
   rw [hint.unique (hasSum_ite_eq n _)]

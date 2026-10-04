@@ -5,7 +5,8 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import ToMathlib.Analysis.Deriv
+public import Mathlib.Analysis.Calculus.Deriv.Prod
+public import Mathlib.Analysis.Calculus.Deriv.Comp
 public import Carlson.TwoVariable.EqualParameter
 public import Carlson.TwoVariable.ParameterSymmetry
 public import Carlson.L.Continuation
@@ -223,7 +224,15 @@ theorem deriv_regCarlsonR_exponent_transfer (t u v x y : ℂ)
     fin_cases i
     · exact analyticAt_const.add analyticAt_snd
     · exact analyticAt_const.sub analyticAt_snd
-  rw [deriv_diagonal ha.differentiableAt]
+  have h₁ := ha.differentiableAt.hasFDerivAt.comp_hasDerivAt_of_eq t
+    ((hasDerivAt_id t).prodMk (hasDerivAt_const t t)) rfl
+  have h₂ := ha.differentiableAt.hasFDerivAt.comp_hasDerivAt_of_eq t
+    ((hasDerivAt_const t t).prodMk (hasDerivAt_id t)) rfl
+  have h := ha.differentiableAt.hasFDerivAt.comp_hasDerivAt_of_eq t
+    ((hasDerivAt_id t).prodMk (hasDerivAt_id t)) rfl
+  simp only [Function.comp_def, id_eq] at h h₁ h₂
+  have hsplit : ((1, 1) : ℂ × ℂ) = (1, 0) + (0, 1) := by simp
+  rw [h.deriv, hsplit, map_add, ← h₁.deriv, ← h₂.deriv]
   congr 1
   let g : ℂ → ℂ := fun s => regCarlsonR t (pair (u + s) (v - s)) (pair x y)
   have hg : DifferentiableAt ℂ g t := by

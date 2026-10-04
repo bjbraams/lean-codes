@@ -8,6 +8,7 @@ module
 public import Carlson.RPolynomial
 public import Carlson.R
 public import Carlson.L
+public import Carlson.Mean
 public import Carlson.S
 public import Carlson.T
 public import Carlson.Normalization
@@ -31,6 +32,8 @@ two-variable specializations. The Dirichlet-average foundation is imported from 
   representation, continuation in the parameters and in the slit-plane nodes, recurrences and
   the Euler–Poisson system.
 * `Carlson.L`: the exponent derivative of R, Carlson's 1987 L-function.
+* `Carlson.Mean`: complex hypergeometric means and their weights, with real order and
+  node monotonicity, homogeneity, and elementary mean inequalities.
 * `Carlson.S`, `Carlson.T`: the confluent exponential and exponential-of-reciprocal averages.
 * `Carlson.Normalization`: ordinary normalization, exceptional-parameter residues, and
   removable transverse parameter slices for all four families.

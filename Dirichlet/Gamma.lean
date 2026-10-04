@@ -76,7 +76,7 @@ theorem pi_gammaMeasure_eq_withDensity {b : ι → ℝ} (hb : b ∈ mvRealBetaDo
     ∂(Measure.pi (fun _ : ι => (volume : Measure ℝ))).restrict (Set.pi univ s)) = _
   have hf (i : ι) : Measurable (gammaPDF (b i) r) :=
     ENNReal.measurable_ofReal.comp (measurable_gammaPDFReal (b i) r)
-  rw [Measure.restrict_pi_pi, lintegral_fintype_prod_eq_prod _ hf]
+  rw [Measure.restrict_pi_pi, lintegral_fintype_prod_eq_prod _ (fun i => (hf i).aemeasurable)]
   congr 1
   funext i
   exact (withDensity_apply _ (hs i)).symm

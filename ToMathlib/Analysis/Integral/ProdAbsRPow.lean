@@ -11,7 +11,7 @@ public import Mathlib.Analysis.SpecialFunctions.Integrability.Basic
 /-!
 # Integrability of products of powers with distinct real singularities
 
-For distinct real nodes `xᵢ` and exponents `0 < bᵢ < 1` with `∑ bᵢ > 1`, the function
+For distinct real nodes `xᵢ` and exponents `bᵢ < 1` with `∑ bᵢ > 1`, the function
 `σ ↦ ∏ |σ - xᵢ|^{-bᵢ}` is integrable on the whole real line: each singularity is integrable
 because `bᵢ < 1`, and the decay `|σ|^{-∑ bᵢ}` at infinity is integrable because `∑ bᵢ > 1`.
 This is the integrability behind the boundary values of Schwarz–Christoffel integrals.
@@ -46,9 +46,9 @@ theorem intervalIntegrable_abs_sub_rpow {r : ℝ} (hr : -1 < r) (c a b : ℝ) :
   simpa using h2.comp_sub_right c
 
 /-- **Integrability of `∏ |σ - xᵢ|^{-bᵢ}`**: for injective real nodes `xᵢ` and exponents
-`0 < bᵢ < 1` with `∑ bᵢ > 1`, the product is integrable on `ℝ`. -/
+`bᵢ < 1` with `∑ bᵢ > 1`, the product is integrable on `ℝ`. -/
 theorem integrable_prod_abs_sub_rpow_neg {ι : Type*} [Fintype ι] {x : ι → ℝ}
-    (hx : Function.Injective x) {b : ι → ℝ} (hb0 : ∀ i, 0 < b i) (hb1 : ∀ i, b i < 1)
+    (hx : Function.Injective x) {b : ι → ℝ} (hb1 : ∀ i, b i < 1)
     (hsum : 1 < ∑ i, b i) :
     Integrable (fun σ : ℝ => ∏ i, |σ - x i| ^ (-b i)) := by
   classical
@@ -75,7 +75,8 @@ theorem integrable_prod_abs_sub_rpow_neg {ι : Type*} [Fintype ι] {x : ι → �
     have hδpos : 0 < δ := hδpos
     refine ⟨Ioo (y - δ) (y + δ), Ioo_mem_nhds (by linarith) (by linarith), ?_⟩
     -- the bound
-    set g : ℝ → ℝ := fun σ => ∏ i, (if x i = y then |σ - y| ^ (-b i) else δ ^ (-b i)) with hg
+    let C := fun i => max (δ ^ (-b i)) ((|y - x i| + δ) ^ (-b i))
+    set g : ℝ → ℝ := fun σ => ∏ i, (if x i = y then |σ - y| ^ (-b i) else C i) with hg
     have hbound : ∀ σ ∈ Ioo (y - δ) (y + δ), f σ ≤ g σ := by
       intro σ hσ
       refine Finset.prod_le_prod₀ (fun i _ => Real.rpow_nonneg (abs_nonneg _) _) fun i _ => ?_
@@ -88,11 +89,20 @@ theorem integrable_prod_abs_sub_rpow_neg {ι : Type*} [Fintype ι] {x : ι → �
           have hyσ : |y - σ| < δ := by
             rw [abs_sub_lt_iff]; constructor <;> linarith [hσ.1, hσ.2]
           linarith
-        exact Real.rpow_le_rpow_of_nonpos hδpos hd (by linarith [hb0 i])
+        by_cases hb : 0 ≤ b i
+        · exact (Real.rpow_le_rpow_of_nonpos hδpos hd (neg_nonpos.mpr hb)).trans
+            (le_max_left _ _)
+        · have hu : |σ - x i| ≤ |y - x i| + δ := by
+            have ht := abs_sub_le σ y (x i)
+            have hyσ : |σ - y| < δ := by
+              rw [abs_sub_lt_iff]; constructor <;> linarith [hσ.1, hσ.2]
+            linarith
+          exact (Real.rpow_le_rpow (abs_nonneg _) hu (by linarith)).trans
+            (le_max_right _ _)
     have hgint : IntegrableOn g (Ioo (y - δ) (y + δ)) := by
       by_cases hj : ∃ j, x j = y
       · obtain ⟨j, hj⟩ := hj
-        have hgeq : g = fun σ => (∏ i ∈ Finset.univ.erase j, δ ^ (-b i)) *
+        have hgeq : g = fun σ => (∏ i ∈ Finset.univ.erase j, C i) *
             |σ - y| ^ (-b j) := by
           funext σ
           simp only [hg]
@@ -109,7 +119,7 @@ theorem integrable_prod_abs_sub_rpow_neg {ι : Type*} [Fintype ι] {x : ι → �
         rw [intervalIntegrable_iff_integrableOn_Ioo_of_le (by linarith)] at this
         exact this
       · simp only [not_exists] at hj
-        have hgeq : g = fun _ => ∏ i, δ ^ (-b i) := by
+        have hgeq : g = fun _ => ∏ i, C i := by
           funext σ
           exact Finset.prod_congr rfl fun i _ => by simp only [hj i, ↓reduceIte]
         rw [hgeq]
@@ -128,24 +138,37 @@ theorem integrable_prod_abs_sub_rpow_neg {ι : Type*} [Fintype ι] {x : ι → �
     linarith
   have hMpos : 0 < M := by
     have := Finset.sum_nonneg (fun i (_ : i ∈ Finset.univ) => abs_nonneg (x i)); linarith
-  have hfar : ∀ σ, 2 * M ≤ |σ| → f σ ≤ 2 ^ B * |σ| ^ (-B) := by
+  let C : ℝ := ∏ i, (2 : ℝ) ^ |b i|
+  have hfar : ∀ σ, 2 * M ≤ |σ| → f σ ≤ C * |σ| ^ (-B) := by
     intro σ hσ
     have hσpos : 0 < |σ| := by linarith
-    have hfac : ∀ i, |σ - x i| ^ (-b i) ≤ (|σ| / 2) ^ (-b i) := by
+    have hfac : ∀ i, |σ - x i| ^ (-b i) ≤ 2 ^ |b i| * |σ| ^ (-b i) := by
       intro i
-      have h1 : |σ| / 2 ≤ |σ - x i| := by
-        have := abs_sub_abs_le_abs_sub σ (x i)
-        linarith [hM1 i]
-      exact Real.rpow_le_rpow_of_nonpos (by positivity) h1 (by linarith [hb0 i])
-    calc f σ ≤ ∏ i, (|σ| / 2) ^ (-b i) :=
-          Finset.prod_le_prod₀ (fun i _ => Real.rpow_nonneg (abs_nonneg _) _) fun i _ => hfac i
-      _ = (|σ| / 2) ^ (-B) := by
-          rw [← Real.rpow_sum_of_pos (by positivity), Finset.sum_neg_distrib]
-      _ = 2 ^ B * |σ| ^ (-B) := by
-          rw [Real.div_rpow hσpos.le (by norm_num), Real.rpow_neg (by norm_num : (0:ℝ) ≤ 2)]
-          field_simp
+      by_cases hb : 0 ≤ b i
+      · have h1 : |σ| / 2 ≤ |σ - x i| := by
+          have := abs_sub_abs_le_abs_sub σ (x i)
+          linarith [hM1 i]
+        calc
+          _ ≤ (|σ| / 2) ^ (-b i) :=
+            Real.rpow_le_rpow_of_nonpos (by positivity) h1 (neg_nonpos.mpr hb)
+          _ = _ := by
+            rw [abs_of_nonneg hb, Real.div_rpow hσpos.le (by norm_num),
+              Real.rpow_neg (by norm_num : (0 : ℝ) ≤ 2)]
+            field_simp
+      · have h1 : |σ - x i| ≤ 2 * |σ| := by
+          have := abs_sub σ (x i)
+          linarith [hM1 i]
+        calc
+          _ ≤ (2 * |σ|) ^ (-b i) :=
+            Real.rpow_le_rpow (abs_nonneg _) h1 (by linarith)
+          _ = _ := by rw [Real.mul_rpow (by norm_num) hσpos.le, abs_of_neg (lt_of_not_ge hb)]
+    calc
+      f σ ≤ ∏ i, (2 ^ |b i| * |σ| ^ (-b i)) :=
+        Finset.prod_le_prod₀ (fun i _ => Real.rpow_nonneg (abs_nonneg _) _) fun i _ => hfac i
+      _ = C * |σ| ^ (-B) := by
+        rw [Finset.prod_mul_distrib, ← Real.rpow_sum_of_pos hσpos, Finset.sum_neg_distrib]
   have hRight : IntegrableOn f (Ioi (2 * M)) := by
-    have hI : IntegrableOn (fun σ : ℝ => 2 ^ B * σ ^ (-B)) (Ioi (2 * M)) :=
+    have hI : IntegrableOn (fun σ : ℝ => C * σ ^ (-B)) (Ioi (2 * M)) :=
       (integrableOn_Ioi_rpow_of_lt (by linarith) (by linarith)).const_mul _
     refine hI.mono' hmeas.aestronglyMeasurable ?_
     filter_upwards [ae_restrict_mem measurableSet_Ioi] with σ hσ
@@ -157,7 +180,7 @@ theorem integrable_prod_abs_sub_rpow_neg {ι : Type*} [Fintype ι] {x : ι → �
     rw [← (Measure.measurePreserving_neg (volume : Measure ℝ)).integrableOn_comp_preimage
       (Homeomorph.neg ℝ).measurableEmbedding]
     simp only [neg_preimage, neg_Iio, neg_neg]
-    have hI : IntegrableOn (fun σ : ℝ => 2 ^ B * σ ^ (-B)) (Ioi (2 * M)) :=
+    have hI : IntegrableOn (fun σ : ℝ => C * σ ^ (-B)) (Ioi (2 * M)) :=
       (integrableOn_Ioi_rpow_of_lt (by linarith) (by linarith)).const_mul _
     refine hI.mono' (hmeas.comp measurable_neg).aestronglyMeasurable ?_
     filter_upwards [ae_restrict_mem measurableSet_Ioi] with σ hσ
@@ -176,3 +199,11 @@ theorem integrable_prod_abs_sub_rpow_neg {ι : Type*} [Fintype ι] {x : ι → �
       · exact Or.inl (Or.inr ⟨not_lt.mp h1, not_lt.mp h2⟩)
   rw [← integrableOn_univ]
   exact ((hLeft.union hMid).union hRight).mono_set hcover
+
+/-- A finite product of real powers at distinct nodes is integrable if every local exponent
+exceeds `-1` and the sum of the exponents is less than `-1`. Positive exponents are allowed. -/
+theorem integrable_prod_abs_sub_rpow {ι : Type*} [Fintype ι] {x r : ι → ℝ}
+    (hx : Function.Injective x) (hr : ∀ i, -1 < r i) (hsum : ∑ i, r i < -1) :
+    Integrable (fun t : ℝ => ∏ i, |t - x i| ^ r i) := by
+  simpa only [neg_neg] using integrable_prod_abs_sub_rpow_neg (b := fun i => -r i) hx
+    (fun i => by linarith [hr i]) (by simp only [Finset.sum_neg_distrib]; linarith)

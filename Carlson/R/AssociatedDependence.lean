@@ -88,8 +88,8 @@ private theorem carlsonRIntegral_mem_of_nat_shift
     (P : Submodule (MvPolynomial ι ℂ) (CarlsonVariableFunctions ι))
     (n : ι → ℕ) (b : ι → ℂ) (hb : b ∈ mvBetaConvergent) (t : ℂ)
     (hupper : ∀ m : ℤ, (fun z => carlsonRIntegral (t + m)
-      (fun i => b i + n i) z.1) ∈ Submodule.denominatorClosure P) :
-    (fun z => carlsonRIntegral t b z.1) ∈ Submodule.denominatorClosure P := by
+      (fun i => b i + n i) z.1) ∈ P.saturation (nonZeroDivisors (MvPolynomial ι ℂ))) :
+    (fun z => carlsonRIntegral t b z.1) ∈ P.saturation (nonZeroDivisors (MvPolynomial ι ℂ)) := by
   classical
   induction n using (measure (fun n : ι → ℕ => ∑ i, n i)).wf.induction generalizing b t with
   | h n ih =>
@@ -121,8 +121,9 @@ private theorem carlsonRIntegral_mem_of_nat_shift
       exact hupper (m - 1))
     let : Nonempty ι := ⟨i⟩
     have hc := ne_zero_of_re_pos (sum_re_pos_of_mem_mvBetaConvergent hb)
-    apply Submodule.denominatorClosure_cancel P (c := MvPolynomial.C (∑ j, b j))
-      (by simpa only [ne_eq, MvPolynomial.C_eq_zero] using hc)
+    apply (Submodule.isSaturated_saturation P (nonZeroDivisors (MvPolynomial ι ℂ)))
+      (r := MvPolynomial.C (∑ j, b j))
+      (by simpa only [mem_nonZeroDivisors_iff_ne_zero, ne_eq, MvPolynomial.C_eq_zero] using hc)
     have heq : MvPolynomial.C (σ := ι) (∑ j, b j) •
         (fun z : {z : ι → ℂ // z ∈ carlsonRVariableDomain} => carlsonRIntegral t b z.1) =
         MvPolynomial.C (σ := ι) ((∑ j, b j) + t) •
@@ -136,9 +137,9 @@ private theorem carlsonRIntegral_mem_of_nat_shift
         MvPolynomial.eval_C, MvPolynomial.eval_X]
       exact sum_mul_carlsonRIntegral_eq_update_add_one t hb z.2 i
     rw [heq]
-    exact (Submodule.denominatorClosure P).sub_mem
-      ((Submodule.denominatorClosure P).smul_mem _ h₀)
-          ((Submodule.denominatorClosure P).smul_mem _ h₁)
+    exact (P.saturation (nonZeroDivisors (MvPolynomial ι ℂ))).sub_mem
+      ((P.saturation (nonZeroDivisors (MvPolynomial ι ℂ))).smul_mem _ h₀)
+          ((P.saturation (nonZeroDivisors (MvPolynomial ι ℂ))).smul_mem _ h₁)
 
 /-- A complex number with positive real part is not a nonpositive integer, so it is Gamma-regular. -/
 private theorem isCarlsonGammaRegular_of_re_pos {w : ℂ} (hw : 0 < w.re) :
@@ -229,9 +230,10 @@ theorem exists_polynomial_relation_associatedR
       fun j z => carlsonRIntegral ((t - N) - (j : ℕ)) B z.1
     let P := Submodule.span (MvPolynomial ι ℂ) (Set.range v)
     have hfixed (m : ℤ) : (fun z => carlsonRIntegral ((t - N) + m) B z.1) ∈
-        Submodule.denominatorClosure P := by
+        P.saturation (nonZeroDivisors (MvPolynomial ι ℂ)) := by
       obtain ⟨d, hd, p, hp⟩ :=
         exists_polynomial_carlsonAssociated_exponent_reduction (t - N) B m hB hT hBT
+      apply (Submodule.mem_saturation_nonZeroDivisors_iff _).mpr
       refine ⟨d, hd, ?_⟩
       have heq : d • (fun z => carlsonRIntegral ((t - N) + m) B z.1) =
           ∑ j, p j • v j := by
@@ -242,7 +244,7 @@ theorem exists_polynomial_relation_associatedR
       exact P.sum_mem fun j _ => P.smul_mem _ (Submodule.subset_span ⟨j, rfl⟩)
     let w : Fin (Fintype.card ι + 1) → CarlsonVariableFunctions ι :=
       fun j z => carlsonRIntegral ((s j).exponentValue t) ((s j).parameterValue b) z.1
-    have hw (j) : w j ∈ Submodule.denominatorClosure P := by
+    have hw (j) : w j ∈ P.saturation (nonZeroDivisors (MvPolynomial ι ℂ)) := by
       obtain ⟨n, hn⟩ := hshift j
       apply carlsonRIntegral_mem_of_nat_shift P n _ (hconv j)
       intro m
@@ -250,7 +252,8 @@ theorem exists_polynomial_relation_associatedR
         (t - N) + ((N : ℤ) + (s j).exponent + m : ℤ) by
           dsimp [CarlsonRAssociatedShift.exponentValue]; push_cast; ring]
       exact hfixed _
-    obtain ⟨a, ha, hrel⟩ := Submodule.exists_relation_of_mem_denominatorClosure v w (by simp) hw
+    obtain ⟨a, ha, hrel⟩ := Submodule.exists_relation_of_mem_saturation
+      (nonZeroDivisors (MvPolynomial ι ℂ)) zero_notMem_nonZeroDivisors v w (by simp) hw
     refine ⟨a, ha, ?_⟩
     intro z hz
     have heq := congrFun hrel ⟨z, hz⟩
@@ -325,9 +328,10 @@ private theorem exists_polynomial_relation_associatedCarlsonR_of_mem_variableDom
       fun j z => carlsonRIntegral ((t - N) - (j : ℕ)) B z.1
     let P := Submodule.span (MvPolynomial ι ℂ) (Set.range v)
     have hfixed (m : ℤ) : (fun z => carlsonRIntegral ((t - N) + m) B z.1) ∈
-        Submodule.denominatorClosure P := by
+        P.saturation (nonZeroDivisors (MvPolynomial ι ℂ)) := by
       obtain ⟨d, hd, p, hp⟩ :=
         exists_polynomial_carlsonAssociated_exponent_reduction (t - N) B m hB hT hBT
+      apply (Submodule.mem_saturation_nonZeroDivisors_iff _).mpr
       refine ⟨d, hd, ?_⟩
       have heq : d • (fun z => carlsonRIntegral ((t - N) + m) B z.1) =
           ∑ j, p j • v j := by
@@ -338,7 +342,7 @@ private theorem exists_polynomial_relation_associatedCarlsonR_of_mem_variableDom
       exact P.sum_mem fun j _ => P.smul_mem _ (Submodule.subset_span ⟨j, rfl⟩)
     have hfixedReg (m : ℤ) :
         (fun z => regCarlsonR ((t - N) + m) B z.1)
-            ∈ Submodule.denominatorClosure P := by
+            ∈ P.saturation (nonZeroDivisors (MvPolynomial ι ℂ)) := by
       have hGamma := Gamma_ne_zero_of_re_pos (sum_re_pos_of_mem_mvBetaConvergent hB)
       have heq : (fun z : {z : ι → ℂ // z ∈ carlsonRVariableDomain} =>
           regCarlsonR ((t - N) + m) B z.1) =
@@ -349,18 +353,19 @@ private theorem exists_polynomial_relation_associatedCarlsonR_of_mem_variableDom
           regCarlsonR_eq_regCarlsonRIntegral _ hB z.2]
         rw [← mul_assoc, inv_mul_cancel₀ hGamma, one_mul]
       rw [heq]
-      exact (Submodule.denominatorClosure P).smul_mem _ (hfixed m)
+      exact (P.saturation (nonZeroDivisors (MvPolynomial ι ℂ))).smul_mem _ (hfixed m)
     let w : Fin (Fintype.card ι + 1) → CarlsonVariableFunctions ι :=
       fun j z => regCarlsonR ((s j).exponentValue t) ((s j).parameterValue b) z.1
-    have hw (j) : w j ∈ Submodule.denominatorClosure P := by
+    have hw (j) : w j ∈ P.saturation (nonZeroDivisors (MvPolynomial ι ℂ)) := by
       obtain ⟨n, hn⟩ := hshift j
-      apply regCarlsonR_mem_of_nat_shift (Submodule.denominatorClosure P) n _ _
+      apply regCarlsonR_mem_of_nat_shift (P.saturation (nonZeroDivisors (MvPolynomial ι ℂ))) n _ _
       intro m
       rw [← hn, show (s j).exponentValue t + (m : ℂ) =
         (t - N) + ((N : ℤ) + (s j).exponent + m : ℤ) by
           dsimp [CarlsonRAssociatedShift.exponentValue]; push_cast; ring]
       exact hfixedReg _
-    obtain ⟨a, ha, hrel⟩ := Submodule.exists_relation_of_mem_denominatorClosure v w (by simp) hw
+    obtain ⟨a, ha, hrel⟩ := Submodule.exists_relation_of_mem_saturation
+      (nonZeroDivisors (MvPolynomial ι ℂ)) zero_notMem_nonZeroDivisors v w (by simp) hw
     refine ⟨a, ha, ?_⟩
     intro z hz
     have heq := congrFun hrel ⟨z, hz⟩

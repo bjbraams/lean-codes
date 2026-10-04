@@ -199,7 +199,7 @@ theorem hasSum_jacobiContourCoefficient_on_ball (α β r s : ℂ)
     {f : ℂ → ℂ} (hf : DifferentiableOn ℂ f (Metric.closedBall c ρ)) :
     HasSum (fun n => jacobiContourCoefficient α β r s n Γ f *
       (jacobiOn α β r s n).eval x) (f x) := by
-  obtain ⟨p, hlim⟩ := exists_polynomial_tendstoLocallyUniformlyOn_on_ball hρ hf
+  obtain ⟨p, hlim⟩ := exists_polynomial_tendstoLocallyUniformlyOn_on_ball hρ (hf.mono Metric.ball_subset_closedBall)
   exact hasSum_jacobiContourCoefficient_of_polynomial_approximation α β r s hc
     hC hR hd hRd hp Γ hΓ hind hdist
     ((tendstoLocallyUniformlyOn_iff_forall_isCompact Metric.isOpen_ball).mp hlim

@@ -6,9 +6,12 @@ Authors: Bastiaan J Braams
 module
 
 public import ToMathlib.Analysis.Connected
+public import ToMathlib.Analysis.Calculus.MeanWeights
+public import ToMathlib.Analysis.Convex.GeometricMean
+public import ToMathlib.Analysis.Convex.LogReciprocal
+public import ToMathlib.Analysis.Convex.NegativePower
+public import ToMathlib.Analysis.Convex.NormalizedAddition
 public import ToMathlib.Analysis.ConvexHullDomain
-public import ToMathlib.Analysis.Deriv
-public import ToMathlib.Analysis.GeometricBounds
 public import ToMathlib.Analysis.Holomorphic.FunctionSpace
 public import ToMathlib.Analysis.Holomorphic.NormalFamily
 public import ToMathlib.Analysis.Holomorphic.PolynomialApproximation
@@ -24,10 +27,14 @@ public import ToMathlib.Analysis.Integral.Pi
 public import ToMathlib.Analysis.Integral.ProdAbsRPow
 public import ToMathlib.Analysis.Integral.Reciprocal
 public import ToMathlib.Analysis.Integral.Tail
-public import ToMathlib.Analysis.LinearFunctional
+public import ToMathlib.Analysis.Integral.StrictMono
+public import ToMathlib.Analysis.Integral.TwoCrossings
 public import ToMathlib.Analysis.OpenMapping
 public import ToMathlib.Analysis.SpecialFunctions.Bessel
-public import ToMathlib.Analysis.SpecialFunctions.CosOrthogonality
+public import ToMathlib.Analysis.SpecialFunctions.BetaDensity
+public import ToMathlib.Analysis.SpecialFunctions.BetaKernel
+public import ToMathlib.Analysis.SpecialFunctions.BetaConcentration
+public import ToMathlib.Analysis.SpecialFunctions.Pochhammer
 public import ToMathlib.Analysis.SpecialFunctions.Gamma
 public import ToMathlib.Analysis.SpecialFunctions.GammaRatio
 public import ToMathlib.Analysis.TaylorBounds
@@ -51,9 +58,12 @@ underlying Mathlib APIs. This library depends only on Mathlib.
 This module re-exports the following developments:
 
 * `ToMathlib.Analysis.Connected`: Connectedness of shells and exteriors of balls.
+* `ToMathlib.Analysis.Convex.GeometricMean`: Strict finite Hölder for geometric interpolation.
+* `ToMathlib.Analysis.Convex.LogReciprocal`: Strict decrease and log-convexity of positive
+  constants plus shifted reciprocals.
+* `ToMathlib.Analysis.Convex.NormalizedAddition`: Strict convexity and concavity under
+  normalization by positive homogeneous quantities.
 * `ToMathlib.Analysis.ConvexHullDomain`: Connectedness of convex-hull-admissible configurations.
-* `ToMathlib.Analysis.Deriv`: Differentiation along the diagonal.
-* `ToMathlib.Analysis.GeometricBounds`: Real root limits and geometric bounds.
 * `ToMathlib.Analysis.Holomorphic.FunctionSpace`: Shared spaces of holomorphic maps.
 * `ToMathlib.Analysis.Holomorphic.PolynomialApproximation`: Polynomial approximation
   of holomorphic functions on disks and entire functions on the plane.
@@ -75,15 +85,18 @@ This module re-exports the following developments:
 * `ToMathlib.Analysis.Integral.ProdAbsRPow`: Integrability of products of powers with distinct
   real singularities.
 * `ToMathlib.Analysis.Integral.Reciprocal`: Compactifying a positive half-line by inversion.
+* `ToMathlib.Analysis.Integral.TwoCrossings`: Strict convex integral comparison for signed
+  kernels with two crossings and vanishing zeroth and first moments.
 * `ToMathlib.Analysis.Integral.Tail`: Uniform control of integral tails.
-* `ToMathlib.Analysis.LinearFunctional`: Elementary facts on scalar actions and continuous linear
-  functionals.
 * `ToMathlib.Analysis.OpenMapping`: Open mapping for complete metrizable real or complex
   vector spaces.
+* `ToMathlib.Analysis.SpecialFunctions.BetaDensity`, `BetaKernel`, `BetaConcentration`:
+  Real beta density moments, unimodality of positive-power beta kernels, and strict
+  decrease of convex beta averages under increasing concentration.
+* `ToMathlib.Analysis.SpecialFunctions.Pochhammer`: Decrease and log-convexity of
+  Pochhammer concentration ratios, strict from natural order two onward.
 * `ToMathlib.Analysis.SpecialFunctions.Bessel`: Series and bounds for Bessel functions of
   integer order.
-* `ToMathlib.Analysis.SpecialFunctions.CosOrthogonality`: Orthogonality of the cosines on
-  `[0, π]`.
 * `ToMathlib.Analysis.SpecialFunctions.GammaRatio`: The bound `Γ(x)/|Γ(x + iy)| ≤ √(cosh (π y))`
   for `x ≥ 1/2`.
 * `ToMathlib.Analysis.SpecialFunctions.Gamma`: The Gamma integral with a complex Laplace parameter.
@@ -95,5 +108,4 @@ This module re-exports the following developments:
 
 * `ToMathlib.Analysis.Connected`: formal background used by this module.
 * `ToMathlib.Analysis.ConvexHullDomain`: formal background used by this module.
-* `ToMathlib.Analysis.Deriv`: formal background used by this module.
 -/
