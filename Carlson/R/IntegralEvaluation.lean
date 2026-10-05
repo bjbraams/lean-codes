@@ -333,7 +333,7 @@ theorem integral_segment_eq_regCarlsonR {a a' : ℂ} {b z w : ι → ℂ} {x y :
     ring
   rw [setIntegral_congr_fun measurableSet_Ioo hpoint, integral_const_mul]
   change (y - x) * (C * carlsonRUnitIntervalIntegral a a' b (fun i => q i / p i)) = _
-  rw [carlsonRUnitIntervalIntegral_eq_gamma_mul_regCarlsonR ha ha' hsum hr]
+  rw [carlsonRUnitIntervalIntegral_eq_Gamma_mul_regCarlsonR ha ha' hsum hr]
   simp only [C]
   rw [show a + a' - 1 = (a - 1) + (a' - 1) + 1 by ring, cpow_add _ _ hd, cpow_add _ _ hd, cpow_one]
   ring
@@ -345,7 +345,7 @@ theorem integral_Ioi_prod_cpow_eq_regCarlsonR {a a' : ℂ} {b c w : ι → ℂ}
     (ha : 0 < a.re) (ha' : 0 < a'.re) (hsum : a + a' = ∑ i, b i) (hc : c ∈ carlsonRSlitDomain) :
     ∫ s in Set.Ioi (0 : ℝ), (s : ℂ) ^ (a' - 1) * ∏ i, (w i ^ (-b i) * (c i + s) ^ (-b i)) =
       Gamma a * Gamma a' * (∏ i, w i ^ (-b i)) * regCarlsonR (-a) b c := by
-  have h := carlsonRPositiveRayIntegral_eq_gamma_mul_regCarlsonR ha' ha
+  have h := carlsonRPositiveRayIntegral_eq_Gamma_mul_regCarlsonR ha' ha
     (by rw [add_comm]; exact hsum) hc
   unfold carlsonRPositiveRayIntegral at h
   simp_rw [Finset.prod_mul_distrib]

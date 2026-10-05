@@ -36,7 +36,10 @@ That convergence remains an explicit hypothesis. The full domain of Lemma 7.6-1,
   over compact sets of polynomial evaluation points.
 * `eqOn_cauchyKernel_of_tendstoLocallyUniformlyOn`: analytic continuation of the
   identity, conditional on local uniform convergence on the elliptic exterior.
-* `hasSum_jacobiOn_mul_jacobiSecondKind_self`: the exact coincident-endpoint case.
+
+The exact coincident-endpoint case is the specialization of
+`hasSum_jacobiOn_mul_jacobiSecondKind` (in `Carlson.Jacobi.EllipticExpansion`) obtained from
+`jacobiEllipseRadius_self`.
 
 ## References
 
@@ -103,7 +106,7 @@ theorem circleIntegral_jacobiSecondKind_mul_cauchyKernel (α β r s : ℂ) (n : 
 separation conditions. This is the initial region for Carlson's Lemma 7.6-1;
 its full confocal-ellipse domain requires the sharp degree estimates. -/
 theorem hasSum_jacobiOn_mul_jacobiSecondKind_of_circle (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) {x y c : ℂ} {ρ : ℝ≥0} {σ : ℝ}
+    (hc : IsGammaRegular (α + β + 2)) {x y c : ℂ} {ρ : ℝ≥0} {σ : ℝ}
     (hσ : 0 < σ) (hσρ : σ < ρ) (hx : x ∈ ball c ρ)
     (hnodes : range (pair r s) ⊆ ball c σ) (hy : y ∉ closedBall c ρ)
     {C R d : ℝ} (hC : 0 ≤ C) (hR : 0 ≤ R) (hd : 0 < d) (hRd : R < d)
@@ -120,7 +123,7 @@ theorem hasSum_jacobiOn_mul_jacobiSecondKind_of_circle (α β r s : ℂ)
     rw [Path.range_circle, abs_of_pos hσ]
   have hr : r ∈ ball c σ := hnodes ⟨0, pair_zero r s⟩
   have hind : Γ.index r = 1 := by
-    rw [Cycle.zsmulLoop_index]
+    rw [Cycle.index_zsmulLoop]
     change (1 : ℤ) * curveIndex (Path.circle c σ) r = 1
     rw [curveIndex_circle_of_mem_ball hr]
     norm_num
@@ -133,7 +136,7 @@ theorem hasSum_jacobiOn_mul_jacobiSecondKind_of_circle (α β r s : ℂ)
   have he (n : ℕ) : jacobiContourCoefficient α β r s n Γ (fun w => (y - w)⁻¹) =
       jacobiSecondKind α β r s n y := by
     unfold jacobiContourCoefficient
-    rw [Cycle.zsmulLoop_integral]
+    rw [Cycle.integral_zsmulLoop]
     change (2 * (Real.pi : ℂ) * I)⁻¹ *
       ((1 : ℤ) • curveIntegral (fun w => toSpanSingleton ℂ
         (jacobiSecondKind α β r s n w * (y - w)⁻¹)) (Path.circle c σ)) = _
@@ -145,7 +148,7 @@ theorem hasSum_jacobiOn_mul_jacobiSecondKind_of_circle (α β r s : ℂ)
 /-- On every compact set of polynomial evaluation points, the kernel identity
 holds for all sufficiently distant poles, uniformly on compact sets of such poles. -/
 theorem exists_radius_uniform_cauchyKernel (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) {K : Set ℂ} (hK : IsCompact K) :
+    (hc : IsGammaRegular (α + β + 2)) {K : Set ℂ} (hK : IsCompact K) :
     ∃ T : ℝ, 0 < T ∧
       (∀ x ∈ K, ∀ y : ℂ, T < ‖y‖ →
         HasSum (fun n => (jacobiOn α β r s n).eval x * jacobiSecondKind α β r s n y)
@@ -197,7 +200,7 @@ theorem exists_radius_uniform_cauchyKernel (α β r s : ℂ)
 /-- For every fixed polynomial evaluation point, the Jacobi kernel identity
 holds at every sufficiently distant pole. The radius is uniform in that pole. -/
 theorem exists_radius_hasSum_jacobiOn_mul_jacobiSecondKind (α β r s x : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) :
+    (hc : IsGammaRegular (α + β + 2)) :
     ∃ T : ℝ, 0 < T ∧ ∀ y : ℂ, T < ‖y‖ →
       HasSum (fun n => (jacobiOn α β r s n).eval x * jacobiSecondKind α β r s n y)
         (y - x)⁻¹ := by
@@ -209,7 +212,7 @@ theorem exists_radius_hasSum_jacobiOn_mul_jacobiSecondKind (α β r s x : ℂ)
 an elliptic exterior as soon as local uniform convergence there is established.
 The convergence hypothesis is explicit; this theorem does not supply sharp bounds. -/
 theorem eqOn_cauchyKernel_of_tendstoLocallyUniformlyOn (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) {x : ℂ} {ρ : ℝ}
+    (hc : IsGammaRegular (α + β + 2)) {x : ℂ} {ρ : ℝ}
     (hρ : ‖r - s‖ / 4 < ρ) (hx : jacobiEllipseRadius r s x ≤ ρ) {F : ℂ → ℂ}
     (hlim : TendstoLocallyUniformlyOn
       (fun N y => ∑ n ∈ Finset.range N,
@@ -250,34 +253,5 @@ theorem eqOn_cauchyKernel_of_tendstoLocallyUniformlyOn (α β r s : ℂ)
     (isOpen_lt continuous_const continuous_norm).mem_nhds
       (show T < ‖(B : ℂ)‖ by rwa [hnormB])] with y hy hTy
   exact tendsto_nhds_unique (hlim.tendsto_at hy) (hkernel y hTy).tendsto_sum_nat
-
-/-- At coincident endpoints Carlson's kernel identity is the geometric-series
-identity on its exact circular domain. -/
-theorem hasSum_jacobiOn_mul_jacobiSecondKind_self (α β s x y : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) (hxy : ‖x - s‖ < ‖y - s‖) :
-    HasSum (fun n => (jacobiOn α β s s n).eval x * jacobiSecondKind α β s s n y)
-      (y - x)⁻¹ := by
-  have hy : y ≠ s := sub_ne_zero.mp (norm_pos_iff.mp ((norm_nonneg _).trans_lt hxy))
-  have hy0 : y - s ≠ 0 := sub_ne_zero.mpr hy
-  have hquot : ‖(x - s) / (y - s)‖ < 1 := by
-    rw [norm_div, div_lt_one (norm_pos_iff.mpr hy0)]
-    exact hxy
-  have hp (n : ℕ) : (ascPochhammer ℂ n).eval (α + β + n + 1) ≠ 0 :=
-    jacobi_pochhammer_ne_zero_of_add_nat_ne_zero α β
-      (fun k hk => hc k (by linear_combination hk)) n
-  have h := (hasSum_geometric_of_norm_lt_one hquot).mul_right (y - s)⁻¹
-  have he (n : ℕ) : (jacobiOn α β s s n).eval x * jacobiSecondKind α β s s n y =
-      ((x - s) / (y - s)) ^ n * (y - s)⁻¹ := by
-    rw [jacobiOn_self α β s n (hp n), eval_pow, eval_sub, eval_X, eval_C,
-      jacobiSecondKind_self α β s y hc n hy]
-    rw [zpow_neg, show (n + 1 : ℤ) = ((n + 1 : ℕ) : ℤ) by omega, zpow_natCast]
-    simp only [div_eq_mul_inv, mul_pow, pow_succ, mul_inv_rev, inv_pow]
-    ring
-  have hval : (1 - (x - s) / (y - s))⁻¹ * (y - s)⁻¹ = (y - x)⁻¹ := by
-    rw [← mul_inv_rev]
-    congr 1
-    field_simp
-    ring
-  simpa only [← he, hval] using h
 
 end Carlson.TwoVariable

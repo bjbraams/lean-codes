@@ -63,7 +63,7 @@ all sufficiently large degrees and every point off the segment:
 `W_{n+1} q_{n+2}(y) = (y - V_n) q_{n+1}(y) - q_n(y)`. It is derived from the polynomial
 recurrence by computing the Jacobi coefficients of `x ↦ x / (y - x)` in two ways. -/
 theorem exists_jacobiSecondKind_three_term (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) :
+    (hc : IsGammaRegular (α + β + 2)) :
     ∃ N : ℕ, ∀ n, N ≤ n → ∀ y, y ∉ segment ℝ r s →
       jacobiRecurrenceW α β r s (n + 1) * jacobiSecondKind α β r s (n + 2) y =
         (y - jacobiRecurrenceV α β r s n) * jacobiSecondKind α β r s (n + 1) y -
@@ -456,7 +456,7 @@ theorem exists_lower_bound_of_perturbed_recurrence_recessive {a b : ℂ} (hab : 
 /-- Off the segment the second-kind functions decay no faster than every rate below the
 reciprocal mean radius: `c (1/μ(y) - ε)ⁿ ≤ ‖qₙ(y)‖` for all large `n`. -/
 theorem exists_lower_bound_norm_jacobiSecondKind (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) {y : ℂ} (hy : y ∉ segment ℝ r s) {ε : ℝ}
+    (hc : IsGammaRegular (α + β + 2)) {y : ℂ} (hy : y ∉ segment ℝ r s) {ε : ℝ}
     (hε : 0 < ε) (hεμ : ε < 1 / jacobiEllipseRadius r s y) :
     ∃ c > 0, ∃ N, ∀ n, N ≤ n →
       c * (1 / jacobiEllipseRadius r s y - ε) ^ n ≤ ‖jacobiSecondKind α β r s n y‖ := by
@@ -574,7 +574,7 @@ theorem exists_lower_bound_norm_jacobiSecondKind (α β r s : ℂ)
 /-- Carlson's Theorem 7.5-1 for the second-kind functions: off the segment
 `‖qₙ(y)‖^{1/n} → 1/μ(y)`. -/
 theorem tendsto_norm_jacobiSecondKind_rpow (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) {y : ℂ} (hy : y ∉ segment ℝ r s) :
+    (hc : IsGammaRegular (α + β + 2)) {y : ℂ} (hy : y ∉ segment ℝ r s) :
     Tendsto (fun n : ℕ => ‖jacobiSecondKind α β r s n y‖ ^ (1 / (n : ℝ))) atTop
       (𝓝 (1 / jacobiEllipseRadius r s y)) := by
   set L := 1 / jacobiEllipseRadius r s y
@@ -675,7 +675,7 @@ theorem tendstoLocallyUniformlyOn_sum_jacobiSecondKind_exterior (α β r s : ℂ
 /-- Carlson's Theorem 7.5-3 for second-kind series, divergence part: if the coefficients grow at
 least at the rate `τ` infinitely often, the series diverges at every point off the segment inside
 the elliptic disk of mean radius `τ`; its terms do not tend to zero. -/
-theorem not_tendsto_jacobiSecondKind (α β r s : ℂ) (hc : IsCarlsonGammaRegular (α + β + 2))
+theorem not_tendsto_jacobiSecondKind (α β r s : ℂ) (hc : IsGammaRegular (α + β + 2))
     (b : ℕ → ℂ) {τ : ℝ} (hb : ∀ ε > 0, ∀ C : ℝ, ∃ᶠ n in atTop, C * (τ - ε) ^ n ≤ ‖b n‖)
     {y : ℂ} (hy : y ∉ segment ℝ r s) (hyτ : jacobiEllipseRadius r s y < τ) :
     ¬ Tendsto (fun n => b n * jacobiSecondKind α β r s n y) atTop (𝓝 0) := by

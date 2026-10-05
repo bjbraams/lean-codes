@@ -113,7 +113,7 @@ theorem shiftedJacobiCoefficient_eq_integral_div_norm {α β : ℝ}
   rw [shiftedJacobiCoefficient_apply, integral_shiftedJacobi_sq hα hβ,
     integral_mul_shiftedJacobi_eq_integral_derivative hα hβ]
   have hf : (n.factorial : ℝ) ≠ 0 := by exact_mod_cast n.factorial_ne_zero
-  have hp := jacobi_pochhammer_ne_zero hα hβ n
+  have hp := jacobi_pochhammer_ne_zero (α := α) (β := β) (by linarith) n
   have hm := (integral_shiftedJacobiWeight_pos
     (by have := Nat.cast_nonneg (α := ℝ) n; linarith : -1 < α + n)
     (by have := Nat.cast_nonneg (α := ℝ) n; linarith : -1 < β + n)).ne'

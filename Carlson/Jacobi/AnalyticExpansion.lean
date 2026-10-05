@@ -103,7 +103,7 @@ theorem exists_summable_norm_jacobiContourCoefficient_mul (α β r s : ℂ)
 /-- The finite polynomial expansion can be written as an infinite sum because
 all coefficients above the polynomial degree vanish. -/
 theorem tsum_carlsonJacobiCoefficient_eval (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) (p : ℂ[X]) (x : ℂ) :
+    (hc : IsGammaRegular (α + β + 2)) (p : ℂ[X]) (x : ℂ) :
     ∑' n, carlsonJacobiCoefficient α β r s n p * (jacobiOn α β r s n).eval x =
       p.eval x := by
   rw [tsum_eq_sum (s := Finset.range (p.natDegree + 1)) (fun n hn => ?_)]
@@ -117,7 +117,7 @@ theorem tsum_carlsonJacobiCoefficient_eval (α β r s : ℂ)
 together with convergence at the evaluation point, yields its Jacobi expansion.
 The separation condition is sufficient and is not the sharp ellipse condition. -/
 theorem hasSum_jacobiContourCoefficient_of_polynomial_approximation (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) {x : ℂ} {C R d : ℝ}
+    (hc : IsGammaRegular (α + β + 2)) {x : ℂ} {C R d : ℝ}
     (hC : 0 ≤ C) (hR : 0 ≤ R) (hd : 0 < d) (hRd : R < d)
     (hp : ∀ n, ‖(jacobiOn α β r s n).eval x‖ ≤ C * R ^ n)
     (Γ : Cycle) (hΓ : Γ.IsC1) (hind : Γ.index r = 1)
@@ -170,7 +170,7 @@ theorem hasSum_jacobiContourCoefficient_of_polynomial_approximation (α β r s :
 /-- An entire function has a Jacobi expansion with contour coefficients on any
 index-one cycle satisfying the sufficient distance separation condition. -/
 theorem hasSum_jacobiContourCoefficient_of_entire_of_separated (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) {x : ℂ} {C R d : ℝ}
+    (hc : IsGammaRegular (α + β + 2)) {x : ℂ} {C R d : ℝ}
     (hC : 0 ≤ C) (hR : 0 ≤ R) (hd : 0 < d) (hRd : R < d)
     (hp : ∀ n, ‖(jacobiOn α β r s n).eval x‖ ≤ C * R ^ n)
     (Γ : Cycle) (hΓ : Γ.IsC1) (hind : Γ.index r = 1)
@@ -189,7 +189,7 @@ theorem hasSum_jacobiContourCoefficient_of_entire_of_separated (α β r s : ℂ)
 that disk when an index-one cycle in the disk satisfies the sufficient separation
 condition. This proves existence without assuming convergence of the Jacobi series. -/
 theorem hasSum_jacobiContourCoefficient_on_ball (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) {x c : ℂ} {ρ : ℝ≥0}
+    (hc : IsGammaRegular (α + β + 2)) {x c : ℂ} {ρ : ℝ≥0}
     (hρ : 0 < ρ) (hx : x ∈ Metric.ball c ρ) {C R d : ℝ}
     (hC : 0 ≤ C) (hR : 0 ≤ R) (hd : 0 < d) (hRd : R < d)
     (hp : ∀ n, ‖(jacobiOn α β r s n).eval x‖ ≤ C * R ^ n)
@@ -227,7 +227,7 @@ private theorem exists_separated_jacobiCycle (r s : ℂ) {d : ℝ} (hd : 0 < d) 
   have hrball : r ∈ Metric.ball 0 ρ :=
     (Metric.ball_subset_ball (by dsimp [ρ]; linarith)) (hseg (left_mem_segment ℝ r s))
   have hind : Γ.index r = 1 := by
-    rw [Cycle.zsmulLoop_index]
+    rw [Cycle.index_zsmulLoop]
     change (1 : ℤ) * curveIndex (Path.circle 0 ρ) r = 1
     rw [curveIndex_circle_of_mem_ball hrball]
     norm_num
@@ -244,7 +244,7 @@ Coefficients may be computed on any index-one `C¹` cycle avoiding the endpoint
 segment; no separation condition or restriction on the individual parameters is
 needed. The total parameter must be admissible for the monic Jacobi basis. -/
 theorem hasSum_jacobiContourCoefficient_of_entire (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2))
+    (hc : IsGammaRegular (α + β + 2))
     (Γ : Cycle) (hΓ : Γ.IsC1) (havoid : Γ.range ⊆ (segment ℝ r s)ᶜ)
     (hind : Γ.index r = 1) {f : ℂ → ℂ} (hf : Differentiable ℂ f) (x : ℂ) :
     HasSum (fun n => jacobiContourCoefficient α β r s n Γ f *
@@ -305,7 +305,7 @@ theorem exists_summable_norm_jacobiExpansion_of_entire (α β r s : ℂ)
 /-- Jacobi expansions of entire functions converge uniformly on every compact
 set, with coefficients taken on any fixed index-one cycle off the segment. -/
 theorem tendstoUniformlyOn_sum_jacobiContourCoefficient_of_entire (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2))
+    (hc : IsGammaRegular (α + β + 2))
     (Γ : Cycle) (hΓ : Γ.IsC1) (havoid : Γ.range ⊆ (segment ℝ r s)ᶜ)
     (hind : Γ.index r = 1) {f : ℂ → ℂ} (hf : Differentiable ℂ f)
     {K : Set ℂ} (hK : IsCompact K) :
@@ -322,7 +322,7 @@ theorem tendstoUniformlyOn_sum_jacobiContourCoefficient_of_entire (α β r s : �
 /-- The Jacobi expansion of an entire function converges locally uniformly
 throughout the complex plane. -/
 theorem tendstoLocallyUniformlyOn_sum_jacobiContourCoefficient_of_entire (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2))
+    (hc : IsGammaRegular (α + β + 2))
     (Γ : Cycle) (hΓ : Γ.IsC1) (havoid : Γ.range ⊆ (segment ℝ r s)ᶜ)
     (hind : Γ.index r = 1) {f : ℂ → ℂ} (hf : Differentiable ℂ f) :
     TendstoLocallyUniformlyOn

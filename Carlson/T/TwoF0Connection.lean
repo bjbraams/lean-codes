@@ -10,6 +10,8 @@ public import Carlson.R.ContourRepresentation
 public import Carlson.S.Continuation
 public import Carlson.S.Properties
 public import Dirichlet.Transform.Euler
+public import TauCeti.Analysis.SpecialFunctions.Pow.Complex
+public import TauCeti.Analysis.SpecialFunctions.Beta
 
 /-!
 # Connection formulas between `S` and `₂F₀`
@@ -48,6 +50,9 @@ first as an identity of entire functions multiplied by `sin(π(β - α))`.
 
 ## References
 
+* `TauCeti.Analysis.SpecialFunctions.Pow.Complex` and `TauCeti.Analysis.SpecialFunctions.Beta`:
+  the Tau Ceti contributors' `TauCeti.ofReal_mul_cpow` and
+  `TauCeti.intervalIntegrable_rpow_mul_one_sub_rpow`.
 * B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977, §5.12.
 -/
 
@@ -388,19 +393,6 @@ theorem integrableOn_eulerContourKernel_ray_one {β β' d v : ℂ} (hβ1 : β.re
   filter_upwards [self_mem_ae_restrict measurableSet_Ioi] with μ hμ
   exact norm_eulerContourKernel_ray_one_le hβ1 hv hvd hμ
 
-/-- The real Beta majorant `s^{a-1} (1-s)^{b-1}` is interval integrable on `[0, 1]`. -/
-theorem intervalIntegrable_rpow_mul_one_sub_rpow {a b : ℝ} (ha : 0 < a) (hb : 0 < b) :
-    IntervalIntegrable (fun s : ℝ => s ^ (a - 1) * (1 - s) ^ (b - 1)) volume 0 1 := by
-  have h := (Dirichlet.integrableOn_eulerKernel_mul (a := (a : ℂ)) (b := (b : ℂ)) (by simpa)
-    (by simpa) (f := fun _ => 1) continuousOn_const).norm
-  refine (intervalIntegrable_iff_integrableOn_Ioo_of_le zero_le_one).mpr
-    (IntegrableOn.congr_fun h (fun s hs => ?_) measurableSet_Ioo)
-  have h1 : (1 : ℂ) - s = ((1 - s : ℝ) : ℂ) := by push_cast; ring
-  simp only [mul_one, norm_mul]
-  rw [Complex.norm_cpow_eq_rpow_re_of_pos hs.1, h1,
-    Complex.norm_cpow_eq_rpow_re_of_pos (by linarith [hs.2] : (0 : ℝ) < 1 - s)]
-  simp
-
 /-- The function `λ ↦ ∫₀¹ K(s + λ v) ds` whose variation gives Carlson's contour step. -/
 def eulerContourPhi (β β' d v : ℂ) (μ : ℝ) : ℂ :=
   ∫ s in (0 : ℝ)..1, eulerContourKernel β β' d ((s : ℂ) + μ * v)
@@ -463,7 +455,8 @@ theorem continuousAt_eulerContourPhi {β β' d v : ℂ} (hβ0 : 0 < β.re) (hβ1
           (c₀ ^ (β'.re - 1) * (1 - s) ^ (β'.re - 1)) * Real.exp (π * (|β.im| + |β'.im|)) := by
           gcongr
       _ = _ := by ring
-  · exact (intervalIntegrable_rpow_mul_one_sub_rpow hβ0 hβ'0).const_mul _
+  · exact (TauCeti.intervalIntegrable_rpow_mul_one_sub_rpow hβ0 hβ'0 (by simp)
+      (by simp)).const_mul _
   · filter_upwards [(countable_singleton (1 : ℝ)).ae_notMem volume] with s hs1 hs
     have hs' : s ∈ Ioo (0 : ℝ) 1 := by
       rw [uIoc_of_le zero_le_one] at hs
@@ -619,14 +612,6 @@ theorem intervalIntegral_eulerContourKernel {β β' d v : ℂ} (hβ0 : 0 < β.re
 
 /-! ### Theorem 5.12-8 -/
 
-/-- Powers of a positive real multiple split: `(r x)^c = r^c x^c` for `r > 0`, `x ≠ 0`. -/
-theorem ofReal_mul_cpow' {r : ℝ} (hr : 0 < r) {x : ℂ} (hx : x ≠ 0) (c : ℂ) :
-    ((r : ℂ) * x) ^ c = (r : ℂ) ^ c * x ^ c := by
-  have hr0 : (r : ℂ) ≠ 0 := by exact_mod_cast hr.ne'
-  rw [cpow_def_of_ne_zero (mul_ne_zero hr0 hx), cpow_def_of_ne_zero hr0, cpow_def_of_ne_zero hx,
-    log_ofReal_mul hr hx, ← exp_add, ofReal_log hr.le]
-  ring_nf
-
 /-- `e^{iεπ} = -1` for `ε = ±1`. -/
 theorem exp_mul_pi_I_of_sign {ε : ℝ} (hε : ε = 1 ∨ ε = -1) : exp ((ε * π : ℝ) * I) = -1 := by
   rcases hε with rfl | rfl
@@ -708,7 +693,8 @@ theorem regCarlsonS_pair_eq_twoF0_base {β β' : ℂ} (hβ0 : 0 < β.re) (hβ1 :
     rw [carlson2F0Sector_eq_integral (by simp; linarith) hβ0 hζ₂, ← MeasureTheory.integral_const_mul]
     refine setIntegral_congr_fun measurableSet_Ioi fun μ hμ => ?_
     simp only [eulerContourKernel, eulerDensity]
-    rw [ofReal_mul_cpow' hμ hv0, show (μ : ℂ) * v * d = -(μ : ℂ) by rw [mul_assoc, hvd]; ring,
+    rw [TauCeti.ofReal_mul_cpow hμ.le _,
+      show (μ : ℂ) * v * d = -(μ : ℂ) by rw [mul_assoc, hvd]; ring,
       show (1 : ℂ) - μ * v = 1 + μ * exp (-ξ) by simp [v], show -(1 - β') = β' - 1 by ring]
     field_simp
   -- the ray from `1`
@@ -719,7 +705,7 @@ theorem regCarlsonS_pair_eq_twoF0_base {β β' : ℂ} (hβ0 : 0 < β.re) (hβ1 :
     refine setIntegral_congr_fun measurableSet_Ioi fun μ hμ => ?_
     simp only [eulerContourKernel, eulerDensity]
     rw [show (1 + (μ : ℂ) * v) * d = d + -(μ : ℂ) by rw [add_mul, one_mul, mul_assoc, hvd]; ring,
-      show (1 : ℂ) - (1 + μ * v) = μ * exp (-ξ) by simp [v], ofReal_mul_cpow' hμ (exp_ne_zero _),
+      show (1 : ℂ) - (1 + μ * v) = μ * exp (-ξ) by simp [v], TauCeti.ofReal_mul_cpow hμ.le _,
       ← hvexp, show -(1 - β) = β - 1 by ring, exp_add]
     field_simp
   have hmain := intervalIntegral_eulerContourKernel hβ0 hβ1 hβ'0 hβ'1 hvim hvd

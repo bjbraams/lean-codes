@@ -7,7 +7,7 @@ project:
     Lean formalization of selected results in B. C. Carlson's theory of special
     functions as complex Dirichlet averages. The registry selection establishes
     joint entire-parameter continuation of holomorphic averages on convex open
-    scalar domains; joint holomorphy and native-integral agreement for the
+    scalar domains and, to all nodes, on simply connected open scalar domains; joint holomorphy and native-integral agreement for the
     Gamma-regularized R and L functions on principal slit-node domains; Euler
     inversion and Euler-Poisson equations; and Gamma-regularized adaptations of
     both quadratic R transformations for all complex exponent and Dirichlet
@@ -50,6 +50,19 @@ sources:
       arguments use the principal slit-plane branch. Regularization permits
       statements for all complex exponent and Dirichlet parameters. No enlargement
       of Carlson's node domain or mathematical novelty is claimed.
+  - title: A connection between elementary functions and higher transcendental functions
+    authors: [B. C. Carlson]
+    type: paper
+    id: SIAM Journal on Applied Mathematics 17 (1969), 116–148
+    relationship: formalizes
+    location: Theorem 8 (simply connected case), with equation (4.21)
+    note: >-
+      The selected theorem is the simply connected case of Theorem 8, for any number
+      of nodes, in Gamma-regularized form. The proof differs from Carlson's: it uses a
+      convex chart from the Riemann mapping theorem (Tau Ceti contributors), the
+      two-node merging identity (4.21), and induction on the number of nodes, not
+      contour-adapted branches. The multiply connected and Riemann-surface cases are
+      not formalized.
   - title: Dirichlet averages of x^t log x
     authors: [B. C. Carlson]
     type: paper
@@ -89,9 +102,9 @@ classification:
 status:
   scope: >-
     All five mathematical libraries are included in the proof-side imports.
-    Comparator selects 10 Carlson/Dirichlet-average continuation theorems and
-    one R-function construction. Statement.lean and Solution.lean retain their
-    21 theorem declarations unchanged; the other 11 are supporting material,
+    Comparator selects 11 Carlson/Dirichlet-average continuation theorems and
+    one R-function construction. Statement.lean and Solution.lean contain
+    22 theorem declarations; the other 11 are supporting material,
     not separately submitted claims. Their presence does not assert that they
     are already available in Mathlib. comparator.json specifies the selection;
     the README explains its mathematical scope and research interest.
@@ -121,8 +134,9 @@ fidelity:
     They are adaptations to Gamma regularization with no exclusions on t or beta,
     not claims that ordinary R is finite at all parameter poles.
     Probability normalization and natural mixed moments exclude the empty
-    index type. General nonconvex simply connected continuation, multiply
-    connected and Riemann-surface extensions, and contour formula 6.8-7 remain open.
+    index type. Continuation on simply connected domains is proved by a convex
+    Riemann-mapping chart rather than Carlson's contour argument. Multiply
+    connected and Riemann-surface extensions and contour formula 6.8-7 remain open.
 
 review:
   status: agent-reviewed

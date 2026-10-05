@@ -28,6 +28,9 @@ public import Carlson.TwoVariable.ParameterSymmetry
 * `Carlson.TwoVariable.regCarlsonR_pair_raise_both`: Exercise 5.9-10.
 * `Carlson.TwoVariable.regCarlsonR_pair_one_one`, `Carlson.TwoVariable.regCarlsonR_pair_one_one_log`:
   Exercise 5.9-13.
+* `Carlson.TwoVariable.regCarlsonR_pair_neg_one_one_one`,
+  `Carlson.TwoVariable.regCarlsonR_pair_neg_one_one_one_diag`: the logarithmic elementary function
+  of Section 8.5 and its diagonal value, on the whole slit plane.
 
 ## References
 
@@ -63,10 +66,11 @@ private theorem regCarlsonR_pair_one_zero_right (t : ℂ) {z : Fin 2 → ℂ}
   have hs : z ∈ carlsonRSlitDomain := carlsonRVariableDomain_subset_slitDomain hz
   have h := regCarlsonR_aggregate_of_slit hq t hs b'
   rw [hagg] at h
-  rw [← h, regCarlsonR_option_zero t (b := b') (z := z ∘ q) rfl (fun o => hz (q o))]
+  rw [← h, regCarlsonR_option_zero t (b := b') (z := z ∘ q) rfl
+    (carlsonRVariableDomain_subset_slitDomain fun o => hz (q o))]
   have hb : b' ∘ some = fun _ => 1 := rfl
   have hzq : (z ∘ q) ∘ some = fun _ => z 0 := rfl
-  rw [hb, hzq, regCarlsonR_const_node t _ (hz 0)]
+  rw [hb, hzq, regCarlsonR_const_node t _ (carlsonRightHalfPlane_subset_slitPlane (hz 0))]
   simp
 
 /-- **A zero parameter**: `R_t(1, 0; z) = z₀^t` on the slit plane. -/
@@ -152,5 +156,20 @@ theorem regCarlsonR_pair_one_one_log {x y : ℂ} (hx : x ∈ slitPlane) (hy : y 
     linear_combination -h
   have := tendsto_nhds_unique (hF.tendsto.mono_left nhdsWithin_le_nhds) hlim
   simpa [F] using this
+
+/-- Carlson's logarithmic elementary function of Section 8.5, for distinct slit-plane nodes. -/
+theorem regCarlsonR_pair_neg_one_one_one {x y : ℂ} (hx : x ∈ slitPlane) (hy : y ∈ slitPlane)
+    (hxy : x ≠ y) :
+    regCarlsonR (-1) (pair 1 1) (pair x y) = (log y - log x) / (y - x) := by
+  rw [eq_div_iff (sub_ne_zero.mpr hxy.symm)]
+  linear_combination -regCarlsonR_pair_one_one_log hx hy
+
+/-- The diagonal value of Carlson's logarithmic elementary function:
+`R₋₁(1, 1; x, x) = x⁻¹` for slit-plane `x`. -/
+theorem regCarlsonR_pair_neg_one_one_one_diag {x : ℂ} (hx : x ∈ slitPlane) :
+    regCarlsonR (-1) (pair 1 1) (pair x x) = x⁻¹ := by
+  have hxx : pair x x = fun _ : Fin 2 => x := by funext i; fin_cases i <;> rfl
+  have h2 : Gamma (1 + 1 : ℂ) = 1 := by simpa using Complex.Gamma_nat_eq_factorial 1
+  rw [hxx, regCarlsonR_const_node _ _ hx, sum_pair, cpow_neg_one, h2, inv_one, mul_one]
 
 end Carlson.TwoVariable

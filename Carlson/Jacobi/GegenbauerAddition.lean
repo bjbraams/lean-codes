@@ -64,34 +64,17 @@ open scoped Topology
 
 namespace Carlson.TwoVariable
 
-/-- Legendre's duplication for Pochhammer symbols: `(2a)_{2m} = 4^m (a)_m (a + 1/2)_m`. -/
-theorem ascPochhammer_eval_two_mul_two_mul (a : ℂ) (m : ℕ) :
-    (ascPochhammer ℂ (2 * m)).eval (2 * a) =
-      4 ^ m * ((ascPochhammer ℂ m).eval a * (ascPochhammer ℂ m).eval (a + 1 / 2)) := by
-  induction m with
-  | zero => simp
-  | succ m ih =>
-    rw [show 2 * (m + 1) = (2 * m + 1) + 1 by ring, ascPochhammer_succ_eval,
-      ascPochhammer_succ_eval, ih, ascPochhammer_succ_eval, ascPochhammer_succ_eval]
-    push_cast; ring
-
-/-- `(c)_{2m} = (c)_m (c + m)_m`. -/
-theorem ascPochhammer_eval_two_mul (c : ℂ) (m : ℕ) :
-    (ascPochhammer ℂ (2 * m)).eval c =
-      (ascPochhammer ℂ m).eval c * (ascPochhammer ℂ m).eval (c + m) := by
-  have := congrArg (Polynomial.eval c) (ascPochhammer_mul (S := ℂ) m m)
-  rw [eval_mul, eval_comp, eval_add, eval_X, eval_natCast, ← two_mul] at this
-  exact this.symm
-
 /-- **Carlson (7.3-7)**: the monic Jacobi polynomial on `[-1, 1]` with `α = β = ν - 1` is a
 Gegenbauer polynomial, `2^m (ν - 1/2)ₘ pₘ(x) = m! C_m^{ν-1/2}(x)`. -/
 theorem eval_jacobiOn_gegenbauer (ν x : ℂ) (m : ℕ)
     (h1 : (ascPochhammer ℂ m).eval (ν - 1 / 2) ≠ 0) (h2 : (ascPochhammer ℂ m).eval ν ≠ 0) :
     (jacobiOn (ν - 1) (ν - 1) (-1) 1 m).eval x * (2 ^ m * (ascPochhammer ℂ m).eval (ν - 1 / 2)) =
       (m.factorial : ℂ) * (gegenbauer (ν - 1 / 2) m).eval x := by
-  have hdup := ascPochhammer_eval_two_mul_two_mul (ν - 1 / 2) m
+  have hdup := (ascPochhammer_eval_double (ν - 1 / 2) m).trans (mul_assoc _ _ _)
   rw [show ν - 1 / 2 + 1 / 2 = ν by ring, show 2 * (ν - 1 / 2) = 2 * ν - 1 by ring] at hdup
-  have hsplit := ascPochhammer_eval_two_mul (2 * ν - 1) m
+  have hsplit : (ascPochhammer ℂ (2 * m)).eval (2 * ν - 1) =
+      (ascPochhammer ℂ m).eval (2 * ν - 1) * (ascPochhammer ℂ m).eval (2 * ν - 1 + m) := by
+    rw [show 2 * m = m + m from two_mul m]; exact ascPochhammer_add_eval _ m m
   have hD : (ascPochhammer ℂ (2 * m)).eval (2 * ν - 1) ≠ 0 := by
     rw [hdup]; exact mul_ne_zero (pow_ne_zero _ (by norm_num)) (mul_ne_zero h1 h2)
   rw [hsplit] at hD
@@ -197,7 +180,7 @@ theorem gegenbauer_addition_jacobi_of_real {ν : ℂ} (hν : 0 < ν.re) (n : ℕ
   set A : ℂ := cos θ * cos φ
   set B : ℂ := sin θ * sin φ
   set p := (gegenbauer ν n).comp (C B * X + C A)
-  have hc : IsCarlsonGammaRegular ((ν - 1) + (ν - 1) + 2) := by
+  have hc : IsGammaRegular ((ν - 1) + (ν - 1) + 2) := by
     intro k hk
     have := congrArg Complex.re hk
     simp at this; linarith [(Nat.cast_nonneg k : (0 : ℝ) ≤ k)]
@@ -474,7 +457,7 @@ theorem legendre_addition (n : ℕ) (θ φ ψ : ℂ) :
     rw [eq_div_iff (mul_ne_zero hf hnm''), ← hmul, add_comm ((2 * m : ℕ) : ℂ) 1]
     field_simp
   have hdup : ((2 * m).factorial : ℂ) = 4 ^ m * (ascPochhammer ℂ m).eval (1 / 2) * m.factorial := by
-    have := ascPochhammer_eval_two_mul_two_mul (1 / 2 : ℂ) m
+    have := (ascPochhammer_eval_double (1 / 2 : ℂ) m).trans (mul_assoc _ _ _)
     rw [show (2 : ℂ) * (1 / 2) = 1 by norm_num, ascPochhammer_eval_one,
       show (1 / 2 : ℂ) + 1 / 2 = 1 by norm_num, ascPochhammer_eval_one] at this
     rw [this]; ring

@@ -158,7 +158,7 @@ private theorem tendsto_pair_zero {t b₁ b₂ : ℂ} {x : ℂ} (hx : 0 < x.re)
   have hone : Fintype.card {j : Fin 2 // j ≠ 1} = 1 := by decide
   have eq1 : regCarlsonR (-(-t)) (eraseCarlsonParameter 1 (pair b₁ b₂))
       (eraseCarlsonVariable 1 (pair x 1)) = x ^ t * (Gamma b₁)⁻¹ := by
-    rw [e1, e2, neg_neg, regCarlsonR_const_node t _ hx]
+    rw [e1, e2, neg_neg, regCarlsonR_const_node t _ (carlsonRightHalfPlane_subset_slitPlane hx)]
     simp [Finset.sum_const, hone]
   rw [eq1, show b₁ + b₂ + t - pair b₁ b₂ 1 = b₁ + t by simp [pair]; ring] at H
   rw [nhdsWithin, ← Filter.subtype_coe_map_comap, tendsto_map'_iff]
@@ -431,9 +431,6 @@ private theorem analyticOnNhd_dupZeroDefect_right {x : ℂ} (hx : x ∈ slitPlan
   · rw [mul_comm]; exact mem_slit_add_sqrt hy hx
   · exact mul_mem_slitPlane_of_re_pos (re_cpow_half_pos hx) (re_cpow_half_pos hy)
 
-private theorem slitPlane_isPreconnected : IsPreconnected (slitPlane : Set ℂ) :=
-  (starConvex_one_slitPlane.isPathConnected (by simp)).isConnected.isPreconnected
-
 /-- **The duplication theorem with a vanishing variable** (Carlson's Theorem 9.6-1 with
 `z = 0`): for `x, y` in the slit plane and `λ = x^{1/2} y^{1/2}`,
 `(π/2) R_K(x, y) = 2 R_F(x + λ, y + λ, λ)`. -/
@@ -453,7 +450,8 @@ theorem carlsonRK_duplication {x y : ℂ} (hx : x ∈ slitPlane) (hy : y ∈ sli
     have hEq : ∀ᶠ t : ℝ in 𝓝 1, F (t : ℂ) = (fun _ => (0 : ℂ)) (t : ℂ) := by
       filter_upwards [eventually_gt_nhds (show (0 : ℝ) < 1 by norm_num)] with t ht
       exact h t ht
-    exact hF.eqOn_of_eventuallyEq_ofReal analyticOnNhd_const slitPlane_isPreconnected
+    exact hF.eqOn_of_eventuallyEq_ofReal analyticOnNhd_const
+      (starConvex_one_slitPlane.isPathConnected (by simp)).isConnected.isPreconnected
       (by simp) hEq hw
   have h2 : ∀ w ∈ slitPlane, ∀ b : ℝ, 0 < b → dupZeroDefect w b = 0 := fun w hw b hb =>
     hext (analyticOnNhd_dupZeroDefect_left (hpos b hb)) (fun a ha => h1 a b ha hb) w hw

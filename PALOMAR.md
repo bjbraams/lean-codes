@@ -1,9 +1,9 @@
 # Palomar snapshot preparation
 
 The registry-facing statement is [Statement.lean](Statement.lean).
-[comparator.json](comparator.json) now selects 10 Carlson/Dirichlet-average
+[comparator.json](comparator.json) now selects 11 Carlson/Dirichlet-average
 continuation theorems and one R-function construction. The two Lean wrappers
-are unchanged and still contain 21 theorem declarations; the other 11 describe
+contain 22 theorem declarations; the other 11 describe
 supporting material and are not separately selected claims. The exact public
 Git commit identifies the whole source snapshot, including all five mathematical
 libraries. The [README](README.md#mathematical-scope-and-research-interest)
@@ -18,7 +18,7 @@ needed to read the claims. No project-specific imports are permitted, including
 transitive imports. The statement is below the 300-line advisory
 threshold and the 1,000-line / 100-KiB hard limits.
 
-The intended 22 placeholders are confined to Statement: 21 theorem declarations
+The intended 23 placeholders are confined to Statement: 22 theorem declarations
 and the construction of `PalomarSnapshot.regR`. The latter is listed in
 `definition_names`; joint holomorphy and native agreement characterize it on
 the slit domain. Its solution is the existing `regCarlsonR` (in `Carlson/R/Explicit.lean`), not an
@@ -43,6 +43,7 @@ names are visible in the short proofs in Solution.
 | Selected declarations | Existing proof modules |
 | --- | --- |
 | joint_average_continuation | Dirichlet/Average/JointContinuation.lean |
+| simply_connected_average_continuation | Dirichlet/Average/SimplyConnected.lean; TwoNode.lean; Merge.lean; Dirichlet/Merge.lean; Dirichlet/Transform/Merge.lean |
 | r_joint, r_native | Carlson/R/Explicit.lean; SlitIntegral.lean |
 | r_euler, r_euler_poisson | Carlson/R/EulerTransform.lean; EulerPoisson.lean |
 | r_first_quadratic, r_second_quadratic | Carlson/TwoVariable/QuadraticSlit.lean |
@@ -63,8 +64,8 @@ are already part of Carlson 6.9-3 and 6.10-1, not a new extension beyond those
 book statements. See the [detailed account](README.md#quadratic-transformations-precise-relationship-to-carlson).
 
 The ordinary R and L normalizations at Gamma poles, unrestricted quadratic
-branch components, general simply connected continuation of arbitrary averages,
-Carlson's contour formula 6.8-7, and complete coverage of the L article are
+branch components, the multiply connected and Riemann-surface cases of Carlson's (1969)
+Theorem 8, Carlson's contour formula 6.8-7, and complete coverage of the L article are
 not advertised. Neither are the wider S/T, recurrence, boundary-limit, or SCV
 developments registered as separate compared claims in this selection.
 They remain part of the source snapshot when committed.
@@ -87,7 +88,7 @@ libraries must have no admissions. The upstream metadata convention excludes
 intentional Challenge placeholders from `status.sorry_count`.
 
 The local preparation also checked the metadata against the official v0.4 JSON
-Schema and audited all 21 solution theorems and the R construction: only
+Schema and audited all 22 solution theorems and the R construction: only
 `propext`, `Quot.sound`, and `Classical.choice` occur. Local fingerprints of the
 elaborated declaration types, universe parameters, and the fixed definition
 bodies agree between the two environments. In particular, keep the explicit

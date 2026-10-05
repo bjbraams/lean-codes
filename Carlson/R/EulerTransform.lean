@@ -94,10 +94,10 @@ private theorem regCarlsonR_euler_of_pos
       (∏ i, z i ^ (-b i)) *
         regCarlsonR (-a') b (fun i => (z i)⁻¹) := by
   apply mul_left_cancel₀ (mul_ne_zero (Gamma_ne_zero_of_re_pos ha) (Gamma_ne_zero_of_re_pos ha'))
-  rw [← carlsonRUnitIntervalIntegral_eq_gamma_mul_regCarlsonR ha ha' hsum
+  rw [← carlsonRUnitIntervalIntegral_eq_Gamma_mul_regCarlsonR ha ha' hsum
       (carlsonRVariableDomain_subset_slitDomain hz),
     carlsonRUnitIntervalIntegral_inv a a' b hz,
-    carlsonRUnitIntervalIntegral_eq_gamma_mul_regCarlsonR ha' ha (by simpa [add_comm] using hsum)
+    carlsonRUnitIntervalIntegral_eq_Gamma_mul_regCarlsonR ha' ha (by simpa [add_comm] using hsum)
         (carlsonRVariableDomain_subset_slitDomain (carlsonRVariableDomain_inv hz))]
   ring
 

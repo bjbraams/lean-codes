@@ -263,7 +263,8 @@ private theorem regCarlsonR_erase_zero_right [DecidableEq ι] (t : ℂ) {b : ι 
     simp
   have h := regCarlsonR_aggregate e.surjective t hz (b ∘ e)
   rw [hagg] at h
-  rw [← h, regCarlsonR_option_zero t (b := b ∘ e) (z := z ∘ e) hb (fun o => hz (e o))]
+  rw [← h, regCarlsonR_option_zero t (b := b ∘ e) (z := z ∘ e) hb
+    (carlsonRVariableDomain_subset_slitDomain fun o => hz (e o))]
   rfl
 
 /-- **Deletion of a zero parameter** on the slit domain:
@@ -289,7 +290,7 @@ private theorem regCarlsonR_single_right (t β : ℂ) (κ : Type*) [Fintype κ] 
   · intro α _ _ _ i z hz
     have hzc : z = fun _ => z i := funext fun j => by rw [Subsingleton.elim j i]
     rw [show regCarlsonR t (Pi.single i β) z = regCarlsonR t (Pi.single i β) (fun _ => z i) by
-      rw [← hzc], regCarlsonR_const_node t _ (hz i)]
+      rw [← hzc], regCarlsonR_const_node t _ (carlsonRightHalfPlane_subset_slitPlane (hz i))]
     simp
   · intro α _ _ ih _ i z hz
     obtain ⟨k, hk⟩ := exists_ne i
@@ -376,7 +377,8 @@ theorem isLogRationalOn_regCarlsonR_natCast (n : ℕ) (b : ι → ℂ) :
       (IsRationalOn.prod _ fun i _ => (IsRationalOn.coord i).pow _)).mul
         (IsRationalOn.const _)).mul (IsRationalOn.const _)
   · beta_reduce
-    rw [regCarlsonR_natCast n b hz, regCarlsonRPolynomial_eq_numerator_mul_one_div_Gamma,
+    rw [regCarlsonR_natCast n b (carlsonRVariableDomain_subset_slitDomain hz),
+      regCarlsonRPolynomial_eq_numerator_mul_one_div_Gamma,
       carlsonRPolynomialNumerator_eq_multinomial_sum]
 
 /-- When the parameters are integers and `c + t` is a nonpositive integer, the regularized `R`
@@ -398,7 +400,7 @@ theorem isLogRationalOn_regCarlsonR_neg_sum_sub_nat (N : ℕ) (m : ι → ℤ) :
           (IsRationalOn.inv_coord i (fun z hz => hS z hz i)).pow _)).mul
             (IsRationalOn.const _)).mul (IsRationalOn.const _))
   · beta_reduce
-    rw [regCarlsonR_neg_sum_sub_nat_int N m hz,
+    rw [regCarlsonR_neg_sum_sub_nat_int N m (carlsonRVariableDomain_subset_slitDomain hz),
       regCarlsonRPolynomial_eq_numerator_mul_one_div_Gamma,
       carlsonRPolynomialNumerator_eq_multinomial_sum]
 

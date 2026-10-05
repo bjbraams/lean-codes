@@ -20,6 +20,14 @@ are needed and match their primary sources byte for byte. The synchronized injec
 holomorphic-inverse, half-plane quotient and exterior-connectedness proofs now use TauCeti.
 The simplex moment-determination theorem, finite-product lower-integral formula and covering-map
 injectivity also adapt TauCeti, preserving their existing local interfaces and hypotheses.
+The synchronized logarithmic-derivative and curve-index copies (resynchronized 5 October 2026)
+import TauCeti's winding-number theory for the endpoint-ratio identity, local constancy and
+vanishing on unbounded components; `ToMathlib.Analysis.TaylorBounds` now derives its uniform
+bound from Mathlib's `Convex.isLittleO_pow_succ`.
+Since 5 October 2026 the beta-density lemmas, the singular power integrability lemma, and
+several complex-power identities in the Carlson library also use TauCeti, and
+`Dirichlet.TauCetiBridge` identifies the local real Dirichlet measure with TauCeti's
+Gamma-normalization law.
 
 ## General algebra
 
@@ -60,7 +68,7 @@ that matches the underlying API.
 | `ToMathlib.Analysis.SpecialFunctions.Bessel` | The series of the regularized hypergeometric functions, bounds for Bessel functions of integer order, and the modified Bessel function `I_a` |
 | `ToMathlib.Analysis.SpecialFunctions.GammaRatio` | Monotonicity of `Γ(x)/|Γ(x + iy)|` for `x > 0`, the bound `√(cosh πy)` for `x ≥ 1/2`, and `|Γ(1/2 + iy)|² = π/cosh πy` |
 | `ToMathlib.Analysis.SpecialFunctions.Gamma` | Complex-rate Gamma/Laplace kernel bounds, integrability, differentiation, holomorphy, and evaluation |
-| `ToMathlib.Analysis.Integral.Pi` | Nonnegative integration of almost-everywhere measurable coordinate products over finite dependent product measure spaces |
+| `ToMathlib.Analysis.SpecialFunctions.Pow` | A power between two others is bounded by their sum; positive real bases to complex powers as exponentials; positivity of `re (1 - v)` for `‖v‖ < 1` |
 | `ToMathlib.Analysis.Integral.ProdAbsRPow` | Integrability on `ℝ` of `∏ |σ - xᵢ|^{-bᵢ}` for distinct nodes, `bᵢ < 1` and `∑ bᵢ > 1`, allowing nonsingular positive powers |
 | `ToMathlib.Analysis.UpperHalfPlaneMaximum` | Minimum principle for `im f` on the upper half-plane, for `f` holomorphic, continuous up to the axis, with a limit at infinity |
 | `ToMathlib.Analysis.Connected` | Connected shells and complements of balls in real normed spaces |
@@ -77,6 +85,7 @@ that matches the underlying API.
 | `ToMathlib.Analysis.Integral.CurveIntegral.Bounds` | Operator-norm and speed estimates, vanishing connector integrals, and explicit power-decay rates for growing paths |
 | `ToMathlib.Analysis.Integral.Reciprocal` | Inversion change of variables on arbitrary measurable sets avoiding zero, with half-line corollaries |
 | `ToMathlib.Analysis.Integral.Tail` | Uniformly vanishing tails under a common integrable majorant, uniform finite-interval approximation, and a quantitative power-decay tail estimate |
+| `ToMathlib.Analysis.Integral.EndpointDeformation` | Equality of two path integrals through a convex domain of holomorphy with possibly singular common endpoints, from a primitive and an endpoint compatibility estimate |
 | `ToMathlib.Analysis.Holomorphic.FunctionSpace` | Bundled compact-open holomorphic maps, pointwise algebra, evaluation and restriction as continuous linear maps, and convergence directly on the domain |
 | `ToMathlib.Analysis.Holomorphic.LocallyUniformLimit` | Closedness and completeness on open subsets of the complex plane with Banach targets, using Mathlib's Weierstrass theorem |
 | `ToMathlib.Analysis.Holomorphic.NormalFamily` | Equicontinuity under compact-local bounds; Montel compactness, subsequences, and Vitali convergence on planar domains with finite-dimensional targets; general-source versions retain a closedness hypothesis. Related work: RMT4, [Mathlib PR #33505](https://github.com/leanprover-community/mathlib4/pull/33505), and TauCeti (links in the module header) |
@@ -97,7 +106,8 @@ applications are in `ComplexAnalysis.CauchyIntegral`.
 `Pochhammer.Estimates` includes factorial-geometric bounds, half-integer comparison,
 and nonvanishing of ascending Pochhammer symbols in the right half-plane.
 `Pochhammer.Gamma` includes uniform factorial decay of reciprocal Gamma after a
-common natural shift on compact sets, with a finite-coordinate-sum specialization.
+common natural shift on compact sets, with a finite-coordinate-sum specialization, and the
+natural-shift identity `Γ(z + m) = (z)ₘ Γ(z)` at every Gamma-regular `z`.
 
 ## Single-variable complex analysis
 
@@ -154,9 +164,10 @@ already analytic coordinate slices. The public local-bound results in
 `Dirichlet.Complex.Parametric` and `Dirichlet.Average.Associated.Analytic` remain
 useful with merely continuous kernels or averaged functions.
 
-The broader SCV continuation, removable-singularity, and approximation theory of
-`lean-SCV` does not by itself supply the local Jordan-domain contour constructions and
-planar exhaustion needed by `Dirichlet.Average.HolomorphicDomain`.
+The simply connected case of Carlson (1969), Theorem 8, uses SCV Hartogs (for the joint
+holomorphy of a chart difference quotient and for removing Gamma poles), the CA logarithm
+branches on simply connected domains, and the Tau Ceti Riemann mapping theorem; no Jordan-domain
+contour constructions or planar exhaustion are needed.
 
 ## Simplex foundation modules
 
@@ -164,6 +175,9 @@ planar exhaustion needed by `Dirichlet.Average.HolomorphicDomain`.
 sum. Two-coordinate interior and ambient-measure projection facts live in
 `StdSimplexMeasure.Interior` and `StdSimplexMeasure.Measure.Basic`; aggregation
 commutes with semiring homomorphisms in `StdSimplexMeasure.Aggregation`.
+`StdSimplexMeasure.MomentDetermination` shows that finite measures on the simplex are
+determined by their moments, and that functions with vanishing moments vanish almost
+everywhere, and pointwise on the simplex when continuous.
 
 ### `StdSimplexMeasure.PositiveSimplex`
 
@@ -213,12 +227,21 @@ Simplex integral evaluation.
 
 ### `Dirichlet.Real`
 
-Real probability results. `Dirichlet.Real.Moments` → `Real.Aggregation` → `Real.Marginals`.
-Probability statements about moments, aggregation, and beta marginals are downstream of the real distribution.
+Real probability results. `Dirichlet.Real.Moments`, `Real.Aggregation` and `Real.Marginals` are
+downstream of the real distribution and of `Dirichlet.TauCetiBridge`. The monomial and
+power-product moment formulas are local; the coordinate mean, variance and covariance, the
+aggregation law and the beta marginals are transferred from TauCeti's Dirichlet development.
 `Dirichlet.Real.Average` supplies integrability on the compact simplex, Jensen bounds,
 and mixed affine moments. Almost-sure equality of affine combinations is equivalent
 to equality of their node vectors. `Dirichlet.Real.StrictAverage` uses this to prove
 strict Jensen bounds and strict convexity or concavity in the nodes for general kernels.
+The Jensen bounds need only convexity of the kernel's domain, not closedness.
+`Dirichlet.TauCetiBridge` shows that, for positive parameters on a nonempty index type, the
+image of `dirichletMeasure b` in `EuclideanSpace ℝ ι` is `TauCeti.Probability.dirichletMeasure b`,
+and transfers integrals between the two measures without measurability assumptions.
+`Dirichlet.Merge` merges two coordinates: the Dirichlet measure is the image of the product
+of a two-coordinate and a merged Dirichlet measure under the merging map (moment
+determination), with the corresponding iterated integral for continuous kernels.
 
 ### `Dirichlet.Complex`
 
@@ -255,6 +278,9 @@ root-level declarations or extend `MeasureTheory` and `Convexity.StdSimplex`.
 | `Dirichlet.Transform.Joint` | Joint continuation with auxiliary holomorphic parameters and commutation with auxiliary derivatives |
 | `Dirichlet.Transform.Euler` | Two-endpoint Gamma-regularized Euler integrals, their identification with the two-coordinate Dirichlet transform, and joint entire continuation with holomorphic auxiliary parameters |
 | `Dirichlet.Transform.Series` | Dominated native termwise integration and recognition of locally uniformly convergent series of continued transforms |
+| `Dirichlet.Transform.Face` | Face formulas at nonpositive integer parameters: restriction to a face at `bᵢ = 0`, iterated integration by parts, and the binomial face formula at `bᵢ = -m` |
+| `Dirichlet.Transform.Merge` | The merging (stick-breaking) identity `T_b[g] = Γ(b a + b a') T₂[v ↦ T_{b'}[g ∘ mergeMap v]]`: native for continuous kernels, as an identity of entire functions (with `Γ(b a + b a')⁻¹`) given a jointly holomorphic inner continuation, which exists for kernels holomorphic near the simplex |
+| `Dirichlet.Transform.Uniqueness` | Monomial moments as transform values; a continuous kernel is determined on the simplex by its transform at positive integer parameters |
 
 | Topic | Modules |
 | --- | --- |
@@ -263,8 +289,12 @@ root-level declarations or extend `MeasureTheory` and `Convexity.StdSimplex`.
 | Associated average analysis | `Dirichlet.Average.Associated.Relations` → `Deriv` → `Analytic` |
 | Holomorphic kernels and joint continuation | `Dirichlet.Complex.Parametric` → `Dirichlet.Transform.Parametric` → `Dirichlet.Transform.Joint` → `Dirichlet.Average.JointContinuation`: Carlson 6.3-6 on general convex open node domains; the general Jordan-curve representation remains separate |
 | Continued Cauchy representations | `Dirichlet.Average.ResolventContinuation` and `CauchyContinuation`, using `SeveralComplexVariables.ContourIntegral`: entire-parameter resolvents and circle representations |
-| Continuation on nonconvex domains | `Dirichlet.Average.HolomorphicDomain`: domain-aware characterization, uniqueness, and increasing-domain gluing; local Jordan-domain existence and planar exhaustion remain open |
+| Continuation on nonconvex domains | `Dirichlet.Average.HolomorphicDomain`: domain-aware characterization, uniqueness, and increasing-domain gluing |
 | Hull-admissible integral domains | `Dirichlet.Average.IntegralDomain`: open node-domain geometry, joint continuation on the native node domain, and recognition of a given continuation on connected open scalar domains |
+| Merging two nodes | `Dirichlet.Merge` → `Dirichlet.Transform.Merge` → `Dirichlet.Average.Merge`: the Dirichlet measure as the image of a two-node and a merged Dirichlet measure (moment determination), the merging identity for general kernels, and its specialization `𝓡_b(z; f) = Γ(b a + b a') 𝓡₂(…; 𝓡_{b'}(z'(w); f))` for positive real parameters (Carlson 1969, (4.21)) |
+| Simply connected domains | `Dirichlet.Average.Chart` → `TwoNode` → `SimplyConnected`: convex charts and difference-quotient logarithms; the parametric two-node continuation by pulling back to a straight segment, with agreement by endpoint deformation (`ToMathlib.Analysis.Integral.EndpointDeformation`); and Carlson (1969), Theorem 8, simply connected case, by induction on the number of nodes with Gamma-pole removal (`Dirichlet.GammaPoles`) |
+| Simply connected fibres | `Dirichlet.Average.FibreContinuation`: for a kernel holomorphic on an open `𝒲 ⊆ ℂ × P` with simply connected fibres, the two-node average (and the Euler integral with endpoints `0`, `1`) continues holomorphically in the Dirichlet parameters, nodes and parameter wherever the nodes lie in the fibre; fibrewise Riemann charts glued through relatively compact chart pieces (`IsConvexChart.exists_restrict`) and the identity theorem |
+| Several variables | `Dirichlet.Average.SeveralVariables`: averages `𝓡_b(Z; h)` of a function holomorphic on `D ⊆ ℂⁿ` with vector nodes, continued to all nodes in `D` when the complex-line sections of `D` are simply connected (convex and `ℂ`-convex domains), by merging and the Euler continuation over moving simply connected fibres; Theorem 8 recovered for `n = 1` |
 | Exterior-path kernels | `Carlson.R.ContourKernel`: holomorphic branch construction under path-avoidance hypotheses, compactified kernel continuation through the Euler transform, and identification of the straight-path case with the slit resolvent; general path independence remains open |
 
 The generic transform modules do not import `Dirichlet.Average` or `Carlson`.
@@ -380,7 +410,7 @@ The standard polynomial is `jacobi α β n`, and the shifted polynomial is
 | `Jacobi.Weight`, `Jacobi.RealOrthogonality` | Integrability, endpoint control, the weighted Wronskian argument, and orthogonality throughout the real range `α, β > -1` |
 | `Jacobi.Expansion` | The real specialization of the algebraic finite expansion, with agreement of integral and algebraic beta averages; the coefficient of index `m` is the integral of the `m`th derivative against the weight with parameters `α+m, β+m`, divided by the weight's mass and the Jacobi normalization factor; orthogonality to all lower-degree polynomials |
 | `Jacobi.Raising`, `Jacobi.AnalyticRodrigues` | Parameter-unrestricted polynomial raising identity and analytic Rodrigues formula for arbitrary real exponents on `(0,1)` |
-| `Jacobi.WeightedIntegral` | Repeated weighted integration by parts for continuous derivative towers and `Cⁿ` functions on `[0,1]`, with a polynomial specialization |
+| `Jacobi.WeightedIntegral` | Repeated weighted integration by parts for continuous derivative towers and `Cⁿ` functions on `[0,1]`, with a polynomial specialization; specialized from `Jacobi.ComplexOrthogonality` |
 | `Jacobi.Norm` | Squared Jacobi norms in beta function form, strict positivity, agreement of derivative-average and orthogonal projection coefficients, and the shifted Legendre norm by specialization |
 | `Jacobi.Rodrigues`, `Jacobi.Orthogonality` | Polynomial Rodrigues identity for nonnegative integer parameters, repeated polynomial integration by parts, and integer-weight specializations of the general orthogonality theorem |
 | `Jacobi.Legendre`, `Jacobi.Chebyshev` | Identifications with Mathlib's shifted Legendre and Chebyshev `T` and `U` polynomials |
@@ -411,12 +441,11 @@ parameter continuation of the native average and commutes with affine substituti
 | `Jacobi.Pearson` | Pearson's relation for continued two-node averages, with arbitrary complex parameters and coincident endpoints |
 | `Jacobi.SecondKindEquation` | Three consecutive resolvent orders, parameter-shift differentiation, and the adjoint Jacobi differential equation off the endpoint segment |
 | `Jacobi.SecondKindInfinity` | Affine covariance, the analytic reciprocal chart, and normalization at infinity in every complex direction |
-| `Jacobi.ComplexWeightedIntegral` | The weighted derivative-tower identity for complex-valued functions, derived from the real identity |
-| `Jacobi.SecondKindIntegral` | Euler and weighted Jacobi Cauchy representations off the entire unit segment, for real parameters greater than `-1` |
+| `Jacobi.SecondKindIntegral` | Euler and weighted Jacobi Cauchy representations off the entire unit segment, for real parameters greater than `-1`; specialized from `Jacobi.ComplexSecondKind` |
 | `Jacobi.BoundaryKernel` | Compatibility import of the general Cauchy boundary theory in `ToMathlib.Analysis.Integral.CauchyBoundary` |
-| `Jacobi.SecondKindBoundary` | Jacobi boundary jumps at interior points of the unit segment and their transport to distinct complex endpoints |
+| `Jacobi.SecondKindBoundary` | Jacobi boundary jumps at interior points of the unit segment and their transport to distinct complex endpoints, specialized from `Jacobi.ComplexSecondKind` |
 | `Jacobi.SecondKindPlemelj` | Separate upper and lower limits for `re α, re β > -1`, the normalized principal value as a symmetric-truncation limit, and affine transport to distinct complex endpoints |
-| `Jacobi.ComplexRodrigues` | Principal complex weights and Rodrigues' formula at all complex parameters |
+| `Jacobi.ComplexRodrigues` | Principal complex weights and Rodrigues' formula at all complex parameters; agreement with the real weight and polynomials at real parameters |
 | `Jacobi.ComplexOrthogonality` | Complex derivative-tower integrals, bilinear orthogonality and squared integrals for `re α, re β > -1` |
 | `Jacobi.ComplexSecondKind` | Euler representations at arbitrary endpoints under degree-shifted positivity; weighted Cauchy representations for `re α, re β > -1`, and symmetric jumps on nondegenerate complex segments |
 | `Jacobi.SecondKindBounds` | Degree-dependent bounds from shifted Euler weights, including estimates that retain the combined weight-resolvent factor |
@@ -453,7 +482,7 @@ parameter continuation of the native average and commutes with affine substituti
 | `Jacobi.GegenbauerAddition` | Formula (7.3-7), Gegenbauer's addition theorem 7.3-1, its Jacobi form, `P_n^{-k}` with the reflection (6.10-19), and both forms of the Legendre addition theorem (7.3-11) |
 | `Jacobi.ChebyshevSecondKind` | Lemma 7.4-1: `R_{-n-1}(1/2+n, 1/2+n; x², y²) = (xy)⁻¹((x+y)/2)^{-2n}` on `re (x ȳ) > 0`, by the second quadratic transformation and the identity theorem |
 | `Jacobi.LaguerreSecondKind` | The Laguerre function of the second kind `q̃ₙ` (Definition 7.9-2) as the limit (7.9-4), and Theorem 7.9-5 with its converse, from the connection formula (5.12-18) |
-| `Jacobi.Hermite`, `Jacobi.HermiteRepresentation` | Monic Hermite polynomials: the Jacobi limit (Theorem 7.10-1), Rodrigues' formula (7.10-6), the weighted representation (Theorem 7.10-3) and orthogonality (Theorem 7.10-4) |
+| `Jacobi.Hermite`, `Jacobi.HermiteRepresentation` | Monic Hermite polynomials: the Jacobi limit (Theorem 7.10-1), Rodrigues' formula (7.10-6), the weighted representation (Theorem 7.10-3) and orthogonality (Theorem 7.10-4), transported from TauCeti's Gaussian orthogonality of `Polynomial.hermite` by the scaling `2^{n/2} p̃ₙ(x) = Heₙ(√2 x)` |
 
 The finite complex theorem includes coincident endpoints and recovers Taylor's
 formula there. Its parameter restriction concerns the total `α+β+2`, not the real
@@ -648,10 +677,12 @@ convex hull stays in the slit plane; individual slit-plane nodes alone are insuf
 normalization still uses the total-parameter Gamma factor; Lean's totalized values at
 Gamma poles are not assertions of finite ordinary-function values.
 
-`Carlson.Normalization.Basic` proves the scalar Gamma pole factorization, residue,
+`Dirichlet.GammaPoles` (formerly `Carlson.Normalization.Basic` and part of
+`Normalization.EqualParameter`) proves the scalar Gamma pole factorization, residue,
 one-variable removability criterion, and finite removable limit. It also supplies
-a joint analytic pole numerator and a sufficient joint removal criterion from
-local divisibility by the exceptional total-parameter factor.
+a joint analytic pole numerator, a sufficient joint removal criterion from
+local divisibility by the exceptional total-parameter factor, and the Hartogs-based removal
+`Complex.analyticOnNhd_GammaRemovedValue`.
 `Carlson.Normalization` applies these results uniformly to R, L, S, native T, and
 principal slit-plane T. It proves ordinary joint holomorphy away from Gamma poles
 and meromorphy under analytic one-variable substitutions. At total parameter
@@ -697,13 +728,15 @@ The L modules depend on the R modules, not conversely.
 
 `TwoVariable.Quadratic` re-exports `Quadratic.Geometry`,
 `Quadratic.Polynomial`, and `Quadratic.Integral`. Parameter continuation,
-the finer equal-parameter normalization, and differentiated L-transformations
-remain in `QuadraticContinuation`, `EqualParameter`, and `LQuadratic`.
+the finer equal-parameter normalization, and the exponent-derivative calculus with moving
+Dirichlet parameters are in `QuadraticContinuation`, `EqualParameterSlit`, and `LQuadratic`.
 `QuadraticSlit` extends the raw regularized R identities to all square-root
 variables with positive real parts, without requiring their squared or
 mean-square nodes to have positive real parts. `EqualParameterSlit` defines the finer
 equal-parameter normalization `regEqualR` without proof arguments, jointly holomorphic on
-slit-plane nodes, and extends the finer R and L quadratic identities to the same domain.
+slit-plane nodes, identifies it with the native integral, and extends the finer R and L quadratic
+identities to the same domain. The former proof-dependent half-plane construction
+(`TwoVariable.EqualParameter`) has been retired.
 
 `Carlson.S` re-exports `S.Basic`, `S.Series`, `S.Analytic`, `S.Continuation`,
 `S.Deriv`, and `S.Properties`: native definitions, series continuation, joint
@@ -768,7 +801,7 @@ The coverage against the book is recorded in `CarlsonChapters5And6Coverage.md`.
 | `Carlson.R.AssociatedDependence` | Theorem 8.4-3: any `k+1` associated R-functions admit a nontrivial polynomial relation on slit-plane nodes, for each fixed exponent and parameter vector; coefficient dependence on those parameters is not asserted |
 | `Carlson.R.IntegerReduction` | Theorem 8.5-1: with integral exponent and parameters, `R_t(b; z)` is log-rational on the slit domain (`Q(z) R = P₀(z) + ∑ Pᵢ(z) log zᵢ`, polynomials `Q ≠ 0`, `P₀`, `Pᵢ`); deletion of a zero parameter and `R_t(β eᵢ; z) = zᵢ^t` on the slit domain; `(zᵢ - zⱼ) R_{-1}(eᵢ + eⱼ; z) = log zᵢ - log zⱼ` (8.5-2) |
 | `Carlson.Elliptic.RF` | `R_F` (8.2-6), its symmetry, the integral (8.2-5), `R_F(x, y, y) = R_C(x, y)` (8.2-13), and `R_F(x, y, 0) = (π/2) R_K(x, y)` (8.3-17) |
-| `Carlson.Elliptic.SchwarzChristoffel` | The Schwarz–Christoffel differential equation (8.2-1) and integral (8.2-2), (8.2-3), the phase of the boundary derivative, the half-periods (8.2-8)–(8.2-10), (8.2-20) and (8.2-21) as real integrals, the elementary cases (8.2-14), (8.2-16), and the `sn` integral (8.2-18) |
+| `Carlson.Elliptic.SchwarzChristoffel` | The Schwarz–Christoffel differential equation (8.2-1) and integral (8.2-2), (8.2-3), the phase of the boundary derivative, the half-periods (8.2-8)–(8.2-10), (8.2-20) and (8.2-21) as real integrals, the elementary cases (8.2-14), (8.2-16), and the `sn` integral (8.2-18); identification with TauCeti's normalized Schwarz–Christoffel primitive, with openness and boundedness of the image |
 | `Carlson.Elliptic.VertexLimits` | The Schwarz–Christoffel map `scMap` on the closed upper half-plane: agreement with `R_{-a}(b; z - x)`, continuity up to the real axis by dominated convergence, the boundary limits and vertices `w(xᵢ)`, `w(z) → 0` at infinity by complex homogeneity, and closure of the polygon |
 | `Carlson.Elliptic.Polygon` | Carlson's direction `θ` of the boundary derivative and the turning angles; convexity of the polygon for `a ≤ 1` (monotone direction of total range at most `2π`); the open polygon `scPolygon` as an intersection of half-planes; `w` maps the upper half-plane into it (minimum principle) and the real axis to its boundary; the sides as explicit integrals |
 | `Carlson.Elliptic.Mapping` | Theorem 8.2-1: `w` is a bijection from the upper half-plane onto the polygon (proper local homeomorphism onto a convex set), with holomorphic inverse and derivative `1/w'` |

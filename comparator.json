@@ -3,6 +3,7 @@
   "solution_module": "Solution",
   "theorem_names": [
     "PalomarSnapshot.joint_average_continuation",
+    "PalomarSnapshot.simply_connected_average_continuation",
     "PalomarSnapshot.r_joint",
     "PalomarSnapshot.r_native",
     "PalomarSnapshot.r_euler",

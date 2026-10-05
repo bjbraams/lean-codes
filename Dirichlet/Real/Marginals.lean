@@ -5,27 +5,24 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import Dirichlet.Real.Aggregation
-
+public import Dirichlet.TauCetiBridge
+public import TauCeti.Probability.Distributions.Dirichlet.Marginal
 public import Mathlib.Probability.Distributions.Beta
-public import Mathlib.Probability.Moments.Variance
-public import Dirichlet.Real
-public import StdSimplexMeasure.MomentDetermination
-
-import Pochhammer.Gamma
-import Pochhammer.Vandermonde
 
 /-!
 # Beta marginals of the real Dirichlet distribution
 
 With two coordinates the Dirichlet distribution is Mathlib's beta distribution: the first
 coordinate of a `Fin 2`-indexed Dirichlet random vector has the beta law with the same
-parameters.
+parameters. More generally each coordinate marginal is a beta law; this is transferred through
+`Dirichlet.TauCetiBridge` from `TauCeti.Probability.Distributions.Dirichlet.Marginal`, by the
+Tau Ceti contributors.
 
 ## Main results
 
 * `ProbabilityTheory.mvRealBeta_fin_two`: the two-parameter multivariate beta function is the
   ordinary beta function.
+* `ProbabilityTheory.betaMarginal`: each coordinate marginal is a beta law.
 * `ProbabilityTheory.map_dirichletMeasure_fin_two`: the first-coordinate marginal is
   `ProbabilityTheory.betaMeasure`.
 
@@ -35,6 +32,7 @@ parameters.
   (Dirichlet averages).
 * NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
   https://dlmf.nist.gov/5.14.
+* `TauCeti.Probability.Distributions.Dirichlet.Marginal`.
 -/
 
 open Dirichlet
@@ -78,93 +76,16 @@ parametrization `x ↦ ![x, 1 - x]`. -/
     dirichletPdf (![α, β] : Fin 2 → ℝ) ![x, 1 - x] = betaPDF α β x := by
   simp [dirichletPdf, betaPDF]
 
-/-- The first-coordinate push-forward of a two-coordinate Dirichlet measure is Mathlib's
-beta measure. -/
-private theorem map_dirichletMeasure_fin_two_direct (a b : ℝ) :
-    Measure.map (fun u : Fin 2 → ℝ => u 0)
-      (dirichletMeasure (![a, b])) = betaMeasure a b := by
-  let _ : DecidableEq (Fin 2) := Classical.decEq _
-  ext s hs
-  rw [Measure.map_apply (measurable_pi_apply 0) hs]
-  rw [dirichletMeasure, withDensity_apply _ ((measurable_pi_apply 0) hs)]
-  rw [betaMeasure, withDensity_apply _ hs]
-  rw [← map_stdSimplexMeasure_fin_two]
-  rw [← lintegral_indicator hs]
-  have hpdf : Measurable (betaPDF a b) :=
-    ENNReal.measurable_ofReal.comp (measurable_betaPDFReal a b)
-  rw [lintegral_map (hpdf.indicator hs) (measurable_pi_apply 0)]
-  rw [← lintegral_indicator ((measurable_pi_apply 0) hs)]
-  apply lintegral_congr_ae
-  have hmem : ∀ᵐ u ∂(stdSimplexMeasure (ι := Fin 2)),
-      u ∈ stdSimplexAffineSet (R := ℝ) := by
-    rw [stdSimplexMeasure_restrict_stdSimplexAffineSet]
-    exact self_mem_ae_restrict isClosed_stdSimplexAffineSet.measurableSet
-  filter_upwards [hmem] with u hu
-  by_cases hus : u ∈ (fun u : Fin 2 → ℝ => u 0) ⁻¹' s
-  · simp only [Set.mem_preimage] at hus
-    simp [hus]
-    have hu1 : u 1 = 1 - u 0 := by
-      have hsum : ∑ i, u i = 1 := mem_fintypeAffineCoords_iff_sum.mp hu
-      simpa [Fin.sum_univ_two] using congrArg (fun x => x - u 0) hsum
-    have huv : u = ![u 0, 1 - u 0] := by
-      funext j
-      fin_cases j <;> simp [hu1]
-    rw [huv]
-    exact dirichletPdf_fin_two a b _
-  · simp only [Set.mem_preimage] at hus
-    simp [hus]
-
 open scoped Classical in
-/-- Marginalization of the Dirichlet density with respect to the `i` coordinate. -/
+/-- Marginalization of the Dirichlet density with respect to the `i` coordinate, transferred
+from `TauCeti.Probability.map_eval_dirichletMeasure` by the Tau Ceti contributors. -/
 theorem betaMarginal [Nontrivial ι] {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain) (i : ι) :
     Measure.map (fun u ↦ u i) (dirichletMeasure b) =
       betaMeasure (b i) (∑ j ∈ Finset.univ.erase i, b j) := by
   classical
-  let q : ι → Fin 2 := fun j => if j = i then 0 else 1
-  have hq : Function.Surjective q := by
-    intro k
-    fin_cases k
-    · exact ⟨i, by simp [q]⟩
-    · obtain ⟨j, hji⟩ := exists_ne i
-      exact ⟨j, by simp [q, hji]⟩
-  have hcoord (u : ι → ℝ) : stdSimplexAggregate q u 0 = u i := by
-    change (FunOnFinite.linearMap ℝ ℝ q) u 0 = u i
-    rw [FunOnFinite.linearMap_apply_apply]
-    have hfilter : Finset.univ.filter (fun x => q x = (0 : Fin 2)) = {i} := by
-      ext j
-      simp [q]
-    rw [hfilter]
-    simp
-  have hparam : stdSimplexAggregate q b =
-      (![b i, ∑ j ∈ Finset.univ.erase i, b j] : Fin 2 → ℝ) := by
-    funext k
-    fin_cases k
-    · exact hcoord b
-    · change (FunOnFinite.linearMap ℝ ℝ q) b 1 = _
-      rw [FunOnFinite.linearMap_apply_apply]
-      have hfilter : Finset.univ.filter (fun x => q x = (1 : Fin 2)) =
-          Finset.univ.erase i := by
-        ext j
-        simp [q]
-      rw [hfilter]
-      simp
-  have hp := measurePreserving_stdSimplexAggregate_dirichletMeasure hq hb
-  calc
-    Measure.map (fun u : ι → ℝ => u i) (dirichletMeasure b) =
-        Measure.map (fun v : Fin 2 → ℝ => v 0)
-          (Measure.map (stdSimplexAggregate q) (dirichletMeasure b)) := by
-            rw [Measure.map_map]
-            · congr 1
-              funext u
-              exact (hcoord u).symm
-            · exact measurable_pi_apply 0
-            · fun_prop
-    _ = Measure.map (fun v : Fin 2 → ℝ => v 0)
-          (dirichletMeasure (stdSimplexAggregate q b)) := by rw [hp.map_eq]
-    _ = Measure.map (fun v : Fin 2 → ℝ => v 0)
-          (dirichletMeasure (![b i, ∑ j ∈ Finset.univ.erase i, b j])) := by rw [hparam]
-    _ = betaMeasure (b i) (∑ j ∈ Finset.univ.erase i, b j) :=
-      map_dirichletMeasure_fin_two_direct _ _
+  rw [dirichletMeasure_eq_map_tauCeti hb, Measure.map_map (measurable_pi_apply i) (by fun_prop),
+    ← Finset.filter_ne']
+  exact TauCeti.Probability.map_eval_dirichletMeasure hb i
 
 /-- The push-forward of the two-variable Dirichlet measure under the first
 coordinate is the beta measure. -/

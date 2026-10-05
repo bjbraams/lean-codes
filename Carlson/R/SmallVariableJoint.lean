@@ -195,7 +195,7 @@ private theorem tendsto_regCarlsonR_nhdsWithin_zero_of_pos_classical (k : ι) {a
     rw [sum_eraseCarlsonParameter, ← hsum]; ring
   have hz' : eraseCarlsonVariable k z₀ ∈ carlsonRSlitDomain := fun j =>
     carlsonRightHalfPlane_subset_slitPlane (hz₀' j.1 j.2)
-  rw [carlsonRUnitIntervalIntegral_eq_gamma_mul_regCarlsonR ha hak hs hz'] at H
+  rw [carlsonRUnitIntervalIntegral_eq_Gamma_mul_regCarlsonR ha hak hs hz'] at H
   have hGa := Gamma_ne_zero_of_re_pos ha
   have hGa' := Gamma_ne_zero_of_re_pos ha'
   have H' := H.const_mul ((Gamma a * Gamma a')⁻¹)
@@ -207,7 +207,7 @@ private theorem tendsto_regCarlsonR_nhdsWithin_zero_of_pos_classical (k : ι) {a
   rw [hval] at H'
   apply H'.congr'
   filter_upwards [self_mem_nhdsWithin] with z hz
-  rw [carlsonRUnitIntervalIntegral_eq_gamma_mul_regCarlsonR ha ha' hsum
+  rw [carlsonRUnitIntervalIntegral_eq_Gamma_mul_regCarlsonR ha ha' hsum
       (carlsonRVariableDomain_subset_slitDomain hz)]
   field_simp
 
@@ -251,7 +251,7 @@ private theorem joint_step (i : ι) (hik : i ≠ k) (n : ℕ)
       ∑ j, addDirichletUnit p.2 i j * ((∑ l, p.2 l - p.1) * z j + p.1 * z i) *
         regCarlsonR (-(p.1 + 1)) (addDirichletUnit (addDirichletUnit p.2 i) j) z := by
     intro z hz
-    rw [regCarlsonR_eq_sum_double_shift (-p.1) p.2 hz i]
+    rw [regCarlsonR_eq_sum_double_shift (-p.1) p.2 (carlsonRVariableDomain_subset_slitDomain hz) i]
     refine Finset.sum_congr rfl fun j _ => ?_
     rw [show -p.1 - 1 = -(p.1 + 1) by ring]
     ring

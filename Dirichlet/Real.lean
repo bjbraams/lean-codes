@@ -12,7 +12,6 @@ public import Dirichlet.Integral.Real
 public import StdSimplexMeasure.Interior
 
 import Mathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
-import all StdSimplexMeasure.Measure.Basic
 
 /-!
 # Real normalized Dirichlet measure on the standard simplex
@@ -95,7 +94,7 @@ theorem measurable_dirichletPdf (b : ι → ℝ) :
 
 /-- The Radon-Nikodym derivative of the Dirichlet measure is almost everywhere
 equal to the Dirichlet PDF. -/
-theorem rnDeriv_dirichletMeasure {b : ι → ℝ} (_ : b ∈ mvRealBetaDomain) :
+theorem rnDeriv_dirichletMeasure (b : ι → ℝ) :
     (dirichletMeasure b).rnDeriv stdSimplexMeasure =ᵐ[stdSimplexMeasure]
       dirichletPdf b := by
   rw [dirichletMeasure]

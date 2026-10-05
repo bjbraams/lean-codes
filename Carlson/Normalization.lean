@@ -5,7 +5,7 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import Carlson.Normalization.Basic
+public import Dirichlet.GammaPoles
 public import Carlson.Normalization.EqualParameter
 public import Carlson.R.Explicit
 public import Carlson.L.Continuation

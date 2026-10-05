@@ -6,7 +6,7 @@ Authors: Bastiaan J Braams
 module
 
 public import Pochhammer.Gamma
-public import Pochhammer.ComplexPowMeasurable
+public import Mathlib.MeasureTheory.Function.SpecialFunctions.Basic
 public import Mathlib.Analysis.SpecialFunctions.Pow.Deriv
 public import Mathlib.Analysis.Calculus.Deriv.Slope
 

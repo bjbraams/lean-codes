@@ -98,7 +98,7 @@ theorem tendsto_rpow_of_bounds {a : ℕ → ℝ} {L : ℝ} (hL : 0 < L) (ha : �
           Real.pow_rpow_inv_natCast hbase h3]
 
 /-- Carlson's Theorem 7.5-2 for the polynomials: `p̂ₙ(ρ)^{1/n} → ρ`. -/
-theorem tendsto_jacobiOnMax_rpow (α β r s : ℂ) (hc : IsCarlsonGammaRegular (α + β + 2))
+theorem tendsto_jacobiOnMax_rpow (α β r s : ℂ) (hc : IsGammaRegular (α + β + 2))
     {ρ : ℝ} (hρ : ‖r - s‖ / 4 < ρ) :
     Tendsto (fun n : ℕ => jacobiOnMax α β r s n ρ ^ (1 / (n : ℝ))) atTop (𝓝 ρ) := by
   have hρ0 : 0 < ρ := lt_of_le_of_lt (by positivity) hρ
@@ -123,7 +123,7 @@ theorem tendsto_jacobiOnMax_rpow (α β r s : ℂ) (hc : IsCarlsonGammaRegular (
 
 /-- Carlson's Theorem 7.5-2 for the second-kind functions: `q̂ₙ(σ)^{1/n} → 1/σ`. -/
 theorem tendsto_jacobiSecondKindMax_rpow (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) {σ : ℝ} (hσ : ‖r - s‖ / 4 < σ) :
+    (hc : IsGammaRegular (α + β + 2)) {σ : ℝ} (hσ : ‖r - s‖ / 4 < σ) :
     Tendsto (fun n : ℕ => jacobiSecondKindMax α β r s n σ ^ (1 / (n : ℝ))) atTop
       (𝓝 (1 / σ)) := by
   have hσ0 : 0 < σ := lt_of_le_of_lt (by positivity) hσ

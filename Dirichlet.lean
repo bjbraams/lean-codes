@@ -22,6 +22,9 @@ public import Dirichlet.Real.StrictAverage
 public import Dirichlet.Real.Support
 public import Dirichlet.Real.Concentration
 public import Dirichlet.Gamma
+public import Dirichlet.GammaPoles
+public import Dirichlet.TauCetiBridge
+public import Dirichlet.Merge
 public import Dirichlet.Polynomial
 public import Dirichlet.IntegrationByParts
 public import Dirichlet.Transform
@@ -31,6 +34,9 @@ public import Dirichlet.Transform.Joint
 public import Dirichlet.Transform.Euler
 public import Dirichlet.Transform.Laws
 public import Dirichlet.Transform.Series
+public import Dirichlet.Transform.Face
+public import Dirichlet.Transform.Uniqueness
+public import Dirichlet.Transform.Merge
 public import Dirichlet.Average
 
 /-!
@@ -57,11 +63,15 @@ Umbrella module for the Dirichlet theory underlying Carlson's special functions.
 * `Dirichlet.Moments`, `Dirichlet.ParameterShift`, `Dirichlet.Polynomial`,
   `Dirichlet.IntegrationByParts`, `Dirichlet.Gamma`: moments, unit parameter shifts, polynomial
   transforms, integration by parts, and the Gamma-variable construction of the distribution.
+* `Dirichlet.Merge`: merging two coordinates of a Dirichlet distribution.
+* `Dirichlet.GammaPoles`: Gamma poles of regularized functions and their joint removal.
 * `Dirichlet.Transform`: the entire regularized Dirichlet transform of a smooth simplex kernel,
-  with its structural laws, aggregation, Euler integrals, series, and auxiliary holomorphic
-  parameters.
+  with its structural laws, aggregation, Euler integrals, series, auxiliary holomorphic
+  parameters, face formulas at nonpositive integer parameters, uniqueness, and the merging
+  (stick-breaking) identity.
 * `Dirichlet.Average`: Carlson's Dirichlet averages of a univariate function, their derivatives
-  and relations, and their analytic continuation in parameters and nodes.
+  and relations, and their analytic continuation in parameters and nodes, including to all
+  nodes in a simply connected domain of holomorphy (Carlson 1969, Theorem 8).
 
 The real distribution lives in the `ProbabilityTheory` namespace; the complex densities,
 transforms and averages live in the `Dirichlet` namespace.

@@ -119,7 +119,7 @@ theorem tendsto_jacobiContourCoefficient (α β r s : ℂ) (n : ℕ)
 /-- A finite Jacobi sum has the expected contour coefficients, weighted by the
 cycle index. Indices outside the finite sum have coefficient zero. -/
 theorem jacobiContourCoefficient_sum (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) (a : ℕ → ℂ) (n N : ℕ)
+    (hc : IsGammaRegular (α + β + 2)) (a : ℕ → ℂ) (n N : ℕ)
     (Γ : Cycle) (hΓ : Γ.IsC1) (havoid : Γ.range ⊆ (segment ℝ r s)ᶜ) :
     jacobiContourCoefficient α β r s n Γ
       (fun z => ∑ m ∈ Finset.range N, a m * (jacobiOn α β r s m).eval z) =
@@ -132,7 +132,7 @@ theorem jacobiContourCoefficient_sum (α β r s : ℂ)
 /-- Uniform convergence of a Jacobi series on a cycle permits extraction of each
 coefficient by the second-kind kernel. The cycle's index remains explicit. -/
 theorem jacobiContourCoefficient_eq_of_tendstoUniformlyOn (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) (a : ℕ → ℂ) {f : ℂ → ℂ}
+    (hc : IsGammaRegular (α + β + 2)) (a : ℕ → ℂ) {f : ℂ → ℂ}
     (Γ : Cycle) (hΓ : Γ.IsC1) (havoid : Γ.range ⊆ (segment ℝ r s)ᶜ)
     (hlim : TendstoUniformlyOn
       (fun N z => ∑ m ∈ Finset.range N, a m * (jacobiOn α β r s m).eval z)
@@ -153,7 +153,7 @@ theorem jacobiContourCoefficient_eq_of_tendstoUniformlyOn (α β r s : ℂ)
 /-- Two Jacobi series converging uniformly to the same function on a cycle of
 nonzero index have identical coefficients. -/
 theorem jacobiSeries_coefficients_unique (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) {a b : ℕ → ℂ} {f : ℂ → ℂ}
+    (hc : IsGammaRegular (α + β + 2)) {a b : ℕ → ℂ} {f : ℂ → ℂ}
     (Γ : Cycle) (hΓ : Γ.IsC1) (havoid : Γ.range ⊆ (segment ℝ r s)ᶜ)
     (hind : Γ.index r ≠ 0)
     (ha : TendstoUniformlyOn

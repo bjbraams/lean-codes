@@ -5,6 +5,7 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Carlson.R.SmallVariableContinuation
 public import Carlson.TwoVariable.QuadraticSlit
 public import Carlson.TwoVariable.ParameterSymmetry
 public import ComplexAnalysis.RealUniqueness
@@ -229,20 +230,17 @@ theorem quadraticGammaRatio_one_half : quadraticGammaRatio (1 / 2) = 1 := by
   push_cast
   exact mul_inv_cancel₀ ((cpow_ne_zero_iff).mpr (Or.inl (by exact_mod_cast Real.pi_pos.ne')))
 
-/-- On equal nodes the ordinary R-function of two nodes is a power, for convergent
+/-- On equal slit-plane nodes the ordinary R-function of two nodes is a power, for convergent
 parameters: `R_t(b; z, z) = z^t`. -/
 theorem carlsonR_pair_self (t : ℂ) {b : Fin 2 → ℂ} (hb : b ∈ mvBetaConvergent) {z : ℂ}
-    (hz : 0 < z.re) : carlsonR t b (pair z z) = z ^ t := by
+    (hz : z ∈ slitPlane) : carlsonR t b (pair z z) = z ^ t := by
   have hzz : pair z z = fun _ : Fin 2 => z := by
     funext i; fin_cases i <;> rfl
-  have hdom : pair z z ∈ carlsonRVariableDomain := by
-    rw [hzz]; exact fun _ => hz
   have hc : 0 < (∑ i, b i).re := by
     rw [re_sum]; exact Finset.sum_pos (fun i _ => hb i) Finset.univ_nonempty
   unfold carlsonR
-  rw [regCarlsonR_eq_regCarlsonRIntegral t hb hdom, regCarlsonRIntegral, hzz,
-    Dirichlet.regCarlsonDirichletAverage_const _ _ hb,
-    mul_div_cancel₀ _ (Gamma_ne_zero_of_re_pos hc)]
+  rw [hzz, regCarlsonR_const_node t b hz, mul_comm, mul_assoc,
+    inv_mul_cancel₀ (Gamma_ne_zero_of_re_pos hc), mul_one]
 
 /-- `R_K` is symmetric in its two nodes on the slit plane. -/
 theorem carlsonRK_comm {ξ η : ℂ} (hξ : ξ ∈ slitPlane) (hη : η ∈ slitPlane) :
@@ -262,8 +260,8 @@ theorem carlsonRK_sq_eq (x y : ℂ) (hx : 0 < x.re) (hy : 0 < y.re) :
   rw [h]
   rfl
 
-/-- The value of `R_K` on the diagonal: `R_K(z, z) = z^{-1/2}`. -/
-theorem carlsonRK_self {z : ℂ} (hz : 0 < z.re) : carlsonRK z z = z ^ (-1 / 2 : ℂ) :=
+/-- The value of `R_K` on the diagonal: `R_K(z, z) = z^{-1/2}` for slit-plane `z`. -/
+theorem carlsonRK_self {z : ℂ} (hz : z ∈ slitPlane) : carlsonRK z z = z ^ (-1 / 2 : ℂ) :=
   carlsonR_pair_self _ (fun i => by fin_cases i <;> norm_num [pair]) hz
 
 /-- `R_K` is continuous at every pair of slit-plane nodes. -/
@@ -333,8 +331,8 @@ theorem carlsonRK_sq_eq_inv_agm {x y : NNReal} (hx : 0 < x) (hy : 0 < y) :
       (𝓝 (carlsonRK (((M : ℝ) : ℂ) ^ 2) (((M : ℝ) : ℂ) ^ 2))) := by
     refine hc.congr fun n => ?_
     exact (hinv n).symm
-  rw [tendsto_nhds_unique tendsto_const_nhds hc', carlsonRK_self (by
-    rw [← ofReal_pow, ofReal_re]; positivity)]
+  rw [tendsto_nhds_unique tendsto_const_nhds hc', carlsonRK_self (mem_slitPlane_iff.mpr (Or.inl (by
+    rw [← ofReal_pow, ofReal_re]; positivity)))]
   rw [← ofReal_pow, show (-1 / 2 : ℂ) = ((-1 / 2 : ℝ) : ℂ) by push_cast; ring,
     ← ofReal_cpow (by positivity), ← ofReal_inv]
   congr 1
@@ -566,7 +564,7 @@ theorem exists_borchardt_limit {x y : ℝ} (hx : 0 < x) (hy : 0 < y) :
   rw [tendsto_nhds_unique tendsto_const_nhds hc']
   unfold carlsonRC
   rw [carlsonR_pair_self _ (fun i => by fin_cases i <;> norm_num [pair])
-    (by rw [← ofReal_pow]; exact hre _ (by positivity))]
+    (mem_slitPlane_iff.mpr (Or.inl (by rw [← ofReal_pow]; exact hre _ (by positivity))))]
   rw [← ofReal_pow, show (-1 / 2 : ℂ) = ((-1 / 2 : ℝ) : ℂ) by push_cast; ring,
     ← ofReal_cpow (by positivity), ← ofReal_inv]
   congr 1

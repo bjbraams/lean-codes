@@ -2,8 +2,10 @@
 
 TauCeti is now an explicit dependency of lean-codes. The preference is **Mathlib, then the
 pinned TauCeti, then local project code**, preserving the scope of the mathematics.
-Dependency setup and synchronization are complete. Items 1–3 below are now implemented
-in the production library; items 4–6 remain recommendations for later work.
+Dependency setup and synchronization are complete. Items 1–5 below are now implemented
+in the production library, and item 6 is implemented up to the identification of the maps;
+the comparison of the polygon and mapping theorems remains open. See the follow-up section at
+the end for 5 October 2026.
 
 ## Scope and dependency setup
 
@@ -95,16 +97,17 @@ The subscript-zero variant matters: the unsuffixed TauCeti theorem assumes measu
 Sigma-finiteness, dependent coordinate types and the empty index case are preserved.
 The two local measurable-factor induction and reindexing helpers have been removed.
 
-**Status:** implemented with the original theorem statement and hypotheses.
+**Status:** implemented. The adapter module was later removed and its only caller,
+`Dirichlet/Gamma.lean`, now uses the TauCeti theorem directly.
 
 ### 3. Replace covering-map injectivity, retaining the stronger properness lemma
 
 [ToMathlib/Topology/ProperCovering.lean](ToMathlib/Topology/ProperCovering.lean) proves
 `IsCoveringMap.injective_of_simplyConnectedSpace`. TauCeti's
 [Topology.Homotopy.Covering][tau-covering] supplies `IsCoveringMap.injective` with the same
-path-connected-source and simply-connected-target hypotheses. The checked proof is
-`hf.injective`. This removes the local path-lifting argument and benefits Carlson's
-Schwarz–Christoffel mapping theorem.
+path-connected-source and simply-connected-target hypotheses. The local adapter has been
+removed; its only caller now uses `IsCoveringMap.injective` directly. This removes the local
+path-lifting argument and benefits Carlson's Schwarz–Christoffel mapping theorem.
 
 Retain the rest of the local support. In particular, our
 `IsLocalHomeomorph.isCoveringMap_of_isProperMap` only requires a Hausdorff source.
@@ -116,6 +119,11 @@ It is not a same-generality replacement for the whole local file.
 local topological results are retained.
 
 ### 4. Resolve the beta name collision, then use TauCeti's beta interface
+
+**Status (5 October 2026): implemented.** The local `ProbabilityTheory.beta_add_one_left` was
+removed in favor of TauCeti's weaker-hypothesis theorem, and `betaPDFReal_nonneg`,
+`integral_betaMeasure` and `integral_mul_betaPDFReal` now specialize TauCeti's beta-law API.
+TauCeti's beta and Dirichlet modules can be imported together with the Carlson library.
 
 The current local [BetaDensity.lean](ToMathlib/Analysis/SpecialFunctions/BetaDensity.lean)
 and TauCeti's [Analysis.SpecialFunctions.Beta][tau-beta] both declare
@@ -144,6 +152,19 @@ Keep the concentration-ratio, two-crossing and strict convex-comparison argument
 TauCeti distribution API does not supply their full statements.
 
 ### 5. Prove a real Dirichlet measure bridge before replacing its probability theory
+
+**Status (5 October 2026): bridge proved.** `Dirichlet/TauCetiBridge.lean` proves
+`ProbabilityTheory.map_dirichletMeasure_euclidean` and `dirichletMeasure_eq_map_tauCeti`
+for positive parameters and nonempty index types. The proof is the second marginal of the
+existing local `map_sum_simplexNormalize_pi_gammaMeasure` at unit rate; the chart-density route
+described below was not needed.
+
+**Status (5 October 2026, second round): transfers implemented.** The bridge also transfers
+integrals (`integral_dirichletMeasure_eq_tauCeti`). The coordinate mean, variance and covariance
+in `Dirichlet/Real/Moments.lean`, `betaMarginal` in `Real/Marginals.lean` and the aggregation law
+in `Real/Aggregation.lean` are now derived from TauCeti's Moments, Marginal and Aggregation
+modules. The moment-determination proof of aggregation and the direct two-coordinate marginal
+proof were removed; the monomial moment formulas remain local.
 
 TauCeti has completed [Dirichlet.Basic][tau-dirichlet], [Density][tau-density],
 [Aggregation][tau-aggregation], [Marginal][tau-marginal], and [Moments][tau-dirichlet-moments]
@@ -192,8 +213,18 @@ matches only `a = 1`. Its more general simple-boundary/covering results may supp
 remaining range, but require corresponding boundary hypotheses to be proved.
 
 Retain the present Carlson identification, full parameter range, elliptic reductions,
-half-periods and inversion formulas. Item 3 now supplies the small covering-injectivity simplification without
-undertaking this larger migration. No complete mapping adapter was proved here.
+half-periods and inversion formulas. Item 3 now supplies the small covering-injectivity
+simplification.
+
+**Status (5 October 2026): identification proved.**
+`Carlson.carlsonR_sub_eq_schwarzChristoffelPrimitive` shows
+`R_{-a}(b; z - x) = -a · TauCeti.schwarzChristoffelPrimitive x (-b) z₀ z + R_{-a}(b; z₀ - x)` on the
+upper half-plane, for real nodes, real `bᵢ` and `a > 0`. Openness and boundedness of the image
+are transferred (`isOpen_image_carlsonR_sub`, `isBounded_image_carlsonR_sub`). Because TauCeti's
+bijectivity theorem covers only `∑ eᵢ = -2`, i.e. `a = 1`, the local boundary, polygon and
+mapping proofs are retained for the full range `0 < a ≤ 1`. Relating TauCeti's compactified
+boundary path to the local `scMap` on the real axis would allow its covering criterion
+(`bijOn_schwarzChristoffelPrimitive_of_subset`) to replace the local properness argument.
 
 ## Remaining inventory
 
@@ -209,7 +240,7 @@ undertaking this larger migration. No complete mapping adapter was proved here.
 | `Pochhammer` | Retain the complex identities, growth estimates, binomial series, regularized incomplete Mellin transform and polynomial transform. No wholesale replacement was identified. |
 | Complex `Dirichlet`, transforms and averages | Retain entire continuation in complex parameters and the structural differentiation/shift laws. Item 5 is restricted to the real probability layer. |
 | Carlson R/L/S/T, R-polynomials, means and transformations | No direct upstream replacements identified for these continued special functions, exceptional-parameter behavior or their multivariate transformations. Beta probability reuse supports parts of their foundations. |
-| Jacobi, Gegenbauer, Hermite and Chebyshev | TauCeti has Gaussian Hermite orthogonality and Chebyshev Hilbert-basis/Parseval theory. These are useful related work; its standard integer Hermite polynomials with weight `exp(-x²/2)` differ from the local monic complex family with weight `exp(-x²)`. A scaling/complexification bridge would precede reuse. The complex-endpoint Jacobi, second-kind, boundary, contour and saddle-asymptotic theory remains local. |
+| Jacobi, Gegenbauer, Hermite and Chebyshev | TauCeti has Gaussian Hermite orthogonality and Chebyshev Hilbert-basis/Parseval theory. These are useful related work; its standard integer Hermite polynomials with weight `exp(-x²/2)` differ from the local monic complex family with weight `exp(-x²)`. The scaling bridge `sqrt_two_pow_mul_eval_monicHermite` now transports TauCeti's orthogonality to Theorem 7.10-4. The complex-endpoint Jacobi, second-kind, boundary, contour and saddle-asymptotic theory remains local. |
 | Elliptic functions and conformal mapping | Item 6 is the principal overlap. Carlson normalizations, R-function identities, duplication/Landen algorithms and their range conditions remain local. |
 
 ## Dependency-setup review validation
@@ -264,3 +295,31 @@ properness criterion and all public integration/polynomial helpers remain.
 [tau-marginal]: https://github.com/TauCetiProject/TauCeti/blob/a780c7ad6beb23f60a17351a492d177878020ad5/TauCeti/Probability/Distributions/Dirichlet/Marginal.lean
 [tau-dirichlet-moments]: https://github.com/TauCetiProject/TauCeti/blob/a780c7ad6beb23f60a17351a492d177878020ad5/TauCeti/Probability/Distributions/Dirichlet/Moments.lean
 [tau-sc]: https://github.com/TauCetiProject/TauCeti/blob/a780c7ad6beb23f60a17351a492d177878020ad5/TauCeti/Analysis/Complex/Conformal/SchwarzChristoffel/Polygon/Mapping.lean
+
+## Follow-up review and implementation — 5 October 2026
+
+A second pass compared every declaration signature in `ToMathlib`, `StdSimplexMeasure`,
+`Pochhammer`, `Dirichlet` and `Carlson` against Mathlib and the pinned TauCeti, searched for
+duplicate statements and unnecessary hypotheses, and elaborated every project file to confirm
+that no linter warnings remain. The following changes are implemented and build cleanly.
+
+TauCeti adoptions (credited in module headers and docstrings):
+
+- `intervalIntegrable_abs_sub_rpow` specializes `TauCeti.locallyIntegrable_norm_sub_rpow`.
+- Two identical local copies of `((r : ℂ) * x) ^ c = r ^ c * x ^ c` were replaced by
+  `TauCeti.ofReal_mul_cpow`, which needs only `0 ≤ r` and no `x ≠ 0`.
+- A private product-of-powers lemma was replaced by `TauCeti.cpow_sum`.
+- A local copy of `intervalIntegrable_rpow_mul_one_sub_rpow` was replaced by TauCeti's.
+- Item 4 (beta interface) and the bridge of item 5, as recorded above.
+
+Mathlib replacements: `Pochhammer/ComplexPowMeasurable.lean` was removed (`fun_prop` suffices);
+`Carlson.L.ball_one_subset_slitPlane`, `one_lt_one_div_of_lt_one`, a slit-plane
+preconnectedness lemma and the Gamma shift lemma now use Mathlib directly.
+
+Second round, 5 October 2026: the real Dirichlet transfers of item 5, the Hermite scaling
+bridge, the binomial series from `TauCeti.Analysis.Analytic.Binomial`, and the
+Schwarz–Christoffel identification of item 6 are implemented; the thin adapters for
+`lintegral_fintype_prod_eq_prod₀` and `IsCoveringMap.injective` were removed in favor of the
+TauCeti names.
+
+Remaining TauCeti opportunity: the boundary/polygon comparison of item 6, described above.

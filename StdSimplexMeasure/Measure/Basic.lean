@@ -63,6 +63,14 @@ def stdSimplexMeasureAt (i : ι) : Measure (ι → ℝ) := by
   exact Measure.map (stdSimplexCoordMap (R := ℝ) i) volume
 
 open scoped Classical in
+/-- `stdSimplexMeasureAt i` is the push-forward of Lebesgue measure along the coordinate map
+omitting `i`. -/
+theorem stdSimplexMeasureAt_eq_map (i : ι) :
+    stdSimplexMeasureAt i = Measure.map (stdSimplexCoordMap (R := ℝ) i) volume := by
+  unfold stdSimplexMeasureAt
+  rfl
+
+open scoped Classical in
 /-- The Lebesgue measure is homogeneous of degree `(Fintype.card ι - 1)` in the free coordinates. -/
 theorem volume_map_smul_free_coords (i : ι) (c : ℝ) (hc : 0 < c) :
     Measure.map (c • · : ({j : ι // j ≠ i} → ℝ) → ({j : ι // j ≠ i} → ℝ)) volume =
@@ -366,8 +374,10 @@ theorem stdSimplexMeasure_stdSimplex_toReal [Nonempty ι] :
   simp
 
 /-- The measure of the standard simplex is finite. -/
-theorem stdSimplexMeasure_stdSimplex_ne_top [Nonempty ι] :
+theorem stdSimplexMeasure_stdSimplex_ne_top :
     stdSimplexMeasure (Convexity.StdSimplex.coordinateSet ℝ ι) ≠ ⊤ := by
+  rcases isEmpty_or_nonempty ι with hι | hι
+  · simp
   rw [stdSimplexMeasure_stdSimplex]
   exact ENNReal.div_ne_top ENNReal.one_ne_top (by positivity)
 

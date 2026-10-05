@@ -7,6 +7,7 @@ module
 
 public import ComplexAnalysis.Pow
 public import Carlson.R.Explicit
+public import TauCeti.Analysis.SpecialFunctions.Pow.Complex
 
 /-!
 # Positive-ray representation and its change of variables
@@ -23,11 +24,13 @@ the unit-interval form through the reciprocal translation `s ↦ (s + 1)⁻¹`.
 * `Carlson.carlsonRPositiveRayIntegral_eq_unitInterval`: the change of variables between the two
   representations.
 * `Carlson.carlsonRPositiveRayIntegral_eq`: Carlson's Theorem 6.8-1 in positive-ray form.
-* `Carlson.carlsonRPositiveRayIntegral_eq_gamma_mul_regCarlsonR`: the positive-ray
+* `Carlson.carlsonRPositiveRayIntegral_eq_Gamma_mul_regCarlsonR`: the positive-ray
   representation of the R-function at all Dirichlet parameters.
 
 ## References
 
+* `TauCeti.Analysis.SpecialFunctions.Pow.Complex`: the Tau Ceti contributors'
+  `TauCeti.cpow_sum`, used to combine powers with a common base.
 * [Carl77] B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 -/
 
@@ -82,18 +85,6 @@ private lemma hasDerivAt_recip_add_one (s : ℝ) (hs : 0 < s) :
   all_goals simp only [id_eq]
   all_goals ring
 
-omit [Fintype ι] in
-/-- A finite product of complex powers with the same nonzero base combines by adding the
-exponents. -/
-private lemma prod_cpow_same_base
-    (s : Finset ι) (r : ℂ) (hr : r ≠ 0) (e : ι → ℂ) :
-    ∏ i ∈ s, r ^ e i = r ^ (∑ i ∈ s, e i) := by
-  classical
-  induction s using Finset.induction with
-  | empty => simp
-  | @insert i s hi ih =>
-      rw [Finset.prod_insert hi, Finset.sum_insert hi, ih, ← Complex.cpow_add _ _ hr]
-
 /-- Pointwise form of the reciprocal-translation substitution relating Carlson's ray and
 unit-interval integrands. -/
 private lemma ray_substitution_point
@@ -135,7 +126,7 @@ private lemma ray_substitution_point
       (∏ i, ((r : ℂ) * (z i + (s : ℂ))) ^ (-b i)) =
         (r : ℂ) ^ (∑ i, -b i) * ∏ i, (z i + (s : ℂ)) ^ (-b i) := by
     simp_rw [ofReal_pos_mul_cpow _ _ hr (hzi _)]
-    rw [Finset.prod_mul_distrib, prod_cpow_same_base Finset.univ (r : ℂ) hr0]
+    rw [Finset.prod_mul_distrib, ← TauCeti.cpow_sum hr0 _ Finset.univ]
   have hexp : (2 : ℂ) + (a' - 1) + (a - 1) + ∑ i, -b i = 0 := by
     rw [Finset.sum_neg_distrib, ← hsum]
     ring
@@ -214,14 +205,14 @@ theorem carlsonRPositiveRayIntegral_eq
 /-- The positive-ray representation (Carlson's (6.8-6)) with no individual Dirichlet-parameter
 restrictions and on all slit-plane nodes; only the two endpoint convergence conditions
 remain. -/
-theorem carlsonRPositiveRayIntegral_eq_gamma_mul_regCarlsonR
+theorem carlsonRPositiveRayIntegral_eq_Gamma_mul_regCarlsonR
     {a a' : ℂ} {b z : ι → ℂ}
     (ha : 0 < a.re) (ha' : 0 < a'.re)
     (hsum : a + a' = ∑ i, b i) (hz : z ∈ carlsonRSlitDomain) :
     carlsonRPositiveRayIntegral a b z =
       (Gamma a * Gamma a') * regCarlsonR (-a') b z := by
   rw [carlsonRPositiveRayIntegral_eq_unitInterval hsum hz,
-    carlsonRUnitIntervalIntegral_eq_gamma_mul_regCarlsonR ha' ha (by simpa [add_comm] using hsum)
+    carlsonRUnitIntervalIntegral_eq_Gamma_mul_regCarlsonR ha' ha (by simpa [add_comm] using hsum)
         hz, mul_comm (Gamma a')]
 
 end Carlson

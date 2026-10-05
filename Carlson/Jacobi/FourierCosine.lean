@@ -136,7 +136,7 @@ theorem hasSum_fourier_cosine (A B : ℂ) (hB : B ≠ 0) {h : ℝ} {f : ℂ → 
   have hσ : ‖A - B - (A + B)‖ / 4 < σ := by simp only [σ]; linarith
   have hστ : σ < τ := by simp only [σ]; linarith
   have hxσ : μx < σ := by simp only [σ]; linarith
-  have hc : IsCarlsonGammaRegular ((-1 / 2 : ℂ) + -1 / 2 + 2) := by
+  have hc : IsGammaRegular ((-1 / 2 : ℂ) + -1 / 2 + 2) := by
     intro k hk
     have := congrArg re hk
     simp at this

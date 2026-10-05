@@ -44,11 +44,12 @@ namespace Carlson.TwoVariable
 
 variable {x y : ℂ}
 
-/-- Carlson's (5.9-22) for two nodes: `R_{-b-b'}(b, b'; x, y) = x^{-b} y^{-b'}`, regularized. -/
-theorem regCarlsonR_pair_neg_sum (b₀ b₁ : ℂ) (hx : 0 < x.re) (hy : 0 < y.re) :
+/-- Carlson's (5.9-22) for two slit-plane nodes: `R_{-b-b'}(b, b'; x, y) = x^{-b} y^{-b'}`,
+regularized. -/
+theorem regCarlsonR_pair_neg_sum (b₀ b₁ : ℂ) (hx : x ∈ slitPlane) (hy : y ∈ slitPlane) :
     regCarlsonR (-(b₀ + b₁)) (pair b₀ b₁) (pair x y) =
       x ^ (-b₀) * y ^ (-b₁) * (Gamma (b₀ + b₁))⁻¹ := by
-  have hz : pair x y ∈ carlsonRVariableDomain := by
+  have hz : pair x y ∈ carlsonRSlitDomain := by
     intro i; fin_cases i
     · exact hx
     · exact hy
@@ -101,15 +102,18 @@ private theorem table_relations (hx : 0 < x.re) (hy : 0 < y.re) :
   · have hC := regCarlsonR_pair_contiguous_last (-1 / 2) (1 / 2) 0 hs
     rw [show (-1 / 2 : ℂ) + 1 = 1 / 2 by norm_num] at hC
     simp only [r]; linear_combination hC
-  · have hV := regCarlsonR_pair_neg_sum (1 / 2) 0 hx hy
+  · have hV := regCarlsonR_pair_neg_sum (1 / 2) 0
+      (carlsonRightHalfPlane_subset_slitPlane hx) (carlsonRightHalfPlane_subset_slitPlane hy)
     rw [show -(1 / 2 + 0 : ℂ) = -1 / 2 by ring, neg_zero, cpow_zero, mul_one, add_zero,
       show -(1 / 2 : ℂ) = -1 / 2 by ring] at hV
     exact hV
-  · have hV := regCarlsonR_pair_neg_sum (1 / 2) 1 hx hy
+  · have hV := regCarlsonR_pair_neg_sum (1 / 2) 1
+      (carlsonRightHalfPlane_subset_slitPlane hx) (carlsonRightHalfPlane_subset_slitPlane hy)
     rw [show -(1 / 2 + 1 : ℂ) = -3 / 2 by ring, show (1 / 2 : ℂ) + 1 = 3 / 2 by norm_num,
       show -(1 / 2 : ℂ) = -1 / 2 by ring] at hV
     exact hV
-  · have hV := regCarlsonR_pair_neg_sum (-1 / 2) 1 hx hy
+  · have hV := regCarlsonR_pair_neg_sum (-1 / 2) 1
+      (carlsonRightHalfPlane_subset_slitPlane hx) (carlsonRightHalfPlane_subset_slitPlane hy)
     rw [show -(-1 / 2 + 1 : ℂ) = -1 / 2 by ring, show (-1 / 2 : ℂ) + 1 = 1 / 2 by norm_num,
       show -(-1 / 2 : ℂ) = 1 + -1 / 2 by ring, cpow_add _ _ hx0, cpow_one] at hV
     exact hV

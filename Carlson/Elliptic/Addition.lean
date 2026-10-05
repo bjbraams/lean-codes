@@ -828,7 +828,7 @@ theorem tendsto_dupSeq {x₀ y₀ z₀ : ℝ} (hx : 0 < x₀) (hy : 0 < y₀) (h
     Matrix.head_cons, Matrix.tail_cons, hinv] at hlim
   have hval := tendsto_nhds_unique tendsto_const_nhds hlim
   have hML2' : 0 < ML ^ 2 := pow_pos hmLpos 2
-  rw [hval, carlsonRF_self (by rw [ofReal_re]; exact hML2')]
+  rw [hval, carlsonRF_self (mem_slitPlane_iff.mpr (Or.inl (by rw [ofReal_re]; exact hML2')))]
   rw [show (-1 / 2 : ℂ) = ((-(1 / 2) : ℝ) : ℂ) by push_cast; ring, ← ofReal_cpow hML2'.le,
     Real.rpow_neg hML2'.le, ← Real.sqrt_eq_rpow, Real.sqrt_sq hmLpos.le]
 

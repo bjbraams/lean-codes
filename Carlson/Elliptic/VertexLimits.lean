@@ -124,15 +124,6 @@ theorem integrable_scIntegrand_line (h : SchwarzChristoffelParams a b x) (v : �
   filter_upwards [ae_ne_nodes x] with σ hσ
   exact norm_scIntegrand_le h.pos hσ
 
-/-- Translation of an integral over a half-line, for vector-valued functions. -/
-theorem integral_Ioi_zero_add {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] (g : ℝ → E)
-    (c : ℝ) : ∫ s in Ioi (0 : ℝ), g (s + c) = ∫ σ in Ioi c, g σ := by
-  have h := integral_image_eq_integral_abs_deriv_smul (s := Ioi (0 : ℝ)) measurableSet_Ioi
-    (f := fun s => s + c) (f' := fun _ => 1)
-    (fun s _ => ((hasDerivAt_id s).add_const c).hasDerivWithinAt) (add_left_injective c).injOn g
-  rw [image_add_const_Ioi, zero_add] at h
-  simpa using h.symm
-
 /-- On the upper half-plane the extended map is Carlson's `w(z) = R_{-a}(b; z - x)`. -/
 theorem scMap_eq_carlsonR (h : SchwarzChristoffelParams a b x) {z : ℂ} (hz : 0 < z.im) :
     scMap a b x z = carlsonR (-(a : ℂ)) (fun i => (b i : ℂ)) (fun i => z - x i) := by

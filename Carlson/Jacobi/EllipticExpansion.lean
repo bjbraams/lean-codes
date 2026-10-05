@@ -80,7 +80,7 @@ theorem exists_summable_jacobiOn_mul_jacobiSecondKind_ellipse (α β r s : ℂ) 
 `x` in a closed elliptic disk and `y` in a larger closed elliptic exterior, for arbitrary
 endpoints and parameters with admissible total. -/
 theorem tendstoUniformlyOn_sum_jacobiOn_mul_jacobiSecondKind_ellipse (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) {ρ σ : ℝ} (hρ : ‖r - s‖ / 4 < ρ) (hρσ : ρ < σ) :
+    (hc : IsGammaRegular (α + β + 2)) {ρ σ : ℝ} (hρ : ‖r - s‖ / 4 < ρ) (hρσ : ρ < σ) :
     TendstoUniformlyOn
       (fun N (xy : ℂ × ℂ) => ∑ n ∈ Finset.range N,
         (jacobiOn α β r s n).eval xy.1 * jacobiSecondKind α β r s n xy.2)
@@ -118,7 +118,7 @@ theorem tendstoUniformlyOn_sum_jacobiOn_mul_jacobiSecondKind_ellipse (α β r s 
 /-- Carlson's Lemma 7.6-1: the Cauchy kernel expansion `1/(y - x) = Σ pₙ(x) qₙ(y)` holds
 whenever `μ(x) < μ(y)`, with absolute convergence. -/
 theorem hasSum_jacobiOn_mul_jacobiSecondKind (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) {x y : ℂ}
+    (hc : IsGammaRegular (α + β + 2)) {x y : ℂ}
     (hxy : jacobiEllipseRadius r s x < jacobiEllipseRadius r s y) :
     HasSum (fun n => (jacobiOn α β r s n).eval x * jacobiSecondKind α β r s n y) (y - x)⁻¹ := by
   set a := jacobiEllipseRadius r s x
@@ -162,7 +162,7 @@ and `Γ` is a `C¹` cycle in `U`, homologous to zero there, lying in a closed el
 `μ ≥ σ`, then at every point `x ∈ U` with `μ(x) ≤ ρ < σ` the Jacobi series with contour
 coefficients converges absolutely to the index of `Γ` about `x` times `f x`. -/
 theorem hasSum_jacobiContourCoefficient_of_cycle (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) {U : Set ℂ} (hU : IsOpen U) {f : ℂ → ℂ}
+    (hc : IsGammaRegular (α + β + 2)) {U : Set ℂ} (hU : IsOpen U) {f : ℂ → ℂ}
     (hf : DifferentiableOn ℂ f U) (Γ : Cycle) (hΓ : Γ.IsC1) (hΓU : Γ.range ⊆ U)
     (hind : ∀ w, w ∉ U → Γ.index w = 0) {ρ σ : ℝ} (hρ : ‖r - s‖ / 4 < ρ) (hρσ : ρ < σ)
     (hΓσ : ∀ y ∈ Γ.range, σ ≤ jacobiEllipseRadius r s y) {x : ℂ} (hxU : x ∈ U)
@@ -306,7 +306,7 @@ is the sum of its Jacobi series at every point of the disk. The coefficients are
 any confocal ellipse enclosing the point inside the disk, and the series converges
 absolutely. -/
 theorem hasSum_jacobiContourCoefficient_jacobiEllipseCycle (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) {τ : ℝ} {f : ℂ → ℂ}
+    (hc : IsGammaRegular (α + β + 2)) {τ : ℝ} {f : ℂ → ℂ}
     (hf : DifferentiableOn ℂ f (jacobiEllipseDisk r s τ)) {σ : ℝ} (hσ0 : 0 < σ)
     (hσ : ‖r - s‖ / 4 < σ) (hστ : σ < τ) {x : ℂ} (hx : jacobiEllipseRadius r s x < σ) :
     HasSum (fun n => jacobiContourCoefficient α β r s n (jacobiEllipseCycle r s hσ0) f *
@@ -327,7 +327,7 @@ theorem hasSum_jacobiContourCoefficient_jacobiEllipseCycle (α β r s : ℂ)
 /-- On a closed elliptic disk inside the disk of holomorphy, the Jacobi series of Theorem 7.6-2
 converges uniformly, with a summable majorant. -/
 theorem tendstoUniformlyOn_sum_jacobiContourCoefficient_jacobiEllipseCycle (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) {τ : ℝ} {f : ℂ → ℂ}
+    (hc : IsGammaRegular (α + β + 2)) {τ : ℝ} {f : ℂ → ℂ}
     (hf : DifferentiableOn ℂ f (jacobiEllipseDisk r s τ)) {ρ σ : ℝ} (hσ0 : 0 < σ)
     (hρ : ‖r - s‖ / 4 < ρ) (hρσ : ρ < σ) (hστ : σ < τ) :
     TendstoUniformlyOn (fun N x => ∑ n ∈ Finset.range N,
@@ -379,7 +379,7 @@ theorem tendstoUniformlyOn_sum_jacobiContourCoefficient_jacobiEllipseCycle (α �
 /-- Uniqueness in Theorem 7.6-2: a Jacobi series converging uniformly on a confocal ellipse
 has the contour coefficients of its sum on that ellipse. -/
 theorem jacobiContourCoefficient_jacobiEllipseCycle_eq_of_tendstoUniformlyOn (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) {σ : ℝ} (hσ0 : 0 < σ) (hσ : ‖r - s‖ / 4 < σ)
+    (hc : IsGammaRegular (α + β + 2)) {σ : ℝ} (hσ0 : 0 < σ) (hσ : ‖r - s‖ / 4 < σ)
     (b : ℕ → ℂ) {f : ℂ → ℂ}
     (hlim : TendstoUniformlyOn
       (fun N z => ∑ m ∈ Finset.range N, b m * (jacobiOn α β r s m).eval z)

@@ -40,21 +40,68 @@ The first three recommendations in the [TauCeti reuse review](TauCetiReview.md) 
   `TauCeti.Measure.ext_of_forall_integral_monomial_eq_of_support` from
   [CompactDeterminacy][tau-codes-moments], retaining both support hypotheses and arbitrary
   finite coordinate types. The two unused private approximation helpers were removed.
-- `ToMathlib/Analysis/Integral/Pi.lean` uses `TauCeti.lintegral_fintype_prod_eq_prod₀` from
-  [Integral.Pi][tau-codes-pi], retaining almost-everywhere measurability, dependent coordinate
-  spaces and empty index types. The two private induction/reindexing helpers were removed.
+- `Dirichlet/Gamma.lean` uses `TauCeti.lintegral_fintype_prod_eq_prod₀` from
+  [Integral.Pi][tau-codes-pi] directly; the former local adapter
+  `ToMathlib/Analysis/Integral/Pi.lean` was removed.
 - `ToMathlib/Topology/ProperCovering.lean` uses `IsCoveringMap.injective` from
-  [Homotopy.Covering][tau-codes-covering]. The more general local properness criterion remains.
+  [Homotopy.Covering][tau-codes-covering] directly; the local adapter
+  `IsCoveringMap.injective_of_simplyConnectedSpace` was removed. The more general local
+  properness criterion remains.
 
 All retained public theorem statements and assumptions are unchanged. The imported proofs
 are credited to the Tau Ceti contributors in the module headers and theorem docstrings.
 These three files are not part of the shared CA/SCV implementation subsets.
 
-Beta-law lemmas, real Dirichlet distributions and Schwarz–Christoffel mapping theory remain
-recommendations 4–6. The Hermite/Chebyshev developments are further related work.
-In particular, the current local
-`ProbabilityTheory.beta_add_one_left` declaration conflicts with TauCeti's declaration and
-must be resolved before coimporting its beta/Dirichlet modules with the Carlson library.
+### Further adoptions — 5 October 2026
+
+- `ToMathlib/Analysis/SpecialFunctions/BetaDensity.lean`: `ProbabilityTheory.beta_add_one_left`
+  from [SpecialFunctions.Beta][tau-codes-beta] (the conflicting local declaration was removed),
+  and `betaPDFReal_nonneg`, `integral_betaMeasure_eq` and `integral_id_betaMeasure` from
+  [Distributions.Beta.Basic][tau-codes-beta-law].
+- `ToMathlib/Analysis/Integral/ProdAbsRPow.lean`: `locallyIntegrable_norm_sub_rpow` from
+  [Integral.NormRpow][tau-codes-normrpow].
+- `Carlson/Jacobi/SegmentOrthogonality.lean`, `Carlson/T/TwoF0Connection.lean` and
+  `Carlson/R/SingleIntegral/PositiveRay.lean`: `ofReal_mul_cpow` and `cpow_sum` from
+  [Pow.Complex][tau-codes-pow], and `intervalIntegrable_rpow_mul_one_sub_rpow` from
+  [SpecialFunctions.Beta][tau-codes-beta].
+- `Dirichlet/TauCetiBridge.lean`: identifies the local real Dirichlet measure with
+  `TauCeti.Probability.dirichletMeasure` from [Dirichlet.Basic][tau-codes-dirichlet].
+
+- `ComplexAnalysis/LogDerivIntegral.lean`, `CurveIndex.lean` and `CurveIndex/Continuity.lean`,
+  resynchronized from `../lean-CA`, import TauCeti's `Contour.Winding` modules; their headers
+  retain the master project's attribution.
+
+### Further adoptions — 5 October 2026 (second round)
+
+- `Dirichlet/Real/Moments.lean`, `Dirichlet/Real/Marginals.lean` and
+  `Dirichlet/Real/Aggregation.lean`: the coordinate mean, variance and covariance, the beta
+  coordinate marginals and the aggregation law are transferred through `Dirichlet.TauCetiBridge`
+  from `integral_eval_dirichletMeasure`, `variance_eval_dirichletMeasure`,
+  `covariance_eval_dirichletMeasure_of_ne` ([Dirichlet.Moments][tau-codes-dir-moments]),
+  `map_eval_dirichletMeasure` ([Dirichlet.Marginal][tau-codes-dir-marginal]) and
+  `map_euclideanFiberSum_dirichletMeasure` ([Dirichlet.Aggregation][tau-codes-dir-aggregation]).
+  The local moment-determination proof of aggregation, its multinomial helpers and the direct
+  two-coordinate marginal proof were removed. The monomial moment formulas remain local.
+- `Pochhammer/BinomialSeries.lean`: `hasSum_multichoose_mul_geometric_complex_of_norm_lt_one`
+  from [Analytic.Binomial][tau-codes-binomial].
+- `Carlson/Jacobi/Hermite.lean`: Theorem 7.10-4 is transported from
+  `TauCeti.integral_hermite_mul_hermite_mul_gaussian` ([Hermite.Orthogonality][tau-codes-hermite])
+  by the scaling bridge `sqrt_two_pow_mul_eval_monicHermite` to Mathlib's `Polynomial.hermite`.
+- `Carlson/Elliptic/SchwarzChristoffel.lean`: Carlson's map `R_{-a}(b; z - x)` is identified with
+  an affine image of `TauCeti.schwarzChristoffelPrimitive`
+  ([SchwarzChristoffel.Primitive][tau-codes-sc-primitive]); openness and boundedness of the image
+  follow from [SchwarzChristoffel.Image][tau-codes-sc-image]. The local boundary, polygon and
+  mapping proofs are retained.
+
+The comparison of the local polygon and mapping theorems with TauCeti's boundary, covering and
+image theory, and the Chebyshev developments, remain related work.
+
+### Carlson (1969), Theorem 8 — 5 October 2026
+
+- `Dirichlet/Average/Chart.lean` takes its convex charts from the Tau Ceti contributors'
+  Riemann mapping theorem `TauCeti.exists_bijOn_ball_differentiableOn_invFunOn`
+  ([RiemannMapping.Existence][tau-codes-riemann]). The simply connected case of Theorem 8
+  (`Dirichlet/Average/SimplyConnected.lean`) depends on it.
 
 ## Related-work review, 2026-10-04
 
@@ -146,3 +193,16 @@ No external Lean code was incorporated as part of the related-work survey.
 [tau-codes-moments]: https://github.com/TauCetiProject/TauCeti/blob/a780c7ad6beb23f60a17351a492d177878020ad5/TauCeti/Probability/Moments/CompactDeterminacy.lean
 [tau-codes-pi]: https://github.com/TauCetiProject/TauCeti/blob/a780c7ad6beb23f60a17351a492d177878020ad5/TauCeti/MeasureTheory/Integral/Pi.lean
 [tau-codes-covering]: https://github.com/TauCetiProject/TauCeti/blob/a780c7ad6beb23f60a17351a492d177878020ad5/TauCeti/Topology/Homotopy/Covering.lean
+[tau-codes-beta]: https://github.com/TauCetiProject/TauCeti/blob/a780c7ad6beb23f60a17351a492d177878020ad5/TauCeti/Analysis/SpecialFunctions/Beta.lean
+[tau-codes-beta-law]: https://github.com/TauCetiProject/TauCeti/blob/a780c7ad6beb23f60a17351a492d177878020ad5/TauCeti/Probability/Distributions/Beta/Basic.lean
+[tau-codes-normrpow]: https://github.com/TauCetiProject/TauCeti/blob/a780c7ad6beb23f60a17351a492d177878020ad5/TauCeti/MeasureTheory/Integral/NormRpow.lean
+[tau-codes-pow]: https://github.com/TauCetiProject/TauCeti/blob/a780c7ad6beb23f60a17351a492d177878020ad5/TauCeti/Analysis/SpecialFunctions/Pow/Complex.lean
+[tau-codes-dirichlet]: https://github.com/TauCetiProject/TauCeti/blob/a780c7ad6beb23f60a17351a492d177878020ad5/TauCeti/Probability/Distributions/Dirichlet/Basic.lean
+[tau-codes-dir-moments]: https://github.com/TauCetiProject/TauCeti/blob/a780c7ad6beb23f60a17351a492d177878020ad5/TauCeti/Probability/Distributions/Dirichlet/Moments.lean
+[tau-codes-dir-marginal]: https://github.com/TauCetiProject/TauCeti/blob/a780c7ad6beb23f60a17351a492d177878020ad5/TauCeti/Probability/Distributions/Dirichlet/Marginal.lean
+[tau-codes-dir-aggregation]: https://github.com/TauCetiProject/TauCeti/blob/a780c7ad6beb23f60a17351a492d177878020ad5/TauCeti/Probability/Distributions/Dirichlet/Aggregation.lean
+[tau-codes-binomial]: https://github.com/TauCetiProject/TauCeti/blob/a780c7ad6beb23f60a17351a492d177878020ad5/TauCeti/Analysis/Analytic/Binomial.lean
+[tau-codes-hermite]: https://github.com/TauCetiProject/TauCeti/blob/a780c7ad6beb23f60a17351a492d177878020ad5/TauCeti/Analysis/SpecialFunctions/Hermite/Orthogonality.lean
+[tau-codes-sc-primitive]: https://github.com/TauCetiProject/TauCeti/blob/a780c7ad6beb23f60a17351a492d177878020ad5/TauCeti/Analysis/Complex/Conformal/SchwarzChristoffel/Primitive.lean
+[tau-codes-sc-image]: https://github.com/TauCetiProject/TauCeti/blob/a780c7ad6beb23f60a17351a492d177878020ad5/TauCeti/Analysis/Complex/Conformal/SchwarzChristoffel/Image.lean
+[tau-codes-riemann]: https://github.com/TauCetiProject/TauCeti/blob/a780c7ad6beb23f60a17351a492d177878020ad5/TauCeti/Analysis/Complex/Conformal/RiemannMapping/Existence.lean

@@ -12,7 +12,7 @@ public import Mathlib.Analysis.SpecialFunctions.Gamma.Beta
 import Mathlib.MeasureTheory.Integral.Pi
 import Pochhammer.Gamma
 import Pochhammer.BetaIntegral
-import Pochhammer.ComplexPowMeasurable
+import Mathlib.MeasureTheory.Function.SpecialFunctions.Basic
 import StdSimplexMeasure.FiniteDimensionalHyperplane
 import StdSimplexMeasure.PiSnoc
 import StdSimplexMeasure.ProdSlices
@@ -107,10 +107,10 @@ private theorem mvBetaIntegral_zero {b₀ : ℂ} (hb₀ : 0 < b₀.re) :
 private theorem measurable_mvBetaIntegrand {n : ℕ} (b₀ : ℂ) (b : Fin n → ℂ) :
     Measurable fun x : Fin n → ℝ =>
       ((1 - ∑ i, x i : ℝ) : ℂ) ^ (b₀ - 1) * ∏ i, (x i : ℂ) ^ (b i - 1) := by
-  refine ((measurable_ofReal_cpow_const (b₀ - 1)).comp ?_).mul ?_
+  refine ((Complex.measurable_ofReal.pow_const (b₀ - 1)).comp ?_).mul ?_
   · exact measurable_const.sub (Finset.univ.measurable_sum fun i _ => measurable_pi_apply i)
   · exact Finset.univ.measurable_prod fun i _ =>
-      (measurable_ofReal_cpow_const (b i - 1)).comp (measurable_pi_apply i)
+      (Complex.measurable_ofReal.pow_const (b i - 1)).comp (measurable_pi_apply i)
 
 /-- Interior points of the solid simplex have strictly positive coordinates and slack. -/
 private theorem interior_mvBetaSimplex_subset (n : ℕ) :

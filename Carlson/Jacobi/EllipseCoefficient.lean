@@ -183,7 +183,7 @@ theorem isRegCarlsonContinuation_jacobiEllipseCycle (n : ℕ) {r s : ℂ} {τ : 
   have hρσ' : ρ < σ' := by simp only [ρ, σ']; linarith
   have hσ'τ : σ' < τ := by simp only [σ']; linarith
   have hσ'0 : 0 < σ' := by linarith
-  have hc0 : IsCarlsonGammaRegular ((0 : ℂ) + 0 + 2) := by
+  have hc0 : IsGammaRegular ((0 : ℂ) + 0 + 2) := by
     intro k h
     have := congrArg re h
     simp at this

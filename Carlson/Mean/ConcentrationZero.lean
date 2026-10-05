@@ -112,11 +112,18 @@ private theorem tendsto_ofReal_concentration_zero :
     change (c : ℂ) ≠ 0
     exact_mod_cast (ne_of_gt hc : c ≠ 0)
 
+/-- Weights summing to one live on a nonempty index type. -/
+private theorem nonempty_of_sum_eq_one {w : ι → ℝ} (hw1 : ∑ i, w i = 1) : Nonempty ι := by
+  by_contra h
+  rw [not_nonempty_iff] at h
+  simp at hw1
+
 /-- Real R-averages tend to the weighted power sum as the positive concentration vanishes. -/
-theorem tendsto_carlsonRReal_concentration_zero [Nonempty ι] (t : ℝ) {w x : ι → ℝ}
+theorem tendsto_carlsonRReal_concentration_zero (t : ℝ) {w x : ι → ℝ}
     (hw : ∀ i, 0 < w i) (hw1 : ∑ i, w i = 1) (hx : ∀ i, 0 < x i) :
     Tendsto (fun c : ℝ => carlsonRReal t (fun i => c * w i) x) (𝓝[>] 0)
       (𝓝 (∑ i, w i * x i ^ t)) := by
+  have : Nonempty ι := nonempty_of_sum_eq_one hw1
   have h := Complex.continuous_re.continuousAt.tendsto.comp
     ((tendsto_carlsonR_concentration_zero (t : ℂ)
       (w := fun i => (w i : ℂ)) (by exact_mod_cast hw1)
@@ -130,10 +137,11 @@ theorem tendsto_carlsonRReal_concentration_zero [Nonempty ι] (t : ℝ) {w x : �
     ← ofReal_carlsonRReal t (fun i => mul_pos hc (hw i)) hx, Complex.ofReal_re]
 
 /-- Real logarithmic averages tend to the weighted power-logarithm sum at zero concentration. -/
-theorem tendsto_carlsonLReal_concentration_zero [Nonempty ι] (t : ℝ) {w x : ι → ℝ}
+theorem tendsto_carlsonLReal_concentration_zero (t : ℝ) {w x : ι → ℝ}
     (hw : ∀ i, 0 < w i) (hw1 : ∑ i, w i = 1) (hx : ∀ i, 0 < x i) :
     Tendsto (fun c : ℝ => carlsonLReal t (fun i => c * w i) x) (𝓝[>] 0)
       (𝓝 (∑ i, w i * (x i ^ t * Real.log (x i)))) := by
+  have : Nonempty ι := nonempty_of_sum_eq_one hw1
   have h := Complex.continuous_re.continuousAt.tendsto.comp
     ((tendsto_carlsonL_concentration_zero (t : ℂ)
       (w := fun i => (w i : ℂ)) (by exact_mod_cast hw1)
@@ -147,10 +155,11 @@ theorem tendsto_carlsonLReal_concentration_zero [Nonempty ι] (t : ℝ) {w x : �
     ← ofReal_carlsonLReal t (fun i => mul_pos hc (hw i)) hx, Complex.ofReal_re]
 
 /-- At nonzero order, the zero-concentration limit is the ordinary weighted power mean. -/
-theorem tendsto_carlsonMeanReal_concentration_zero [Nonempty ι] {t : ℝ} (ht : t ≠ 0)
+theorem tendsto_carlsonMeanReal_concentration_zero {t : ℝ} (ht : t ≠ 0)
     {w x : ι → ℝ} (hw : ∀ i, 0 < w i) (hw1 : ∑ i, w i = 1) (hx : ∀ i, 0 < x i) :
     Tendsto (fun c : ℝ => carlsonMeanReal t (fun i => c * w i) x) (𝓝[>] 0)
       (𝓝 ((∑ i, w i * x i ^ t) ^ t⁻¹)) := by
+  have : Nonempty ι := nonempty_of_sum_eq_one hw1
   have hp : 0 < ∑ i, w i * x i ^ t :=
     Finset.sum_pos (fun i _ => mul_pos (hw i) (Real.rpow_pos_of_pos (hx i) t)) Finset.univ_nonempty
   have h := (Real.continuousAt_rpow_const _ t⁻¹ (Or.inl hp.ne')).tendsto.comp
@@ -160,7 +169,7 @@ theorem tendsto_carlsonMeanReal_concentration_zero [Nonempty ι] {t : ℝ} (ht :
   exact (carlsonMeanReal_eq_rpow ht (fun i => mul_pos hc (hw i)) hx).symm
 
 /-- At order zero, the zero-concentration limit is the ordinary weighted geometric mean. -/
-theorem tendsto_carlsonMeanReal_zero_concentration_zero [Nonempty ι] {w x : ι → ℝ}
+theorem tendsto_carlsonMeanReal_zero_concentration_zero {w x : ι → ℝ}
     (hw : ∀ i, 0 < w i) (hw1 : ∑ i, w i = 1) (hx : ∀ i, 0 < x i) :
     Tendsto (fun c : ℝ => carlsonMeanReal 0 (fun i => c * w i) x) (𝓝[>] 0)
       (𝓝 (Real.exp (∑ i, w i * Real.log (x i)))) := by

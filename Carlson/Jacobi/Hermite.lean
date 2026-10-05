@@ -10,13 +10,16 @@ public import Carlson.Jacobi.EndpointBridge
 public import Carlson.Jacobi.SecondKindLimits
 public import Mathlib.Analysis.SpecialFunctions.Gaussian.GaussianIntegral
 public import Mathlib.MeasureTheory.Integral.IntegralEqImproper
+public import TauCeti.Analysis.SpecialFunctions.Hermite.Orthogonality
 
 /-!
 # Hermite polynomials as limits of Jacobi polynomials
 
 Carlson's monic Hermite polynomials `p̃ₙ = 2⁻ⁿ Hₙ` satisfy `p̃ₙ₊₂ = X p̃ₙ₊₁ - (n+1)/2 · p̃ₙ` and
 form an Appell sequence. Integration by parts against `e^{-x²}` shows that they are orthogonal
-to all polynomials of lower degree, with squared norm `n! 2⁻ⁿ √π` (Theorem 7.10-4). With
+to all polynomials of lower degree. The squared norm `n! 2⁻ⁿ √π` (Theorem 7.10-4) is obtained
+from the probabilists' Hermite polynomials `Heₙ` by the scaling `2^{n/2} p̃ₙ(x) = Heₙ(√2 x)`,
+using the Gaussian orthogonality in `TauCeti.Analysis.SpecialFunctions.Hermite.Orthogonality`. With
 `α = β = t²` and endpoints `∓t`, Carlson's recurrence coefficients for the monic Jacobi
 polynomials tend to those of the Hermite recurrence, which gives the limit Theorem 7.10-1.
 
@@ -25,7 +28,10 @@ polynomials tend to those of the Hermite recurrence, which gives the limit Theor
 * `monicHermite`: Carlson's monic Hermite polynomials (Definition 7.10-2).
 * `derivative_monicHermite_succ`: the Appell property.
 * `iteratedDeriv_exp_neg_sq`: the Rodrigues formula (7.10-6).
-* `gaussianFunctional_monicHermite_mul_monicHermite`: Theorem 7.10-4.
+* `sqrt_two_pow_mul_eval_monicHermite`: the scaling bridge to Mathlib's probabilists' Hermite
+  polynomials `Polynomial.hermite`.
+* `gaussianFunctional_monicHermite_mul_monicHermite`: Theorem 7.10-4, transported from the
+  Gaussian orthogonality of `Polynomial.hermite` proved by the Tau Ceti contributors.
 * `tendsto_eval_jacobiOn_monicHermite`: Theorem 7.10-1.
 
 ## References
@@ -188,64 +194,66 @@ theorem gaussianFunctional_mul_monicHermite_eq_zero (n : ℕ) :
         gaussianFunctional_C_mul, gaussianFunctional_C_mul]
       ring
 
-/-- The Gaussian integral `∫ e^{-x²} dx = √π`. -/
-theorem gaussianFunctional_one : gaussianFunctional 1 = (Real.sqrt Real.pi : ℂ) := by
-  have h := integral_gaussian 1
-  simp only [div_one, neg_mul, one_mul] at h
-  simp only [gaussianFunctional, eval_one, one_mul]
-  rw [← h, ← integral_complex_ofReal]
-  congr 1; funext x; push_cast; ring_nf
-
-/-- The leading moments `∫ xⁿ p̃ₙ(x) e^{-x²} dx = n! 2⁻ⁿ √π`. -/
-theorem gaussianFunctional_X_pow_mul_monicHermite (n : ℕ) :
-    gaussianFunctional (X ^ n * monicHermite n) =
-      (n.factorial : ℂ) / 2 ^ n * (Real.sqrt Real.pi : ℂ) := by
-  induction n with
-  | zero => simp [gaussianFunctional_one]
-  | succ n ih =>
-    rw [pow_succ, show X ^ n * X * monicHermite (n + 1) = X * (X ^ n * monicHermite (n + 1)) by
-      ring, gaussianFunctional_X_mul, derivative_mul, derivative_monicHermite_succ,
-      gaussianFunctional_add, gaussianFunctional_mul_monicHermite_eq_zero (n + 1) _ (by
-        exact (natDegree_derivative_le _).trans_lt (by rw [natDegree_X_pow]; omega)),
-      show X ^ n * (C ((n : ℂ) + 1) * monicHermite n) = C ((n : ℂ) + 1) * (X ^ n * monicHermite n)
-        by ring, gaussianFunctional_C_mul, ih, Nat.factorial_succ]
-    push_cast
-    field_simp
-    ring
+/-- The scaling bridge to the probabilists' Hermite polynomials `Polynomial.hermite`:
+`2^{n/2} p̃ₙ(z) = Heₙ(√2 z)`. -/
+theorem sqrt_two_pow_mul_eval_monicHermite (n : ℕ) (z : ℂ) :
+    (Real.sqrt 2 : ℂ) ^ n * (monicHermite n).eval z =
+      aeval ((Real.sqrt 2 : ℂ) * z) (hermite n) := by
+  have h2 : (Real.sqrt 2 : ℂ) ^ 2 = 2 := by
+    rw [← ofReal_pow, Real.sq_sqrt (by norm_num : (0 : ℝ) ≤ 2)]; norm_num
+  induction n using Nat.strong_induction_on with
+  | _ n ih =>
+    match n, ih with
+    | 0, _ => simp [monicHermite]
+    | 1, _ => simp [monicHermite]
+    | n + 2, ih =>
+      rw [monicHermite_add_two, hermite_add_two, map_sub, map_mul, aeval_X, map_nsmul,
+        nsmul_eq_mul, ← ih (n + 1) (by omega), ← ih n (by omega)]
+      simp only [eval_sub, eval_mul, eval_X, eval_C]
+      push_cast
+      linear_combination (-((n : ℂ) + 1) * (Real.sqrt 2 : ℂ) ^ n *
+        (monicHermite n).eval z / 2) * h2
 
 /-- Carlson's Theorem 7.10-4: the monic Hermite polynomials are orthogonal on the real line with
-respect to `e^{-x²}`, with squared norm `n! 2⁻ⁿ √π`. -/
+respect to `e^{-x²}`, with squared norm `n! 2⁻ⁿ √π`. This is the Tau Ceti contributors'
+`TauCeti.integral_hermite_mul_hermite_mul_gaussian`, transported by
+`sqrt_two_pow_mul_eval_monicHermite` and the substitution `y = √2 x`. -/
 theorem gaussianFunctional_monicHermite_mul_monicHermite (m n : ℕ) :
     gaussianFunctional (monicHermite m * monicHermite n) =
       if m = n then (n.factorial : ℂ) / 2 ^ n * (Real.sqrt Real.pi : ℂ) else 0 := by
-  wlog hmn : m ≤ n generalizing m n
-  · have h := this n m (le_of_not_ge hmn)
-    rw [ite_eq_right (show ¬(n = m) by omega)] at h
-    rw [ite_eq_right (show ¬(m = n) by omega), mul_comm, h]
-  rcases lt_or_eq_of_le hmn with hlt | rfl
-  · rw [ite_eq_right (show ¬(m = n) by omega)]
-    exact gaussianFunctional_mul_monicHermite_eq_zero n _
-      (lt_of_le_of_lt (natDegree_monicHermite_le_and_coeff m).1 hlt)
-  · rw [ite_eq_left rfl]
-    obtain ⟨hdeg, hcoeff⟩ := natDegree_monicHermite_le_and_coeff m
-    have hlow : (monicHermite m - X ^ m).natDegree < m ∨ m = 0 := by
-      rcases Nat.eq_zero_or_pos m with h0 | hpos
-      · exact Or.inr h0
-      · left
-        apply lt_of_le_of_ne
-        · exact (natDegree_sub_le _ _).trans (max_le hdeg (by rw [natDegree_X_pow]))
-        · intro heq
-          have hc := coeff_natDegree (p := monicHermite m - X ^ m)
-          rw [heq, coeff_sub, hcoeff, coeff_X_pow_self, sub_self] at hc
-          have hne : monicHermite m - X ^ m ≠ 0 := by
-            intro h0; rw [h0, natDegree_zero] at heq; omega
-          exact hne (leadingCoeff_eq_zero.mp hc.symm)
-    rcases hlow with hlow | h0
-    · rw [show monicHermite m * monicHermite m =
-          X ^ m * monicHermite m + (monicHermite m - X ^ m) * monicHermite m by ring,
-        gaussianFunctional_add, gaussianFunctional_mul_monicHermite_eq_zero m _ hlow, add_zero,
-        gaussianFunctional_X_pow_mul_monicHermite]
-    · subst h0; simp [gaussianFunctional_one]
+  set s : ℝ := Real.sqrt 2 with hs_def
+  have hs : 0 < s := Real.sqrt_pos.mpr two_pos
+  have hs2 : s ^ 2 = 2 := Real.sq_sqrt zero_le_two
+  set F : ℝ → ℝ := fun y => aeval y (hermite m) * aeval y (hermite n) * Real.exp (-(y ^ 2 / 2))
+  have hc (y : ℝ) (p : ℤ[X]) : ((aeval y p : ℝ) : ℂ) = aeval (y : ℂ) p := by
+    simpa using (aeval_algebraMap_apply ℂ y p).symm
+  have hpt (x : ℝ) : ((F (s * x) : ℝ) : ℂ) = (s : ℂ) ^ (m + n) *
+      ((monicHermite m * monicHermite n).eval (x : ℂ) * exp (-(x : ℂ) ^ 2)) := by
+    have he : (s * x) ^ 2 / 2 = x ^ 2 := by rw [mul_pow, hs2]; ring
+    have hb (k : ℕ) := sqrt_two_pow_mul_eval_monicHermite k (x : ℂ)
+    rw [← hs_def] at hb
+    simp only [F, he, ofReal_mul, ofReal_exp, hc, ofReal_neg, ofReal_pow, eval_mul, ← hb]
+    ring
+  have hint : gaussianFunctional (monicHermite m * monicHermite n) * (s : ℂ) ^ (m + n) =
+      ((s⁻¹ * ∫ y, F y : ℝ) : ℂ) := by
+    rw [← abs_of_pos (inv_pos.mpr hs),
+      show |s⁻¹| * ∫ y, F y = |s⁻¹| • ∫ y, F y from rfl, ← Measure.integral_comp_mul_left,
+      ← integral_complex_ofReal]
+    simp only [hpt, integral_const_mul, gaussianFunctional]
+    ring
+  rw [TauCeti.integral_hermite_mul_hermite_mul_gaussian] at hint
+  have hs0 : (s : ℂ) ≠ 0 := ofReal_ne_zero.mpr hs.ne'
+  split_ifs at hint ⊢ with hmn
+  · subst hmn
+    have hsq : (s : ℂ) ^ (m + m) = 2 ^ m := by
+      rw [← two_mul, pow_mul, ← ofReal_pow, hs2]; norm_num
+    have hpi : Real.sqrt (2 * Real.pi) = s * Real.sqrt Real.pi :=
+      Real.sqrt_mul zero_le_two _
+    rw [hsq, hpi] at hint
+    push_cast at hint
+    field_simp at hint ⊢
+    linear_combination hint
+  · simpa [hs0] using hint
 
 /-- The Jacobi recurrence coefficient `W` for the symmetric Hermite scaling tends to `(n+1)/2`. -/
 theorem tendsto_jacobiRecurrenceW_hermite (n : ℕ) :

@@ -37,7 +37,7 @@ open Polynomial Dirichlet Complex
 
 /-- The beta moments are the ordinary normalization of the continued Carlson moments. -/
 theorem carlsonPolynomialAverage_pair_one_zero (a b : ℂ)
-    (hc : IsCarlsonGammaRegular (a + b)) :
+    (hc : IsGammaRegular (a + b)) :
     carlsonPolynomialAverage (pair a b) (pair 1 0) = betaAverage a b := by
   apply LinearMap.ext
   intro p
@@ -66,7 +66,7 @@ theorem carlsonPolynomialAverage_pair_one_zero (a b : ℂ)
 /-- The two-node continued polynomial average is an affine beta average, even when
 the nodes coincide. -/
 theorem carlsonPolynomialAverage_pair (a b r s : ℂ)
-    (hc : IsCarlsonGammaRegular (a + b)) (p : ℂ[X]) :
+    (hc : IsGammaRegular (a + b)) (p : ℂ[X]) :
     carlsonPolynomialAverage (pair a b) (pair r s) p =
       betaAverage a b (p.comp (C (r - s) * X + C s)) := by
   rw [← carlsonPolynomialAverage_pair_one_zero a b hc]
@@ -80,7 +80,7 @@ theorem carlsonPolynomialAverage_pair (a b r s : ℂ)
 /-- The complex finite expansion has coefficients given by continued Carlson
 averages of derivatives, with the standard shifted-Jacobi normalization. -/
 theorem sum_carlsonPolynomialAverage_shiftedJacobi (α β : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) (p : ℂ[X]) :
+    (hc : IsGammaRegular (α + β + 2)) (p : ℂ[X]) :
     ∑ m ∈ Finset.range (p.natDegree + 1),
       (carlsonPolynomialAverage (pair (α + m + 1) (β + m + 1)) (pair 1 0)
           (derivative^[m] p) /
@@ -89,7 +89,7 @@ theorem sum_carlsonPolynomialAverage_shiftedJacobi (α β : ℂ)
   have hadm : ∀ k : ℕ, α + β + 2 + k ≠ 0 := by
     intro k hk
     exact hc k (by linear_combination hk)
-  have hm (m : ℕ) : IsCarlsonGammaRegular (α + m + 1 + (β + m + 1)) := by
+  have hm (m : ℕ) : IsGammaRegular (α + m + 1 + (β + m + 1)) := by
     convert hc.add_nat (m + m) using 1; push_cast; ring
   simp_rw [carlsonPolynomialAverage_pair_one_zero _ _ (hm _),
     ← algebraicJacobiCoefficient_apply]

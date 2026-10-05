@@ -53,7 +53,7 @@ theorem isRegCarlsonContinuation_iteratedDeriv_exp (lam : ℂ) (n : ℕ) (z : Fi
 /-- Carlson's Example 7.7-1: the plane-wave expansion
 `exp (λ x) = Σ λⁿ/n! S(1+α+n, 1+β+n; λr, λs) pₙ(x)`, for all complex `λ, x`, endpoints, and
 parameters with admissible total. -/
-theorem hasSum_exp_jacobiOn (α β r s : ℂ) (hc : IsCarlsonGammaRegular (α + β + 2))
+theorem hasSum_exp_jacobiOn (α β r s : ℂ) (hc : IsGammaRegular (α + β + 2))
     (lam x : ℂ) :
     HasSum (fun n : ℕ => lam ^ n / (n.factorial : ℂ) *
       Carlson.carlsonS (pair (1 + α + n) (1 + β + n)) (pair (lam * r) (lam * s)) *
@@ -82,7 +82,7 @@ theorem hasSum_exp_jacobiOn (α β r s : ℂ) (hc : IsCarlsonGammaRegular (α + 
     rw [mem_ball_zero_iff] at h2
     linarith
   have hind : Γ.index r = 1 := by
-    rw [Cycle.zsmulLoop_index]
+    rw [Cycle.index_zsmulLoop]
     change ((1 : ℤ) : ℂ) * curveIndex (Path.circle 0 R) r = 1
     rw [curveIndex_circle_of_mem_ball (hball r (left_mem_segment ℝ r s))]
     norm_num
@@ -92,7 +92,7 @@ theorem hasSum_exp_jacobiOn (α β r s : ℂ) (hc : IsCarlsonGammaRegular (α + 
   congr 1
   -- identify the contour coefficient with the S-function
   unfold jacobiContourCoefficient
-  rw [Cycle.zsmulLoop_integral, one_smul]
+  rw [Cycle.integral_zsmulLoop, one_smul]
   dsimp only [Loop.ofPath]
   rw [curveIntegral_circle,
     circleIntegral_jacobiSecondKind_mul α β r s n (isRegCarlsonContinuation_iteratedDeriv_exp lam n

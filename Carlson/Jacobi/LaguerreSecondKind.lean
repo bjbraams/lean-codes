@@ -322,11 +322,6 @@ theorem tendsto_integral_laguerreKernel {b : ℂ} (hb : 0 < b.re) {κ : ℝ}
     have := ((hA.mul hB).mul hC).mul (tendsto_const_nhds (x := (t : ℂ) ^ (b - 1)))
     simpa [laguerreKernel] using this
 
-/-- Powers of positive reals as exponentials. -/
-theorem ofReal_cpow_eq_exp {q : ℝ} (hq : 0 < q) (c : ℂ) :
-    ((q : ℝ) : ℂ) ^ c = exp (Real.log q * c) := by
-  rw [cpow_def_of_ne_zero (by exact_mod_cast hq.ne'), ← ofReal_log hq.le]
-
 /-- **The substitution `u = s/(t + s)`** turning the Euler integral over `(0, 1)` into the
 confluence integral over `(0, ∞)`. -/
 theorem integral_Ioo_eq_integral_laguerreKernel (b : ℂ) (κ : ℝ) (f : ℝ → ℂ) {s : ℝ}
@@ -379,8 +374,8 @@ theorem integral_Ioo_eq_integral_laguerreKernel (b : ℂ) (κ : ℝ) (f : ℝ �
   have hl3 : Real.log (s / (t + s)) = Real.log s - Real.log (t + s) := Real.log_div hs.ne' hts.ne'
   have hl4 : Real.log (s / (t + s) ^ 2) = Real.log s - 2 * Real.log (t + s) := by
     rw [Real.log_div hs.ne' (by positivity), Real.log_pow]; push_cast; ring
-  rw [ofReal_cpow_eq_exp hs, ofReal_cpow_eq_exp h1u, ofReal_cpow_eq_exp hq,
-    ofReal_cpow_eq_exp ht0, Real.rpow_def_of_pos hu, Real.rpow_def_of_pos hq,
+  rw [Complex.ofReal_cpow_eq_exp hs, Complex.ofReal_cpow_eq_exp h1u, Complex.ofReal_cpow_eq_exp hq,
+    Complex.ofReal_cpow_eq_exp ht0, Real.rpow_def_of_pos hu, Real.rpow_def_of_pos hq,
     show ((s / (t + s) ^ 2 : ℝ) : ℂ) = ((Real.exp (Real.log (s / (t + s) ^ 2)) : ℝ) : ℂ) by
       rw [Real.exp_log (by positivity)], hl1, hl2, hl3, hl4]
   push_cast

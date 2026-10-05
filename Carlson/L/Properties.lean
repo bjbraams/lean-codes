@@ -97,7 +97,7 @@ private theorem regCarlsonL_option_zero_of_mem_variableDomain [Nonempty ι] (t :
   unfold regCarlsonL
   congr 1
   funext s
-  exact regCarlsonR_option_zero s hb hz
+  exact regCarlsonR_option_zero s hb (carlsonRVariableDomain_subset_slitDomain hz)
 
 /-- Equation (2.2), for arbitrary complex Dirichlet parameters. -/
 private theorem regCarlsonL_perm_of_mem_variableDomain (t : ℂ) (b : ι → ℂ)

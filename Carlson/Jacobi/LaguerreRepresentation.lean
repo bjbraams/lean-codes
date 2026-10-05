@@ -6,6 +6,7 @@ Authors: Bastiaan J Braams
 module
 
 public import Carlson.Jacobi.Laguerre
+public import ToMathlib.Analysis.SpecialFunctions.Pow
 
 /-!
 # Weighted representation of Laguerre coefficients
@@ -77,15 +78,6 @@ theorem laguerreGammaDeriv_eq (A : ℂ) (j : ℕ) {x : ℝ} (hx : 0 < x) :
   simp only [neg_one_mul] at he
   rw [hd, he]
 
-/-- A power between two others is bounded by their sum on the positive axis. -/
-theorem rpow_le_rpow_add_rpow {x c₁ c c₂ : ℝ} (hx : 0 < x) (h₁ : c₁ ≤ c) (h₂ : c ≤ c₂) :
-    x ^ c ≤ x ^ c₁ + x ^ c₂ := by
-  rcases le_total x 1 with h | h
-  · have := Real.rpow_le_rpow_of_exponent_ge hx h h₁
-    linarith [Real.rpow_nonneg hx.le c₂]
-  · have := Real.rpow_le_rpow_of_exponent_le h h₂
-    linarith [Real.rpow_nonneg hx.le c₁]
-
 /-- Growth bound for the derivatives of `x^A e^{-x}`, uniform on the positive axis. -/
 theorem exists_norm_laguerreGammaDeriv_le (A : ℂ) (j : ℕ) :
     ∃ K, 0 ≤ K ∧ ∀ x : ℝ, 0 < x → ‖laguerreGammaDeriv A j x‖ ≤
@@ -96,7 +88,7 @@ theorem exists_norm_laguerreGammaDeriv_le (A : ℂ) (j : ℕ) :
   refine (norm_sum_le _ _).trans (sum_le_sum fun i hi => ?_)
   have hij : i ≤ j := Nat.lt_succ_iff.mp (mem_range.mp hi)
   have hp : x ^ (A - i).re ≤ x ^ (A.re - j) + x ^ A.re := by
-    refine rpow_le_rpow_add_rpow hx ?_ ?_
+    refine Real.rpow_le_rpow_add_rpow hx ?_ ?_
     · simp only [sub_re, natCast_re]; linarith [(Nat.cast_le (α := ℝ)).mpr hij]
     · simp only [sub_re, natCast_re]; linarith [Nat.cast_nonneg (α := ℝ) i]
   rw [norm_mul, norm_mul, norm_mul, norm_mul, norm_pow, norm_neg, norm_one, one_pow, one_mul,

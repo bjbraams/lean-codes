@@ -267,7 +267,7 @@ theorem continuousAt_jacobiSaddleLeading (a b : ℂ) (m : ℕ) {r s z : ℂ}
       (by constructor <;> norm_num : (0 : ℝ) ∈ Ioo (-1 : ℝ) 1)).continuousAt.comp
         (f := fun z : ℂ => (z, (0 : ℂ))) (by fun_prop)
     simpa only [Function.comp_def, ← ofReal_zero, jacobiSaddleAmplitudeComplex_ofReal] using h
-  have hq := re_one_sub_saddleShape_pos (norm_jacobiSaddleShape_lt_one (re_jacobiSaddleRatio_pos hz))
+  have hq := Complex.re_one_sub_pos (norm_jacobiSaddleShape_lt_one (re_jacobiSaddleRatio_pos hz))
   have hqne : 1 - jacobiSaddleShape (jacobiSaddleRatio r s z) ≠ 0 := by
     intro h; simp [h] at hq
   have hslit : (Real.pi : ℂ) / (1 - jacobiSaddleShape (jacobiSaddleRatio r s z)) ∈ slitPlane := by

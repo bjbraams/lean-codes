@@ -97,7 +97,7 @@ theorem carlsonAssociatedRecurrenceJointPolynomial_zero_ne_zero :
     map_zero, Finset.sum_const, Finset.card_univ, nsmul_eq_mul, mul_one] at H
   have heq : (Fintype.card ι : ℂ) - -1 - Fintype.card ι + 1 = 2 := by ring
   rw [heq] at H
-  have hreg : IsCarlsonGammaRegular (2 : ℂ) := by
+  have hreg : IsGammaRegular (2 : ℂ) := by
     intro n hn
     have hn' := congrArg Complex.re hn
     simp only [neg_re, natCast_re] at hn'

@@ -17,9 +17,9 @@ coefficient is a quotient of two multivariate polynomials in the nodes with nonz
 
 ## Main statements
 
-* `Carlson.CarlsonRAssociatedShift`: an integral exponent shift together with integral parameter
+* `Carlson.RAssociatedShift`: an integral exponent shift together with integral parameter
   shifts, with `exponentValue` and `parameterValue` applying them.
-* `Carlson.CarlsonRRationalCoefficient`: numerator and denominator polynomials, evaluated by
+* `Carlson.RRationalCoefficient`: numerator and denominator polynomials, evaluated by
   `eval` on a node vector.
 
 ## References
@@ -33,26 +33,26 @@ variable {ι : Type*} [Fintype ι]
 
 /-- Integral shifts specifying a Carlson R-function associated to a fixed exponent and
 Dirichlet parameter vector. -/
-structure CarlsonRAssociatedShift (ι : Type*) where
+structure RAssociatedShift (ι : Type*) where
   /-- Integral shift of the homogeneity parameter. -/
   exponent : ℤ
   /-- Integral shifts of the Dirichlet parameters. -/
   parameter : ι → ℤ
 
 /-- Apply an associated shift to an R-function's exponent. -/
-def CarlsonRAssociatedShift.exponentValue
-    (s : CarlsonRAssociatedShift ι) (t : ℂ) : ℂ :=
+def RAssociatedShift.exponentValue
+    (s : RAssociatedShift ι) (t : ℂ) : ℂ :=
   t + s.exponent
 
 /-- Apply an associated shift to an R-function's Dirichlet parameters. -/
-def CarlsonRAssociatedShift.parameterValue
-    (s : CarlsonRAssociatedShift ι) (b : ι → ℂ) : ι → ℂ :=
+def RAssociatedShift.parameterValue
+    (s : RAssociatedShift ι) (b : ι → ℂ) : ι → ℂ :=
   fun i => b i + s.parameter i
 
 /-- A numerator and a nonzero denominator polynomial representing a rational coefficient
 in the Carlson variables. This structure records a representation, rather than an equivalence
 class of representations. -/
-structure CarlsonRRationalCoefficient (ι : Type*) where
+structure RRationalCoefficient (ι : Type*) where
   /-- Numerator polynomial. -/
   numerator : MvPolynomial ι ℂ
   /-- Denominator polynomial. -/
@@ -62,8 +62,8 @@ structure CarlsonRRationalCoefficient (ι : Type*) where
 
 /-- Evaluate a rational Carlson coefficient using totalized division. This agrees with rational
 function evaluation away from the denominator’s zero set and is zero on that zero set. -/
-def CarlsonRRationalCoefficient.eval
-    (q : CarlsonRRationalCoefficient ι) (z : ι → ℂ) : ℂ :=
+def RRationalCoefficient.eval
+    (q : RRationalCoefficient ι) (z : ι → ℂ) : ℂ :=
   q.numerator.eval z / q.denominator.eval z
 
 end Carlson

@@ -13,6 +13,7 @@ public import ComplexAnalysis.HalfPlane
 public import ComplexAnalysis.Pow
 public import Dirichlet.Transform.Euler
 public import Pochhammer.BinomialSeries
+public import ToMathlib.Analysis.SpecialFunctions.Pow
 
 /-!
 # The bilateral generating relation and Meixner's formula
@@ -301,11 +302,6 @@ theorem arg_div_of_re_pos {P A : ℂ} (hP : 0 < P.re) (hA : 0 < A.re) :
   rw [hinv]
   constructor <;> linarith [abs_lt.mp hargA, abs_lt.mp hargP, Real.pi_pos]
 
-/-- A number `1 - v` with `‖v‖ < 1` has positive real part. -/
-theorem re_one_sub_pos {v : ℂ} (hv : ‖v‖ < 1) : 0 < (1 - v).re := by
-  have := Complex.re_le_norm v
-  simp only [sub_re, one_re]; linarith
-
 /-- **Meixner's formula** (Corollary 6.11-2) in regularized form, in the Euler strip
 `re a > 0`, `re (c - a) > 0`, for `‖xX‖, ‖xY‖, ‖yX‖, ‖yY‖ < 1`:
 `(1 - yX)^(a-β) (1 - yY)^(a+β-c) R_{-a}(β, c-β; (1-xX)(1-yY), (1-xY)(1-yX))
@@ -324,10 +320,10 @@ theorem hasSum_meixner (a β c x y X Y : ℂ) (ha : 0 < a.re) (hca : 0 < (c - a)
   rw [hsum] at h
   set A₀ := 1 - y * X
   set A₁ := 1 - y * Y
-  have hA₀ : 0 < A₀.re := re_one_sub_pos hyX
-  have hA₁ : 0 < A₁.re := re_one_sub_pos hyY
-  have hP₀ : 0 < (1 - x * X).re := re_one_sub_pos hxX
-  have hP₁ : 0 < (1 - x * Y).re := re_one_sub_pos hxY
+  have hA₀ : 0 < A₀.re := Complex.re_one_sub_pos hyX
+  have hA₁ : 0 < A₁.re := Complex.re_one_sub_pos hyY
+  have hP₀ : 0 < (1 - x * X).re := Complex.re_one_sub_pos hxX
+  have hP₁ : 0 < (1 - x * Y).re := Complex.re_one_sub_pos hxY
   have hA₀0 : A₀ ≠ 0 := fun h => by simp [h] at hA₀
   have hA₁0 : A₁ ≠ 0 := fun h => by simp [h] at hA₁
   set μ := A₀ * A₁

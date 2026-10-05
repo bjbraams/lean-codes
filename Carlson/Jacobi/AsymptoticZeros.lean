@@ -55,13 +55,15 @@ theorem not_tendsto_monicJacobi_neg_half_zero_div (g : ℕ → ℂ) :
 the obstruction comes from polynomial zeros, not parameter poles. -/
 theorem chebyshev_midpoint_pochhammer_ne_zero (n : ℕ) :
     (ascPochhammer ℂ n).eval (1 - 2 * (n : ℂ)) ≠ 0 := by
-  by_cases hn : n = 0
-  · subst n; simp
-  rw [show 1 - 2 * (n : ℂ) = 1 - (n : ℂ) - n by ring, ascPochhammer_eval_reflect]
-  apply mul_ne_zero (pow_ne_zero _ (by norm_num))
-  apply ascPochhammer_eval_ne_zero_of_re_pos
-  simp only [natCast_re]
-  exact_mod_cast Nat.pos_of_ne_zero hn
+  rw [Ne, ascPochhammer_eval_eq_zero_iff]
+  rintro ⟨k, hk, hkn⟩
+  have h : (k : ℝ) + 1 = 2 * n := by
+    have := congrArg Complex.re hkn
+    simp only [natCast_re, neg_re, sub_re, one_re, mul_re, re_ofNat, im_ofNat, natCast_im,
+      zero_mul, sub_zero] at this
+    linarith
+  have : k + 1 = 2 * n := by exact_mod_cast h
+  omega
 
 /-- The obstruction expressed in Carlson's rational polynomial normalization at
 nodes `1` and `-1`, corresponding to the admissible square roots `1` and `I`. -/

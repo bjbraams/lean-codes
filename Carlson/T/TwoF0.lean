@@ -6,6 +6,7 @@ Authors: Bastiaan J Braams
 module
 
 public import ToMathlib.Analysis.SpecialFunctions.Gamma
+public import ToMathlib.Analysis.SpecialFunctions.Pow
 public import Mathlib.Analysis.SpecialFunctions.Gamma.Basic
 public import Mathlib.MeasureTheory.Integral.IntervalIntegral.IntegrationByParts
 public import Mathlib.RingTheory.Polynomial.Pochhammer
@@ -691,16 +692,6 @@ theorem analyticAt_twoF0Integrand (n : ℕ) (p : ℂ × ℂ × ℂ) {s t : ℝ} 
     hσ.neg.cexp)).mul ((hG hβ).mul ((hτ.cpow ((hβ.add analyticAt_const).sub analyticAt_const)
       ht').mul hτ.neg.cexp))).mul hE
 
-
-/-- A power between two others is bounded by their sum on the positive axis. -/
-private theorem rpow_le_rpow_add_rpow' {x c₁ c c₂ : ℝ} (hx : 0 < x) (h₁ : c₁ ≤ c) (h₂ : c ≤ c₂) :
-    x ^ c ≤ x ^ c₁ + x ^ c₂ := by
-  rcases le_total x 1 with h | h
-  · have := Real.rpow_le_rpow_of_exponent_ge hx h h₁
-    linarith [Real.rpow_nonneg hx.le c₂]
-  · have := Real.rpow_le_rpow_of_exponent_le h h₂
-    linarith [Real.rpow_nonneg hx.le c₁]
-
 /-- The one-dimensional Gamma-type majorant is integrable. -/
 private theorem integrableOn_rpow_add_rpow_mul_exp {A₀ A₁ : ℝ} (h₀ : 0 < A₀) (h₁ : 0 < A₁) :
     IntegrableOn (fun s : ℝ => (s ^ (A₀ - 1) + s ^ (A₁ - 1)) * Real.exp (-s)) (Ioi 0) := by
@@ -813,10 +804,10 @@ theorem analyticOnNhd_twoF0Double (n : ℕ) :
         show -((a.2 : ℂ)) = ((-a.2 : ℝ) : ℂ) by push_cast; ring,
         Complex.norm_exp_ofReal, Complex.norm_exp_ofReal]
       have hE := norm_expRemainder_mul_le n h5.le ha.1 ha.2
-      have hs := rpow_le_rpow_add_rpow' ha.1 (c₁ := A / 2 - 1) (c := (q.1 + (n : ℂ) - 1).re)
+      have hs := Real.rpow_le_rpow_add_rpow ha.1 (c₁ := A / 2 - 1) (c := (q.1 + (n : ℂ) - 1).re)
         (c₂ := A + 1 - 1) (by simp only [sub_re, one_re]; linarith)
         (by simp only [sub_re, one_re]; linarith)
-      have ht := rpow_le_rpow_add_rpow' ha.2 (c₁ := B / 2 - 1) (c := (q.2.1 + (n : ℂ) - 1).re)
+      have ht := Real.rpow_le_rpow_add_rpow ha.2 (c₁ := B / 2 - 1) (c := (q.2.1 + (n : ℂ) - 1).re)
         (c₂ := B + 1 - 1) (by simp only [sub_re, one_re]; linarith)
         (by simp only [sub_re, one_re]; linarith)
       have e1 := Real.exp_pos (-a.1)

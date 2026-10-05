@@ -40,17 +40,6 @@ open Complex Set Filter Polynomial
 
 namespace Carlson.TwoVariable
 
-/-- Natural shifts of Gamma in the right half-plane multiply by rising factorials. -/
-private theorem Gamma_add_nat_eq_ascPochhammer_mul' {z : ℂ} (hz : 0 < z.re) (m : ℕ) :
-    Gamma (z + m) = (ascPochhammer ℂ m).eval z * Gamma z := by
-  induction m with
-  | zero => simp
-  | succ m ih =>
-    have hzm : z + m ≠ 0 := fun h => by
-      have := congrArg re h; simp at this; linarith [Nat.cast_nonneg (α := ℝ) m]
-    rw [Nat.cast_succ, ← add_assoc, Gamma_add_one _ hzm, ih, ascPochhammer_succ_eval]
-    ring
-
 /-- The coefficient identity behind Theorem 6.9-2, entire in `β`:
 `4ⁿ (β)ₙ (1/2)ₙ / ((2n)! Γ(2β + 2n)) = q(β) / (4ⁿ n! Γ(β + 1/2 + n))`, where
 `q(β) = 2^{1-2β} √π / Γ(β)` is Legendre's duplication ratio. -/
@@ -87,7 +76,7 @@ theorem evenCoeff_eq_quadraticGammaRatio (β : ℂ) (n : ℕ) :
     have hΓbn := Gamma_ne_zero_of_re_pos hbn
     have hΓh : Gamma ((b : ℂ) + 1 / 2 + n) ≠ 0 := Gamma_ne_zero_of_re_pos (by simp; positivity)
     have hdup := Complex.Gamma_mul_Gamma_add_half ((b : ℂ) + n)
-    have hpoch := Gamma_add_nat_eq_ascPochhammer_mul' hb' n
+    have hpoch := Complex.Gamma_add_nat_eq_ascPochhammer_mul (.of_re_pos hb') n
     have hfac : ((2 * n).factorial : ℂ) = 4 ^ n * (ascPochhammer ℂ n).eval (1 / 2) *
         n.factorial := by
       have := ascPochhammer_eval_double (1 / 2 : ℂ) n

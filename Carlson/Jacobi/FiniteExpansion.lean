@@ -33,8 +33,8 @@ open Polynomial Dirichlet Complex
 
 /-- Raising both Jacobi parameters preserves admissibility of their total beta parameter. -/
 theorem jacobiTotalParameter_shift {α β : ℂ}
-    (hc : IsCarlsonGammaRegular (α + β + 2)) (m : ℕ) :
-    IsCarlsonGammaRegular (α + m + 1 + (β + m + 1)) := by
+    (hc : IsGammaRegular (α + β + 2)) (m : ℕ) :
+    IsGammaRegular (α + m + 1 + (β + m + 1)) := by
   convert hc.add_nat (m + m) using 1; push_cast; ring
 
 /-- The Jacobi coefficient is the continued Dirichlet average of a derivative,
@@ -53,7 +53,7 @@ theorem carlsonJacobiCoefficient_apply (α β r s : ℂ) (m : ℕ) (p : ℂ[X]) 
 
 /-- At coincident endpoints the Jacobi coefficients are the ordinary Taylor coefficients. -/
 theorem carlsonJacobiCoefficient_self (α β s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) (m : ℕ) (p : ℂ[X]) :
+    (hc : IsGammaRegular (α + β + 2)) (m : ℕ) (p : ℂ[X]) :
     carlsonJacobiCoefficient α β s s m p = (derivative^[m] p).eval s / (m.factorial : ℂ) := by
   rw [carlsonJacobiCoefficient_apply]
   have hz : pair s s = fun _ => s := by ext i; fin_cases i <;> rfl
@@ -63,7 +63,7 @@ theorem carlsonJacobiCoefficient_self (α β s : ℂ)
 /-- The affine change of variable transports the algebraic derivative coefficient
 to Carlson's monic derivative-average coefficient. -/
 theorem algebraicJacobiCoefficient_comp_affine (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) (m : ℕ) (p : ℂ[X]) :
+    (hc : IsGammaRegular (α + β + 2)) (m : ℕ) (p : ℂ[X]) :
     algebraicJacobiCoefficient α β m (p.comp (C (r - s) * X + C s)) =
       carlsonJacobiCoefficient α β r s m p * (r - s) ^ m *
         ((m.factorial : ℂ) / ((-1 : ℂ) ^ m *
@@ -78,7 +78,7 @@ theorem algebraicJacobiCoefficient_comp_affine (α β r s : ℂ)
 /-- Every complex polynomial has Carlson's finite Jacobi expansion. Admissibility
 concerns only the total parameter; coincident endpoints recover Taylor's formula. -/
 theorem sum_carlsonJacobiCoefficient (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) (p : ℂ[X]) :
+    (hc : IsGammaRegular (α + β + 2)) (p : ℂ[X]) :
     ∑ m ∈ Finset.range (p.natDegree + 1),
       carlsonJacobiCoefficient α β r s m p • jacobiOn α β r s m = p := by
   have hadm : ∀ k : ℕ, α + β + 2 + k ≠ 0 := by
@@ -117,7 +117,7 @@ theorem sum_carlsonJacobiCoefficient (α β r s : ℂ)
 /-- Continued derivative-average coefficients are dual to the monic endpoint
 Jacobi polynomials, with no distinct-endpoint assumption. -/
 theorem carlsonJacobiCoefficient_apply_jacobiOn (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) (n m : ℕ) :
+    (hc : IsGammaRegular (α + β + 2)) (n m : ℕ) :
     carlsonJacobiCoefficient α β r s n (jacobiOn α β r s m) = if m = n then 1 else 0 := by
   have hadm : ∀ k : ℕ, α + β + 2 + k ≠ 0 := by
     intro k hk

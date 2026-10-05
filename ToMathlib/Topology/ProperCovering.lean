@@ -24,8 +24,6 @@ one-to-one onto its polygon.
 ## Main results
 
 * `IsLocalHomeomorph.isCoveringMap_of_isProperMap`: proper local homeomorphisms are coverings.
-* `IsCoveringMap.injective_of_simplyConnectedSpace`: coverings of simply connected spaces from
-  path-connected spaces are injective.
 * `IsLocalHomeomorph.injective_of_isProperMap`: the combination.
 * `isLocalHomeomorph_of_isOpenMap_of_injOn`: a continuous open map that is injective near every
   point is a local homeomorphism.
@@ -61,16 +59,9 @@ theorem IsLocalHomeomorph.isCoveringMap_of_isProperMap [T2Space E] (hf : IsLocal
     obtain ⟨φ, hφ, hfφ⟩ := hf e
     exact ⟨φ, hφ, hfφ.symm⟩)
 
-/-- A covering map from a path-connected space onto a simply connected space is injective.
-
-Uses `IsCoveringMap.injective` from `TauCeti.Topology.Homotopy.Covering`. -/
-theorem IsCoveringMap.injective_of_simplyConnectedSpace [PathConnectedSpace E]
-    [SimplyConnectedSpace X] (hf : IsCoveringMap f) : Function.Injective f :=
-  hf.injective
-
 /-- A proper local homeomorphism from a path-connected Hausdorff space onto a simply connected
 space is injective. -/
 theorem IsLocalHomeomorph.injective_of_isProperMap [T2Space E] [PathConnectedSpace E]
     [SimplyConnectedSpace X] (hf : IsLocalHomeomorph f) (hp : IsProperMap f) :
     Function.Injective f :=
-  (hf.isCoveringMap_of_isProperMap hp).injective_of_simplyConnectedSpace
+  (hf.isCoveringMap_of_isProperMap hp).injective

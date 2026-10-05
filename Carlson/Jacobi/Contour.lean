@@ -64,8 +64,8 @@ private theorem integral_eq_of_index_eq {U : Set ℂ} (hU : IsOpen U)
     simp only [curveIntegral_symm, Finset.sum_neg_distrib]
   have h := (Γ₁.append Δ).integral_eq_zero hU (Cycle.append_isC1 h₁ hΔ)
     (by rw [Cycle.append_range, hΔrange]; exact union_subset h₁U h₂U)
-    (by intro z hz; rw [Cycle.append_index, hΔindex, hind z hz, add_neg_cancel]) hf
-  rw [Cycle.append_integral, hΔintegral] at h
+    (by intro z hz; rw [Cycle.index_append, hΔindex, hind z hz, add_neg_cancel]) hf
+  rw [Cycle.integral_append, hΔintegral] at h
   exact sub_eq_zero.mp (by simpa only [sub_eq_add_neg] using h)
 
 /-- Integrating a holomorphic function against a Jacobi second-kind kernel is
@@ -134,11 +134,11 @@ theorem cycleIntegral_eq_index_mul_circleIntegral (Γ : Cycle) (hΓ : Γ.IsC1)
     (by
       intro z hz
       have hzseg : z ∈ segment ℝ r s := by simpa using hz
-      rw [Cycle.append_index, hindex z hzseg, Cycle.zsmulLoop_index]
+      rw [Cycle.index_append, hindex z hzseg, Cycle.index_zsmulLoop]
       change (k : ℂ) + (-k : ℤ) * curveIndex (Path.circle c R) z = 0
       rw [curveIndex_circle_of_mem_ball (hseg hzseg)]
       simp) hf
-  rw [Cycle.append_integral, Cycle.zsmulLoop_integral] at hzero
+  rw [Cycle.integral_append, Cycle.integral_zsmulLoop] at hzero
   change Γ.integral (fun z => toSpanSingleton ℂ (f z)) +
     (-k) • curveIntegral (fun z => toSpanSingleton ℂ (f z)) (Path.circle c R) = 0 at hzero
   rw [curveIntegral_circle, zsmul_eq_mul, Int.cast_neg] at hzero
@@ -167,7 +167,7 @@ theorem cycleIntegral_jacobiSecondKind_mul_polynomial (α β r s : ℂ) (n : ℕ
 /-- Jacobi polynomials and their adjoint second-kind functions are biorthogonal
 on arbitrary `C¹` cycles off the endpoint segment, with the index as a factor. -/
 theorem cycleIntegral_jacobiOn_mul_jacobiSecondKind (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) (m n : ℕ)
+    (hc : IsGammaRegular (α + β + 2)) (m n : ℕ)
     (Γ : Cycle) (hΓ : Γ.IsC1) (havoid : Γ.range ⊆ (segment ℝ r s)ᶜ) :
     (2 * (Real.pi : ℂ) * I)⁻¹ *
       Γ.integral (fun z => toSpanSingleton ℂ
@@ -180,7 +180,7 @@ theorem cycleIntegral_jacobiOn_mul_jacobiSecondKind (α β r s : ℂ)
 /-- The single-contour form of Jacobi biorthogonality. A positively oriented
 contour of index one gives the usual Kronecker delta. -/
 theorem curveIntegral_jacobiOn_mul_jacobiSecondKind (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) (m n : ℕ)
+    (hc : IsGammaRegular (α + β + 2)) (m n : ℕ)
     {a : ℂ} (γ : Path a a) (hγ : ContDiffOn ℝ 1 γ.extend unitInterval)
     (havoid : ∀ t, γ t ∉ segment ℝ r s) :
     (2 * (Real.pi : ℂ) * I)⁻¹ *
@@ -191,7 +191,7 @@ theorem curveIntegral_jacobiOn_mul_jacobiSecondKind (α β r s : ℂ)
   have hΓ : Γ.IsC1 := fun _ => hγ
   have hΓavoid : Γ.range ⊆ (segment ℝ r s)ᶜ :=
     Γ.range_subset_iff.mpr fun _ t => havoid t
-  simpa only [Γ, Cycle.replicate_integral, Cycle.replicate_index, one_smul,
+  simpa only [Γ, Cycle.integral_replicate, Cycle.index_replicate, one_smul,
     Nat.cast_one, one_mul, Loop.ofPath] using
     cycleIntegral_jacobiOn_mul_jacobiSecondKind α β r s hc m n Γ hΓ hΓavoid
 

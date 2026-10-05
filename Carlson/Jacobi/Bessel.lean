@@ -219,7 +219,7 @@ private theorem Gamma_nat_add_three_halves (n : ℕ) :
   have hre : 0 < (1 / 2 : ℂ).re := by norm_num
   rw [show 1 + (n : ℂ) + 1 / 2 = (1 / 2 + n) + 1 by ring, Gamma_add_one _ (by
       intro h; have := congrArg re h; simp at this; linarith [(Nat.cast_nonneg n : (0 : ℝ) ≤ n)]),
-    Gamma_add_nat_eq_ascPochhammer_mul hre, Complex.Gamma_one_half_eq,
+    Complex.Gamma_add_nat_eq_ascPochhammer_mul (.of_re_pos hre), Complex.Gamma_one_half_eq,
     Real.sqrt_eq_rpow, ofReal_cpow Real.pi_pos.le]
   push_cast; ring
 
@@ -229,7 +229,7 @@ functions and Legendre polynomials, `exp (i w x) = ∑ iⁿ (2n+1) jₙ(w) Pₙ(
 theorem hasSum_exp_I_mul_mul_legendre (w x : ℂ) :
     HasSum (fun n : ℕ => I ^ n * (2 * n + 1) * sphericalBesselJ n w *
       (gegenbauer (1 / 2 : ℂ) n).eval x) (exp (I * w * x)) := by
-  have hc : IsCarlsonGammaRegular ((0 : ℂ) + 0 + 2) := by
+  have hc : IsGammaRegular ((0 : ℂ) + 0 + 2) := by
     intro k hk; have := congrArg re hk; simp at this; linarith [(Nat.cast_nonneg k : (0 : ℝ) ≤ k)]
   have H := hasSum_exp_jacobiOn 0 0 (-1) 1 hc (I * w) x
   refine H.congr_fun fun n => ?_

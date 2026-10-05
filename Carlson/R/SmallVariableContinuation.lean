@@ -6,7 +6,7 @@ Authors: Bastiaan J Braams
 module
 
 public import Carlson.R.SmallVariable
-public import Carlson.Normalization.Basic
+public import Dirichlet.GammaPoles
 public import Carlson.R.Explicit
 
 /-!
@@ -213,7 +213,8 @@ theorem tendsto_smallVariable_step (k i : ι) (hik : i ≠ k) {z : ι → ℂ}
         regCarlsonR (-(p.1 + 1)) (addDirichletUnit (addDirichletUnit p.2 i) j)
           (Function.update z k v) := by
     intro v
-    rw [regCarlsonR_eq_sum_double_shift (-p.1) p.2 (carlsonRVariableDomain_update hz k v.2) i]
+    rw [regCarlsonR_eq_sum_double_shift (-p.1) p.2
+      (carlsonRVariableDomain_subset_slitDomain (carlsonRVariableDomain_update hz k v.2)) i]
     refine Finset.sum_congr rfl fun j _ => ?_
     rw [Function.update_of_ne hik, show -p.1 - 1 = -(p.1 + 1) by ring]
     ring
@@ -351,10 +352,9 @@ theorem tendsto_regCarlsonR_update_zero [DecidableEq ι] (k : ι) {a a' : ℂ} {
         regCarlsonR (-a) (eraseCarlsonParameter k b) (eraseCarlsonVariable k z)))) := by
   convert tendsto_regCarlsonR_update_zero_classical k hsum hk hz hne hw hlim
 
-/-- On equal nodes in the right half-plane the regularized `R` function is a power, for all
-complex parameters: `R_t(b; w, …, w)/Γ(c) = w^t/Γ(c)`. -/
-theorem regCarlsonR_const_node {κ : Type*} [Fintype κ] (t : ℂ) (b : κ → ℂ) {w : ℂ}
-    (hw : 0 < w.re) : regCarlsonR t b (fun _ => w) = w ^ t * (Gamma (∑ i, b i))⁻¹ := by
+/-- On equal nodes in the right half-plane the regularized `R` function is a power. -/
+private theorem regCarlsonR_const_node_of_re_pos {κ : Type*} [Fintype κ] (t : ℂ) (b : κ → ℂ)
+    {w : ℂ} (hw : 0 < w.re) : regCarlsonR t b (fun _ => w) = w ^ t * (Gamma (∑ i, b i))⁻¹ := by
   have hz : (fun _ : κ => w) ∈ carlsonRVariableDomain := fun _ => hw
   have hF := analyticOnNhd_regCarlsonR_parameters t (carlsonRVariableDomain_subset_slitDomain hz)
   have hG : AnalyticOnNhd ℂ (fun b : κ → ℂ => w ^ t * (Gamma (∑ i, b i))⁻¹) univ := by
@@ -370,6 +370,22 @@ theorem regCarlsonR_const_node {κ : Type*} [Fintype κ] (t : ℂ) (b : κ → �
       regCarlsonDirichletAverage_const _ _ hc, div_eq_mul_inv])
   exact congrFun heq b
 
+/-- On equal slit-plane nodes the regularized `R` function is a power, for all complex
+parameters: `R_t(b; w, …, w)/Γ(c) = w^t/Γ(c)`. -/
+theorem regCarlsonR_const_node {κ : Type*} [Fintype κ] (t : ℂ) (b : κ → ℂ) {w : ℂ}
+    (hw : w ∈ slitPlane) : regCarlsonR t b (fun _ => w) = w ^ t * (Gamma (∑ i, b i))⁻¹ := by
+  have hF : AnalyticOnNhd ℂ (fun v : ℂ => regCarlsonR t b (fun _ => v)) slitPlane :=
+    fun v hv => analyticAt_regCarlsonR_comp analyticAt_const analyticAt_const
+      (analyticAt_pi_iff.mpr fun _ => analyticAt_id) (fun _ => hv)
+  have hG : AnalyticOnNhd ℂ (fun v : ℂ => v ^ t * (Gamma (∑ i, b i))⁻¹) slitPlane :=
+    fun v hv => (analyticAt_id.cpow analyticAt_const hv).mul analyticAt_const
+  refine hF.eqOn_of_preconnected_of_eventuallyEq hG
+    (starConvex_one_slitPlane.isPathConnected one_mem_slitPlane).isConnected.isPreconnected
+    one_mem_slitPlane ?_ hw
+  filter_upwards [(isOpen_lt continuous_const continuous_re).mem_nhds
+    (show (0 : ℝ) < (1 : ℂ).re by simp)] with v hv
+  exact regCarlsonR_const_node_of_re_pos t b hv
+
 /-- The classical-instance form of `tendsto_regCarlsonR_update_zero_const`:
 `R_{-a}(b; w, …, zₖ, …, w)/Γ(c) → Γ(a' - bₖ) Γ(a')⁻¹ w^{-a}/Γ(c - bₖ)`. -/
 private theorem tendsto_regCarlsonR_update_zero_const_classical (k : ι) {a a' : ℂ} {b : ι → ℂ}
@@ -382,7 +398,7 @@ private theorem tendsto_regCarlsonR_update_zero_const_classical (k : ι) {a a' :
   have H := tendsto_regCarlsonR_update_zero_classical k hsum hk (z := fun _ => w₀)
     (fun _ => hw₀) hne hw hlim
   have hE : eraseCarlsonVariable k (fun _ : ι => w₀) = fun _ => w₀ := rfl
-  rw [hE, regCarlsonR_const_node _ _ hw₀, sum_eraseCarlsonParameter, ← hsum] at H
+  rw [hE, regCarlsonR_const_node_of_re_pos _ _ hw₀, sum_eraseCarlsonParameter, ← hsum] at H
   exact H
 
 /-- Theorem 8.3-2 when the remaining nodes are all equal to `w`, in the right half-plane:

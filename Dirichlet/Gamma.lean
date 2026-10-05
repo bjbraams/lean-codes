@@ -6,7 +6,7 @@ Authors: Bastiaan J Braams
 module
 
 public import StdSimplexMeasure.Normalization
-public import ToMathlib.Analysis.Integral.Pi
+public import TauCeti.MeasureTheory.Integral.Pi
 public import Dirichlet.Real
 public import StdSimplexMeasure.Radial
 public import Mathlib.Probability.Distributions.Gamma
@@ -28,7 +28,8 @@ are excluded because their total is zero and the project's empty-index Dirichlet
 is not a probability measure. The normalization denominator is almost surely positive.
 
 The proof uses the elementary radial integration formula from `StdSimplexMeasure.Radial`;
-neither complex Dirichlet measures nor analytic continuation is involved.
+neither complex Dirichlet measures nor analytic continuation is involved. The product
+integration step uses `TauCeti.lintegral_fintype_prod_eq_prod₀`, by the Tau Ceti contributors.
 
 ## Main results
 
@@ -76,7 +77,9 @@ theorem pi_gammaMeasure_eq_withDensity {b : ι → ℝ} (hb : b ∈ mvRealBetaDo
     ∂(Measure.pi (fun _ : ι => (volume : Measure ℝ))).restrict (Set.pi univ s)) = _
   have hf (i : ι) : Measurable (gammaPDF (b i) r) :=
     ENNReal.measurable_ofReal.comp (measurable_gammaPDFReal (b i) r)
-  rw [Measure.restrict_pi_pi, lintegral_fintype_prod_eq_prod _ (fun i => (hf i).aemeasurable)]
+  -- Product integration of a.e.-measurable factors, due to the Tau Ceti contributors.
+  rw [Measure.restrict_pi_pi,
+    TauCeti.lintegral_fintype_prod_eq_prod₀ _ (fun i => (hf i).aemeasurable)]
   congr 1
   funext i
   exact (withDensity_apply _ (hs i)).symm

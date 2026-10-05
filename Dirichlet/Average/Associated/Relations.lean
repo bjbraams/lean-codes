@@ -42,12 +42,14 @@ theorem regCarlsonDirichletAverage_eq_sum_addDirichletUnit
 
 /-- Carlson's relation 5.6-1(4) in its original normalization: an average is the weighted
 sum of its positive unit shifts, with weights `b i / ∑ j, b j`. -/
-theorem carlsonDirichletAverage_eq_sum_addDirichletUnit [Nonempty ι]
+theorem carlsonDirichletAverage_eq_sum_addDirichletUnit
     {b : ι → ℂ} (hb : b ∈ mvBetaConvergent) (z : ι → ℂ) (f : ℂ → ℂ)
     (hf : ContinuousOn (fun u : ι → ℝ ↦ f (carlsonAffineForm z u))
       (Convexity.StdSimplex.coordinateSet ℝ ι)) :
     carlsonDirichletAverage b z f =
       ∑ i, (b i / ∑ j, b j) * carlsonDirichletAverage (addDirichletUnit b i) z f := by
+  rcases isEmpty_or_nonempty ι with hι | hι
+  · simp [carlsonDirichletAverage]
   let c : ℂ := ∑ i, b i
   have hcpos : 0 < c.re := by
     simpa [c] using Finset.sum_pos (fun i _ ↦ hb i) Finset.univ_nonempty

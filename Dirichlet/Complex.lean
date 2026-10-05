@@ -139,14 +139,14 @@ def complexDirichletIntegral (b : ι → ℂ) (f : (ι → ℝ) → ℂ) : ℂ :
 
 /-- Native normalization and regularization differ by the Gamma factor of the total
 parameter. No assertion of analytic continuation is involved. -/
-theorem complexDirichletIntegral_eq_gamma_mul (b : ι → ℂ) (f : (ι → ℝ) → ℂ) :
+theorem complexDirichletIntegral_eq_Gamma_mul (b : ι → ℂ) (f : (ι → ℝ) → ℂ) :
     complexDirichletIntegral b f = Gamma (∑ i, b i) * regDirichletIntegral b f := by
   simp only [complexDirichletIntegral, complexDirichletDensity, regDirichletIntegral,
     mul_assoc, integral_const_mul]
 
 /-- Regularization amounts to multiplying the native, totalized simplex Mellin integral by
 the product of reciprocal Gamma factors. This identity does not require convergence. -/
-theorem regDirichletIntegral_eq_prod_invGamma_mul
+theorem regDirichletIntegral_eq_prod_inv_Gamma_mul
     (b : ι → ℂ) (f : (ι → ℝ) → ℂ) :
     regDirichletIntegral b f =
       (∏ i, (Gamma (b i))⁻¹) *

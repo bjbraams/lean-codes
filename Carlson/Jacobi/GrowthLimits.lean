@@ -47,7 +47,7 @@ namespace Carlson.TwoVariable
 no bound `C λⁿ` with `λ < μ(x)` holds. Otherwise the Cauchy kernel expansion in `y` would
 continue holomorphically across its pole `y = x`. -/
 theorem not_exists_bound_norm_eval_jacobiOn (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) {x : ℂ} (hx : x ∉ segment ℝ r s) {l : ℝ}
+    (hc : IsGammaRegular (α + β + 2)) {x : ℂ} (hx : x ∉ segment ℝ r s) {l : ℝ}
     (hl0 : 0 ≤ l) (hl : l < jacobiEllipseRadius r s x) :
     ¬ ∃ C : ℝ, ∀ n, ‖(jacobiOn α β r s n).eval x‖ ≤ C * l ^ n := by
   rintro ⟨C, hC⟩
@@ -334,7 +334,7 @@ theorem exists_lower_bound_of_perturbed_recurrence {u v : ℂ} (hvu : ‖v‖ < 
 radius: `c (μ(x) - ε)ⁿ ≤ ‖pₙ(x)‖` for all large `n`. This is the lower half of Carlson's
 Theorem 7.5-1 for the polynomials. -/
 theorem exists_lower_bound_norm_eval_jacobiOn (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) {x : ℂ} (hx : x ∉ segment ℝ r s) {ε : ℝ}
+    (hc : IsGammaRegular (α + β + 2)) {x : ℂ} (hx : x ∉ segment ℝ r s) {ε : ℝ}
     (hε : 0 < ε) (hεμ : ε ≤ jacobiEllipseRadius r s x) :
     ∃ c > 0, ∃ N, ∀ n, N ≤ n →
       c * (jacobiEllipseRadius r s x - ε) ^ n ≤ ‖(jacobiOn α β r s n).eval x‖ := by
@@ -381,7 +381,7 @@ theorem exists_lower_bound_norm_eval_jacobiOn (α β r s : ℂ)
 /-- Carlson's Theorem 7.5-1 for the polynomials: off the segment
 `‖pₙ(x)‖^{1/n} → μ(x)`. -/
 theorem tendsto_norm_eval_jacobiOn_rpow (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) {x : ℂ} (hx : x ∉ segment ℝ r s) :
+    (hc : IsGammaRegular (α + β + 2)) {x : ℂ} (hx : x ∉ segment ℝ r s) :
     Tendsto (fun n : ℕ => ‖(jacobiOn α β r s n).eval x‖ ^ (1 / (n : ℝ))) atTop
       (𝓝 (jacobiEllipseRadius r s x)) := by
   set μ := jacobiEllipseRadius r s x
@@ -431,7 +431,7 @@ theorem tendsto_norm_eval_jacobiOn_rpow (α β r s : ℂ)
 radius: no bound `C lⁿ` with `l μ(y) < 1` holds. Otherwise the Cauchy kernel expansion in `x`
 would continue holomorphically across its pole `x = y`. -/
 theorem not_exists_bound_jacobiSecondKind (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) {y : ℂ} (hy : y ∉ segment ℝ r s) {l : ℝ}
+    (hc : IsGammaRegular (α + β + 2)) {y : ℂ} (hy : y ∉ segment ℝ r s) {l : ℝ}
     (hl0 : 0 ≤ l) (hl : l * jacobiEllipseRadius r s y < 1) :
     ¬ ∃ C : ℝ, ∀ n, ‖jacobiSecondKind α β r s n y‖ ≤ C * l ^ n := by
   rintro ⟨C, hC⟩
@@ -562,7 +562,7 @@ theorem tendstoLocallyUniformlyOn_sum_jacobiOn (α β r s : ℂ) (a : ℕ → �
 /-- Carlson's Theorem 7.5-3 for polynomial series, divergence part: if the coefficients grow at
 least at the rate `1/σ` infinitely often, the Jacobi series diverges at every point of the open
 elliptic exterior of mean radius `σ`; its terms do not tend to zero. -/
-theorem not_summable_jacobiOn (α β r s : ℂ) (hc : IsCarlsonGammaRegular (α + β + 2))
+theorem not_summable_jacobiOn (α β r s : ℂ) (hc : IsGammaRegular (α + β + 2))
     (a : ℕ → ℂ) {σ : ℝ} (hσ : ‖r - s‖ / 4 < σ)
     (ha : ∀ ε > 0, ∀ C : ℝ, ∃ᶠ n in atTop, C * (1 / σ - ε) ^ n ≤ ‖a n‖) {x : ℂ}
     (hx : σ < jacobiEllipseRadius r s x) :
@@ -601,7 +601,7 @@ theorem not_summable_jacobiOn (α β r s : ℂ) (hc : IsCarlsonGammaRegular (α 
 
 /-- If the terms of a Jacobi series are bounded at one point off the segment, its coefficients
 grow at most at the reciprocal of the mean radius of that point. -/
-theorem exists_bound_of_bounded_jacobiOn (α β r s : ℂ) (hc : IsCarlsonGammaRegular (α + β + 2))
+theorem exists_bound_of_bounded_jacobiOn (α β r s : ℂ) (hc : IsGammaRegular (α + β + 2))
     (b : ℕ → ℂ) {x₀ : ℂ} (hx₀ : x₀ ∉ segment ℝ r s)
     (hb : ∃ B : ℝ, ∀ n, ‖b n * (jacobiOn α β r s n).eval x₀‖ ≤ B) :
     ∀ ε > 0, ∃ C : ℝ, ∀ n, ‖b n‖ ≤ C * (1 / jacobiEllipseRadius r s x₀ + ε) ^ n := by
@@ -638,7 +638,7 @@ theorem exists_bound_of_bounded_jacobiOn (α β r s : ℂ) (hc : IsCarlsonGammaR
 point off the segment, and which sums to `f` on a confocal ellipse inside the elliptic disk of
 that point, has the contour coefficients of `f` on that ellipse. -/
 theorem jacobiContourCoefficient_eq_of_hasSum (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) (b : ℕ → ℂ) {x₀ : ℂ} (hx₀ : x₀ ∉ segment ℝ r s)
+    (hc : IsGammaRegular (α + β + 2)) (b : ℕ → ℂ) {x₀ : ℂ} (hx₀ : x₀ ∉ segment ℝ r s)
     (hb : ∃ B : ℝ, ∀ n, ‖b n * (jacobiOn α β r s n).eval x₀‖ ≤ B) {σ : ℝ} (hσ0 : 0 < σ)
     (hσ : ‖r - s‖ / 4 < σ) (hσx : σ < jacobiEllipseRadius r s x₀) {f : ℂ → ℂ}
     (hf : ∀ x ∈ (jacobiEllipseCycle r s hσ0).range,
@@ -659,7 +659,7 @@ theorem jacobiContourCoefficient_eq_of_hasSum (α β r s : ℂ)
 /-- Theorem 7.6-2, continuation: if `f` continues holomorphically to a larger confocal elliptic
 disk, its Jacobi series converges to the continuation throughout that disk. -/
 theorem hasSum_jacobiContourCoefficient_of_continuation (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) {τ ω : ℝ} {f g : ℂ → ℂ}
+    (hc : IsGammaRegular (α + β + 2)) {τ ω : ℝ} {f g : ℂ → ℂ}
     (hg : DifferentiableOn ℂ g (jacobiEllipseDisk r s ω)) (hτω : τ ≤ ω)
     (hfg : EqOn f g (jacobiEllipseDisk r s τ)) {σ : ℝ} (hσ0 : 0 < σ)
     (hσ : ‖r - s‖ / 4 < σ) (hστ : σ < τ) {x : ℂ} (hx : jacobiEllipseRadius r s x < ω) :
@@ -688,7 +688,7 @@ theorem hasSum_jacobiContourCoefficient_of_continuation (α β r s : ℂ)
 at a point `x₀` beyond the disk of holomorphy, its sum is holomorphic on the elliptic disk of
 `x₀` and continues `f` there. -/
 theorem analyticOnNhd_tsum_jacobiContourCoefficient_of_bounded (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) {τ : ℝ} {f : ℂ → ℂ}
+    (hc : IsGammaRegular (α + β + 2)) {τ : ℝ} {f : ℂ → ℂ}
     (hf : DifferentiableOn ℂ f (jacobiEllipseDisk r s τ)) {σ : ℝ} (hσ0 : 0 < σ)
     (hσ : ‖r - s‖ / 4 < σ) (hστ : σ < τ) {x₀ : ℂ} (hx₀ : τ ≤ jacobiEllipseRadius r s x₀)
     (hb : ∃ B : ℝ, ∀ n, ‖jacobiContourCoefficient α β r s n (jacobiEllipseCycle r s hσ0) f *

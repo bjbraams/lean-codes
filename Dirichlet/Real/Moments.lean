@@ -7,16 +7,19 @@ module
 
 public import Mathlib.Probability.Moments.Variance
 public import Dirichlet.Real
+public import Dirichlet.TauCetiBridge
+public import TauCeti.Probability.Distributions.Dirichlet.Moments
 
 import Pochhammer.Gamma
-import all StdSimplexMeasure.Measure.Basic
 
 /-!
 # Moments, means, variances, and covariances of the real Dirichlet distribution
 
 Explicit moment formulas for the Dirichlet distribution on the standard simplex: integrals of
 monomials and of real power products, the mean and variance of a coordinate, and the
-covariance of two distinct coordinates.
+covariance of two distinct coordinates. The mean, variance and covariance are transferred
+through `Dirichlet.TauCetiBridge` from `TauCeti.Probability.Distributions.Dirichlet.Moments`,
+by the Tau Ceti contributors; the monomial and power-product formulas are local.
 
 ## Main results
 
@@ -31,6 +34,7 @@ covariance of two distinct coordinates.
   (Dirichlet averages).
 * NIST Digital Library of Mathematical Functions, §5.14, *Multidimensional Integrals*,
   https://dlmf.nist.gov/5.14.
+* `TauCeti.Probability.Distributions.Dirichlet.Moments`.
 -/
 
 open Dirichlet
@@ -123,12 +127,14 @@ theorem integral_dirichletMeasure_monomial [Nonempty ι]
   rw [hsum]
   have hnum : Gamma ((∑ i, b i) + (∑ i, m i)) / Gamma (∑ i, b i) =
       (ascPochhammer ℝ (∑ i, m i)).eval (∑ i, b i) :=
-    gamma_add_nat_div_gamma_eq_ascPochhammer _ hsum_pos _
+    Gamma_add_nat_div_Gamma_eq_ascPochhammer _
+      (fun k hk => by linarith [Nat.cast_nonneg (α := ℝ) k]) _
   have hprod : ∏ i, (Gamma (b i + mr i) / Gamma (b i)) =
       ∏ i, (ascPochhammer ℝ (m i)).eval (b i) := by
     apply Finset.prod_congr rfl
     intro i _
-    simpa [mr] using gamma_add_nat_div_gamma_eq_ascPochhammer (b i) (hb i) (m i)
+    simpa [mr] using Gamma_add_nat_div_Gamma_eq_ascPochhammer (b i)
+      (fun k hk => by linarith [hb i, Nat.cast_nonneg (α := ℝ) k]) (m i)
   rw [hprod]
   have hG : Gamma (∑ i, b i) ≠ 0 := ne_of_gt (Gamma_pos_of_pos hsum_pos)
   have hGN : Gamma ((∑ i, b i) + (∑ i, m i)) ≠ 0 := by
@@ -144,43 +150,14 @@ theorem integral_dirichletMeasure_monomial [Nonempty ι]
     field_simp
   rw [hratio, div_eq_mul_inv, mul_comm]
 
-/-- The mean of a single `u i`; a specialization of monomial integration. -/
+/-- The mean of a single `u i`, transferred from
+`TauCeti.Probability.integral_eval_dirichletMeasure` by the Tau Ceti contributors. -/
 theorem integral_dirichletMeasure_coordinate
     {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain) (i : ι) :
     ∫ u, (u i) ∂(dirichletMeasure b) = (b i) / (∑ j, b j) := by
-  classical
   let : Nonempty ι := ⟨i⟩
-  let m : ι → ℝ := fun j => if j = i then 1 else 0
-  have hm : b + m ∈ mvRealBetaDomain := by
-    intro j
-    dsimp [m]
-    split_ifs
-    · exact add_pos_of_pos_of_nonneg (hb j) zero_le_one
-    · simpa using hb j
-  have hpow := integral_dirichletMeasure_power_product hb m hm
-  have hsum_pos : 0 < ∑ j, b j :=
-    Finset.sum_pos (fun j _ => hb j) Finset.univ_nonempty
-  have hgamma_sum : Gamma (∑ j, b j) ≠ 0 := ne_of_gt (Gamma_pos_of_pos hsum_pos)
-  have hprod : (fun u : ι → ℝ => ∏ j, u j ^ m j) = fun u => u i := by
-    funext u
-    simp [m]
-  rw [hprod] at hpow
-  have hsum_m : ∑ j, (b j + m j) = (∑ j, b j) + 1 := by
-    simp [m, Finset.sum_add_distrib]
-  have hprod_m : ∏ j, (Gamma (b j + m j) / Gamma (b j)) = b i := by
-    calc
-      ∏ j, (Gamma (b j + m j) / Gamma (b j)) =
-          ∏ j, if j = i then b i else 1 := by
-            apply Finset.prod_congr rfl
-            intro j _
-            by_cases hji : j = i
-            · subst j
-              simp [m, Gamma_add_one, (hb i).ne',
-                ne_of_gt (Gamma_pos_of_pos (hb i))]
-            · simp [m, hji, ne_of_gt (Gamma_pos_of_pos (hb j))]
-      _ = b i := by simp
-  rw [hpow, hsum_m, hprod_m, Gamma_add_one hsum_pos.ne']
-  field_simp
+  rw [integral_dirichletMeasure_eq_tauCeti hb]
+  exact TauCeti.Probability.integral_eval_dirichletMeasure hb i
 
 /-- The second raw moment of one coordinate under a Dirichlet measure. -/
 theorem integral_dirichletMeasure_coordinate_sq
@@ -263,52 +240,31 @@ theorem integral_dirichletMeasure_two_coordinates
   rw [hnum, hsum]
   simp [ascPochhammer_succ_eval]
 
-/-- The variance of the coordinate `u i`. -/
+/-- The variance of the coordinate `u i`, transferred from
+`TauCeti.Probability.variance_eval_dirichletMeasure` by the Tau Ceti contributors. -/
 theorem variance_dirichletMeasure_coordinate
     {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain) (i : ι) :
     ∫ u, (u i - b i / ∑ j, b j) ^ 2 ∂(dirichletMeasure b) =
       (b i) * (∑ j, b j - b i) / ((∑ j, b j) ^ 2 * (∑ j, b j + 1)) := by
   let : Nonempty ι := ⟨i⟩
-  let : IsProbabilityMeasure (dirichletMeasure b) := isProbabilityMeasure_dirichletMeasure hb
-  have hmean := integral_dirichletMeasure_coordinate hb i
-  have hsquare := integral_dirichletMeasure_coordinate_sq hb i
-  calc
-    _ = variance (fun u : ι → ℝ => u i) (dirichletMeasure b) := by
-      rw [variance_eq_integral (measurable_pi_apply i).aemeasurable, hmean]
-    _ = (∫ u, u i ^ 2 ∂dirichletMeasure b) -
-        (∫ u, u i ∂dirichletMeasure b) ^ 2 :=
-      variance_eq_sub (memLp_dirichletMeasure_coordinate hb i 2)
-    _ = _ := by
-      rw [hsquare, hmean]
-      have hS : 0 < ∑ k, b k :=
-        Finset.sum_pos (fun k _ => hb k) Finset.univ_nonempty
-      field_simp
-      ring
+  have h := TauCeti.Probability.variance_eval_dirichletMeasure hb i
+  rw [variance_eq_integral (by fun_prop),
+    TauCeti.Probability.integral_eval_dirichletMeasure hb i] at h
+  rw [integral_dirichletMeasure_eq_tauCeti hb]
+  exact h
 
-/-- The covariance of distinct coordinates `u i` and `u j`. -/
+/-- The covariance of distinct coordinates `u i` and `u j`, transferred from
+`TauCeti.Probability.covariance_eval_dirichletMeasure_of_ne` by the Tau Ceti contributors. -/
 theorem covariance_dirichletMeasure_coordinate
     {b : ι → ℝ} (hb : b ∈ mvRealBetaDomain) {i j : ι} (hij : i ≠ j) :
     ∫ u, (u i - b i / ∑ k, b k) * (u j - b j / ∑ k, b k)
       ∂(dirichletMeasure b) =
       -(b i) * (b j) / ((∑ k, b k) ^ 2 * (∑ k, b k + 1)) := by
   let : Nonempty ι := ⟨i⟩
-  let : IsProbabilityMeasure (dirichletMeasure b) := isProbabilityMeasure_dirichletMeasure hb
-  have hmeani := integral_dirichletMeasure_coordinate hb i
-  have hmeanj := integral_dirichletMeasure_coordinate hb j
-  have hcross := integral_dirichletMeasure_two_coordinates hb hij
-  calc
-    _ = covariance (fun u : ι → ℝ => u i) (fun u => u j) (dirichletMeasure b) := by
-      simp only [covariance, hmeani, hmeanj]
-    _ = (∫ u, u i * u j ∂dirichletMeasure b) -
-        (∫ u, u i ∂dirichletMeasure b) * (∫ u, u j ∂dirichletMeasure b) :=
-      covariance_eq_sub (memLp_dirichletMeasure_coordinate hb i 2)
-        (memLp_dirichletMeasure_coordinate hb j 2)
-    _ = _ := by
-      rw [hcross, hmeani, hmeanj]
-      have hS : 0 < ∑ k, b k :=
-        Finset.sum_pos (fun k _ => hb k) Finset.univ_nonempty
-      field_simp
-      ring
+  have h := TauCeti.Probability.covariance_eval_dirichletMeasure_of_ne hb hij
+  simp only [covariance, TauCeti.Probability.integral_eval_dirichletMeasure hb] at h
+  rw [integral_dirichletMeasure_eq_tauCeti hb, neg_mul]
+  exact h
 
 end ProbabilityTheory
 

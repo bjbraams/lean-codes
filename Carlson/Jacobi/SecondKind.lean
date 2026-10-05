@@ -6,7 +6,7 @@ Authors: Bastiaan J Braams
 module
 
 public import Carlson.Jacobi.FiniteExpansion
-public import Carlson.Normalization.Basic
+public import Dirichlet.GammaPoles
 public import Dirichlet.Average.CauchyContinuation
 
 /-!
@@ -92,7 +92,7 @@ theorem analyticAt_jacobiSecondKind_comp
     {α β r s x : E → ℂ} {p : E} (n : ℕ)
     (hα : AnalyticAt ℂ α p) (hβ : AnalyticAt ℂ β p)
     (hr : AnalyticAt ℂ r p) (hs : AnalyticAt ℂ s p) (hx : AnalyticAt ℂ x p)
-    (hc : IsCarlsonGammaRegular (α p + β p + 2))
+    (hc : IsGammaRegular (α p + β p + 2))
     (hz : x p ∉ segment ℝ (r p) (s p)) :
     AnalyticAt ℂ (fun q => jacobiSecondKind (α q) (β q) (r q) (s q) n (x q)) p := by
   have hb : AnalyticAt ℂ (fun q => pair (α q + n + 1) (β q + n + 1)) p := by
@@ -131,7 +131,7 @@ theorem jacobiSecondKind_eq_native (α β r s x : ℂ) (n : ℕ)
 
 /-- Coincident endpoints recover the integer Cauchy kernels used in Taylor's formula. -/
 theorem jacobiSecondKind_self (α β s x : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) (n : ℕ) (hx : x ≠ s) :
+    (hc : IsGammaRegular (α + β + 2)) (n : ℕ) (hx : x ≠ s) :
     jacobiSecondKind α β s s n x = (x - s) ^ (-(n + 1 : ℤ)) := by
   have hz : pair s s = fun _ => s := by ext i; fin_cases i <;> rfl
   rw [jacobiSecondKind, hz, continuedRegCarlsonResolvent_const_nodes n _ hx, sum_pair]
@@ -171,7 +171,7 @@ theorem circleIntegral_jacobiSecondKind_mul_polynomial (α β r s : ℂ) (n : �
 /-- Carlson's Jacobi polynomials and adjoint second-kind functions are
 biorthogonal on every positively oriented circle enclosing the endpoint segment. -/
 theorem circleIntegral_jacobiOn_mul_jacobiSecondKind (α β r s : ℂ)
-    (hc : IsCarlsonGammaRegular (α + β + 2)) (m n : ℕ)
+    (hc : IsGammaRegular (α + β + 2)) (m n : ℕ)
     {c : ℂ} {R : ℝ} (hR : 0 < R) (hz : range (pair r s) ⊆ Metric.ball c R) :
     (2 * (Real.pi : ℂ) * I)⁻¹ *
       (∮ x in C(c, R), (jacobiOn α β r s m).eval x * jacobiSecondKind α β r s n x) =

@@ -5,7 +5,9 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import Carlson.Jacobi.SecondKindIntegral
+public import Carlson.Jacobi.SecondKind
+public import Dirichlet.Transform.Euler
+public import Pochhammer.BetaIntegral
 public import Carlson.Jacobi.SecondKindInfinity
 public import Carlson.Jacobi.ComplexOrthogonality
 public import Carlson.Jacobi.BoundaryKernel
@@ -24,6 +26,7 @@ parts. Thus every complex parameter pair admits it at sufficiently large degrees
 
 ## Main results
 
+* `not_mem_unitSegment_of_im_ne_zero`, `hasDerivAt_factorial_resolvent`: elementary helpers.
 * `jacobiSecondKind_eq_complexEulerIntegral_on_segment`: the Euler representation
   at arbitrary endpoints under degree-shifted positivity.
 * `jacobiSecondKind_eq_complexEulerIntegral`: the native weighted resolvent.
@@ -41,6 +44,28 @@ parts. Thus every complex parameter pair admits it at sufficiently large degrees
 namespace Carlson.TwoVariable
 open Complex Dirichlet Polynomial MeasureTheory Set Filter
 open scoped Topology
+
+/-- A point with nonzero imaginary part lies outside the real unit segment. -/
+theorem not_mem_unitSegment_of_im_ne_zero {z : ℂ} (hz : z.im ≠ 0) :
+    z ∉ segment ℝ (1 : ℂ) 0 := by
+  rintro ⟨a, b, ha, hb, hab, rfl⟩
+  simp [real_smul] at hz
+
+/-- The factorial-scaled integer kernels form a derivative tower on the real line
+away from the exterior point. -/
+theorem hasDerivAt_factorial_resolvent (k : ℕ) {z : ℂ}
+    (t : ℝ) (hz : z ≠ (t : ℂ)) :
+    HasDerivAt (fun u : ℝ => (k.factorial : ℂ) * (z - u) ^ (-(k + 1 : ℤ)))
+      (((k + 1).factorial : ℂ) * (z - t) ^ (-((k + 1 : ℕ) + 1 : ℤ))) t := by
+  have hn : z - (t : ℂ) ≠ 0 := sub_ne_zero.mpr hz
+  have h := ((hasDerivAt_zpow (-(k + 1 : ℤ)) (z - t) (Or.inl hn)).comp (t : ℂ)
+    ((hasDerivAt_const (t : ℂ) z).sub (hasDerivAt_id (t : ℂ)))).comp_ofReal
+  have he : -(k + 1 : ℤ) - 1 = -((k + 1 : ℕ) + 1 : ℤ) := by omega
+  simp only [Function.comp_def, he, Int.cast_neg, Int.cast_add, Int.cast_natCast,
+    Int.cast_one, zero_sub, mul_neg, mul_one, neg_mul, neg_neg] at h
+  convert h.const_mul (k.factorial : ℂ) using 1
+  simp only [Nat.factorial_succ, Nat.cast_mul, Nat.cast_add, Nat.cast_one]
+  ring
 
 /-- The scalar normalizing the Jacobi density in its second-kind Cauchy integral. -/
 def jacobiCauchyCoefficient (α β : ℂ) (n : ℕ) : ℂ :=
@@ -170,7 +195,8 @@ theorem tendsto_jacobiSecondKind_sub_complex {α β : ℂ} (hα : -1 < α.re)
     simpa only [sub_add_cancel] using
       (hasDerivAt_complexJacobiWeight_succ (α - 1) (β - 1)
         (ofReal_mem_slitPlane.mpr hx.1)
-        (by apply Or.inl; simp only [sub_re, one_re, ofReal_re]; linarith [hx.2])).comp_ofReal.continuousAt
+        (by apply Or.inl; simp only [sub_re, one_re, ofReal_re]; linarith [hx.2])
+        ).comp_ofReal.continuousAt
   have hc : ContinuousAt ρ x := hw.fun_mul
     ((shiftedJacobi α β n).continuous.comp continuous_ofReal).continuousAt
   have h := (tendsto_intervalIntegral_cauchy_sub hi hx hc).const_mul (jacobiCauchyCoefficient α β n)
@@ -182,7 +208,8 @@ theorem tendsto_jacobiSecondKind_sub_complex {α β : ℂ} (hα : -1 < α.re)
   have hp : ((x : ℂ) + (c⁻¹ : ℝ) * I).im ≠ 0 := by simp [hc.ne']
   have hm : ((x : ℂ) - (c⁻¹ : ℝ) * I).im ≠ 0 := by simp [hc.ne']
   rw [jacobiSecondKind_eq_complexCauchyIntegral hα hβ n (not_mem_unitSegment_of_im_ne_zero hp),
-    jacobiSecondKind_eq_complexCauchyIntegral hα hβ n (not_mem_unitSegment_of_im_ne_zero hm), mul_sub]
+    jacobiSecondKind_eq_complexCauchyIntegral hα hβ n (not_mem_unitSegment_of_im_ne_zero hm),
+    mul_sub]
 
 /-- The complex-parameter jump transported to distinct complex endpoints by an
 invertible affine map, with a perpendicular approach to the segment. -/

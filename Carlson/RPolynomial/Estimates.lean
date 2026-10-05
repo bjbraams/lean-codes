@@ -107,7 +107,7 @@ theorem exists_summable_norm_regCarlsonR_div_factorial_bounded_variables
     linarith
   have hgamma (k : ℕ) {b : ι → ℂ} (hb : b ∈ K) :
       ‖(Gamma (S b + (k + m)))⁻¹‖ ≤ max (D m) 0 / k.factorial := by
-    have H := norm_invGamma_add_nat_le (hre hb) k
+    have H := norm_inv_Gamma_add_nat_le (hre hb) k
     have HD := (hD m b hb).trans (le_max_left (D m) 0)
     simpa only [add_assoc, add_comm, add_left_comm] using
       H.trans (div_le_div_of_nonneg_right HD (by positivity))

@@ -25,10 +25,10 @@ public import ToMathlib.Analysis.Integral.CurveIntegral.Improper
 public import ToMathlib.Analysis.Integral.CurveIntegral.Bounds
 public import ToMathlib.Analysis.Integral.Laplace
 public import ToMathlib.Analysis.Integral.Parametric
-public import ToMathlib.Analysis.Integral.Pi
 public import ToMathlib.Analysis.Integral.ProdAbsRPow
 public import ToMathlib.Analysis.Integral.Reciprocal
 public import ToMathlib.Analysis.Integral.Tail
+public import ToMathlib.Analysis.Integral.EndpointDeformation
 public import ToMathlib.Analysis.Integral.StrictMono
 public import ToMathlib.Analysis.Integral.TwoCrossings
 public import ToMathlib.Analysis.OpenMapping
@@ -38,6 +38,7 @@ public import ToMathlib.Analysis.SpecialFunctions.BetaKernel
 public import ToMathlib.Analysis.SpecialFunctions.BetaConcentration
 public import ToMathlib.Analysis.SpecialFunctions.Pochhammer
 public import ToMathlib.Analysis.SpecialFunctions.Gamma
+public import ToMathlib.Analysis.SpecialFunctions.Pow
 public import ToMathlib.Analysis.SpecialFunctions.GammaRatio
 public import ToMathlib.Analysis.TaylorBounds
 public import ToMathlib.Analysis.UpperHalfPlaneMaximum
@@ -46,7 +47,7 @@ public import ToMathlib.Analysis.UpperHalfPlaneMaximum
 # General analysis support
 
 Normed-space geometry, continuous linear maps, diagonal differentiation, real Taylor and
-geometric estimates, Banach-valued and finite-product nonnegative integration, and the
+geometric estimates, Banach-valued integration, and the
 complex-rate Gamma/Laplace integral. Curve integration includes pullback of one-forms,
 finite-interval parametrizations, improper endpoint formulas, and limits of finite
 path integrals. Reciprocal substitution compactifies positive half-lines and preserves
@@ -89,13 +90,14 @@ This module re-exports the following developments:
 * `ToMathlib.Analysis.Integral.Laplace`: Quantitative complex-phase Laplace asymptotics,
   explicit Gaussian error bounds and uniform finite-interval limits.
 * `ToMathlib.Analysis.Integral.Parametric`: Differentiation of weighted compact integrals.
-* `ToMathlib.Analysis.Integral.Pi`: Nonnegative integration on finite product spaces.
 * `ToMathlib.Analysis.Integral.ProdAbsRPow`: Integrability of products of powers with distinct
   real singularities.
 * `ToMathlib.Analysis.Integral.Reciprocal`: Compactifying a positive half-line by inversion.
 * `ToMathlib.Analysis.Integral.TwoCrossings`: Strict convex integral comparison for signed
   kernels with two crossings and vanishing zeroth and first moments.
 * `ToMathlib.Analysis.Integral.Tail`: Uniform control of integral tails.
+* `ToMathlib.Analysis.Integral.EndpointDeformation`: Deforming path integrals with integrable
+  singularities at common endpoints, through a convex domain of holomorphy.
 * `ToMathlib.Analysis.OpenMapping`: Open mapping for complete metrizable real or complex
   vector spaces.
 * `ToMathlib.Analysis.SpecialFunctions.BetaDensity`, `BetaKernel`, `BetaConcentration`:
@@ -108,6 +110,7 @@ This module re-exports the following developments:
 * `ToMathlib.Analysis.SpecialFunctions.GammaRatio`: The bound `Γ(x)/|Γ(x + iy)| ≤ √(cosh (π y))`
   for `x ≥ 1/2`.
 * `ToMathlib.Analysis.SpecialFunctions.Gamma`: The Gamma integral with a complex Laplace parameter.
+* `ToMathlib.Analysis.SpecialFunctions.Pow`: Elementary power bounds and identities.
 * `ToMathlib.Analysis.TaylorBounds`: Elementary bounds for Taylor remainders.
 * `ToMathlib.Analysis.UpperHalfPlaneMaximum`: A minimum principle for the imaginary part on the
   upper half-plane.

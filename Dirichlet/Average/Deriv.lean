@@ -77,11 +77,13 @@ open scoped Classical in
 theorem regCarlsonDirichletAverage_tangent
     {Ω : Set ℂ} (hΩconv : Convex ℝ Ω) {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f Ω)
     {b z : ι → ℂ} (hb : b ∈ mvBetaConvergent) (hz : Set.range z ⊆ Ω)
-    (i j : ι) (hij : i ≠ j) :
+    (i j : ι) :
     (z i - z j) * regCarlsonDirichletAverage (addDirichletUnit (addDirichletUnit b j) i)
       z (deriv f) =
       regCarlsonDirichletAverage (addDirichletUnit b i) z f -
         regCarlsonDirichletAverage (addDirichletUnit b j) z f := by
+  rcases eq_or_ne i j with rfl | hij
+  · simp
   have hc := continuousOn_carlson_comp hΩconv hf.continuousOn hz
   have hdc := continuousOn_carlson_comp hΩconv hf.deriv.continuousOn hz
   have ha (g : ℂ → ℂ) (hg : ContinuousOn (fun u => g (carlsonAffineForm z u))
@@ -197,7 +199,7 @@ theorem carlsonEulerPoissonOperator_regCarlsonDirichletAverage
   rw [carlsonEulerPoissonOperator, hsecond,
     carlsonPartialDeriv_regCarlsonDirichletAverage_of_analyticOnNhd hΩopen hΩconv hf hb hz j,
     carlsonPartialDeriv_regCarlsonDirichletAverage_of_analyticOnNhd hΩopen hΩconv hf hb hz i]
-  have H := regCarlsonDirichletAverage_tangent hΩconv hf.deriv hb hz i j hij
+  have H := regCarlsonDirichletAverage_tangent hΩconv hf.deriv hb hz i j
   linear_combination b i * b j * H
 
 /-- **Carlson 5.4-1.** The native Carlson Dirichlet average satisfies the Euler--Poisson

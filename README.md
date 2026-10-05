@@ -201,10 +201,10 @@ and [CREDITS.md](CREDITS.md) for attribution.
 
 ## Registry statement
 
-[comparator.json](comparator.json) selects **10 Carlson and Dirichlet-average
+[comparator.json](comparator.json) selects **11 Carlson and Dirichlet-average
 continuation theorems and one R-function construction** for the proposed Palomar
 snapshot. [Statement.lean](Statement.lean) and [Solution.lean](Solution.lean)
-retain the same theorem statements: they contain these claims and 11 additional foundational
+contain these claims and 11 additional foundational
 theorems. Those supporting theorems are no longer separately selected for
 registration. The statement module's broader description of its contents is
 not the current Comparator selection. Keeping these declarations and the project
@@ -216,6 +216,8 @@ locations and validation commands. The preceding submission passed Palomar's
 mechanical verification, as reported by the maintainer, but was not offered
 registration after editorial review. The narrowed selection and revised
 provenance require a new submission. This is not yet a registered result.
+The simply connected continuation theorem was added to the selection on 5 October 2026,
+after that submission; it has not been through Palomar verification.
 
 ### Mathematical scope and research interest
 
@@ -228,6 +230,11 @@ behaves beyond the parameters for which the defining integrals converge.
 - `joint_average_continuation` gives a jointly holomorphic continuation in all
   complex Dirichlet parameters and nodes lying in a convex open scalar domain,
   for any function holomorphic there (Carlson 1977, 6.3-6).
+- `simply_connected_average_continuation` extends this to simply connected open
+  scalar domains: the continuation is holomorphic for all nodes in the domain,
+  coincident nodes included, and agrees with the native average whenever the
+  whole node convex hull lies in the domain (Carlson 1969, Theorem 8, simply
+  connected case; the question raised in Carlson 1977, p. 156).
 - `r_joint` and `r_native` characterize the Gamma-regularized R construction by
   joint holomorphy in the exponent, Dirichlet parameters, and principal slit-plane
   nodes, and agreement with the power average. Native agreement requires positive
@@ -275,17 +282,17 @@ not assert finite ordinary-R values at all parameter poles. Their proofs extend
 local identities by parameter and joint-node analyticity, paralleling Carlson's
 permanence of functional relations and the slit continuation of Section 6.8.
 Arbitrary branch components, multiply connected or Riemann-surface continuation,
-general nonconvex simply connected average continuation, the contour formula
+the contour formula
 6.8-7 (proved in the project on `C¹` cycles, but not selected), and complete coverage of the L
 article are not claimed.
 
-Work toward Carlson's 1969 nonconvex-domain construction now includes
-Gamma-regularized Euler integrals with joint entire continuation, normalized
-holomorphic logarithms for admissible exterior paths, and continuation of the
-resulting compactified kernels. The straight-path kernel agrees with the
-existing slit-plane resolvent. Independence of curved exterior paths, the
-generalized Cauchy representation, and construction of suitable contours on
-arbitrary simply connected domains remain unfinished.
+The simply connected case of Carlson (1969), Theorem 8, is selected as
+`simply_connected_average_continuation` (`Dirichlet.Average.SimplyConnected`). For `f`
+holomorphic on a simply connected open set `D`, the regularized Dirichlet average continues to
+all node tuples in `D`, entire in the Dirichlet parameters. This answers the question Carlson
+raises at the bottom of p. 156 of the 1977 book. The proof uses a convex chart from the Riemann mapping
+theorem and induction on the number of nodes, not Carlson's contour-adapted branches. The
+multiply connected and Riemann-surface cases remain open.
 
 ## References
 

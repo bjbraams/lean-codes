@@ -16,7 +16,8 @@ public import Carlson.R.EulerTransform
 This is the first reduction in Carlson's Section 8.5. A parameter `-N` can
 be removed, leaving at most `N + 1` functions of one fewer variable. Their
 exponents are `t, t-1, ..., t-N`; the coefficients are polynomials in the
-removed node. All remaining parameters and the exponent are unrestricted.
+removed node. All remaining parameters and the exponent are unrestricted, and every
+identity holds on the whole slit-plane node domain.
 
 The lowering relation 8.5(1) is also proved in a form without division, valid
 at every complex parameter and for coincident nodes as well.
@@ -63,7 +64,7 @@ uniformly in the nodes. This is the raising-and-deletion step in Theorems 8.5-1
 and 8.5-3, on the entire regularized parameter domain. -/
 theorem exists_polynomial_regCarlsonR_option_neg_nat (N : ℕ) (t : ℂ)
     {b : Option ι → ℂ} (hb : b none = -(N : ℂ)) :
-    ∃ p : Fin (N + 1) → ℂ[X], ∀ (z : Option ι → ℂ) (_ : z ∈ carlsonRVariableDomain),
+    ∃ p : Fin (N + 1) → ℂ[X], ∀ (z : Option ι → ℂ) (_ : z ∈ carlsonRSlitDomain),
       regCarlsonR t b z =
         ∑ j, (p j).eval (z none) *
           regCarlsonR (t - (j : ℕ)) (b ∘ some) (z ∘ some) := by
@@ -90,8 +91,7 @@ theorem exists_polynomial_regCarlsonR_option_neg_nat (N : ℕ) (t : ℂ)
     have hp' := hp z hz
     have hq' := hq z hz
     rw [hsome] at hp' hq'
-    have hraise := regCarlsonR_eq_addDirichletUnit t b (carlsonRVariableDomain_subset_slitDomain
-        hz) none
+    have hraise := regCarlsonR_eq_addDirichletUnit t b hz none
     change regCarlsonR t b z =
       (c + t) * regCarlsonR t b' z -
         t * z none * regCarlsonR (t - 1) b' z at hraise
@@ -116,7 +116,7 @@ theorem exists_polynomial_regCarlsonR_option_neg_nat (N : ℕ) (t : ℂ)
 finite reduction in Section 8.5. No division or node-distinctness is required. -/
 theorem regCarlsonR_option_neg_one (t : ℂ)
     {b : Option ι → ℂ} (hb : b none = -1)
-    {z : Option ι → ℂ} (hz : z ∈ carlsonRVariableDomain) :
+    {z : Option ι → ℂ} (hz : z ∈ carlsonRSlitDomain) :
     regCarlsonR t b z =
       ((∑ i, b i) + t) *
         regCarlsonR t (b ∘ some) (z ∘ some) -
@@ -127,16 +127,14 @@ theorem regCarlsonR_option_neg_one (t : ℂ)
   have hsome : addDirichletUnit b none ∘ some = b ∘ some := by
     ext i
     simp [addDirichletUnit]
-  rw [regCarlsonR_eq_addDirichletUnit t b (carlsonRVariableDomain_subset_slitDomain hz) none,
+  rw [regCarlsonR_eq_addDirichletUnit t b hz none,
     regCarlsonR_option_zero t hzero hz,
     regCarlsonR_option_zero (t - 1) hzero hz, hsome]
 
 open scoped Classical in
 omit [Nonempty ι] in
-/-- Carlson's lowering relation 8.5(1), in pole-free regularized form. It is
-valid even at `a = 1` and coincident nodes, though solving for the left-hand
-function then requires the usual nonvanishing hypotheses. -/
-theorem regCarlsonR_lower (a : ℂ) (b : ι → ℂ)
+/-- Carlson's lowering relation 8.5(1) on right-half-plane nodes. -/
+private theorem regCarlsonR_lower_of_mem_variableDomain (a : ℂ) (b : ι → ℂ)
     {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain) (i j : ι) :
     (a - 1) * (z i - z j) * regCarlsonR (-a) b z =
       regCarlsonR (1 - a) (b - Pi.single i 1) z -
@@ -165,24 +163,45 @@ theorem regCarlsonR_lower (a : ℂ) (b : ι → ℂ)
     (Set.range_subset_iff.mpr hz) (isRegCarlsonRContinuation_regCarlsonR (1 - a) hz) hD b i j
   linear_combination -h
 
+open scoped Classical in
+omit [Nonempty ι] in
+/-- Carlson's lowering relation 8.5(1), in pole-free regularized form, on every slit-plane node
+vector. It is valid even at `a = 1` and coincident nodes, though solving for the left-hand
+function then requires the usual nonvanishing hypotheses. -/
+theorem regCarlsonR_lower (a : ℂ) (b : ι → ℂ)
+    {z : ι → ℂ} (hz : z ∈ carlsonRSlitDomain) (i j : ι) :
+    (a - 1) * (z i - z j) * regCarlsonR (-a) b z =
+      regCarlsonR (1 - a) (b - Pi.single i 1) z -
+        regCarlsonR (1 - a) (b - Pi.single j 1) z := by
+  have hproj (k : ι) (w : ι → ℂ) : AnalyticAt ℂ (fun v : ι → ℂ => v k) w :=
+    (ContinuousLinearMap.proj (R := ℂ) (φ := fun _ : ι => ℂ) k).analyticAt w
+  refine eqOn_carlsonRSlitDomain_of_eqOn_rightHalfPlane
+    (F := fun w => (a - 1) * (w i - w j) * regCarlsonR (-a) b w)
+    (G := fun w => regCarlsonR (1 - a) (b - Pi.single i 1) w -
+      regCarlsonR (1 - a) (b - Pi.single j 1) w)
+    (fun w hw => (analyticAt_const.mul ((hproj i w).sub (hproj j w))).mul
+      (analyticOnNhd_regCarlsonR (-a) b w hw))
+    (fun w hw => (analyticOnNhd_regCarlsonR _ _ w hw).sub (analyticOnNhd_regCarlsonR _ _ w hw))
+    (fun w hw => regCarlsonR_lower_of_mem_variableDomain a b hw i j) hz
+
 omit [Nonempty ι] in
 /-- If the complementary exponent is a nonpositive integer, Euler's
 transformation reduces the function to a polynomial in reciprocal nodes times
 complex powers. This is the second terminating case used in Section 8.5. -/
 theorem regCarlsonR_neg_sum_sub_nat (N : ℕ) (b : ι → ℂ)
-    {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain) :
+    {z : ι → ℂ} (hz : z ∈ carlsonRSlitDomain) :
     regCarlsonR (-(∑ i, b i) - N) b z =
       (∏ i, z i ^ (-b i)) * regCarlsonRPolynomial N b (fun i => (z i)⁻¹) := by
-  rw [regCarlsonR_euler _ _ (carlsonRVariableDomain_subset_slitDomain hz),
+  rw [regCarlsonR_euler _ _ hz,
     show -(∑ i, b i) - (-(∑ i, b i) - N) = (N : ℂ) by ring,
-    regCarlsonR_natCast _ _ (carlsonRVariableDomain_inv hz)]
+    regCarlsonR_natCast _ _ (carlsonRSlitDomain_inv hz)]
 
 omit [Nonempty ι] in
 /-- For integral Dirichlet parameters the complementary terminating case is
 explicitly rational in the nodes: integer powers times a polynomial in their
 reciprocals. Negative and zero Dirichlet parameters are allowed. -/
 theorem regCarlsonR_neg_sum_sub_nat_int (N : ℕ) (m : ι → ℤ)
-    {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain) :
+    {z : ι → ℂ} (hz : z ∈ carlsonRSlitDomain) :
     regCarlsonR (-(∑ i, (m i : ℂ)) - N) (fun i => m i) z =
       (∏ i, z i ^ (-m i)) * regCarlsonRPolynomial N (fun i => m i) (fun i => (z i)⁻¹) := by
   rw [regCarlsonR_neg_sum_sub_nat _ _ hz]

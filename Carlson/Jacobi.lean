@@ -53,7 +53,6 @@ public import Carlson.Jacobi.ComplexOrthogonality
 public import Carlson.Jacobi.ComplexRodrigues
 public import Carlson.Jacobi.AnalyticRodrigues
 public import Carlson.Jacobi.WeightedIntegral
-public import Carlson.Jacobi.ComplexWeightedIntegral
 public import Carlson.Jacobi.Norm
 public import Carlson.Jacobi.Raising
 public import Carlson.Jacobi.Recurrence

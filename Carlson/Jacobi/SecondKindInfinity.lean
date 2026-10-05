@@ -58,7 +58,7 @@ theorem analyticAt_jacobiSecondKind_infinity (α β r s : ℂ) (n : ℕ) :
 /-- The leading asymptotic coefficient of Carlson's second-kind Jacobi function
 is one. Only the Gamma factor at this particular index must be regular. -/
 theorem tendsto_pow_mul_jacobiSecondKind (α β r s : ℂ) (n : ℕ)
-    (hc : IsCarlsonGammaRegular (α + n + 1 + (β + n + 1))) :
+    (hc : IsGammaRegular (α + n + 1 + (β + n + 1))) :
     Tendsto (fun x => x ^ (n + 1) * jacobiSecondKind α β r s n x)
       (cobounded ℂ) (𝓝 1) := by
   have h := (tendsto_continuedRegCarlsonResolvent_infinity n

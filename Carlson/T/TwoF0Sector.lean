@@ -124,15 +124,6 @@ theorem analyticAt_twoF0RotIntegrand (n : ℕ) (P : (ℂ × ℂ × ℂ) × ℂ) 
     (hP1.prod ((hσ.mul hw').prod (hτ.mul hw'))) rfl
   exact h.mul (hw'.pow 2)
 
-/-- A power between two others is bounded by their sum on the positive axis. -/
-private theorem rpow_le_rpow_add_rpow'' {x c₁ c c₂ : ℝ} (hx : 0 < x) (h₁ : c₁ ≤ c) (h₂ : c ≤ c₂) :
-    x ^ c ≤ x ^ c₁ + x ^ c₂ := by
-  rcases le_total x 1 with h | h
-  · have := Real.rpow_le_rpow_of_exponent_ge hx h h₁
-    linarith [Real.rpow_nonneg hx.le c₂]
-  · have := Real.rpow_le_rpow_of_exponent_le h h₂
-    linarith [Real.rpow_nonneg hx.le c₁]
-
 /-- The one-dimensional majorant with exponential rate `c > 0` is integrable. -/
 private theorem integrableOn_rpow_add_rpow_mul_exp_mul {A₀ A₁ c : ℝ} (h₀ : 0 < A₀) (h₁ : 0 < A₁)
     (hc : 0 < c) :
@@ -285,10 +276,10 @@ theorem analyticOnNhd_twoF0DoubleRot (n : ℕ) :
       simp only [F, twoF0RotIntegrand, twoF0Integrand, bound]
       simp only [norm_mul]
       rw [norm_ofReal_mul_cpow ha.1 hq2, norm_ofReal_mul_cpow ha.2 hq2, norm_pow]
-      have hs := rpow_le_rpow_add_rpow'' ha.1 (c₁ := A / 2 - 1) (c := (q.1.1 + (n : ℂ) - 1).re)
+      have hs := Real.rpow_le_rpow_add_rpow ha.1 (c₁ := A / 2 - 1) (c := (q.1.1 + (n : ℂ) - 1).re)
         (c₂ := A + 1 - 1) (by simp only [sub_re, one_re]; linarith)
         (by simp only [sub_re, one_re]; linarith)
-      have ht := rpow_le_rpow_add_rpow'' ha.2 (c₁ := B / 2 - 1)
+      have ht := Real.rpow_le_rpow_add_rpow ha.2 (c₁ := B / 2 - 1)
         (c := (q.1.2.1 + (n : ℂ) - 1).re) (c₂ := B + 1 - 1)
         (by simp only [sub_re, one_re]; linarith) (by simp only [sub_re, one_re]; linarith)
       have e1 := hexp ha.1

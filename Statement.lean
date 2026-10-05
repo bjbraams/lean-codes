@@ -12,6 +12,7 @@ import Mathlib.MeasureTheory.Measure.WithDensity
 import Mathlib.RingTheory.Binomial
 import Mathlib.Topology.Algebra.Monoid.FunOnFinite
 import Mathlib.LinearAlgebra.Matrix.Notation
+import Mathlib.AlgebraicTopology.FundamentalGroupoid.SimplyConnected
 
 /-!
 # Carlson registry claims and supporting declarations
@@ -21,13 +22,14 @@ Only Mathlib is imported. Intentional placeholders are confined to this file;
 `Solution.lean` supplies the same declarations with proofs from all five
 project libraries. Never import this module into the proof development.
 
-This module contains 21 theorem declarations, including foundations for rising
+This module contains 22 theorem declarations, including foundations for rising
 factorials, several complex variables, ambient simplex measure, and real and
 complex Dirichlet integrals. Those foundational declarations remain part of the
 module but are not separately selected registry claims.
 
-The current `comparator.json` selects only the following ten theorems in the
-`PalomarSnapshot` namespace: `joint_average_continuation`, `r_joint`, `r_native`,
+The current `comparator.json` selects only the following eleven theorems in the
+`PalomarSnapshot` namespace: `joint_average_continuation`,
+`simply_connected_average_continuation`, `r_joint`, `r_native`,
 `r_euler`, `r_euler_poisson`, `r_first_quadratic`, `r_second_quadratic`, `l_joint`,
 `l_native`, and `l_exponent_derivative`, together with the construction `regR`.
 These are the submitted continuation/R/L claims; the other eleven theorems are
@@ -35,9 +37,9 @@ supporting material. All five project libraries remain in the source snapshot.
 See `README.md` and `formalization.yaml` for the scope and literature account.
 
 The selection does not advertise every theorem in the repository.
-In particular, the general simply connected average-continuation
-theorem, Carlson's contour formula 6.8-7, and the complete L-function article
-are not claimed here. See the root coverage documents for remaining work.
+In particular, the multiply connected and Riemann-surface cases of Carlson's
+(1969) Theorem 8, Carlson's contour formula 6.8-7, and the complete L-function
+article are not claimed here. See the root coverage documents for remaining work.
 
 The measure below lives on the entire sum-one hyperplane. Integrals over the
 simplex are restrictions of that measure. All branch conventions use Mathlib's
@@ -168,6 +170,17 @@ theorem joint_average_continuation {D : Set ℂ} (hD : IsOpen D) (hconv : Convex
     ∃ G : ((ι → ℂ) × (ι → ℂ)) → ℂ,
       AnalyticOnNhd ℂ G {p | Set.range p.2 ⊆ D} ∧
       ∀ z, Set.range z ⊆ D → ∀ b, (∀ i, 0 < (b i).re) → G (b, z) = average b z f := by
+  sorry
+
+/-- Carlson 1969, Theorem 8, simply connected case: joint entire-parameter continuation to all
+nodes in a simply connected open scalar domain, coincident nodes included. Native agreement is
+required only when the entire node convex hull lies in the domain. -/
+theorem simply_connected_average_continuation {D : Set ℂ} (hD : IsOpen D)
+    (hsc : IsSimplyConnected D) {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f D) :
+    ∃ G : ((ι → ℂ) × (ι → ℂ)) → ℂ,
+      AnalyticOnNhd ℂ G {p | Set.range p.2 ⊆ D} ∧
+      ∀ z, convexHull ℝ (Set.range z) ⊆ D → ∀ b, (∀ i, 0 < (b i).re) →
+        G (b, z) = average b z f := by
   sorry
 
 /-- Gamma-regularized Carlson R on the principal slit domain.

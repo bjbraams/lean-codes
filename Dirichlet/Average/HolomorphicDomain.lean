@@ -16,11 +16,10 @@ the domain. Values of the scalar function outside its domain are not used to
 characterize the continuation there.
 
 We prove uniqueness on connected open domains and gluing along increasing open
-connected domains. Together these isolate the gluing step of the proposed
-simply connected planar version of Carlson (1969), Theorem 8. Existence of the
-local contour constructions on nonconvex Jordan domains, and existence of an
-appropriate Jordan-domain exhaustion, are still required. The theorems here do
-not assume or assert those missing existence results.
+connected domains. Existence on every simply connected domain, Carlson (1969),
+Theorem 8 in the simply connected case, is proved in `Dirichlet.Average.SimplyConnected`
+by a convex chart and induction on the number of nodes rather than by gluing contour
+constructions.
 
 Extensions to multiply connected domains (where branches can acquire poles on
 collision diagonals) and to Riemann surfaces are left open.

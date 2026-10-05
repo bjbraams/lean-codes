@@ -23,6 +23,12 @@ public import Dirichlet.Average.HolomorphicDomain
 public import Dirichlet.Average.IntegralDomain
 public import Dirichlet.Average.Aggregation
 public import Dirichlet.Average.ContinuedRelations
+public import Dirichlet.Average.Merge
+public import Dirichlet.Average.Chart
+public import Dirichlet.Average.TwoNode
+public import Dirichlet.Average.SimplyConnected
+public import Dirichlet.Average.FibreContinuation
+public import Dirichlet.Average.SeveralVariables
 
 /-!
 # Carlson's Dirichlet averages
@@ -59,6 +65,16 @@ This module re-exports the following developments:
 * `Dirichlet.Average.IntegralDomain`: The native node domain of a holomorphic Dirichlet average.
 * `Dirichlet.Average.Aggregation`: Aggregation of continued Dirichlet averages.
 * `Dirichlet.Average.ContinuedRelations`: Associated relations on the full parameter space.
+* `Dirichlet.Average.Merge`: Merging two nodes of a Dirichlet average (Carlson 1969, (4.21)).
+* `Dirichlet.Average.Chart`: Convex charts of simply connected domains and the logarithm of
+  their difference quotient.
+* `Dirichlet.Average.TwoNode`: Two-node Dirichlet averages on simply connected domains, with
+  holomorphic parameters.
+* `Dirichlet.Average.SimplyConnected`: Carlson (1969), Theorem 8, simply connected case.
+* `Dirichlet.Average.FibreContinuation`: two-node averages and Euler integrals of kernels whose
+  domain of holomorphy has simply connected fibres varying with a parameter.
+* `Dirichlet.Average.SeveralVariables`: averages of functions of several variables with vector
+  nodes, continued to all nodes in a domain with simply connected complex-line sections.
 
 ## References
 

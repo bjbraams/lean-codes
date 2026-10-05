@@ -11,6 +11,7 @@ public import Carlson.R.IntegerParameters
 public import Carlson.R.SlitDeriv
 public import Carlson.R.Homogeneity
 public import Mathlib.Analysis.SpecialFunctions.Artanh
+public import TauCeti.Analysis.Complex.Conformal.SchwarzChristoffel.Image
 
 /-!
 # The Schwarz–Christoffel mapping and elliptic integrals (Carlson §8.2)
@@ -27,8 +28,12 @@ polygon as `w(z) = R_{-a}(b; z - x)`, with real nodes `xᵢ`, `a + 1 = ∑ bᵢ`
 * the phase of the boundary derivative on the real axis, which is constant between consecutive
   nodes and drops by `π bᵢ` at `xᵢ`: the polygon's turning angles.
 
-The boundary values and the one-to-one and onto property are proved in
-`Carlson.Elliptic.VertexLimits`, `Carlson.Elliptic.Polygon` and `Carlson.Elliptic.Mapping`.
+On the upper half-plane the map is an affine image of the Tau Ceti contributors' normalized
+Schwarz–Christoffel primitive `TauCeti.schwarzChristoffelPrimitive x (-b) z₀`
+(`TauCeti.Analysis.Complex.Conformal.SchwarzChristoffel`), with turning exponents `-bᵢ`. This
+transfers the openness and boundedness of the image from that development. The boundary values
+and the one-to-one and onto property are proved in `Carlson.Elliptic.VertexLimits`,
+`Carlson.Elliptic.Polygon` and `Carlson.Elliptic.Mapping`.
 
 For the elliptic case it proves the half-periods of Examples 8.2-2 and 8.2-3 as complete
 elliptic integrals `R_K`, with the lemniscatic case, the reductions of `R_F` to `arcsin` and
@@ -40,6 +45,10 @@ the half-periods (8.2-20), (8.2-21) of `sn`.
 * `Carlson.regCarlsonR_neg_sum_of_slit`: (5.9-22) on the slit domain.
 * `Carlson.hasDerivAt_carlsonR_sub`: the differential equation (8.2-1).
 * `Carlson.carlsonR_sub_eq_integral`: the integral representation (8.2-2), (8.2-3).
+* `Carlson.carlsonR_sub_eq_schwarzChristoffelPrimitive`: the identification with the Tau Ceti
+  primitive.
+* `Carlson.isOpen_image_carlsonR_sub`, `Carlson.isBounded_image_carlsonR_sub`: openness and
+  boundedness of the image, transferred from the Tau Ceti primitive.
 * `Carlson.prod_ofReal_sub_cpow`: the phase of the boundary derivative.
 * `Carlson.integral_Ioi_rsqrt_cubic`, `Carlson.half_integral_Ioi_rsqrt_cubic`,
   `Carlson.half_integral_Iio_rsqrt_cubic`, `Carlson.carlsonRK_lemniscatic`: (8.2-8)–(8.2-10).
@@ -52,6 +61,7 @@ the half-periods (8.2-20), (8.2-21) of `sn`.
 ## References
 
 * B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977, §8.2.
+* `TauCeti.Analysis.Complex.Conformal.SchwarzChristoffel.Primitive` and `.Image`.
 -/
 
 open Complex Set Filter Dirichlet MeasureTheory
@@ -66,17 +76,7 @@ variable {ι : Type*} [Fintype ι]
 `R_{-c}(b; z)/Γ(c) = ∏ zᵢ^{-bᵢ}/Γ(c)`, `c = ∑ bᵢ`. -/
 theorem regCarlsonR_neg_sum_of_slit (b : ι → ℂ) {z : ι → ℂ} (hz : z ∈ carlsonRSlitDomain) :
     regCarlsonR (-(∑ i, b i)) b z = (∏ i, z i ^ (-b i)) * (Gamma (∑ i, b i))⁻¹ := by
-  have hF := analyticOnNhd_regCarlsonR (-(∑ i, b i)) b
-  have hG : AnalyticOnNhd ℂ (fun w : ι → ℂ => (∏ i, w i ^ (-b i)) * (Gamma (∑ i, b i))⁻¹)
-      carlsonRSlitDomain := by
-    intro w hw
-    refine AnalyticAt.mul ?_ analyticAt_const
-    refine Finset.analyticAt_fun_prod (𝕜 := ℂ) _ fun i _ => ?_
-    exact ((ContinuousLinearMap.proj (R := ℂ) (φ := fun _ : ι => ℂ) i).analyticAt w).cpow
-      analyticAt_const (hw i)
-  refine eqOn_carlsonRSlitDomain_of_eqOn_rightHalfPlane hF hG (fun w hw => ?_) hz
-  have h := regCarlsonR_neg_sum_sub_nat 0 b hw
-  simpa [regCarlsonRPolynomial_zero] using h
+  simpa [regCarlsonRPolynomial_zero] using regCarlsonR_neg_sum_sub_nat 0 b hz
 
 /-- **The Schwarz–Christoffel differential equation** (8.2-1): if `a + 1 = ∑ bᵢ` and `a + 1` is
 not a pole of `Γ`, then `w(z) = R_{-a}(b; z - x)` satisfies `dw/dz = -a ∏ (z - xᵢ)^{-bᵢ}` wherever
@@ -117,6 +117,90 @@ theorem carlsonR_sub_eq_integral {a : ℂ} (ha : 0 < a.re) (b x : ι → ℂ)
   simp_rw [sub_eq_add_neg]
   ring
 
+/-! ### Identification with the Tau Ceti Schwarz–Christoffel primitive -/
+
+/-- **Carlson's Schwarz–Christoffel map is an affine image of the Tau Ceti primitive.** For real
+nodes `xᵢ`, real `bᵢ` with `a + 1 = ∑ bᵢ` and `a > 0`, on the upper half-plane
+`R_{-a}(b; z - x) = -a · P(z) + R_{-a}(b; z₀ - x)`, where `P` is the Tau Ceti contributors'
+`TauCeti.schwarzChristoffelPrimitive x (-b) z₀`, normalized to vanish at `z₀`. Both sides have
+derivative `-a ∏ (z - xᵢ)^{-bᵢ}` and agree at `z₀`. -/
+theorem carlsonR_sub_eq_schwarzChristoffelPrimitive {a : ℝ} (ha : 0 < a) (b x : ι → ℝ)
+    (hsum : a + 1 = ∑ i, b i) (z₀ : UpperHalfPlane) {z : ℂ} (hz : 0 < z.im) :
+    carlsonR (-a) (fun i => (b i : ℂ)) (fun i => z - x i) =
+      -a * TauCeti.schwarzChristoffelPrimitive x (-b) z₀ z +
+        carlsonR (-a) (fun i => (b i : ℂ)) (fun i => (z₀ : ℂ) - x i) := by
+  have ha0 : (a : ℂ) ≠ 0 := ofReal_ne_zero.mpr ha.ne'
+  have hsum' : (a : ℂ) + 1 = ∑ i, (b i : ℂ) := by exact_mod_cast hsum
+  have hΓ : ∀ m : ℕ, (a : ℂ) + 1 ≠ -m := fun m h => by
+    have := congrArg re h
+    simp only [add_re, ofReal_re, one_re, neg_re, natCast_re] at this
+    linarith [(Nat.cast_nonneg m : (0 : ℝ) ≤ m)]
+  have hslit {w : ℂ} (hw : 0 < w.im) (i : ι) : w - x i ∈ slitPlane :=
+    mem_slitPlane_iff.mpr (Or.inr (by simp [hw.ne']))
+  set g : ℂ → ℂ := fun w => (carlsonR (-a) (fun i => (b i : ℂ)) (fun i => w - x i) -
+    carlsonR (-a) (fun i => (b i : ℂ)) (fun i => (z₀ : ℂ) - x i)) / (-a)
+  have hg : ∀ w ∈ UpperHalfPlane.upperHalfPlaneSet,
+      HasDerivAt g (TauCeti.schwarzChristoffelIntegrand x (-b) w) w := by
+    intro w hw
+    have h := ((hasDerivAt_carlsonR_sub (a : ℂ) (fun i => (b i : ℂ)) (fun i => (x i : ℂ))
+      hsum' hΓ (hslit hw)).sub_const
+        (carlsonR (-a) (fun i => (b i : ℂ)) (fun i => (z₀ : ℂ) - x i))).div_const (-(a : ℂ))
+    convert h using 1
+    rw [TauCeti.schwarzChristoffelIntegrand_def, neg_mul, neg_div_neg_eq,
+      mul_div_cancel_left₀ _ ha0]
+    simp
+  have heq := TauCeti.eqOn_schwarzChristoffelPrimitive x (-b) z₀ hg (by simp [g]) hz
+  simp only [g] at heq
+  rw [← heq]
+  field_simp
+  ring
+
+/-- Carlson's Schwarz–Christoffel map is an open map on the upper half-plane, by the Tau Ceti
+contributors' `TauCeti.isOpen_image_schwarzChristoffelPrimitive`. -/
+theorem isOpen_image_carlsonR_sub {a : ℝ} (ha : 0 < a) (b x : ι → ℝ)
+    (hsum : a + 1 = ∑ i, b i) {s : Set ℂ} (hs : IsOpen s) (hsH : ∀ z ∈ s, 0 < z.im) :
+    IsOpen ((fun z => carlsonR (-a) (fun i => (b i : ℂ)) (fun i => z - x i)) '' s) := by
+  set z₀ : UpperHalfPlane := UpperHalfPlane.I
+  set c := carlsonR (-a) (fun i => (b i : ℂ)) (fun i => (z₀ : ℂ) - x i)
+  have himg : (fun z => carlsonR (-a) (fun i => (b i : ℂ)) (fun i => z - x i)) '' s =
+      (fun w => -(a : ℂ) * w + c) '' (TauCeti.schwarzChristoffelPrimitive x (-b) z₀ '' s) := by
+    rw [Set.image_image]
+    exact Set.image_congr fun z hz =>
+      carlsonR_sub_eq_schwarzChristoffelPrimitive ha b x hsum z₀ (hsH z hz)
+  have ha0 : -(a : ℂ) ≠ 0 := neg_ne_zero.mpr (ofReal_ne_zero.mpr ha.ne')
+  rw [himg]
+  have h := (Homeomorph.addRight c).isOpenMap _ ((Homeomorph.mulLeft₀ _ ha0).isOpenMap _
+    (TauCeti.isOpen_image_schwarzChristoffelPrimitive x (-b) z₀ hs hsH))
+  rw [Set.image_image] at h
+  convert h using 2
+  simp
+
+/-- For distinct nodes and `bᵢ < 1`, the image of the upper half-plane under Carlson's
+Schwarz–Christoffel map is bounded, by the Tau Ceti contributors'
+`TauCeti.isBounded_image_schwarzChristoffelPrimitive`. -/
+theorem isBounded_image_carlsonR_sub {a : ℝ} (ha : 0 < a) (b x : ι → ℝ)
+    (hsum : a + 1 = ∑ i, b i) (hx : Function.Injective x) (hb : ∀ i, b i < 1) :
+    Bornology.IsBounded ((fun z => carlsonR (-a) (fun i => (b i : ℂ)) (fun i => z - x i)) ''
+      UpperHalfPlane.upperHalfPlaneSet) := by
+  classical
+  set z₀ : UpperHalfPlane := UpperHalfPlane.I
+  set c := carlsonR (-a) (fun i => (b i : ℂ)) (fun i => (z₀ : ℂ) - x i)
+  have hP := TauCeti.isBounded_image_schwarzChristoffelPrimitive x (-b) z₀
+    (fun j => by
+      rw [Finset.sum_eq_single_of_mem j (by simp) fun i hi hij => absurd (hx (by simpa using hi))
+        hij]
+      simpa using hb j)
+    (by simp only [Pi.neg_apply, Finset.sum_neg_distrib]; linarith)
+  have himg : (fun z => carlsonR (-a) (fun i => (b i : ℂ)) (fun i => z - x i)) ''
+      UpperHalfPlane.upperHalfPlaneSet = (fun w => -(a : ℂ) * w + c) ''
+        (TauCeti.schwarzChristoffelPrimitive x (-b) z₀ '' UpperHalfPlane.upperHalfPlaneSet) := by
+    rw [Set.image_image]
+    exact Set.image_congr fun z hz =>
+      carlsonR_sub_eq_schwarzChristoffelPrimitive ha b x hsum z₀ hz
+  rw [himg]
+  exact ((hP.isCompact_closure.image (by fun_prop : Continuous fun w : ℂ => -(a : ℂ) * w + c)
+    ).isBounded).subset (Set.image_mono subset_closure)
+
 /-- **The polygon of the Schwarz–Christoffel map** (Carlson §8.2): on the real axis the principal
 (upper-edge) value of `∏ (t - xᵢ)^{-bᵢ}` is
 `∏ |t - xᵢ|^{-bᵢ} · exp(-π i ∑_{xᵢ > t} bᵢ)`. For real `bᵢ` its phase is constant between
@@ -153,7 +237,7 @@ theorem integral_Ioi_rsqrt_cubic {p q : ℝ} (hp : 0 < p) (hq : 0 < q) :
     intro i; fin_cases i
     · exact ofReal_mem_slitPlane.mpr hp
     · exact ofReal_mem_slitPlane.mpr hq
-  have h := carlsonRPositiveRayIntegral_eq_gamma_mul_regCarlsonR (a := 1 / 2) (a' := 1 / 2)
+  have h := carlsonRPositiveRayIntegral_eq_Gamma_mul_regCarlsonR (a := 1 / 2) (a' := 1 / 2)
     (b := pair (1 / 2) (1 / 2)) (by norm_num) (by norm_num) (by simp [pair]) hz
   unfold carlsonRPositiveRayIntegral at h
   rw [← integral_complex_ofReal]
@@ -174,14 +258,14 @@ theorem integral_Ioi_rsqrt_cubic {p q : ℝ} (hp : 0 < p) (hq : 0 < q) :
     sum_pair, show (1 / 2 : ℂ) + 1 / 2 = 1 by norm_num, Gamma_one, one_mul,
     show (-(1 / 2) : ℂ) = -1 / 2 by ring]
 
-/-- Translation of an integral over a half-line. -/
-theorem integral_Ioi_eq_integral_Ioi_add (f : ℝ → ℝ) (c : ℝ) :
-    ∫ t in Ioi c, f t = ∫ s in Ioi (0 : ℝ), f (s + c) := by
+/-- Translation of an integral over a half-line, for vector-valued functions. -/
+theorem integral_Ioi_zero_add {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] (g : ℝ → E)
+    (c : ℝ) : ∫ s in Ioi (0 : ℝ), g (s + c) = ∫ σ in Ioi c, g σ := by
   have h := integral_image_eq_integral_abs_deriv_smul (s := Ioi (0 : ℝ)) measurableSet_Ioi
     (f := fun s => s + c) (f' := fun _ => 1)
-    (fun s _ => ((hasDerivAt_id s).add_const c).hasDerivWithinAt) (add_left_injective c).injOn f
+    (fun s _ => ((hasDerivAt_id s).add_const c).hasDerivWithinAt) (add_left_injective c).injOn g
   rw [image_add_const_Ioi, zero_add] at h
-  simpa using h
+  simpa using h.symm
 
 /-- Reflection of an integral over a half-line. -/
 theorem integral_Iio_eq_integral_Ioi_sub (f : ℝ → ℝ) (c : ℝ) :
@@ -200,7 +284,7 @@ map is `(1/2) ∫_{x₁}^∞ ((t - x₁)(t - x₂)(t - x₃))^{-1/2} dt = (π/2)
 theorem half_integral_Ioi_rsqrt_cubic {x₁ x₂ x₃ : ℝ} (h₂ : x₂ < x₁) (h₃ : x₃ < x₁) :
     (((1 / 2) * ∫ t in Ioi x₁, ((t - x₁) * (t - x₂) * (t - x₃)) ^ (-1 / 2 : ℝ) : ℝ) : ℂ) =
       π / 2 * TwoVariable.carlsonRK (x₁ - x₂ : ℝ) (x₁ - x₃ : ℝ) := by
-  rw [integral_Ioi_eq_integral_Ioi_add]
+  rw [← integral_Ioi_zero_add]
   have h := integral_Ioi_rsqrt_cubic (p := x₁ - x₂) (q := x₁ - x₃) (by linarith) (by linarith)
   have hfun : (fun s : ℝ => ((s + x₁ - x₁) * (s + x₁ - x₂) * (s + x₁ - x₃)) ^ (-1 / 2 : ℝ)) =
       fun s : ℝ => (s * (s + (x₁ - x₂)) * (s + (x₁ - x₃))) ^ (-1 / 2 : ℝ) := by
@@ -255,7 +339,7 @@ theorem integral_Ioo_rsqrt_sn {k : ℝ} (hk : k ^ 2 < 1) :
     intro i; fin_cases i
     · exact ofReal_mem_slitPlane.mpr (by linarith)
     · simp [pair]
-  have h := carlsonRUnitIntervalIntegral_eq_gamma_mul_regCarlsonR (a := 1 / 2) (a' := 1 / 2)
+  have h := carlsonRUnitIntervalIntegral_eq_Gamma_mul_regCarlsonR (a := 1 / 2) (a' := 1 / 2)
     (b := pair (1 / 2) (1 / 2)) (by norm_num) (by norm_num) (by simp [pair]) hz
   unfold carlsonRUnitIntervalIntegral at h
   rw [← integral_complex_ofReal]
@@ -362,7 +446,7 @@ theorem integral_Ioo_rsqrt_sn_incomplete {k y : ℝ} (hk : k ^ 2 < 1) (hy0 : 0 <
       have hy2 : y ^ 2 < 1 := by nlinarith
       exact ofReal_mem_slitPlane.mpr (by nlinarith)
     · simp [N]
-  have h := carlsonRUnitIntervalIntegral_eq_gamma_mul_regCarlsonR (a := 1 / 2) (a' := 1)
+  have h := carlsonRUnitIntervalIntegral_eq_Gamma_mul_regCarlsonR (a := 1 / 2) (a' := 1)
     (b := fun _ : Fin 3 => (1 / 2 : ℂ)) (by norm_num) (by norm_num) (by simp; norm_num) hz
   unfold carlsonRUnitIntervalIntegral at h
   rw [← integral_complex_ofReal]

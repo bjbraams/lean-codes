@@ -108,6 +108,39 @@ Series: a uniformly summable family of kernels on the simplex can be transformed
 the convergence region, and a locally uniformly summable family of continuations is a
 continuation of the sum.
 
+**Face formulas and uniqueness.** At a nonpositive integer parameter the regularized density
+$u_i^{b_i - 1}/\Gamma(b_i)$ is a derivative of the Dirac measure on the face $u_i = 0$. If $b_i = 0$
+then $F_g(b)$ is the transform, with the remaining parameters, of the restriction of $g$ to that
+face; the proof lets the exponent of a regularized incomplete Mellin transform tend to zero.
+Iterating tangential differentiation gives, for $b_i = -m$ and any $j \ne i$,
+$$F_g(b) = \sum_{a + l = m} \binom{m}{a}\, F^{\text{face}}_{(\partial_{e_j - e_i}^a g)|_{u_i = 0}}
+(b' - l e_j),$$
+with $b'$ the remaining parameters. Conversely the transform determines the kernel: its values
+at the positive integer parameters $m + 1$ are, up to factorials, the monomial moments of $g$,
+so two continuous kernels with the same transform agree on the simplex.
+
+**Merging (stick-breaking).** For $a \ne a'$ write $u_a = v_0 s$, $u_{a'} = v_1 s$; the merging map
+sends proportions $v$ on the two-point simplex and merged coordinates $y$ (with $s = y_a$) to the
+simplex. Then
+$$F_g(b) = \Gamma(b_a + b_{a'})\, F^{(2)}_{(b_a, b_{a'})}\bigl[v \mapsto F_{b'}[y \mapsto
+g(\operatorname{merge}(v, y))]\bigr],$$
+with $b'$ the merged parameters ($b_a + b_{a'}$ at the merged coordinate). For positive parameters
+this is the merging identity of Dirichlet measures. As an identity of entire functions it holds
+with $\Gamma(b_a + b_{a'})^{-1}$ on the left, whenever the inner transform depends
+holomorphically on $v$ near the two-point simplex; this is so for kernels holomorphic near the
+simplex. The two-coordinate transform is a regularized Euler integral, so iterating the
+identity represents $F_g$ as an iterated Euler integral.
+
+**Euler integrals over moving simply connected domains.** Let $g(t, p)$ be holomorphic on an open
+set $\mathcal W \subseteq \mathbb C \times P$ whose fibres $D_p = \{t : (t, p) \in \mathcal W\}$ are
+simply connected. Then
+$\mathcal E_{\alpha, \beta}[g(\cdot, p)]$, defined natively when $[0, 1] \subseteq D_p$, continues to a
+function entire in $(\alpha, \beta)$ and holomorphic in $p$ wherever $0, 1 \in D_p$; likewise the
+two-node average with nodes $x, y$ continues to all $(x, y, p)$ with $x, y \in D_p$. The
+continuation is built fibre by fibre from a Riemann chart of $D_p$ (the two-node case of Carlson's
+Theorem 8); holomorphy in $p$ follows by comparing, through the identity theorem, with the
+continuation over a relatively compact chart piece of one fibre, which lies in all nearby fibres.
+
 **Weighted Euler integrals.** The doubly Gamma-regularized Euler integral
 $$\mathcal E_{a, a'}[f] = \frac{1}{\Gamma(a)\Gamma(a')}\int_0^1 u^{a - 1}(1 - u)^{a' - 1} f(u)\, du$$
 is the two-coordinate Dirichlet transform; hence for a kernel $H(p, u)$ holomorphic in $(p, u)$
@@ -181,8 +214,34 @@ tuples whose convex hull lies in $D$ form an open set, connected if $D$ is; a *j
 continuation on $D$* is holomorphic on $\{z : z_i \in D\}$ and agrees with the native average
 whenever the convex hull of the nodes lies in $D$. Such continuations are unique on connected
 $D$, exist on convex $D$ and on the integral node domain of any open $D$, and glue along
-increasing unions of connected domains. This isolates the gluing step of Carlson (1969),
-Theorem 8; the local contour constructions on nonconvex Jordan domains are not formalized.
+increasing unions of connected domains.
+
+**Simply connected domains (Carlson (1969), Theorem 8).** If $f$ is holomorphic on a simply
+connected open set $D \subseteq \mathbb C$, a joint continuation on $D$ exists, for any number
+of nodes: the regularized average extends to all node tuples in $D^k$, coincident nodes
+included, entire in the Dirichlet parameters. This answers the question raised in Carlson
+(1977), p. 156. The proof takes a convex chart $\varphi : V \to D$ from the Riemann mapping
+theorem. A two-node average with nodes $x, y$ becomes, after the substitution
+$w = \varphi(t\xi + (1-t)\eta)$ with $\xi = \varphi^{-1}(x)$, $\eta = \varphi^{-1}(y)$, an Euler
+integral of a holomorphic kernel over a straight segment in $V$. Agreement with the native
+average follows from a deformation argument with integrable endpoint singularities. Then
+$k$-node averages reduce to two-node averages by the merging identity
+$\mathcal R_b(z; f) = \Gamma(b_a + b_{a'})\,\mathcal R_{(b_a, b_{a'})}\bigl((z_a, z_{a'});
+w \mapsto \mathcal R_{b'}(z'(w); f)\bigr)$ (Carlson (1969), (4.21)), with removable Gamma poles.
+
+**Several variables and non-convex domains.** Let $h$ be holomorphic on an open set
+$D \subseteq \mathbb C^n$ whose sections $\{t \in \mathbb C : t x + (1 - t) y \in D\}$ by the
+complex lines through any two points $x, y \in D$ are simply connected; convex domains, and
+the $\mathbb C$-convex domains of complex analysis, have this property. Then the regularized
+average $\mathcal R_b(Z; h) = \mathcal D_b[u \mapsto h(\sum_i u_i Z_i)]$ with vector nodes
+$Z_i \in \mathbb C^n$, native when the convex hull of the nodes lies in $D$, continues to all node
+tuples in $D^k$, entire in the Dirichlet parameters. The proof is the same induction on the
+number of nodes, with the two-node step supplied by the continuation of Euler integrals over the
+simply connected line sections, which move with the nodes. For $n = 1$ the line sections of a
+simply connected planar domain are affine images of it, and the theorem gives a second proof of
+the simply connected case of Theorem 8.
+Carlson's contour constructions on nonconvex Jordan domains are not needed and are not
+formalized.
 
 **Continued Cauchy representation and resolvent.** The regularized integer resolvent
 $(b, z, s) \mapsto \mathcal R_b(z; (s - \cdot)^{-n-1})$ continues to a function jointly
@@ -394,8 +453,9 @@ For $I = \{0, 1\}$ with nodes $(x, y)$ and parameters $(b_0, b_1)$:
 ## III.10 What is not formalized
 
 The module documentation records the open items explicitly, and they are not asserted anywhere:
-Carlson's general rectifiable Jordan-curve representations and the nonconvex simply connected
-extension (Carlson (1969), Theorems 4, 5 and 8), path independence of the exterior-path
+Carlson's general rectifiable Jordan-curve representations (Carlson (1969), Theorems 4 and 5),
+the multiply connected and Riemann-surface cases of Theorem 8, path independence of the
+exterior-path
 kernels, Theorem 6.8-4's additional equal-parameter regularization for general $|I|$, the
 removal of the positivity assumptions in the small-variable limit, the complete classification
 of integer and half-integer parameter configurations by elementary functions, and the explicit

@@ -298,13 +298,10 @@ variable {k : ℝ}
 /-- The nodes `-1/k, -1, 1, 1/k` of Carlson's Example 8.2-3. -/
 def snNodes (k : ℝ) : Fin 4 → ℝ := ![-(1 / k), -1, 1, 1 / k]
 
-theorem one_lt_one_div_of_lt_one (hk0 : 0 < k) (hk1 : k < 1) : 1 < 1 / k := by
-  rw [lt_div_iff₀ hk0]; linarith
-
 theorem snParams (hk0 : 0 < k) (hk1 : k < 1) :
     SchwarzChristoffelParams 1 (fun _ => 1 / 2) (snNodes k) where
   injective := by
-    have h := one_lt_one_div_of_lt_one hk0 hk1
+    have h := one_lt_one_div hk0 hk1
     intro i j hij
     fin_cases i <;> fin_cases j <;> simp only [snNodes, Matrix.cons_val_zero, Matrix.cons_val_one,
       Matrix.cons_val_two, Matrix.cons_val_three, Matrix.head_cons, Matrix.tail_cons,
@@ -420,7 +417,7 @@ private theorem sn_side_values :
     (scMap 1 (fun _ => 1 / 2) (snNodes k) (1 / k : ℝ)).im = 0 ∧
     (snW₀ k).im = -(k * snK' k) := by
   have hp := snParams hk0 hk1
-  have hk := one_lt_one_div_of_lt_one hk0 hk1
+  have hk := one_lt_one_div hk0 hk1
   -- the four sides and the last side
   have s1 := scMap_sub_of_scAngle hp (s := 0) (t := 1) (c := 0) zero_le_one fun σ hσ => by
     have := hσ.1; have := hσ.2
@@ -469,7 +466,7 @@ private theorem sn_side_values :
 theorem add_mul_mem_scPolygon_sn_iff (v : ℂ) :
     snW₀ k + k * v ∈ scPolygon 1 (fun _ => 1 / 2) (snNodes k) ↔ v ∈ snRect k := by
   obtain ⟨h1, h2, h3, h4, h5, h6⟩ := sn_side_values hk0 hk1
-  have hk := one_lt_one_div_of_lt_one hk0 hk1
+  have hk := one_lt_one_div hk0 hk1
   have hθ0 : scAngle (fun _ => 1 / 2) (snNodes k) (-(1 / k)) = -(π / 2) := by
     rw [scAngle_sn]; split_ifs <;> first | (exfalso; linarith) | ring
   have hθ1 : scAngle (fun _ => 1 / 2) (snNodes k) (-1) = 0 := by
@@ -590,7 +587,7 @@ theorem snV_ofReal {y : ℝ} (hy0 : 0 < y) (hy1 : y < 1) :
     snV k y = y * carlsonRF ((1 - y ^ 2 : ℝ) : ℂ) ((1 - k ^ 2 * y ^ 2 : ℝ) : ℂ) 1 := by
   have hp := snParams hk0 hk1
   have hk : (k : ℂ) ≠ 0 := by exact_mod_cast hk0.ne'
-  have hk' := one_lt_one_div_of_lt_one hk0 hk1
+  have hk' := one_lt_one_div hk0 hk1
   have hs := scMap_sub_of_scAngle hp (s := 0) (t := y) (c := 0) hy0.le fun σ hσ => by
     have := hσ.1; have := hσ.2
     rw [scAngle_sn]; split_ifs <;> first | (exfalso; linarith) | ring

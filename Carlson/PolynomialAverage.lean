@@ -112,7 +112,7 @@ theorem regCarlsonPolynomialAverage_const_nodes (p : ℂ[X]) (w : ℂ) (b : ι �
 /-- At coincident nodes the ordinary continued average is evaluation, provided
 the total parameter is not a Gamma pole. -/
 theorem carlsonPolynomialAverage_const_nodes (p : ℂ[X]) (w : ℂ) (b : ι → ℂ)
-    (hb : IsCarlsonGammaRegular (∑ i, b i)) :
+    (hb : IsGammaRegular (∑ i, b i)) :
     carlsonPolynomialAverage b (fun _ => w) p = p.eval w := by
   simp only [carlsonPolynomialAverage, LinearMap.smul_apply, smul_eq_mul,
     regCarlsonPolynomialAverage_const_nodes]

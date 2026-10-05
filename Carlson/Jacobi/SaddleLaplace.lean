@@ -7,6 +7,7 @@ module
 
 public import Carlson.Jacobi.SecondKindSaddle
 public import ToMathlib.Analysis.Integral.Laplace
+public import ToMathlib.Analysis.SpecialFunctions.Pow
 public import Mathlib.Analysis.SpecialFunctions.Complex.LogBounds
 public import Mathlib.MeasureTheory.Function.SpecialFunctions.Basic
 
@@ -216,12 +217,6 @@ theorem jacobiMobiusKernel_eq_saddleKernel {A B c : ℂ} (hA : A ≠ 0)
   field_simp
   ring
 
-/-- The Gaussian coefficient has positive real part throughout the shape disk. -/
-theorem re_one_sub_saddleShape_pos {w : ℂ} (hw : ‖w‖ < 1) : 0 < (1 - w).re := by
-  have h := re_le_norm w
-  simp only [sub_re, one_re]
-  linarith
-
 /-- The quantitative Laplace bound for the actual normalized Jacobi kernel on
 a central interval. The only amplitude hypotheses are measurability and a local
 linear variation bound. -/
@@ -243,7 +238,7 @@ theorem norm_sqrt_mul_integral_jacobiSaddleKernel_sub_le {A : ℝ → ℂ} {w : 
     have hh := (hu u h).trans hδhalf
     nlinarith [sq_abs u, abs_nonneg u]
   have H := norm_sqrt_mul_integral_laplace_Icc_sub_le
-    (half_pos (re_one_sub_saddleShape_pos hw)) hL hM (by norm_num : (0:ℝ) ≤ 1) hδ
+    (half_pos (Complex.re_one_sub_pos hw)) hL hM hδ
     (Nat.cast_pos.mpr hn) hAc (measurable_jacobiSaddlePhase w) hq hA0 hA hqt
   simp only [jacobiSaddlePhase_zero, mul_one, ofReal_natCast] at H
   convert H using 2
@@ -304,7 +299,7 @@ theorem exists_jacobiSaddle_local_bounds {A : ℝ → ℂ} {w : ℂ}
   obtain ⟨C, hC⟩ := hAd.isBigO_sub.bound
   obtain ⟨ε, hε, hball⟩ := Metric.mem_nhds_iff.mp hC
   let δ := min (ε / 2) (min (1 / 2) (Real.sqrt (1 - w).re / 2))
-  have hq := re_one_sub_saddleShape_pos hw
+  have hq := Complex.re_one_sub_pos hw
   have hδ : 0 < δ := lt_min (by positivity) (lt_min (by norm_num) (by positivity))
   have hδε : δ < ε := (min_le_left _ _).trans_lt (by linarith)
   have hδhalf : δ ≤ 1 / 2 := (min_le_right _ _).trans (min_le_left _ _)
@@ -381,7 +376,7 @@ theorem isEquivalent_integral_jacobiSaddleKernel {A : ℝ → ℂ} {w : ℂ}
     left
     apply div_ne_zero (ofReal_ne_zero.mpr Real.pi_ne_zero)
     intro h
-    have hh := re_one_sub_saddleShape_pos hw
+    have hh := Complex.re_one_sub_pos hw
     simp [h] at hh
   have h := (tendsto_sqrt_mul_integral_jacobiSaddleKernel hw hAc hAi hAd).div_const
     (A 0 * (Real.pi / (1 - w)) ^ (1 / 2 : ℂ))
@@ -535,7 +530,7 @@ theorem jacobiSaddleLeading_ne_zero (a b : ℂ) (m : ℕ) {r s z : ℂ}
   left
   apply div_ne_zero (ofReal_ne_zero.mpr Real.pi_ne_zero)
   intro h
-  have hh := re_one_sub_saddleShape_pos (norm_jacobiSaddleShape_lt_one (re_jacobiSaddleRatio_pos hz))
+  have hh := Complex.re_one_sub_pos (norm_jacobiSaddleShape_lt_one (re_jacobiSaddleRatio_pos hz))
   simp [h] at hh
 
 /-- The centered saddle integral is exactly the shifted-degree Möbius integral,

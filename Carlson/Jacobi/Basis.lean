@@ -90,8 +90,9 @@ theorem sum_jacobiBasis_repr (α β : K)
   simpa only [Finsupp.linearCombination_apply, jacobiBasis_apply] using
     (jacobiBasis α β h).linearCombination_repr p
 
-/-- In the usual real orthogonality range no Jacobi polynomial loses degree. -/
-theorem jacobi_pochhammer_ne_zero {α β : ℝ} (hα : -1 < α) (hβ : -1 < β) (n : ℕ) :
+/-- No Jacobi polynomial loses degree when `α + β > -2`, in particular in the usual real
+orthogonality range `α, β > -1`. -/
+theorem jacobi_pochhammer_ne_zero {α β : ℝ} (hαβ : -2 < α + β) (n : ℕ) :
     (ascPochhammer ℝ n).eval (α + β + n + 1) ≠ 0 := by
   cases n with
   | zero => simp

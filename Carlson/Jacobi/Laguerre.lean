@@ -112,17 +112,6 @@ theorem tendsto_eval_jacobiOn_monicLaguerre (β x : ℂ) (n : ℕ) :
     eval_pow, eval_X]
   rw [Finset.Nat.sum_antidiagonal_eq_sum_range_succ_mk]
 
-/-- Natural shifts of Gamma in the right half-plane multiply by rising factorials. -/
-theorem Gamma_add_nat_eq_ascPochhammer_mul {z : ℂ} (hz : 0 < z.re) (m : ℕ) :
-    Gamma (z + m) = (ascPochhammer ℂ m).eval z * Gamma z := by
-  induction m with
-  | zero => simp
-  | succ m ih =>
-    have hzm : z + m ≠ 0 := fun h => by
-      have := congrArg re h; simp at this; linarith [Nat.cast_nonneg (α := ℝ) m]
-    rw [Nat.cast_succ, ← add_assoc, Gamma_add_one _ hzm, ih, ascPochhammer_succ_eval]
-    ring
-
 /-- The Laguerre weight `x^β e^{-x}` on the positive half-line has the Gamma function as its
 moments. -/
 theorem integral_pow_mul_laguerreWeight {β : ℂ} (hβ : -1 < β.re) (k : ℕ) :
@@ -194,7 +183,7 @@ theorem integral_pow_mul_monicLaguerre {β : ℂ} (hβ : -1 < β.re) (n k : ℕ)
   simp only [hterm, integral_const_mul, integral_pow_mul_laguerreWeight hβ]
   have hshift (m : ℕ) : Gamma (β + (k + m : ℕ) + 1) =
       (ascPochhammer ℂ m).eval (β + k + 1) * Gamma (β + k + 1) := by
-    rw [← Gamma_add_nat_eq_ascPochhammer_mul hz m]; push_cast; ring_nf
+    rw [← Complex.Gamma_add_nat_eq_ascPochhammer_mul (.of_re_pos hz) m]; push_cast; ring_nf
   simp only [hshift]
   rw [show (k : ℂ) + 1 - n = (β + k + 1) + (-β - n) by ring,
     ascPochhammer_eval_add_sum_range, mul_sum]

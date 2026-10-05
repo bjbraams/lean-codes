@@ -78,7 +78,7 @@ theorem integral_dirichletMeasure_affine [Nonempty ι] {b : ι → ℝ} (hb : b 
 
 /-- Jensen's lower and upper bounds for a convex real Dirichlet average. -/
 theorem convexOn_dirichlet_average_bounds [Nonempty ι] {b x : ι → ℝ}
-    (hb : b ∈ mvRealBetaDomain) {s : Set ℝ} (hs : IsClosed s) (hx : ∀ i, x i ∈ s)
+    (hb : b ∈ mvRealBetaDomain) {s : Set ℝ} (hx : ∀ i, x i ∈ s)
     {f : ℝ → ℝ} (hf : ConvexOn ℝ s f) (hfc : ContinuousOn f s) :
     f (∑ i, (b i / ∑ j, b j) * x i) ≤
         (∫ u, f (∑ i, u i * x i) ∂dirichletMeasure b) ∧
@@ -90,9 +90,12 @@ theorem convexOn_dirichlet_average_bounds [Nonempty ι] {b x : ι → ℝ}
     integrable_dirichletMeasure_of_continuousOn hb (by fun_prop)
   constructor
   · rw [← integral_dirichletMeasure_affine hb x]
-    apply hf.map_integral_le hfc hs _ haff hint
+    have hKs : convexHull ℝ (Set.range x) ⊆ s := convexHull_min (Set.range_subset_iff.2 hx) hf.1
+    apply (hf.subset hKs (convex_convexHull ℝ _)).map_integral_le (hfc.mono hKs)
+      ((Set.finite_range x).isCompact_convexHull ℝ).isClosed _ haff hint
     filter_upwards [ae_mem_stdSimplex_dirichletMeasure b] with u hu
-    exact dirichlet_affine_mem hf.1 hx hu
+    exact dirichlet_affine_mem (convex_convexHull ℝ _)
+      (fun i => subset_convexHull ℝ _ ⟨i, rfl⟩) hu
   · rw [← integral_dirichletMeasure_affine hb (fun i => f (x i))]
     apply integral_mono_ae hint (integrable_dirichletMeasure_of_continuousOn hb (by fun_prop))
     filter_upwards [ae_mem_stdSimplex_dirichletMeasure b] with u hu
@@ -100,13 +103,13 @@ theorem convexOn_dirichlet_average_bounds [Nonempty ι] {b x : ι → ℝ}
 
 /-- The Jensen bounds reverse for a concave real Dirichlet average. -/
 theorem concaveOn_dirichlet_average_bounds [Nonempty ι] {b x : ι → ℝ}
-    (hb : b ∈ mvRealBetaDomain) {s : Set ℝ} (hs : IsClosed s) (hx : ∀ i, x i ∈ s)
+    (hb : b ∈ mvRealBetaDomain) {s : Set ℝ} (hx : ∀ i, x i ∈ s)
     {f : ℝ → ℝ} (hf : ConcaveOn ℝ s f) (hfc : ContinuousOn f s) :
     (∫ u, f (∑ i, u i * x i) ∂dirichletMeasure b) ≤
         f (∑ i, (b i / ∑ j, b j) * x i) ∧
       (∑ i, (b i / ∑ j, b j) * f (x i)) ≤
         ∫ u, f (∑ i, u i * x i) ∂dirichletMeasure b := by
-  have h := convexOn_dirichlet_average_bounds hb hs hx hf.neg hfc.neg
+  have h := convexOn_dirichlet_average_bounds hb hx hf.neg hfc.neg
   simpa only [Pi.neg_apply, integral_neg, mul_neg, Finset.sum_neg_distrib, neg_le_neg_iff] using h
 
 /-- A coordinate times an affine combination has an explicit mixed second moment. -/

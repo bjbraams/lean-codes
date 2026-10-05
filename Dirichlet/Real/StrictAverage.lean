@@ -42,7 +42,7 @@ theorem not_ae_dirichlet_affine_comp_eq_const {b x : ι → ℝ}
 
 /-- Both Jensen bounds are strict for a strictly convex kernel and nonconstant nodes. -/
 theorem strictConvexOn_dirichlet_average_bounds {b x : ι → ℝ}
-    (hb : b ∈ mvRealBetaDomain) {s : Set ℝ} (hs : IsClosed s) (hx : ∀ i, x i ∈ s)
+    (hb : b ∈ mvRealBetaDomain) {s : Set ℝ} (hx : ∀ i, x i ∈ s)
     (hne : ∃ i j, x i ≠ x j) {f : ℝ → ℝ}
     (hf : StrictConvexOn ℝ s f) (hfc : ContinuousOn f s) :
     f (∑ i, (b i / ∑ j, b j) * x i) <
@@ -54,8 +54,12 @@ theorem strictConvexOn_dirichlet_average_bounds {b x : ι → ℝ}
   have haff : Integrable (fun u => ∑ i, u i * x i) (dirichletMeasure b) :=
     integrable_dirichletMeasure_of_continuousOn hb (by fun_prop)
   constructor
-  · have h := hf.ae_eq_const_or_map_average_lt hfc hs
-      ((ae_mem_stdSimplex_dirichletMeasure b).mono (fun _ hu => dirichlet_affine_mem hf.1 hx hu))
+  · have hKs : convexHull ℝ (Set.range x) ⊆ s :=
+      convexHull_min (Set.range_subset_iff.2 hx) hf.1
+    have h := (hf.subset hKs (convex_convexHull ℝ _)).ae_eq_const_or_map_average_lt
+      (hfc.mono hKs) ((Set.finite_range x).isCompact_convexHull ℝ).isClosed
+      ((ae_mem_stdSimplex_dirichletMeasure b).mono (fun _ hu => dirichlet_affine_mem
+        (convex_convexHull ℝ _) (fun i => subset_convexHull ℝ _ ⟨i, rfl⟩) hu))
       haff hint
     rcases h with h | h
     · have hc := (ae_dirichlet_affine_eq_const_iff hb _).mp h
@@ -72,14 +76,14 @@ theorem strictConvexOn_dirichlet_average_bounds {b x : ι → ℝ}
 
 /-- Both Jensen bounds reverse strictly for a strictly concave kernel and nonconstant nodes. -/
 theorem strictConcaveOn_dirichlet_average_bounds {b x : ι → ℝ}
-    (hb : b ∈ mvRealBetaDomain) {s : Set ℝ} (hs : IsClosed s) (hx : ∀ i, x i ∈ s)
+    (hb : b ∈ mvRealBetaDomain) {s : Set ℝ} (hx : ∀ i, x i ∈ s)
     (hne : ∃ i j, x i ≠ x j) {f : ℝ → ℝ}
     (hf : StrictConcaveOn ℝ s f) (hfc : ContinuousOn f s) :
     (∫ u, f (∑ i, u i * x i) ∂dirichletMeasure b) <
         f (∑ i, (b i / ∑ j, b j) * x i) ∧
       (∑ i, (b i / ∑ j, b j) * f (x i)) <
         ∫ u, f (∑ i, u i * x i) ∂dirichletMeasure b := by
-  have h := strictConvexOn_dirichlet_average_bounds hb hs hx hne hf.neg hfc.neg
+  have h := strictConvexOn_dirichlet_average_bounds hb hx hne hf.neg hfc.neg
   simpa only [Pi.neg_apply, integral_neg, mul_neg, Finset.sum_neg_distrib, neg_lt_neg_iff] using h
 
 /-- A strictly convex kernel gives a strictly convex Dirichlet average as a function

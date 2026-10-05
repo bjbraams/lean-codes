@@ -17,10 +17,10 @@ the nodes, and the exterior evaluation point. All complex Dirichlet parameters
 are allowed, without Gamma-pole exclusions. The proof uses the parametric
 simplex integration-by-parts construction rather than a logarithmic branch.
 
-This is not yet the contour-adapted branch on a nonconvex Jordan domain in
-Carlson's Theorems 4–5. That construction and the simply connected extension of
-Theorem 8 remain further work. Extensions to multiply connected domains and to
-Riemann surfaces are deliberately left open.
+This is not the contour-adapted branch on a nonconvex Jordan domain in
+Carlson's Theorems 4–5. The simply connected case of Theorem 8 is proved without that
+construction in `Dirichlet.Average.SimplyConnected`. Extensions to multiply connected
+domains and to Riemann surfaces are deliberately left open.
 
 ## Main results
 

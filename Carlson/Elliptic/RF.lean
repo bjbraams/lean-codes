@@ -112,17 +112,13 @@ theorem carlsonRF_self_right {x y : ℂ} (hx : x ∈ slitPlane) (hy : y ∈ slit
   congr 1
   simp; norm_num
 
-/-- `R_F(x, x, x) = x^{-1/2}` for `re x > 0`. -/
-theorem carlsonRF_self {x : ℂ} (hx : 0 < x.re) : carlsonRF x x x = x ^ (-1 / 2 : ℂ) := by
-  have hb : (fun _ : Fin 3 => (1 / 2 : ℂ)) ∈ mvBetaConvergent := fun _ => by norm_num
+/-- `R_F(x, x, x) = x^{-1/2}` for slit-plane `x`. -/
+theorem carlsonRF_self {x : ℂ} (hx : x ∈ slitPlane) : carlsonRF x x x = x ^ (-1 / 2 : ℂ) := by
   have hxx : (![x, x, x] : Fin 3 → ℂ) = fun _ => x := by funext i; fin_cases i <;> rfl
-  have hdom : (![x, x, x] : Fin 3 → ℂ) ∈ carlsonRVariableDomain := by
-    rw [hxx]; exact fun _ => hx
   have hc : 0 < (∑ _i : Fin 3, (1 / 2 : ℂ)).re := by simp
   unfold carlsonRF carlsonR
-  rw [regCarlsonR_eq_regCarlsonRIntegral _ hb hdom, regCarlsonRIntegral, hxx,
-    Dirichlet.regCarlsonDirichletAverage_const _ _ hb,
-    mul_div_cancel₀ _ (Gamma_ne_zero_of_re_pos hc)]
+  rw [hxx, regCarlsonR_const_node _ _ hx, mul_comm, mul_assoc,
+    inv_mul_cancel₀ (Gamma_ne_zero_of_re_pos hc), mul_one]
 
 /-- **Carlson's (8.2-5)**: for slit-plane nodes,
 `R_F(x, y, z) = (1/2) ∫₀^∞ (t + x)^{-1/2} (t + y)^{-1/2} (t + z)^{-1/2} dt`. -/
@@ -132,7 +128,7 @@ theorem carlsonRF_eq_integral {x y z : ℂ} (hx : x ∈ slitPlane) (hy : y ∈ s
       (x + t) ^ (-1 / 2 : ℂ) * (y + t) ^ (-1 / 2 : ℂ) * (z + t) ^ (-1 / 2 : ℂ) := by
   have hs : ![x, y, z] ∈ carlsonRSlitDomain := by
     intro i; fin_cases i <;> assumption
-  have h := carlsonRPositiveRayIntegral_eq_gamma_mul_regCarlsonR (a := 1) (a' := 1 / 2)
+  have h := carlsonRPositiveRayIntegral_eq_Gamma_mul_regCarlsonR (a := 1) (a' := 1 / 2)
     (b := fun _ : Fin 3 => (1 / 2 : ℂ)) (by norm_num) (by norm_num)
     (by simp; norm_num) hs
   unfold carlsonRPositiveRayIntegral at h

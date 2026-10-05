@@ -18,7 +18,7 @@ this node set is connected too, giving a useful uniqueness domain.
 
 This does not extend the average to tuples whose convex hull leaves `D`.
 That is the additional content of Carlson (1969), Theorem 8, on simply
-connected domains; its general existence assertion remains open here.
+connected domains, proved in `Dirichlet.Average.SimplyConnected`.
 
 ## Main results
 

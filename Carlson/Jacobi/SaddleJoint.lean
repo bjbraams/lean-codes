@@ -240,7 +240,7 @@ theorem continuousAt_jacobiSaddleLeading_endpoints (a b : ℂ) (m : ℕ) {r s : 
     convert h using 1
     funext p
     exact (jacobiSaddleAmplitudeJointComplex_ofReal a b m p.1 p.2 0).symm
-  have hq := re_one_sub_saddleShape_pos (norm_jacobiSaddleShape_lt_one (re_jacobiSaddleRatio_pos hz))
+  have hq := Complex.re_one_sub_pos (norm_jacobiSaddleShape_lt_one (re_jacobiSaddleRatio_pos hz))
   have hqne : 1 - jacobiSaddleShape (jacobiSaddleRatio r s 0) ≠ 0 := by
     intro h; simp [h] at hq
   have hslit : (Real.pi : ℂ) / (1 - jacobiSaddleShape (jacobiSaddleRatio r s 0)) ∈ slitPlane := by

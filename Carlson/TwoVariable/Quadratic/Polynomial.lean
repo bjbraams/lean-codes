@@ -294,7 +294,7 @@ theorem carlsonRPolynomialNumerator₂_secondQuadratic
     rw [hparam]
     ring
 
-/- The parameter continuations are proved in `QuadraticContinuation` and `EqualParameter`.
+/- The parameter continuations are proved in `QuadraticContinuation` and `EqualParameterSlit`.
 Extending the branch-sensitive node domains remains separate work.
 No Legendre, Chebyshev, Gegenbauer, or elliptic-integral
 specialization belongs in this file. -/

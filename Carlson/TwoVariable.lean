@@ -20,7 +20,6 @@ public import Carlson.TwoVariable.QuadraticHybrid
 public import Carlson.TwoVariable.BilateralGenerating
 public import Carlson.TwoVariable.SEqualParameter
 public import Carlson.TwoVariable.FractionalIntegral
-public import Carlson.TwoVariable.EqualParameter
 public import Carlson.TwoVariable.LQuadratic
 public import Carlson.TwoVariable.EqualParameterSlit
 public import Carlson.TwoVariable.ConfluentHypergeometric

@@ -21,13 +21,17 @@ along natural shifts.
 * `Complex.one_div_Gamma_eq_ascPochhammer_mul_one_div_Gamma_add_nat`: The natural-shift
   recurrence for reciprocal Gamma, valid at every complex argument. This is the pole-free
   counterpart of expressing an ascending Pochhammer symbol as a quotient of Gamma functions.
-* `Complex.IsCarlsonGammaRegular.ascPochhammer_ne_zero`: No ascending Pochhammer factor vanishes
+* `Complex.IsGammaRegular.ascPochhammer_ne_zero`: No ascending Pochhammer factor vanishes
   at a Gamma-regular argument.
-* `Complex.norm_invGamma_add_nat_le`: Reciprocal Gamma gains at least factorial decay under
+* `Complex.Gamma_add_nat_eq_ascPochhammer_mul`: Natural shifts of Gamma at a Gamma-regular point
+  multiply by rising factorials (Mathlib's `Complex.Gamma_add_nat_div_Gamma_eq`).
+* `Real.Gamma_add_nat_div_Gamma_eq_ascPochhammer`: The real quotient form, away from the
+  nonpositive integers.
+* `Complex.norm_inv_Gamma_add_nat_le`: Reciprocal Gamma gains at least factorial decay under
   positive integer shifts in the half-plane `1 ≤ re s`.
-* `Complex.exists_uniform_norm_invGamma_add_nat`: Reciprocal Gamma has uniform factorial decay
+* `Complex.exists_uniform_norm_inv_Gamma_add_nat`: Reciprocal Gamma has uniform factorial decay
   after a common natural shift on any compact set of complex arguments.
-* `Complex.exists_uniform_norm_invGamma_sum_add_nat`: Uniform factorial decay for reciprocal
+* `Complex.exists_uniform_norm_inv_Gamma_sum_add_nat`: Uniform factorial decay for reciprocal
   Gamma after sufficiently many shifts of the total parameter on a compact set.
 
 ## References
@@ -79,33 +83,21 @@ theorem inv_Gamma_add_nat_of_ne_zero {s : ℂ} {n : ℕ}
       _ = (Gamma s)⁻¹ * ((∏ k ∈ range n, (s + k)⁻¹) * (s + n)⁻¹) := by ring
       _ = (Gamma s)⁻¹ * ∏ k ∈ range (n + 1), (s + k)⁻¹ := by rw [prod_range_succ]
 
-/-- Splitting an ascending Pochhammer symbol and reflecting the remaining factors.
-
-The multiplicative form remains valid when one of the Pochhammer factors vanishes, unlike the
-corresponding quotient identity. -/
-theorem ascPochhammer_eval_split_reflection (c : ℂ) {m n : ℕ} (hmn : m ≤ n) :
-    (ascPochhammer ℂ n).eval c =
-      (-1 : ℂ) ^ (n - m) * (ascPochhammer ℂ m).eval c *
-        (ascPochhammer ℂ (n - m)).eval (1 - c - n) :=
-  ascPochhammer_eval_split_reflect c hmn
-
 end Complex
 
 namespace Real
 
 /-- A quotient of gamma values separated by a natural number equals the corresponding rising
-factorial. -/
-theorem gamma_add_nat_div_gamma_eq_ascPochhammer
-    (x : ℝ) (hx : 0 < x) (n : ℕ) :
+factorial, whenever the base point is not a nonpositive integer. -/
+theorem Gamma_add_nat_div_Gamma_eq_ascPochhammer
+    (x : ℝ) (hx : ∀ k : ℕ, x ≠ -k) (n : ℕ) :
     Gamma (x + n) / Gamma x = (ascPochhammer ℝ n).eval x := by
   induction n with
-  | zero => simp [ne_of_gt (Gamma_pos_of_pos hx)]
+  | zero => simp [Gamma_ne_zero hx]
   | succ n ih =>
-      rw [Nat.cast_succ]
-      rw [show x + ((n : ℝ) + 1) = (x + n) + 1 by ring]
-      rw [Gamma_add_one (by positivity : x + (n : ℝ) ≠ 0)]
-      rw [ascPochhammer_succ_eval]
-      rw [mul_div_assoc, ih]
+      have hxn : x + (n : ℝ) ≠ 0 := fun h => hx n (by linarith)
+      rw [Nat.cast_succ, show x + ((n : ℝ) + 1) = (x + n) + 1 by ring, Gamma_add_one hxn,
+        ascPochhammer_succ_eval, mul_div_assoc, ih]
       ring
 
 end Real
@@ -124,20 +116,34 @@ namespace Complex
 
 /-- Carlson's set `U`: complex numbers that are not nonpositive integers, equivalently the
 finite points at which the Gamma function has no pole. -/
-def IsCarlsonGammaRegular (w : ℂ) : Prop :=
+def IsGammaRegular (w : ℂ) : Prop :=
   ∀ n : ℕ, w ≠ -(n : ℂ)
 
+/-- A complex number with positive real part is not a nonpositive integer. -/
+theorem IsGammaRegular.of_re_pos {w : ℂ} (hw : 0 < w.re) : IsGammaRegular w := by
+  intro n hn
+  have he := congrArg Complex.re hn
+  simp only [neg_re, natCast_re] at he
+  have : (0 : ℝ) ≤ n := Nat.cast_nonneg n
+  linarith
+
+/-- Natural shifts of Gamma at a Gamma-regular point multiply by rising factorials.
+This is Mathlib's `Complex.Gamma_add_nat_div_Gamma_eq` in multiplicative form. -/
+theorem Gamma_add_nat_eq_ascPochhammer_mul {z : ℂ} (hz : IsGammaRegular z) (m : ℕ) :
+    Gamma (z + m) = (ascPochhammer ℂ m).eval z * Gamma z := by
+  rw [← Gamma_add_nat_div_Gamma_eq z hz, div_mul_cancel₀ _ (Gamma_ne_zero hz)]
+
 /-- Positive integral shifts preserve Gamma regularity. -/
-theorem IsCarlsonGammaRegular.add_nat {w : ℂ} (hw : IsCarlsonGammaRegular w) (m : ℕ) :
-    IsCarlsonGammaRegular (w + m) := by
+theorem IsGammaRegular.add_nat {w : ℂ} (hw : IsGammaRegular w) (m : ℕ) :
+    IsGammaRegular (w + m) := by
   intro n h
   apply hw (n + m)
   push_cast
   linear_combination h
 
 /-- No ascending Pochhammer factor vanishes at a Gamma-regular argument. -/
-theorem IsCarlsonGammaRegular.ascPochhammer_ne_zero {w : ℂ}
-    (hw : IsCarlsonGammaRegular w) (n : ℕ) :
+theorem IsGammaRegular.ascPochhammer_ne_zero {w : ℂ}
+    (hw : IsGammaRegular w) (n : ℕ) :
     (ascPochhammer ℂ n).eval w ≠ 0 := by
   rw [Ne, ascPochhammer_eval_eq_zero_iff]
   rintro ⟨m, _, hm⟩
@@ -146,7 +152,7 @@ theorem IsCarlsonGammaRegular.ascPochhammer_ne_zero {w : ℂ}
 
 /-- Reciprocal Gamma gains at least factorial decay under positive integer shifts
 in the half-plane `1 ≤ re s`. -/
-theorem norm_invGamma_add_nat_le {s : ℂ} (hs : 1 ≤ s.re) (n : ℕ) :
+theorem norm_inv_Gamma_add_nat_le {s : ℂ} (hs : 1 ≤ s.re) (n : ℕ) :
     ‖(Gamma (s + n))⁻¹‖ ≤ ‖(Gamma s)⁻¹‖ / (n.factorial : ℝ) := by
   induction n with
   | zero => simp
@@ -175,7 +181,7 @@ public noncomputable section
 
 /-- Reciprocal Gamma has uniform factorial decay after a common natural shift on any
 compact set of complex arguments. -/
-theorem exists_uniform_norm_invGamma_add_nat {K : Set ℂ} (hK : IsCompact K) :
+theorem exists_uniform_norm_inv_Gamma_add_nat {K : Set ℂ} (hK : IsCompact K) :
     ∃ m : ℕ, ∃ C : ℝ, 0 ≤ C ∧ ∀ b ∈ K, ∀ n : ℕ,
       ‖(Gamma (b + (n + m)))⁻¹‖ ≤ C / n.factorial := by
   obtain ⟨B, hB⟩ := hK.bddAbove_image continuous_id.norm.continuousOn
@@ -189,19 +195,19 @@ theorem exists_uniform_norm_invGamma_add_nat {K : Set ℂ} (hK : IsCompact K) :
     differentiable_one_div_Gamma.continuous.comp (continuous_id.add continuous_const)
   obtain ⟨C, hC⟩ := hK.bddAbove_image hc.norm.continuousOn
   refine ⟨m, max C 0, le_max_right _ _, fun b hb n => ?_⟩
-  have h := (Complex.norm_invGamma_add_nat_le (hre b hb) n).trans
+  have h := (Complex.norm_inv_Gamma_add_nat_le (hre b hb) n).trans
     (div_le_div_of_nonneg_right ((hC (mem_image_of_mem _ hb)).trans (le_max_left C 0))
       (by positivity))
   simpa [Nat.cast_add, add_assoc, add_comm, add_left_comm] using h
 
 /-- Uniform factorial decay for reciprocal Gamma after sufficiently many shifts
 of the total parameter on a compact set. -/
-theorem exists_uniform_norm_invGamma_sum_add_nat {ι : Type*} [Fintype ι]
+theorem exists_uniform_norm_inv_Gamma_sum_add_nat {ι : Type*} [Fintype ι]
     {K : Set (ι → ℂ)} (hK : IsCompact K) :
     ∃ m : ℕ, ∃ C : ℝ, 0 ≤ C ∧ ∀ b ∈ K, ∀ n : ℕ,
       ‖(Gamma ((∑ i, b i) + (n + m)))⁻¹‖ ≤ C / n.factorial := by
   have hS : Continuous (fun b : ι → ℂ => ∑ i, b i) := by fun_prop
-  obtain ⟨m, C, hC, hbound⟩ := exists_uniform_norm_invGamma_add_nat (hK.image hS)
+  obtain ⟨m, C, hC, hbound⟩ := exists_uniform_norm_inv_Gamma_add_nat (hK.image hS)
   exact ⟨m, C, hC, fun b hb n => hbound _ (Set.mem_image_of_mem _ hb) n⟩
 
 end

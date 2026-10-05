@@ -19,7 +19,7 @@ Continuation beyond that domain is developed separately in `Dirichlet.Transform`
 
 ## Main results
 
-* `Dirichlet.analyticOnNhd_prod_invGamma`: The product of reciprocal Gamma factors used to
+* `Dirichlet.analyticOnNhd_prod_inv_Gamma`: The product of reciprocal Gamma factors used to
   regularize a Dirichlet integral is entire in the parameter vector.
 * `Dirichlet.hasFDerivAt_mvBetaMonomial`: The Dirichlet monomial `∏ i, (u i) ^ (b i - 1)` is
   entire in the parameter vector at every interior simplex point.
@@ -49,7 +49,7 @@ variable {ι : Type*} [Fintype ι]
 
 /-- The product of reciprocal Gamma factors used to regularize a Dirichlet integral is entire
 in the parameter vector. -/
-theorem analyticOnNhd_prod_invGamma :
+theorem analyticOnNhd_prod_inv_Gamma :
     AnalyticOnNhd ℂ (fun b : ι → ℂ ↦ ∏ i, (Gamma (b i))⁻¹) Set.univ := by
   classical
   apply DifferentiableOn.analyticOnNhd_pi _ isOpen_univ
@@ -253,9 +253,9 @@ theorem regDirichletIntegral_analyticOn {f : (ι → ℝ) → ℂ}
     have hEq : (fun b ↦ regDirichletIntegral b f) =
         fun b ↦ (∏ i, (Gamma (b i))⁻¹) * ∫ u, (∏ i, (u i : ℂ) ^ (b i - 1)) * f u ∂μ := by
       funext b
-      exact regDirichletIntegral_eq_prod_invGamma_mul b f
+      exact regDirichletIntegral_eq_prod_inv_Gamma_mul b f
     rw [hEq]
-    exact ((analyticOnNhd_prod_invGamma.mono (Set.subset_univ _)).mul hG).analyticOn
+    exact ((analyticOnNhd_prod_inv_Gamma.mono (Set.subset_univ _)).mul hG).analyticOn
 
 end Dirichlet
 

@@ -188,7 +188,8 @@ theorem curveIndex_jacobiEllipsePath_of_lt (r s : ℂ) {σ : ℝ} (hσ0 : 0 < σ
       by norm_num, by simp [real_smul]; ring⟩]
     exact hσ
   rw [← curveIndex_jacobiEllipsePath_midpoint r s hσ0 hσ]
-  refine curveIndex_eq_of_isPreconnected _ (contDiffOn_jacobiEllipsePath r s hσ0)
+  refine curveIndex_eq_of_isPreconnected _
+    (isPiecewiseC1On_extend_of_contDiffOn (contDiffOn_jacobiEllipsePath r s hσ0))
     (convex_jacobiEllipseDisk r s hσ).isPreconnected ?_ hw hmid
   intro z hz hzr
   have := jacobiEllipseRadius_of_mem_range_jacobiEllipsePath r s hσ0 hσ.le hzr
@@ -199,7 +200,8 @@ theorem curveIndex_jacobiEllipsePath_of_gt (r s : ℂ) {σ : ℝ} (hσ0 : 0 < σ
     (hσ : ‖r - s‖ / 4 < σ) {w : ℂ} (hw : σ < jacobiEllipseRadius r s w) :
     curveIndex (jacobiEllipsePath r s hσ0) w = 0 := by
   refine curveIndex_eq_zero_of_isPreconnected_of_not_isBounded _
-    (contDiffOn_jacobiEllipsePath r s hσ0) (isPreconnected_jacobiEllipse_exterior r s hσ)
+    (isPiecewiseC1On_extend_of_contDiffOn (contDiffOn_jacobiEllipsePath r s hσ0))
+    (isPreconnected_jacobiEllipse_exterior r s hσ)
     ?_ ?_ hw
   · intro z hz hzr
     have := jacobiEllipseRadius_of_mem_range_jacobiEllipsePath r s hσ0 hσ.le hzr
@@ -250,14 +252,14 @@ theorem jacobiEllipseRadius_of_mem_range_jacobiEllipseCycle (r s : ℂ) {σ : �
 /-- The confocal ellipse cycle winds once around every point of the elliptic disk it bounds. -/
 theorem index_jacobiEllipseCycle_of_lt (r s : ℂ) {σ : ℝ} (hσ0 : 0 < σ) (hσ : ‖r - s‖ / 4 < σ)
     {w : ℂ} (hw : jacobiEllipseRadius r s w < σ) : (jacobiEllipseCycle r s hσ0).index w = 1 := by
-  rw [jacobiEllipseCycle, Cycle.zsmulLoop_index]
+  rw [jacobiEllipseCycle, Cycle.index_zsmulLoop]
   change ((1 : ℤ) : ℂ) * curveIndex (jacobiEllipsePath r s hσ0) w = 1
   rw [curveIndex_jacobiEllipsePath_of_lt r s hσ0 hσ hw]; norm_num
 
 /-- The confocal ellipse cycle has index zero at points of the elliptic exterior. -/
 theorem index_jacobiEllipseCycle_of_gt (r s : ℂ) {σ : ℝ} (hσ0 : 0 < σ) (hσ : ‖r - s‖ / 4 < σ)
     {w : ℂ} (hw : σ < jacobiEllipseRadius r s w) : (jacobiEllipseCycle r s hσ0).index w = 0 := by
-  rw [jacobiEllipseCycle, Cycle.zsmulLoop_index]
+  rw [jacobiEllipseCycle, Cycle.index_zsmulLoop]
   change ((1 : ℤ) : ℂ) * curveIndex (jacobiEllipsePath r s hσ0) w = 0
   rw [curveIndex_jacobiEllipsePath_of_gt r s hσ0 hσ hw]; norm_num
 

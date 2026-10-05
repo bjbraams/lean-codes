@@ -6,7 +6,8 @@ Authors: Bastiaan J Braams
 module
 
 public import Carlson.Jacobi.ComplexRodrigues
-public import Carlson.Jacobi.WeightedIntegral
+public import Mathlib.MeasureTheory.Integral.IntervalIntegral.IntegrationByParts
+public import Mathlib.Analysis.SpecialFunctions.Gamma.Beta
 
 /-!
 # Weighted Jacobi integrals at complex parameters

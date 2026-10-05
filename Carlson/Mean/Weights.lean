@@ -34,7 +34,7 @@ theorem hasDerivAt_carlsonR_update_one (t : ℂ) {b : ι → ℂ}
   have hc : (∑ j, b j) ≠ 0 := by simpa using hb 0
   have h := (hasDerivAt_regCarlsonR_update t b (z := fun _ => 1)
     (fun _ => one_mem_slitPlane) i).const_mul (Gamma (∑ j, b j))
-  simp only [regCarlsonR_const_node _ _ (by norm_num : 0 < (1 : ℂ).re),
+  simp only [regCarlsonR_const_node _ _ one_mem_slitPlane,
     one_cpow, one_mul, sum_addDirichletUnit, Gamma_add_one _ hc] at h
   convert h using 1
   · rfl
@@ -54,7 +54,7 @@ theorem hasDerivAt_carlsonL_update_one (t : ℂ) {b : ι → ℂ}
   rw [carlsonPartialDeriv_regCarlsonL t b (fun _ => one_mem_slitPlane) i] at h
   have h' := h.const_mul (Gamma (∑ j, b j))
   simp only [regCarlsonL_one, mul_zero, zero_add,
-    regCarlsonR_const_node _ _ (by norm_num : 0 < (1 : ℂ).re), one_cpow, one_mul,
+    regCarlsonR_const_node _ _ one_mem_slitPlane, one_cpow, one_mul,
     sum_addDirichletUnit, Gamma_add_one _ hc] at h'
   convert h' using 1
   · rfl

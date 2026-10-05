@@ -15,7 +15,9 @@ public import StdSimplexMeasure.Complex.RepeatedIntegral
 
 Unweighted Dirichlet averages are related to the general Hermite–Genocchi divided
 differences, Newton–Taylor formulas, and repeated segment integrals in `ComplexAnalysis`.
-The original application statements are retained as wrappers around that theory.
+Carlson's numbered statements are retained as wrappers around that theory. Other structural
+facts (permutation invariance, coincident nodes, simplex calculus) are used directly from
+`Complex.dividedDifference` through `carlsonDividedDifference_eq_dividedDifference`.
 
 
 ## Main results
@@ -137,45 +139,11 @@ theorem carlsonUnweightedAverage_eq_factorial_simplexIntegral
     carlsonUnweightedAverage z f = (n.factorial : ℂ) * Complex.simplexIntegral z f :=
   carlsonUnweightedAverage_eq_factorial_integral z f
 
-/-- The simplex fundamental theorem of calculus for a holomorphic kernel. -/
-theorem carlson_simplex_integral_sub
-    {Ω : Set ℂ} (hΩconv : Convex ℝ Ω) {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f Ω)
-    (z : Fin n → ℂ) (hz : Set.range z ⊆ Ω) {x y : ℂ} (hx : x ∈ Ω) (hy : y ∈ Ω) :
-    (∫ v in posSimplexFin n 1, f (carlsonAffineForm (Fin.snoc z x) (finSimplexPoint v))) -
-      (∫ v in posSimplexFin n 1, f (carlsonAffineForm (Fin.snoc z y) (finSimplexPoint v))) =
-      (x - y) * ∫ v in posSimplexFin (n + 1) 1,
-        deriv f (carlsonAffineForm (Fin.snoc (Fin.snoc z x) y) (finSimplexPoint v)) := by
-  simpa only [Complex.simplexIntegral_eq_integral, carlsonAffineForm] using
-    Complex.simplexIntegral_sub hΩconv hf z hz hx hy
-
-/-- Divided differences are invariant under permutations of their nodes. -/
-theorem carlsonDividedDifference_perm (n : ℕ) (f : ℂ → ℂ)
-    (z : Fin (n + 1) → ℂ) (σ : Equiv.Perm (Fin (n + 1))) :
-    carlsonDividedDifference n f (z ∘ σ) = carlsonDividedDifference n f z := by
-  simpa only [carlsonDividedDifference_eq_dividedDifference] using
-    Complex.dividedDifference_perm n f z σ
-
-/-- Exchanging the final two nodes does not change a divided difference. -/
-theorem carlsonDividedDifference_snoc_snoc_comm (n : ℕ) (f : ℂ → ℂ)
-    (z : Fin n → ℂ) (x y : ℂ) :
-    carlsonDividedDifference (n + 1) f (Fin.snoc (Fin.snoc z x) y) =
-      carlsonDividedDifference (n + 1) f (Fin.snoc (Fin.snoc z y) x) := by
-  simpa only [carlsonDividedDifference_eq_dividedDifference] using
-    Complex.dividedDifference_snoc_snoc_comm n f z x y
-
 /-- A divided difference of order zero is evaluation at its unique node. -/
 @[simp] theorem carlsonDividedDifference_zero (f : ℂ → ℂ) (z : Fin 1 → ℂ) :
     carlsonDividedDifference 0 f z = f (z 0) := by
   simpa only [carlsonDividedDifference_eq_dividedDifference] using
     Complex.dividedDifference_zero f z
-
-/-- If all nodes coincide, Carlson's divided difference is the corresponding Taylor
-coefficient. -/
-theorem carlsonDividedDifference_const (n : ℕ) (f : ℂ → ℂ) (w : ℂ) :
-    carlsonDividedDifference n f (fun _ ↦ w) =
-      iteratedDeriv n f w / (n.factorial : ℂ) := by
-  simpa only [carlsonDividedDifference_eq_dividedDifference] using
-    Complex.dividedDifference_const n f w
 
 /-- **Carlson 5.5-1.** Divided differences defined by unweighted Dirichlet averages satisfy
 the usual first-order recurrence, including at coincident nodes. -/

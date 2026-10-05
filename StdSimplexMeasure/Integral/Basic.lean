@@ -14,7 +14,6 @@ public import StdSimplexMeasure.PositiveSimplex.Basic
 import Mathlib.Analysis.SpecialFunctions.Gamma.Beta
 import Mathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 import StdSimplexMeasure.EuclideanCrossSection
-import all StdSimplexMeasure.Measure.Basic
 
 /-!
 # Basic integration with the affine-hyperplane coordinate measure

@@ -15,7 +15,7 @@ public import Carlson.R.Explicit
 The regularized transformations are entire identities in `(t, β)`. The entire Gamma ratio
 below, rather than a quotient evaluated at Gamma poles, implements Legendre duplication.
 Node domains are unchanged from the native transformation theorems.
-`EqualParameter` supplies the canonical ordinary continuation, retaining the removable
+`EqualParameterSlit` supplies the canonical ordinary continuation, retaining the removable
 values at nonpositive integral `β` where the entire ratio here vanishes.
 
 ## Main results

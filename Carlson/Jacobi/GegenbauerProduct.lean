@@ -248,7 +248,7 @@ theorem hasSum_ossicini {ν : ℂ} (hν : 0 < ν.re) (θ φ : ℝ) {t : ℂ} (ht
   have h2ν : 0 < (2 * ν).re := by simp; linarith
   have hP : (ascPochhammer ℂ n).eval (2 * ν) ≠ 0 :=
     ascPochhammer_eval_ne_zero_of_re_pos (by simpa using h2ν) n
-  rw [eval_gegenbauer_one, Gamma_add_nat_eq_ascPochhammer_mul h2ν]
+  rw [eval_gegenbauer_one, Complex.Gamma_add_nat_eq_ascPochhammer_mul (.of_re_pos h2ν)]
   have hΓ := Gamma_ne_zero_of_re_pos h2ν
   field_simp [Nat.cast_ne_zero.mpr n.factorial_ne_zero]
 
@@ -306,7 +306,7 @@ theorem gegenbauer_product_formula {ν : ℂ} (hν : 0 < ν.re) (θ φ : ℝ) (n
               rw [norm_mul, norm_mul, norm_pow, Complex.norm_ofNat]
               gcongr; exact hcosθφ s
           _ < 1 := by nlinarith [norm_nonneg t]
-      have := re_one_sub_pos hv
+      have := Complex.re_one_sub_pos hv
       rw [show 1 - (2 * t * cos (s : ℂ) - t ^ 2) = 1 - 2 * t * cos (s : ℂ) + t ^ 2 by ring] at this
       exact this
     have hdom : pair (1 - 2 * t * cos ((θ : ℂ) + φ) + t ^ 2)
@@ -361,7 +361,7 @@ theorem gegenbauer_product_formula {ν : ℂ} (hν : 0 < ν.re) (θ φ : ℝ) (n
       rw [hWx u hu'] at hs
       have hfac := one_sub_mul_exp_mul t (Real.arccos (xr u) : ℂ)
       rw [← ofReal_cos, Real.cos_arccos (hxr u hu').1 (hxr u hu').2] at hfac
-      rw [← hfac, mul_cpow_of_re_pos (re_one_sub_pos hn1) (re_one_sub_pos hn2)]
+      rw [← hfac, mul_cpow_of_re_pos (Complex.re_one_sub_pos hn1) (Complex.re_one_sub_pos hn2)]
       exact (hs.mul_left (g u)).tsum_eq
     rw [setIntegral_congr_fun measurableSet_Ioo htsum] at hmain
     rw [hF]
@@ -375,7 +375,7 @@ theorem gegenbauer_product_formula {ν : ℂ} (hν : 0 < ν.re) (θ φ : ℝ) (n
   have h2ν : 0 < (2 * ν).re := by simp; linarith
   have hΓ2 := Gamma_ne_zero_of_re_pos h2ν
   have hΓn : Gamma (2 * ν + n) = (ascPochhammer ℂ n).eval (2 * ν) * Gamma (2 * ν) :=
-    Gamma_add_nat_eq_ascPochhammer_mul h2ν n
+    Complex.Gamma_add_nat_eq_ascPochhammer_mul (.of_re_pos h2ν) n
   have hP : (ascPochhammer ℂ n).eval (2 * ν) ≠ 0 :=
     ascPochhammer_eval_ne_zero_of_re_pos (by simpa using h2ν) n
   have hfac : (n.factorial : ℂ) ≠ 0 := Nat.cast_ne_zero.mpr n.factorial_ne_zero

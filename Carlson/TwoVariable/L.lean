@@ -93,8 +93,8 @@ domain. -/
 private theorem one_one_mem_mvBetaConvergent : pair (1 : ℂ) 1 ∈ mvBetaConvergent := by
   intro i; fin_cases i <;> norm_num [pair]
 
-/-- Equation (8.8), without division by the node difference. -/
-theorem sub_mul_regCarlsonL_pair_neg_one_one_one (x y : ℂ)
+/-- Equation (8.8), without division by the node difference, on right-half-plane nodes. -/
+private theorem sub_mul_regCarlsonL_pair_neg_one_one_one_of_mem_variableDomain (x y : ℂ)
     (hz : pair x y ∈ carlsonRVariableDomain) :
     (x - y) * regCarlsonL (-1) (pair 1 1) (pair x y) = (log x ^ 2 - log y ^ 2) / 2 := by
   let f : ℂ → ℂ := fun w => log w ^ 2 / 2
@@ -115,26 +115,51 @@ theorem sub_mul_regCarlsonL_pair_neg_one_one_one (x y : ℂ)
   dsimp only [f] at h
   linear_combination h
 
-/-- The elementary divided-logarithm formula of Carlson (1987), (8.8). -/
-theorem regCarlsonL_pair_neg_one_one_one (x y : ℂ)
-    (hz : pair x y ∈ carlsonRVariableDomain) (hxy : x ≠ y) :
+/-- A two-node vector is the pair of its coordinates. -/
+private theorem pair_coord (w : Fin 2 → ℂ) : pair (w 0) (w 1) = w := by
+  funext i; fin_cases i <;> rfl
+
+/-- A coordinate of a two-node vector is analytic. -/
+private theorem analyticAt_coord (i : Fin 2) (w : Fin 2 → ℂ) :
+    AnalyticAt ℂ (fun v : Fin 2 → ℂ => v i) w :=
+  (ContinuousLinearMap.proj (R := ℂ) (φ := fun _ : Fin 2 => ℂ) i).analyticAt w
+
+/-- Equation (8.8), without division by the node difference, for slit-plane nodes. -/
+theorem sub_mul_regCarlsonL_pair_neg_one_one_one {x y : ℂ} (hx : x ∈ slitPlane)
+    (hy : y ∈ slitPlane) :
+    (x - y) * regCarlsonL (-1) (pair 1 1) (pair x y) = (log x ^ 2 - log y ^ 2) / 2 := by
+  have hz : pair x y ∈ carlsonRSlitDomain := by intro i; fin_cases i <;> assumption
+  have h := eqOn_carlsonRSlitDomain_of_eqOn_rightHalfPlane
+    (F := fun w : Fin 2 → ℂ => (w 0 - w 1) * regCarlsonL (-1) (pair 1 1) w)
+    (G := fun w => (log (w 0) ^ 2 - log (w 1) ^ 2) / 2)
+    (fun w hw => ((analyticAt_coord 0 w).sub (analyticAt_coord 1 w)).mul
+      (analyticOnNhd_regCarlsonL _ _ w hw))
+    (fun w hw => ((((analyticAt_coord 0 w).clog (hw 0)).pow 2).sub
+      (((analyticAt_coord 1 w).clog (hw 1)).pow 2)).div_const)
+    (fun w hw => by
+      have h := sub_mul_regCarlsonL_pair_neg_one_one_one_of_mem_variableDomain (w 0) (w 1)
+        (by rwa [pair_coord])
+      rwa [pair_coord] at h) hz
+  simpa using h
+
+/-- The elementary divided-logarithm formula of Carlson (1987), (8.8), for distinct slit-plane
+nodes. -/
+theorem regCarlsonL_pair_neg_one_one_one {x y : ℂ} (hx : x ∈ slitPlane) (hy : y ∈ slitPlane)
+    (hxy : x ≠ y) :
     regCarlsonL (-1) (pair 1 1) (pair x y) = (log x ^ 2 - log y ^ 2) / (2 * (x - y)) := by
   apply (eq_div_iff (mul_ne_zero two_ne_zero (sub_ne_zero.mpr hxy))).mpr
-  linear_combination 2 * sub_mul_regCarlsonL_pair_neg_one_one_one x y hz
+  linear_combination 2 * sub_mul_regCarlsonL_pair_neg_one_one_one hx hy
 
 /-- The diagonal value completes the exceptional elementary formula. -/
-theorem regCarlsonL_pair_neg_one_one_one_diag (x : ℂ)
-    (hz : pair x x ∈ carlsonRVariableDomain) :
+theorem regCarlsonL_pair_neg_one_one_one_diag {x : ℂ} (hx : x ∈ slitPlane) :
     regCarlsonL (-1) (pair 1 1) (pair x x) = x⁻¹ * log x := by
   have heq : pair x x = fun _ => x := by ext i; fin_cases i <;> rfl
-  have h := regCarlsonL_const (-1) x (carlsonRightHalfPlane_subset_slitPlane (hz 0)) (pair 1 1)
+  have h := regCarlsonL_const (-1) x hx (pair 1 1)
   norm_num [sum_pair, cpow_neg_one] at h
   simpa only [← heq] using h
 
-/-- The uniform two-node reduction underlying (8.5), stated without division.
-At `t = -1` it reduces to the logarithmic R-identity, so the separate formula
-`regCarlsonL_pair_neg_one_one_one` is needed to evaluate L there. -/
-theorem sub_mul_regCarlsonL_pair_one_one (t x y : ℂ)
+/-- The uniform two-node reduction underlying (8.5), on right-half-plane nodes. -/
+private theorem sub_mul_regCarlsonL_pair_one_one_of_mem_variableDomain (t x y : ℂ)
     (hz : pair x y ∈ carlsonRVariableDomain) :
     (x - y) * ((t + 1) * regCarlsonL t (pair 1 1) (pair x y) +
       regCarlsonR t (pair 1 1) (pair x y)) =
@@ -146,6 +171,32 @@ theorem sub_mul_regCarlsonL_pair_one_one (t x y : ℂ)
   simpa only [
     regCarlsonL_eq_regCarlsonLIntegral _ one_one_mem_mvBetaConvergent hz,
     regCarlsonR_eq_regCarlsonRIntegral _ one_one_mem_mvBetaConvergent hz, carlsonLKernel] using h
+
+/-- The uniform two-node reduction underlying (8.5), stated without division, for slit-plane
+nodes. At `t = -1` it reduces to the logarithmic R-identity, so the separate formula
+`regCarlsonL_pair_neg_one_one_one` is needed to evaluate L there. -/
+theorem sub_mul_regCarlsonL_pair_one_one (t : ℂ) {x y : ℂ} (hx : x ∈ slitPlane)
+    (hy : y ∈ slitPlane) :
+    (x - y) * ((t + 1) * regCarlsonL t (pair 1 1) (pair x y) +
+      regCarlsonR t (pair 1 1) (pair x y)) =
+        x ^ (t + 1) * log x - y ^ (t + 1) * log y := by
+  have hz : pair x y ∈ carlsonRSlitDomain := by intro i; fin_cases i <;> assumption
+  have h := eqOn_carlsonRSlitDomain_of_eqOn_rightHalfPlane
+    (F := fun w : Fin 2 → ℂ => (w 0 - w 1) * ((t + 1) * regCarlsonL t (pair 1 1) w +
+      regCarlsonR t (pair 1 1) w))
+    (G := fun w => w 0 ^ (t + 1) * log (w 0) - w 1 ^ (t + 1) * log (w 1))
+    (fun w hw => ((analyticAt_coord 0 w).sub (analyticAt_coord 1 w)).mul
+      ((analyticAt_const.mul (analyticOnNhd_regCarlsonL _ _ w hw)).add
+        (analyticOnNhd_regCarlsonR _ _ w hw)))
+    (fun w hw => (((analyticAt_coord 0 w).cpow analyticAt_const (hw 0)).mul
+      ((analyticAt_coord 0 w).clog (hw 0))).sub
+      (((analyticAt_coord 1 w).cpow analyticAt_const (hw 1)).mul
+        ((analyticAt_coord 1 w).clog (hw 1))))
+    (fun w hw => by
+      have h := sub_mul_regCarlsonL_pair_one_one_of_mem_variableDomain t (w 0) (w 1)
+        (by rwa [pair_coord])
+      rwa [pair_coord] at h) hz
+  simpa using h
 
 /-- Carlson (1987), (3.9), in a division-free regularized form. The identity is
 valid at coincident nodes and at every complex Dirichlet parameter. -/

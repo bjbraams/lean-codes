@@ -52,7 +52,7 @@ theorem carlsonRReal_bounds_of_one_le {t : ℝ} (ht : 1 ≤ t) {b x : ι → ℝ
     (∑ i, (b i / ∑ j, b j) * x i) ^ t ≤ carlsonRReal t b x ∧
       carlsonRReal t b x ≤ ∑ i, (b i / ∑ j, b j) * x i ^ t := by
   obtain ⟨a, ha, hax⟩ := exists_pos_le_nodes hx
-  exact convexOn_dirichlet_average_bounds hb isClosed_Ici hax
+  exact convexOn_dirichlet_average_bounds hb hax
     ((convexOn_rpow ht).subset (fun _ hy => ha.le.trans hy) (convex_Ici a))
     (continuousOn_rpow_Ici t ha)
 
@@ -62,7 +62,7 @@ theorem carlsonRReal_bounds_of_nonneg_of_le_one {t : ℝ} (ht : 0 ≤ t) (ht1 : 
     carlsonRReal t b x ≤ (∑ i, (b i / ∑ j, b j) * x i) ^ t ∧
       (∑ i, (b i / ∑ j, b j) * x i ^ t) ≤ carlsonRReal t b x := by
   obtain ⟨a, ha, hax⟩ := exists_pos_le_nodes hx
-  exact concaveOn_dirichlet_average_bounds hb isClosed_Ici hax
+  exact concaveOn_dirichlet_average_bounds hb hax
     ((Real.concaveOn_rpow ht ht1).subset (fun _ hy => ha.le.trans hy) (convex_Ici a))
     (continuousOn_rpow_Ici t ha)
 
@@ -72,7 +72,7 @@ theorem carlsonRReal_bounds_of_nonpos {t : ℝ} (ht : t ≤ 0) {b x : ι → ℝ
     (∑ i, (b i / ∑ j, b j) * x i) ^ t ≤ carlsonRReal t b x ∧
       carlsonRReal t b x ≤ ∑ i, (b i / ∑ j, b j) * x i ^ t := by
   obtain ⟨a, ha, hax⟩ := exists_pos_le_nodes hx
-  exact convexOn_dirichlet_average_bounds hb isClosed_Ici hax
+  exact convexOn_dirichlet_average_bounds hb hax
     ((Real.convexOn_rpow_of_nonpos ht).subset (fun _ hy => ha.trans_le hy) (convex_Ici a))
     (continuousOn_rpow_Ici t ha)
 
@@ -83,7 +83,7 @@ theorem carlsonLReal_zero_bounds {b x : ι → ℝ}
     carlsonLReal 0 b x ≤ Real.log (∑ i, (b i / ∑ j, b j) * x i) ∧
       (∑ i, (b i / ∑ j, b j) * Real.log (x i)) ≤ carlsonLReal 0 b x := by
   obtain ⟨a, ha, hax⟩ := exists_pos_le_nodes hx
-  have h := concaveOn_dirichlet_average_bounds hb isClosed_Ici hax
+  have h := concaveOn_dirichlet_average_bounds hb hax
     (strictConcaveOn_log_Ioi.concaveOn.subset (fun _ hy => ha.trans_le hy)
       (convex_Ici a))
     (fun y hy => (Real.continuousAt_log (ne_of_gt (ha.trans_le hy))).continuousWithinAt)
@@ -167,7 +167,7 @@ theorem carlsonRReal_strict_bounds_of_one_lt {t : ℝ} (ht : 1 < t) {b x : ι �
     (∑ i, (b i / ∑ j, b j) * x i) ^ t < carlsonRReal t b x ∧
       carlsonRReal t b x < ∑ i, (b i / ∑ j, b j) * x i ^ t := by
   obtain ⟨a, ha, hax⟩ := exists_pos_le_nodes hx
-  exact strictConvexOn_dirichlet_average_bounds hb isClosed_Ici hax hne
+  exact strictConvexOn_dirichlet_average_bounds hb hax hne
     ((strictConvexOn_rpow ht).subset (fun _ hy => ha.le.trans hy) (convex_Ici a))
     (continuousOn_rpow_Ici t ha)
 
@@ -177,7 +177,7 @@ theorem carlsonRReal_strict_bounds_of_pos_of_lt_one {t : ℝ} (ht : 0 < t) (ht1 
     carlsonRReal t b x < (∑ i, (b i / ∑ j, b j) * x i) ^ t ∧
       (∑ i, (b i / ∑ j, b j) * x i ^ t) < carlsonRReal t b x := by
   obtain ⟨a, ha, hax⟩ := exists_pos_le_nodes hx
-  exact strictConcaveOn_dirichlet_average_bounds hb isClosed_Ici hax hne
+  exact strictConcaveOn_dirichlet_average_bounds hb hax hne
     ((Real.strictConcaveOn_rpow ht ht1).subset (fun _ hy => ha.le.trans hy) (convex_Ici a))
     (continuousOn_rpow_Ici t ha)
 
@@ -187,7 +187,7 @@ theorem carlsonRReal_strict_bounds_of_neg {t : ℝ} (ht : t < 0) {b x : ι → �
     (∑ i, (b i / ∑ j, b j) * x i) ^ t < carlsonRReal t b x ∧
       carlsonRReal t b x < ∑ i, (b i / ∑ j, b j) * x i ^ t := by
   obtain ⟨a, ha, hax⟩ := exists_pos_le_nodes hx
-  exact strictConvexOn_dirichlet_average_bounds hb isClosed_Ici hax hne
+  exact strictConvexOn_dirichlet_average_bounds hb hax hne
     ((Real.strictConvexOn_rpow_of_neg ht).subset (fun _ hy => ha.trans_le hy) (convex_Ici a))
     (continuousOn_rpow_Ici t ha)
 
@@ -198,7 +198,7 @@ theorem carlsonLReal_zero_strict_bounds {b x : ι → ℝ}
     carlsonLReal 0 b x < Real.log (∑ i, (b i / ∑ j, b j) * x i) ∧
       (∑ i, (b i / ∑ j, b j) * Real.log (x i)) < carlsonLReal 0 b x := by
   obtain ⟨a, ha, hax⟩ := exists_pos_le_nodes hx
-  have h := strictConcaveOn_dirichlet_average_bounds hb isClosed_Ici hax hne
+  have h := strictConcaveOn_dirichlet_average_bounds hb hax hne
     (strictConcaveOn_log_Ioi.subset (fun _ hy => ha.trans_le hy)
       (convex_Ici a))
     (fun y hy => (Real.continuousAt_log (ne_of_gt (ha.trans_le hy))).continuousWithinAt)

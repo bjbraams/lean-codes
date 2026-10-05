@@ -7,6 +7,7 @@ module
 
 public import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
 public import Mathlib.Analysis.SpecialFunctions.Integrability.Basic
+public import TauCeti.MeasureTheory.Integral.NormRpow
 
 /-!
 # Integrability of products of powers with distinct real singularities
@@ -15,6 +16,8 @@ For distinct real nodes `xᵢ` and exponents `bᵢ < 1` with `∑ bᵢ > 1`, the
 `σ ↦ ∏ |σ - xᵢ|^{-bᵢ}` is integrable on the whole real line: each singularity is integrable
 because `bᵢ < 1`, and the decay `|σ|^{-∑ bᵢ}` at infinity is integrable because `∑ bᵢ > 1`.
 This is the integrability behind the boundary values of Schwarz–Christoffel integrals.
+The local singularity estimate specializes the Tau Ceti contributors'
+`TauCeti.locallyIntegrable_norm_sub_rpow` from `TauCeti.MeasureTheory.Integral.NormRpow`.
 
 ## Main results
 
@@ -26,24 +29,14 @@ This is the integrability behind the boundary values of Schwarz–Christoffel in
 
 open Set Filter MeasureTheory Topology
 
-/-- For `r > -1`, `σ ↦ |σ - c|^r` is interval integrable on every interval. -/
+/-- For `r > -1`, `σ ↦ |σ - c|^r` is interval integrable on every interval.
+Uses `TauCeti.locallyIntegrable_norm_sub_rpow`. -/
 theorem intervalIntegrable_abs_sub_rpow {r : ℝ} (hr : -1 < r) (c a b : ℝ) :
     IntervalIntegrable (fun σ : ℝ => |σ - c| ^ r) volume a b := by
-  have h0 : ∀ t : ℝ, 0 ≤ t → IntervalIntegrable (fun σ : ℝ => |σ| ^ r) volume 0 t := by
-    intro t ht
-    refine (intervalIntegral.intervalIntegrable_rpow' (a := 0) (b := t) hr).congr ?_
-    intro σ hσ
-    rw [uIoc_of_le ht] at hσ
-    simp [abs_of_pos hσ.1]
-  have h1 : ∀ t : ℝ, IntervalIntegrable (fun σ : ℝ => |σ| ^ r) volume 0 t := by
-    intro t
-    rcases le_total 0 t with ht | ht
-    · exact h0 t ht
-    · have := (h0 (-t) (by linarith)).comp_mul_left (c := -1)
-      simpa [abs_neg] using this
-  have h2 : IntervalIntegrable (fun σ : ℝ => |σ| ^ r) volume (a - c) (b - c) :=
-    (h1 (a - c)).symm.trans (h1 (b - c))
-  simpa using h2.comp_sub_right c
+  have h : LocallyIntegrable (fun y : ℝ => ‖c - y‖ ^ r) volume :=
+    TauCeti.locallyIntegrable_norm_sub_rpow (by simpa using hr) c
+  simpa [Real.norm_eq_abs, abs_sub_comm] using
+    (h.integrableOn_isCompact (k := uIcc a b) isCompact_uIcc).intervalIntegrable
 
 /-- **Integrability of `∏ |σ - xᵢ|^{-bᵢ}`**: for injective real nodes `xᵢ` and exponents
 `bᵢ < 1` with `∑ bᵢ > 1`, the product is integrable on `ℝ`. -/

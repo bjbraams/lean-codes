@@ -91,7 +91,7 @@ theorem integral_Ioo_sn_third {k y n : ℝ} (hk : k ^ 2 < 1) (hy0 : 0 < y) (hy1 
       exact ofReal_mem_slitPlane.mpr (by nlinarith)
     · simp [N]
     · exact ofReal_mem_slitPlane.mpr (by simpa [N] using sub_pos.mpr hn)
-  have h := carlsonRUnitIntervalIntegral_eq_gamma_mul_regCarlsonR (a := 1 / 2) (a' := 1)
+  have h := carlsonRUnitIntervalIntegral_eq_Gamma_mul_regCarlsonR (a := 1 / 2) (a' := 1)
     (b := B) (by norm_num) (by norm_num) (by simp [B, Fin.sum_univ_four]; norm_num) hz
   unfold carlsonRUnitIntervalIntegral at h
   rw [← integral_complex_ofReal]
@@ -175,11 +175,11 @@ private theorem regCarlsonR_half_four_zero {x y z ρ : ℂ}
     (hx : x ∈ slitPlane) (hy : y ∈ slitPlane) (hz : z ∈ slitPlane) (hρ : ρ ∈ slitPlane) :
     regCarlsonR (-1 / 2) ![1 / 2, 1 / 2, 1 / 2, 0] ![x, y, z, ρ] =
       regCarlsonR (-1 / 2) (fun _ : Fin 3 => 1 / 2) ![x, y, z] := by
-  have h4 := carlsonRUnitIntervalIntegral_eq_gamma_mul_regCarlsonR
+  have h4 := carlsonRUnitIntervalIntegral_eq_Gamma_mul_regCarlsonR
     (a := 1 / 2) (a' := 1) (b := ![1 / 2, 1 / 2, 1 / 2, 0])
     (z := ![x, y, z, ρ]) (by norm_num) (by norm_num)
     (by simp [Fin.sum_univ_four]; norm_num) (by intro i; fin_cases i <;> assumption)
-  have h3 := carlsonRUnitIntervalIntegral_eq_gamma_mul_regCarlsonR
+  have h3 := carlsonRUnitIntervalIntegral_eq_Gamma_mul_regCarlsonR
     (a := 1 / 2) (a' := 1) (b := fun _ : Fin 3 => 1 / 2)
     (z := ![x, y, z]) (by norm_num) (by norm_num)
     (by simp; norm_num) (by intro i; fin_cases i <;> assumption)
@@ -271,7 +271,7 @@ theorem integral_Ioo_sn_third_complete {k n : ℝ} (hk : k ^ 2 < 1) (hn : n < 1)
     · exact ofReal_mem_slitPlane.mpr (sub_pos.mpr hk)
     · simp [N]
     · exact ofReal_mem_slitPlane.mpr (sub_pos.mpr hn)
-  have h := carlsonRUnitIntervalIntegral_eq_gamma_mul_regCarlsonR (a := 1 / 2) (a' := 1 / 2)
+  have h := carlsonRUnitIntervalIntegral_eq_Gamma_mul_regCarlsonR (a := 1 / 2) (a' := 1 / 2)
     (b := B) (by norm_num) (by norm_num) (by simp [B, Fin.sum_univ_three]; norm_num) hz
   unfold carlsonRUnitIntervalIntegral at h
   have hpt : ∀ s ∈ Ioo (0 : ℝ) 1, ((|1 / (2 * Real.sqrt s)| • g (Real.sqrt s) : ℝ) : ℂ) =
@@ -334,11 +334,11 @@ private theorem regCarlsonR_half_three_zero {x y ρ : ℂ}
     (hx : x ∈ slitPlane) (hy : y ∈ slitPlane) (hρ : ρ ∈ slitPlane) :
     regCarlsonR (-1 / 2) ![1 / 2, 1 / 2, 0] ![x, y, ρ] =
       regCarlsonR (-1 / 2) (TwoVariable.pair (1 / 2) (1 / 2)) (TwoVariable.pair x y) := by
-  have h3 := carlsonRUnitIntervalIntegral_eq_gamma_mul_regCarlsonR
+  have h3 := carlsonRUnitIntervalIntegral_eq_Gamma_mul_regCarlsonR
     (a := 1 / 2) (a' := 1 / 2) (b := ![1 / 2, 1 / 2, 0])
     (z := ![x, y, ρ]) (by norm_num) (by norm_num)
     (by simp [Fin.sum_univ_three]) (by intro i; fin_cases i <;> assumption)
-  have h2 := carlsonRUnitIntervalIntegral_eq_gamma_mul_regCarlsonR
+  have h2 := carlsonRUnitIntervalIntegral_eq_Gamma_mul_regCarlsonR
     (a := 1 / 2) (a' := 1 / 2) (b := TwoVariable.pair (1 / 2) (1 / 2))
     (z := TwoVariable.pair x y) (by norm_num) (by norm_num)
     (by simp) (by intro i; fin_cases i <;> assumption)

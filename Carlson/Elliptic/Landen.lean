@@ -252,10 +252,10 @@ theorem regCarlsonR_landen {x y z v w : ℝ} (hx : 0 < x) (hy : 0 < y) (hz : 0 <
   have hneg : ∀ t : ℂ, t.re < 0 → regCarlsonR t ![1 / 2, 1 / 2, -t] Z =
       regCarlsonR t ![t + 1, -t, -t] W := by
     intro t ht
-    have hL := carlsonRPositiveRayIntegral_eq_gamma_mul_regCarlsonR (a := 1) (a' := -t)
+    have hL := carlsonRPositiveRayIntegral_eq_Gamma_mul_regCarlsonR (a := 1) (a' := -t)
       (b := ![1 / 2, 1 / 2, -t]) (z := Z) (by norm_num) (by simpa using ht)
       (by simp [Fin.sum_univ_three]; try ring) hZ
-    have hR := carlsonRPositiveRayIntegral_eq_gamma_mul_regCarlsonR (a := 1) (a' := -t)
+    have hR := carlsonRPositiveRayIntegral_eq_Gamma_mul_regCarlsonR (a := 1) (a' := -t)
       (b := ![t + 1, -t, -t]) (z := W) (by norm_num) (by simpa using ht)
       (by simp [Fin.sum_univ_three]; try ring) hW
     have hI := landen_integral hx hy hv2 hvw t

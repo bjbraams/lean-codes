@@ -143,12 +143,12 @@ theorem locallyBounded_regDirichletIntegral_kernel
         ⟨hq.2, hu⟩))).trans (le_max_left _ _))
       (norm_nonneg _) (norm_nonneg _))
   let B : ℝ := ‖∏ i, (Gamma (p.1 i))⁻¹‖ + 1
-  have hB := ((analyticOnNhd_prod_invGamma p.1 (Set.mem_univ _)).continuousAt.comp
+  have hB := ((analyticOnNhd_prod_inv_Gamma p.1 (Set.mem_univ _)).continuousAt.comp
     (continuous_fst.continuousAt (x := p))).norm.eventually_lt_const
       (lt_add_one ‖∏ i, (Gamma (p.1 i))⁻¹‖)
   refine ⟨B * max D 0, ?_⟩
   filter_upwards [hB, hD] with q hq hqD
-  rw [regDirichletIntegral_eq_prod_invGamma_mul, norm_mul]
+  rw [regDirichletIntegral_eq_prod_inv_Gamma_mul, norm_mul]
   exact mul_le_mul hq.le (hqD.trans (le_max_left _ _)) (norm_nonneg _)
     (by dsimp [B]; positivity)
 

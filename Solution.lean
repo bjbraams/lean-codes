@@ -140,6 +140,19 @@ theorem joint_average_continuation {D : Set ℂ} (hD : IsOpen D) (hconv : Convex
   obtain ⟨G, hG, hnative⟩ := Dirichlet.exists_joint_isRegCarlsonContinuation hD hconv hf (ι := ι)
   exact ⟨G, hG, fun z hz b hb => (hnative z hz).eq_native hb⟩
 
+/-- Carlson 1969, Theorem 8, simply connected case: joint entire-parameter continuation to all
+nodes in a simply connected open scalar domain, coincident nodes included. Native agreement is
+required only when the entire node convex hull lies in the domain. -/
+theorem simply_connected_average_continuation {D : Set ℂ} (hD : IsOpen D)
+    (hsc : IsSimplyConnected D) {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f D) :
+    ∃ G : ((ι → ℂ) × (ι → ℂ)) → ℂ,
+      AnalyticOnNhd ℂ G {p | Set.range p.2 ⊆ D} ∧
+      ∀ z, convexHull ℝ (Set.range z) ⊆ D → ∀ b, (∀ i, 0 < (b i).re) →
+        G (b, z) = average b z f := by
+  obtain ⟨G, hG, hnative⟩ :=
+    Dirichlet.exists_isJointRegCarlsonContinuationOn_of_isSimplyConnected hD hsc hf ι
+  exact ⟨G, hG, fun z hz b hb => hnative z hz hb⟩
+
 /-- Gamma-regularized Carlson R on the principal slit domain.
 The solution supplies its construction; r_joint and r_native fix its mathematical meaning. -/
 def regR {ι : Type*} [Fintype ι] (t : ℂ) (b z : ι → ℂ) : ℂ :=

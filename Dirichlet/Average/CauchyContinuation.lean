@@ -20,7 +20,8 @@ function is only continuous. For a function holomorphic in the disk it is the
 unique regularized continuation of the corresponding derivative average.
 
 General Jordan contours and their contour-adapted resolvent branches remain
-necessary for Carlson's Theorems 5 and 8 on nonconvex simply connected domains.
+necessary for Carlson's Theorem 5 on nonconvex Jordan domains. The simply connected
+case of Theorem 8 is proved by other means in `Dirichlet.Average.SimplyConnected`.
 The multiply connected and Riemann-surface extensions are left open.
 
 ## Main results

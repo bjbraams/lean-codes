@@ -24,6 +24,8 @@ no parameter nonvanishing assumptions and includes degree drops.
 * `hasDerivAt_complexJacobiWeight_mul_shiftedJacobi`: the weighted raising identity.
 * `iteratedDeriv_complexJacobiWeight`: Rodrigues' formula for complex parameters.
 * `intervalIntegrable_complexJacobiWeight`: integrability for real parts greater than `-1`.
+* `complexJacobiWeight_ofReal`, `shiftedJacobi_eval_ofReal`: agreement with the real weight
+  and polynomials at real parameters, which makes the real theory a specialization.
 
 ## References
 
@@ -110,7 +112,8 @@ theorem continuous_complexJacobiWeight_succ {α β : ℂ} (hα : -1 < α.re)
     Continuous (fun t : ℝ => complexJacobiWeight (α + 1) (β + 1) t) := by
   have ha : 0 < (α + 1).re := by simpa using (show 0 < α.re + 1 by linarith)
   have hb : 0 < (β + 1).re := by simpa using (show 0 < β.re + 1 by linarith)
-  simpa only [complexJacobiWeight, Function.comp_def, Pi.mul_apply, Pi.sub_apply, id_eq, ofReal_sub, ofReal_one] using
+  simpa only [complexJacobiWeight, Function.comp_def, Pi.mul_apply, Pi.sub_apply, id_eq,
+    ofReal_sub, ofReal_one] using
     (continuous_ofReal_cpow_const ha).fun_mul
       ((continuous_ofReal_cpow_const hb).comp
         ((continuous_const : Continuous (fun _ : ℝ => (1 : ℝ))).sub continuous_id))
@@ -126,5 +129,22 @@ theorem continuous_complexJacobiWeight_succ {α β : ℂ} (hα : -1 < α.re)
     complexJacobiWeight (α + 1) (β + 1) 1 = 0 := by
   have hb : β + 1 ≠ 0 := by intro h; have := congrArg re h; simp at this; linarith
   simp [complexJacobiWeight, zero_cpow hb]
+
+/-- On the closed unit interval the complex weight at real parameters is the real weight. -/
+theorem complexJacobiWeight_ofReal (α β : ℝ) {x : ℝ} (hx : x ∈ Icc (0 : ℝ) 1) :
+    complexJacobiWeight α β x = (shiftedJacobiWeight α β x : ℂ) := by
+  rw [complexJacobiWeight, shiftedJacobiWeight, ofReal_mul, ofReal_cpow hx.1,
+    ofReal_cpow (sub_nonneg.mpr hx.2), ofReal_sub, ofReal_one]
+
+/-- Shifted Jacobi polynomials at real parameters and real points are real. -/
+theorem shiftedJacobi_eval_ofReal (α β x : ℝ) (n : ℕ) :
+    (shiftedJacobi (α : ℂ) (β : ℂ) n).eval (x : ℂ) = (((shiftedJacobi α β n).eval x : ℝ) : ℂ) := by
+  have h := map_shiftedJacobi (Complex.ofRealAm.restrictScalars ℚ) α β n
+  have h' : ((((shiftedJacobi α β n).eval x : ℝ) : ℂ)) =
+      ((shiftedJacobi α β n).map ofRealHom).eval (x : ℂ) := by
+    rw [eval_map, ← ofRealHom_eq_coe]
+    exact (eval₂_at_apply ofRealHom x).symm
+  rw [h']
+  exact congrArg (eval (x : ℂ)) h.symm
 
 end Polynomial

@@ -103,7 +103,7 @@ theorem carlsonRatioMean_symm (s t : ℂ) (b z : ι → ℂ) :
 /-- R at the all-one vector is one away from poles of the ordinary normalization. -/
 theorem carlsonR_one_nodes (t : ℂ) {b : ι → ℂ}
     (hb : ∀ n : ℕ, (∑ i, b i) ≠ -n) : carlsonR t b (fun _ => 1) = 1 := by
-  rw [carlsonR, regCarlsonR_const_node t b (by norm_num)]
+  rw [carlsonR, regCarlsonR_const_node t b one_mem_slitPlane]
   simp [Gamma_ne_zero hb]
 
 /-- Exponent zero gives one on the full product slit domain, for all nonexceptional parameters. -/
@@ -113,7 +113,7 @@ theorem carlsonR_zero_exponent {b z : ι → ℂ} (hz : z ∈ carlsonRSlitDomain
     apply eqOn_carlsonRSlitDomain_of_eqOn_rightHalfPlane
       (analyticOnNhd_regCarlsonR 0 b) analyticOnNhd_const _ hz
     intro w hw
-    simpa using regCarlsonR_natCast 0 b hw
+    simpa using regCarlsonR_natCast 0 b (carlsonRVariableDomain_subset_slitDomain hw)
   rw [carlsonR, h]
   simp [Gamma_ne_zero hb]
 

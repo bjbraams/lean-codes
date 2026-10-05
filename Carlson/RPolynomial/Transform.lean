@@ -16,7 +16,7 @@ import Pochhammer.Vandermonde
 
 This file contains the algebraic infrastructure for [Carl77, Section 6.5].
 The Pochhammer reflection identity used in the book's proof is
-`Complex.ascPochhammer_eval_split_reflection` in `Pochhammer.Gamma`.
+`ascPochhammer_eval_split_reflect` in `Pochhammer.Identities`.
 
 ## Main results
 
@@ -249,7 +249,7 @@ theorem carlsonRPolynomialNumerator_transform (n : ℕ) (i : ι) (b z : ι → �
     have hbase : F (fun _ => z i) = 0 := by
       dsimp only [F]
       rw [carlsonRPolynomialNumerator_const, hT, carlsonRPolynomialNumerator_single]
-      have href := ascPochhammer_eval_split_reflection (∑ j, b j)
+      have href := ascPochhammer_eval_split_reflect (∑ j, b j)
         (m := 0) (n := n + 1) (Nat.zero_le _)
       simp only [Nat.sub_zero, ascPochhammer_zero, Polynomial.eval_one, mul_one] at href
       simp only [b', carlsonRTransformParameters, Function.update_self]

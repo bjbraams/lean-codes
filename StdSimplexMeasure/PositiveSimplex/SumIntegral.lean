@@ -37,7 +37,7 @@ open MeasureTheory
 @[expose] public noncomputable section
 
 /-- Tonelli's theorem on the triangle `0 ≤ t ≤ s ≤ r`. -/
-lemma lintegral_Icc_triangle_swap (r : ℝ) (_hr : 0 ≤ r)
+lemma lintegral_Icc_triangle_swap (r : ℝ)
     (F : ℝ → ℝ → ENNReal) (hF : Measurable (Function.uncurry F)) :
     ∫⁻ t in Set.Icc (0 : ℝ) r, ∫⁻ s in Set.Icc t r, F t s =
       ∫⁻ s in Set.Icc (0 : ℝ) r, ∫⁻ t in Set.Icc (0 : ℝ) s, F t s := by
@@ -211,7 +211,7 @@ theorem lintegral_posSimplexFin_comp_sum (n : ℕ) (hn : 0 < n) (r : ℝ) (hr : 
           · have hF : Measurable (Function.uncurry fun t s : ℝ =>
                 g s * (ENNReal.ofReal (s - t) ^ m / Nat.factorial m)) := by
               fun_prop
-            rw [lintegral_Icc_triangle_swap r hr _ hF]
+            rw [lintegral_Icc_triangle_swap r _ hF]
             apply setLIntegral_congr_fun measurableSet_Icc
             intro s hs
             calc

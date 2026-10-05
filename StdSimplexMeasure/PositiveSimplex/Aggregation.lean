@@ -265,8 +265,7 @@ private theorem posSimplexAggregateDensity_split
 /-- The solid-simplex aggregation formula when the target index type is empty. -/
 theorem lintegral_posSimplex_comp_aggregate_of_isEmpty
     {α β : Type*} [Fintype α] [Fintype β] [IsEmpty β]
-    (f : α → β) (_hf : Function.Surjective f) (r : ℝ) (hr : 0 ≤ r)
-    (g : (β → ℝ) → ENNReal) (_hg : Measurable g) :
+    (f : α → β) (r : ℝ) (hr : 0 ≤ r) (g : (β → ℝ) → ENNReal) :
     ∫⁻ x in posSimplex α r, g (FunOnFinite.linearMap ℝ ℝ f x) =
       ∫⁻ z in posSimplex β r, g z * posSimplexAggregateDensity f z := by
   let _ : IsEmpty α := ⟨fun a => isEmptyElim (f a)⟩
@@ -545,7 +544,7 @@ theorem lintegral_posSimplex_comp_aggregate
   induction hcard : Fintype.card β using Nat.strong_induction_on generalizing α β r with
   | h n ih =>
       cases isEmpty_or_nonempty β with
-      | inl _ => exact lintegral_posSimplex_comp_aggregate_of_isEmpty f hf r hr g hg
+      | inl _ => exact lintegral_posSimplex_comp_aggregate_of_isEmpty f r hr g
       | inr _ =>
           cases subsingleton_or_nontrivial β with
           | inl _ =>

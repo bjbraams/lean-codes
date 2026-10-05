@@ -395,7 +395,7 @@ private lemma rIntegral_secondQuadratic_eventually (t β : ℂ)
 /-- Carlson's first quadratic transformation 6.9-3 on a common native integral domain.
 
 The extra convergence hypotheses make both sides genuine Dirichlet integrals. The larger
-parameter domain is treated separately in `QuadraticContinuation` and `EqualParameter`. -/
+parameter domain is treated separately in `QuadraticContinuation` and `EqualParameterSlit`. -/
 theorem rIntegral_firstQuadratic (t β x y : ℂ)
     (hbleft : pair β β ∈ mvBetaConvergent)
     (hbright : pair (β + t) (1 / 2 - t) ∈ mvBetaConvergent)

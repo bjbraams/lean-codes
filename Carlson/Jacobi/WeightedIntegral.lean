@@ -6,6 +6,7 @@ Authors: Bastiaan J Braams
 module
 
 public import Carlson.Jacobi.AnalyticRodrigues
+public import Carlson.Jacobi.ComplexOrthogonality
 public import Carlson.Jacobi.Expansion
 public import Mathlib.MeasureTheory.Integral.IntervalIntegral.IntegrationByParts
 
@@ -15,11 +16,13 @@ public import Mathlib.MeasureTheory.Integral.IntervalIntegral.IntegrationByParts
 Integration by parts transfers derivatives from the raised Jacobi weight to the
 function being expanded. For `α, β > -1` the boundary terms vanish even when the
 original weight is singular at an endpoint. A continuous derivative tower on the
-closed interval, with derivatives required only in its interior, suffices.
+closed interval, with derivatives required only in its interior, suffices. The real
+identities are specializations of the complex-parameter ones in
+`Carlson.Jacobi.ComplexOrthogonality`, through `complexJacobiWeight_ofReal` and
+`shiftedJacobi_eval_ofReal`.
 
 ## Main results
 
-* `integral_mul_shiftedJacobi_succ`: one step of weighted integration by parts.
 * `factorial_mul_integral_mul_shiftedJacobi`: repeated integration by parts for
   a continuous derivative tower, including order zero.
 * `factorial_mul_integral_mul_shiftedJacobi_of_contDiffOn`: the `Cⁿ` formulation
@@ -34,43 +37,7 @@ closed interval, with derivatives required only in its interior, suffices.
 
 public noncomputable section
 namespace Polynomial
-open MeasureTheory Set
-
-/-- One step of weighted integration by parts for a function continuous up to the
-endpoints whose derivative is continuous there and valid in the open interval. -/
-theorem integral_mul_shiftedJacobi_succ {α β : ℝ} (hα : -1 < α) (hβ : -1 < β)
-    (n : ℕ) (f g : ℝ → ℝ) (hf : ContinuousOn f (Icc 0 1))
-    (hg : ContinuousOn g (Icc 0 1))
-    (hfg : ∀ x ∈ Ioo (0 : ℝ) 1, HasDerivAt f (g x) x) :
-    (n + 1 : ℝ) * (∫ x in (0 : ℝ)..1, shiftedJacobiWeight α β x * f x *
-      (shiftedJacobi α β (n + 1)).eval x) =
-      -(∫ x in (0 : ℝ)..1, shiftedJacobiWeight (α + 1) (β + 1) x * g x *
-        (shiftedJacobi (α + 1) (β + 1) n).eval x) := by
-  have hf' : ContinuousOn f (uIcc (0 : ℝ) 1) := by simpa using hf
-  have hg' : ContinuousOn g (uIcc (0 : ℝ) 1) := by simpa using hg
-  have hv := (continuous_shiftedJacobiWeight_succ hα hβ).mul
-    (shiftedJacobi (α + 1) (β + 1) n).continuous
-  have hi := ((intervalIntegrable_shiftedJacobiWeight hα hβ).mul_continuousOn
-    (shiftedJacobi α β (n + 1)).continuous.continuousOn).const_mul (n + 1 : ℝ)
-  have h := intervalIntegral.integral_mul_deriv_eq_deriv_mul_of_hasDerivAt
-    hf' hv.continuousOn (by simpa using hfg)
-    (fun x hx => hasDerivAt_weight_mul_shiftedJacobi α β n (by simpa using hx))
-    hg'.intervalIntegrable hi
-  have hl : (∫ x in (0 : ℝ)..1, f x * ((n + 1 : ℝ) *
-      (shiftedJacobiWeight α β x * (shiftedJacobi α β (n + 1)).eval x))) =
-      (n + 1 : ℝ) * (∫ x in (0 : ℝ)..1, shiftedJacobiWeight α β x * f x *
-        (shiftedJacobi α β (n + 1)).eval x) := by
-    rw [← intervalIntegral.integral_const_mul]
-    congr 1
-    funext x
-    ring
-  simp only [Pi.mul_apply] at h
-  rw [hl, shiftedJacobiWeight_succ_one hβ, shiftedJacobiWeight_succ_zero hα] at h
-  simp only [zero_mul, mul_zero, sub_self, zero_sub] at h
-  convert h using 1
-  congr 2
-  funext x
-  ring
+open Complex MeasureTheory Set
 
 /-- Repeated weighted integration by parts for a derivative tower continuous on
 `[0,1]`. Derivative relations are needed only on `(0,1)`, and only through order `n`. -/
@@ -82,17 +49,30 @@ theorem factorial_mul_integral_mul_shiftedJacobi {α β : ℝ} (hα : -1 < α)
       (shiftedJacobi α β n).eval x) =
       (-1 : ℝ) ^ n * (∫ x in (0 : ℝ)..1,
         shiftedJacobiWeight (α + n) (β + n) x * f n x) := by
-  induction n generalizing α β f with
-  | zero => simp
-  | succ n ih =>
-    have hs := integral_mul_shiftedJacobi_succ hα hβ n (f 0) (f 1)
-      (hc 0 (by omega)) (hc 1 (by omega)) (hd 0 (by omega))
-    have hi := ih (α := α + 1) (β := β + 1) (by linarith) (by linarith)
-      (fun k => f (k + 1)) (fun k hk => hc (k + 1) (by omega))
-      (fun k hk => hd (k + 1) (by omega))
-    simp only [Nat.factorial_succ, Nat.cast_mul, Nat.cast_add, Nat.cast_one, pow_succ]
-    simp only [Nat.zero_add, add_assoc, add_comm (1 : ℝ) (n : ℝ)] at hi
-    linear_combination (n.factorial : ℝ) * hs - hi
+  have h := factorial_mul_integral_complexJacobiWeight (α := α) (β := β)
+    (by simpa using hα) (by simpa using hβ) n (fun k x => (f k x : ℂ))
+    (fun k hk => continuous_ofReal.comp_continuousOn (hc k hk))
+    (fun k hk x hx => (hd k hk x hx).ofReal_comp)
+  beta_reduce at h
+  have hl : (∫ x in (0 : ℝ)..1, complexJacobiWeight α β x * (f 0 x : ℂ) *
+      (shiftedJacobi (α : ℂ) β n).eval (x : ℂ)) =
+      ((∫ x in (0 : ℝ)..1, shiftedJacobiWeight α β x * f 0 x *
+        (shiftedJacobi α β n).eval x : ℝ) : ℂ) := by
+    rw [← intervalIntegral.integral_ofReal]
+    refine intervalIntegral.integral_congr fun x hx => ?_
+    rw [uIcc_of_le zero_le_one] at hx
+    simp only [complexJacobiWeight_ofReal α β hx, shiftedJacobi_eval_ofReal, ofReal_mul]
+  have hr : (∫ x in (0 : ℝ)..1, complexJacobiWeight ((α : ℂ) + n) ((β : ℂ) + n) x *
+      (f n x : ℂ)) = ((∫ x in (0 : ℝ)..1, shiftedJacobiWeight (α + n) (β + n) x * f n x : ℝ) :
+        ℂ) := by
+    rw [← intervalIntegral.integral_ofReal]
+    refine intervalIntegral.integral_congr fun x hx => ?_
+    rw [uIcc_of_le zero_le_one] at hx
+    have hw := complexJacobiWeight_ofReal (α + n) (β + n) hx
+    push_cast at hw
+    simp only [hw, ofReal_mul]
+  rw [hl, hr] at h
+  exact_mod_cast h
 
 /-- A `Cⁿ` function on the closed unit interval satisfies the repeated weighted
 integration identity. Derivatives within the interval allow one-sided endpoint data. -/

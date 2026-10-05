@@ -56,9 +56,9 @@ theorem norm_ascPochhammer_eval_le_ascPochhammer (a : ℂ) (n : ℕ) {B : ℝ}
     exact (norm_nonneg _).trans ih
 
 /-- An ascending Pochhammer symbol is bounded by a power of a uniform bound on the argument. -/
-theorem norm_ascPochhammer_eval_le (a : ℂ) (k : ℕ) {B : ℝ} (hB : 0 ≤ B)
-    (ha : ‖a‖ ≤ B) :
+theorem norm_ascPochhammer_eval_le (a : ℂ) (k : ℕ) {B : ℝ} (ha : ‖a‖ ≤ B) :
     ‖(ascPochhammer ℂ k).eval a‖ ≤ (B + k) ^ k := by
+  have hB : 0 ≤ B := (norm_nonneg a).trans ha
   induction k with
   | zero => simp
   | succ k ih =>
@@ -91,7 +91,7 @@ theorem norm_prod_ascPochhammer_eval_le {ι : Type*} [Fintype ι]
       intro i _
       have hmi : m i ≤ n := hm ▸ Finset.single_le_sum (fun j _ => Nat.zero_le (m j))
         (Finset.mem_univ i)
-      exact (norm_ascPochhammer_eval_le (b i) (m i) hB (hb i)).trans
+      exact (norm_ascPochhammer_eval_le (b i) (m i) (hb i)).trans
         (pow_le_pow_left₀ (by positivity) (by gcongr) _)
     _ = (B + n) ^ n := by rw [Finset.prod_pow_eq_pow_sum, hm]
 

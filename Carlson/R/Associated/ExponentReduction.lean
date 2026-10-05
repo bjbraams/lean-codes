@@ -42,7 +42,7 @@ variable {ι : Type*} [Fintype ι]
 /-- The last polynomial recurrence coefficient can be used to lower the exponent at
 every downward step. Unlike the quotient presentation, this statement includes `a = 0`. -/
 theorem carlsonAssociatedRecurrencePolynomial_lower_ne_zero [Nonempty ι]
-    {t : ℂ} (ht : IsCarlsonGammaRegular (1 - t)) (b z : ι → ℂ)
+    {t : ℂ} (ht : IsGammaRegular (1 - t)) (b z : ι → ℂ)
     (hz : z ∈ carlsonRVariableDomain) (m : ℕ) :
     (carlsonAssociatedRecurrencePolynomial (Fintype.card ι) (-t + m)
       ((∑ i, b i) + t - m) b).eval z ≠ 0 := by
@@ -60,7 +60,7 @@ every upward step. The second regularity hypothesis of Carlson's reduction lemma
 exactly the one needed here. -/
 theorem carlsonAssociatedRecurrencePolynomial_raise_ne_zero
     {t : ℂ} (b z : ι → ℂ)
-    (ht : IsCarlsonGammaRegular ((∑ i, b i) + t - Fintype.card ι + 2)) (m : ℕ) :
+    (ht : IsGammaRegular ((∑ i, b i) + t - Fintype.card ι + 2)) (m : ℕ) :
     (carlsonAssociatedRecurrencePolynomial 0 (-(t + m + 1))
       ((∑ i, b i) + t + m + 1) b).eval z ≠ 0 := by
   simp only [carlsonAssociatedRecurrencePolynomial, ↓reduceIte, MvPolynomial.eval_C]
@@ -109,7 +109,7 @@ private lemma rIntegralOnDomain_mem_of_forall_ne [Nonempty ι] (t : ℂ) {b : ι
 
 /-- Every downward integer shift of the exponent lies in the closure. -/
 private lemma rIntegralOnDomain_sub_natCast_mem [Nonempty ι] (t : ℂ) {b : ι → ℂ}
-    (hb : b ∈ mvBetaConvergent) (ht : IsCarlsonGammaRegular (1 - t)) (m : ℕ) :
+    (hb : b ∈ mvBetaConvergent) (ht : IsGammaRegular (1 - t)) (m : ℕ) :
     rIntegralOnDomain b (t - m) ∈ exponentReductionClosure t b := by
   induction m using Nat.strong_induction_on with
   | h m ih =>
@@ -136,8 +136,8 @@ private lemma rIntegralOnDomain_sub_natCast_mem [Nonempty ι] (t : ℂ) {b : ι 
 
 /-- Every upward integer shift of the exponent lies in the closure. -/
 private lemma rIntegralOnDomain_add_natCast_mem [Nonempty ι] (t : ℂ) {b : ι → ℂ}
-    (hb : b ∈ mvBetaConvergent) (ht : IsCarlsonGammaRegular (1 - t))
-    (hct : IsCarlsonGammaRegular ((∑ i, b i) + t - Fintype.card ι + 2)) (m : ℕ) :
+    (hb : b ∈ mvBetaConvergent) (ht : IsGammaRegular (1 - t))
+    (hct : IsGammaRegular ((∑ i, b i) + t - Fintype.card ι + 2)) (m : ℕ) :
     rIntegralOnDomain b (t + m) ∈ exponentReductionClosure t b := by
   induction m using Nat.strong_induction_on with
   | h m ih =>
@@ -168,8 +168,8 @@ domain, including the zero set of the denominator polynomial. -/
 theorem exists_polynomial_carlsonAssociated_exponent_reduction
     (t : ℂ) (b : ι → ℂ) (n : ℤ)
     (hb : b ∈ mvBetaConvergent)
-    (ht : IsCarlsonGammaRegular (1 - t))
-    (hct : IsCarlsonGammaRegular ((∑ i, b i) + t - Fintype.card ι + 2)) :
+    (ht : IsGammaRegular (1 - t))
+    (hct : IsGammaRegular ((∑ i, b i) + t - Fintype.card ι + 2)) :
     ∃ d : MvPolynomial ι ℂ, d ≠ 0 ∧
       ∃ p : Fin (Fintype.card ι) → MvPolynomial ι ℂ,
         ∀ z ∈ carlsonRVariableDomain,
@@ -203,9 +203,9 @@ in the rational-function span of `card ι` consecutive R-functions. -/
 theorem exists_rational_carlsonAssociated_exponent_reduction
     (t : ℂ) (b : ι → ℂ) (n : ℤ)
     (hb : b ∈ mvBetaConvergent)
-    (ht : IsCarlsonGammaRegular (1 - t))
-    (hct : IsCarlsonGammaRegular ((∑ i, b i) + t - Fintype.card ι + 2)) :
-    ∃ q : Fin (Fintype.card ι) → CarlsonRRationalCoefficient ι,
+    (ht : IsGammaRegular (1 - t))
+    (hct : IsGammaRegular ((∑ i, b i) + t - Fintype.card ι + 2)) :
+    ∃ q : Fin (Fintype.card ι) → RRationalCoefficient ι,
       ∀ z ∈ carlsonRVariableDomain,
         (∀ j, (q j).denominator.eval z ≠ 0) →
         carlsonRIntegral (t + n) b z =

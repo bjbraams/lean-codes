@@ -22,10 +22,11 @@ and 5.6-1(5)), with iterated versions.
 
 * `Dirichlet.hasDerivAt_regCarlsonDirichletAverage_update_of_analyticOnNhd`: differentiation
   under the average for a function holomorphic on a convex node domain.
-* `Dirichlet.carlsonPartialDeriv_regCarlsonDirichletAverage`: Carlson's 5.6-1(5) in regularized
-  form.
+* `Dirichlet.carlsonPartialDeriv_regCarlsonDirichletAverage_of_analyticOnNhd`: Carlson's
+  5.6-1(5) in regularized form.
 * `Dirichlet.carlsonIteratedPartialDeriv_regCarlsonDirichletAverage`: iterated node derivatives.
-* `Dirichlet.carlsonPartialDeriv_carlsonDirichletAverage`: the ordinary normalization.
+* `Dirichlet.carlsonPartialDeriv_carlsonDirichletAverage_of_analyticOnNhd`: the ordinary
+  normalization.
 
 ## References
 
@@ -148,24 +149,6 @@ theorem hasDerivAt_regCarlsonDirichletAverage_update_of_bound
   simpa [regCarlsonDirichletAverage, regDirichletIntegral, F, F', μ] using h
 
 open scoped Classical in
-/-- Differentiation under a regularized Carlson average when the derivative of the
-univariate function is globally bounded. -/
-theorem hasDerivAt_regCarlsonDirichletAverage_update
-    {b z : ι → ℂ} (hb : b ∈ mvBetaConvergent) (i : ι)
-    {f f' : ℂ → ℂ} (hf : ∀ w, HasDerivAt f (f' w) w)
-    (hf'_continuous : Continuous f') {C : ℝ}
-    (hf'_bound : ∀ w, ‖f' w‖ ≤ C) :
-    HasDerivAt
-      (fun w ↦ regCarlsonDirichletAverage b (Function.update z i w) f)
-      (regDirichletIntegral b
-        (fun u ↦ (u i : ℂ) * f' (carlsonAffineForm z u)))
-      (z i) := by
-  apply hasDerivAt_regCarlsonDirichletAverage_update_of_bound hb i Filter.univ_mem
-    (fun w hw u hu ↦ hf _) (fun w hw ↦ hf'_continuous.continuousOn)
-  intro w hw u hu
-  exact hf'_bound _
-
-open scoped Classical in
 /-- Differentiation under a regularized Carlson average when the averaged function is
 holomorphic on a convex neighborhood of all the nodes. -/
 theorem hasDerivAt_regCarlsonDirichletAverage_update_of_analyticOnNhd
@@ -230,22 +213,6 @@ theorem carlsonPartialDeriv_regCarlsonDirichletAverage_of_analyticOnNhd
       hΩopen hΩconv hf hb hz i).deriv]
   exact (mul_regDirichletIntegral_addDirichletUnit hb i
     (fun u => deriv f (carlsonAffineForm z u))).symm
-
-open scoped Classical in
-/-- Regularized form of Carlson's relation 5.6-1(5): differentiating with respect to `z i`
-produces the associated average with parameter `b i` increased by one. -/
-theorem carlsonPartialDeriv_regCarlsonDirichletAverage
-    {b z : ι → ℂ} (hb : b ∈ mvBetaConvergent) (i : ι)
-    {f f' : ℂ → ℂ} (hf : ∀ w, HasDerivAt f (f' w) w)
-    (hf'_continuous : Continuous f') {C : ℝ}
-    (hf'_bound : ∀ w, ‖f' w‖ ≤ C) :
-    carlsonPartialDeriv i (fun z ↦ regCarlsonDirichletAverage b z f) z =
-      b i * regCarlsonDirichletAverage (addDirichletUnit b i) z f' := by
-  rw [carlsonPartialDeriv]
-  rw [(hasDerivAt_regCarlsonDirichletAverage_update hb i hf
-    hf'_continuous hf'_bound).deriv]
-  exact (mul_regDirichletIntegral_addDirichletUnit hb i
-    (fun u ↦ f' (carlsonAffineForm z u))).symm
 
 /-- Iteration of `addDirichletUnit` in the order matching
 `carlsonIteratedPartialDeriv`. -/
@@ -388,32 +355,6 @@ theorem carlsonPartialDeriv_carlsonDirichletAverage_of_analyticOnNhd
     (b i / ∑ j, b j) *
       ((∑ j, b j) * Gamma (∑ j, b j) *
         regCarlsonDirichletAverage (addDirichletUnit b i) z (deriv f))
-  field_simp [hc]
-
-open scoped Classical in
-/-- Carlson's relation 5.6-1(5) in its original normalization.  The coefficient is the
-weight `b i / ∑ j, b j`. -/
-theorem carlsonPartialDeriv_carlsonDirichletAverage [Nonempty ι]
-    {b z : ι → ℂ} (hb : b ∈ mvBetaConvergent) (i : ι)
-    {f f' : ℂ → ℂ} (hf : ∀ w, HasDerivAt f (f' w) w)
-    (hf'_continuous : Continuous f') {C : ℝ}
-    (hf'_bound : ∀ w, ‖f' w‖ ≤ C) :
-    carlsonPartialDeriv i (fun z ↦ carlsonDirichletAverage b z f) z =
-      (b i / ∑ j, b j) * carlsonDirichletAverage (addDirichletUnit b i) z f' := by
-  let c : ℂ := ∑ j, b j
-  have hcpos : 0 < c.re := by
-    simpa [c] using Finset.sum_pos (fun j _ ↦ hb j) Finset.univ_nonempty
-  have hc : c ≠ 0 := ne_zero_of_re_pos hcpos
-  have hsum : ∑ j, addDirichletUnit b i j = c + 1 := sum_addDirichletUnit b i
-  have hder := hasDerivAt_regCarlsonDirichletAverage_update (z := z) hb i hf
-    hf'_continuous hf'_bound
-  unfold carlsonPartialDeriv carlsonDirichletAverage
-  rw [deriv_const_mul _ hder.differentiableAt, hder.deriv]
-  rw [← mul_regDirichletIntegral_addDirichletUnit hb i
-    (fun u ↦ f' (carlsonAffineForm z u))]
-  rw [hsum, Gamma_add_one c hc]
-  change Gamma c * (b i * regCarlsonDirichletAverage (addDirichletUnit b i) z f') =
-    (b i / c) * (c * Gamma c * regCarlsonDirichletAverage (addDirichletUnit b i) z f')
   field_simp [hc]
 
 end Dirichlet

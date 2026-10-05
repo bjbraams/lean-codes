@@ -91,7 +91,7 @@ theorem mvBetaConvergent_subset_dirichletConvergenceRegion (N : ℕ) :
 /-- On a singleton index type the regularized Dirichlet integral is `f 1 / Gamma b`, hence
 entire in the Dirichlet parameter. -/
 theorem exists_regDirichletContinuation_of_unique [Unique ι]
-    {f : (ι → ℝ) → ℂ} (_hf : ContinuousOn f (Convexity.StdSimplex.coordinateSet ℝ ι)) :
+    (f : (ι → ℝ) → ℂ) :
     ∃ F : (ι → ℂ) → ℂ,
       AnalyticOn ℂ F Set.univ ∧
         Set.EqOn F (fun b ↦ regDirichletIntegral b f) mvBetaConvergent := by
@@ -245,7 +245,7 @@ theorem regDirichletIntegral_split_at [Nontrivial ι] (i : ι)
       (Convexity.StdSimplex.coordinateSet ℝ ι) stdSimplexMeasure :=
     (Complex.integrableOn_mvBetaMonomial b hb).mul_continuousOn hf
       (Convexity.StdSimplex.isCompact_coordinateSet ℝ ι)
-  rw [regDirichletIntegral_eq_prod_invGamma_mul,
+  rw [regDirichletIntegral_eq_prod_inv_Gamma_mul,
     integral_stdSimplex_split_at i _ hint]
   have houter : ∀ᵐ t ∂volume.restrict (Set.Icc (0 : ℝ) 1),
       ((1 - t) ^ (Fintype.card ι - 2)) •
@@ -274,7 +274,7 @@ theorem regDirichletIntegral_split_at [Nontrivial ι] (i : ι)
   rw [← integral_const_mul]
   apply integral_congr_ae
   filter_upwards with t
-  rw [regDirichletIntegral_eq_prod_invGamma_mul]
+  rw [regDirichletIntegral_eq_prod_inv_Gamma_mul]
   ring
 
 /-! ### Continuation by tangential integration by parts -/

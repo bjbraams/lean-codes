@@ -191,7 +191,7 @@ theorem integral_quartic_eq_integral_cubic_ofReal {A B C D : ℝ} (hA : 0 < A) (
 `R_{-1}(1/2, 1/2, 1/2, 1/2; z) = ∫₀^∞ ∏ᵢ (zᵢ + s)^{-1/2} ds` on the slit domain. -/
 theorem carlsonR_quartic_eq_integral {z : Fin 4 → ℂ} (hz : z ∈ carlsonRSlitDomain) :
     carlsonR (-1) (fun _ => 1 / 2) z = ∫ s in Ioi (0 : ℝ), ∏ i, (z i + s) ^ (-1 / 2 : ℂ) := by
-  have h := carlsonRPositiveRayIntegral_eq_gamma_mul_regCarlsonR (a := 1) (a' := 1)
+  have h := carlsonRPositiveRayIntegral_eq_Gamma_mul_regCarlsonR (a := 1) (a' := 1)
     (b := fun _ : Fin 4 => (1 / 2 : ℂ)) (by norm_num) (by norm_num) (by simp; norm_num) hz
   unfold carlsonRPositiveRayIntegral at h
   simp only [sub_self, cpow_zero, one_mul, Gamma_one, mul_one,

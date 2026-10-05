@@ -94,7 +94,8 @@ theorem shiftedJacobiCoefficient_apply_shiftedJacobi (α β : ℝ) (hα : -1 < �
       simp only [Nat.sub_self, Nat.zero_add, shiftedJacobi_zero, eval_one, mul_one,
         ↓reduceIte]
       exact div_self (mul_ne_zero
-        (mul_ne_zero (pow_ne_zero _ (by norm_num)) (jacobi_pochhammer_ne_zero hα hβ m))
+        (mul_ne_zero (pow_ne_zero _ (by norm_num))
+          (jacobi_pochhammer_ne_zero (α := α) (β := β) (by linarith) m))
         (integral_shiftedJacobiWeight_pos ham hbm).ne')
     · have hz := integral_shiftedJacobi_mul_shiftedJacobi_eq_zero ham hbm 0 (n - m)
         (by omega)
@@ -108,8 +109,9 @@ theorem shiftedJacobiCoefficient_apply_shiftedJacobi (α β : ℝ) (hα : -1 < �
 theorem shiftedJacobiCoefficient_eq_repr (α β : ℝ) (hα : -1 < α) (hβ : -1 < β)
     (m : ℕ) (p : ℝ[X]) :
     shiftedJacobiCoefficient α β hα hβ m p =
-      (shiftedJacobiBasis α β (jacobi_pochhammer_ne_zero hα hβ)).repr p m := by
-  let b := shiftedJacobiBasis α β (jacobi_pochhammer_ne_zero hα hβ)
+      (shiftedJacobiBasis α β
+        (jacobi_pochhammer_ne_zero (α := α) (β := β) (by linarith))).repr p m := by
+  let b := shiftedJacobiBasis α β (jacobi_pochhammer_ne_zero (α := α) (β := β) (by linarith))
   have he : shiftedJacobiCoefficient α β hα hβ m =
       (Finsupp.lapply m).comp b.repr.toLinearMap := by
     apply b.ext

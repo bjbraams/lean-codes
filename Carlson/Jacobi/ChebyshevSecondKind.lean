@@ -194,7 +194,8 @@ theorem regCarlsonDirichletAverage_chebyshev (n : ℕ) {x y : ℂ} (h : 0 < (x *
       show 2 * β + -((n : ℂ) + 1) = (n : ℂ) by simp only [β]; ring,
       show 1 / 2 - β - -((n : ℂ) + 1) = 1 by simp only [β]; ring]
     have hsum : ∑ i, TwoVariable.pair (n : ℂ) 1 i = n + 1 := TwoVariable.sum_pair _ _
-    have hneg := regCarlsonR_neg_sum_sub_nat 0 (TwoVariable.pair (n : ℂ) 1) hz'
+    have hneg := regCarlsonR_neg_sum_sub_nat 0 (TwoVariable.pair (n : ℂ) 1)
+      (carlsonRVariableDomain_subset_slitDomain hz')
     rw [hsum, Nat.cast_zero, sub_zero, regCarlsonRPolynomial_zero, hsum] at hneg
     rw [hneg, ← mul_assoc, ← mul_assoc, TwoVariable.Gamma_mul_quadraticGammaRatio hβ,
       show β + 1 / 2 = (n : ℂ) + 1 by simp only [β]; ring]

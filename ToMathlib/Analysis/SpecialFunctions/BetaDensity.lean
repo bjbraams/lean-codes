@@ -10,6 +10,8 @@ public import Mathlib.MeasureTheory.Function.LocallyIntegrable
 public import Mathlib.MeasureTheory.Integral.Bochner.Set
 public import Mathlib.Analysis.SpecialFunctions.Pow.Deriv
 public import Mathlib.Tactic
+public import TauCeti.Analysis.SpecialFunctions.Beta
+public import TauCeti.Probability.Distributions.Beta.Basic
 
 /-!
 # Real beta density integrals and concentration ratios
@@ -17,18 +19,23 @@ public import Mathlib.Tactic
 Real integrability, total mass, and first moment complement Mathlib's nonnegative
 beta density integral. The ratio identity isolates the continuous positive-power
 kernel responsible for two crossings when concentration increases.
+
+The nonnegativity, beta-law integration and mean results specialize the Tau Ceti contributors'
+`TauCeti.Probability.betaPDFReal_nonneg`, `TauCeti.Probability.integral_betaMeasure_eq` and
+`TauCeti.Probability.integral_id_betaMeasure` from `TauCeti.Probability.Distributions.Beta.Basic`.
+The unit shift of the beta function is their `ProbabilityTheory.beta_add_one_left` from
+`TauCeti.Analysis.SpecialFunctions.Beta`, whose hypotheses are weaker than positivity.
 -/
 
 open MeasureTheory Set
 public noncomputable section
 namespace ProbabilityTheory
 
-/-- A beta density with positive parameters is nonnegative everywhere. -/
+/-- A beta density with positive parameters is nonnegative everywhere.
+Uses `TauCeti.Probability.betaPDFReal_nonneg`. -/
 theorem betaPDFReal_nonneg {a b : ℝ} (ha : 0 < a) (hb : 0 < b) (u : ℝ) :
-    0 ≤ betaPDFReal a b u := by
-  by_cases hu : 0 < u ∧ u < 1
-  · exact (betaPDFReal_pos hu.1 hu.2 ha hb).le
-  · simp only [betaPDFReal, hu, ↓reduceIte, le_refl]
+    0 ≤ betaPDFReal a b u :=
+  TauCeti.Probability.betaPDFReal_nonneg ha hb u
 
 /-- The real beta density is integrable for positive parameters. -/
 theorem integrable_betaPDFReal {a b : ℝ} (ha : 0 < a) (hb : 0 < b) :
@@ -47,20 +54,12 @@ theorem integral_betaPDFReal {a b : ℝ} (ha : 0 < a) (hb : 0 < b) :
   change (∫⁻ u, betaPDF a b u).toReal = 1
   rw [lintegral_betaPDF_eq_one ha hb, ENNReal.toReal_one]
 
-/-- A unit shift in the first beta parameter multiplies its normalizing constant by its mean. -/
-theorem beta_add_one_left {a b : ℝ} (ha : 0 < a) (hb : 0 < b) :
-    beta (a + 1) b = a / (a + b) * beta a b := by
-  unfold beta
-  rw [show a + 1 + b = (a + b) + 1 by ring, Real.Gamma_add_one ha.ne',
-    Real.Gamma_add_one (add_pos ha hb).ne']
-  simp only [div_eq_mul_inv, mul_inv]
-  ring
-
 /-- Multiplying the beta density by its coordinate shifts its first parameter. -/
 theorem mul_betaPDFReal_eq {a b : ℝ} (ha : 0 < a) (hb : 0 < b) (u : ℝ) :
     u * betaPDFReal a b u = a / (a + b) * betaPDFReal (a + 1) b u := by
   by_cases hu : 0 < u ∧ u < 1
-  · rw [betaPDFReal, betaPDFReal, ite_eq_left hu, ite_eq_left hu, beta_add_one_left ha hb]
+  · rw [betaPDFReal, betaPDFReal, ite_eq_left hu, ite_eq_left hu,
+      beta_add_one_left ha.ne' (add_pos ha hb).ne']
     have hpow : u ^ (a + 1 - 1) = u * u ^ (a - 1) := by
       rw [show a + 1 - 1 = (a - 1) + 1 by ring, Real.rpow_add hu.1, Real.rpow_one, mul_comm]
     rw [hpow]
@@ -69,11 +68,14 @@ theorem mul_betaPDFReal_eq {a b : ℝ} (ha : 0 < a) (hb : 0 < b) (u : ℝ) :
     field_simp
   · simp only [betaPDFReal, hu, ↓reduceIte, mul_zero]
 
-/-- The first moment of a real beta density is its normalized first parameter. -/
+/-- The first moment of a real beta density is its normalized first parameter.
+Uses `TauCeti.Probability.integral_betaMeasure_eq` and
+`TauCeti.Probability.integral_id_betaMeasure`. -/
 theorem integral_mul_betaPDFReal {a b : ℝ} (ha : 0 < a) (hb : 0 < b) :
     (∫ u, u * betaPDFReal a b u) = a / (a + b) := by
-  simp_rw [mul_betaPDFReal_eq ha hb]
-  rw [integral_const_mul, integral_betaPDFReal (by positivity) hb, mul_one]
+  have h := TauCeti.Probability.integral_betaMeasure_eq ha hb (fun u : ℝ => u)
+  rw [TauCeti.Probability.integral_id_betaMeasure ha hb] at h
+  simpa only [smul_eq_mul, mul_comm] using h.symm
 
 /-- Continuous kernels on the closed unit interval are integrable against the beta density. -/
 theorem integrable_betaPDFReal_mul_of_continuousOn {a b : ℝ} (ha : 0 < a) (hb : 0 < b)
@@ -119,17 +121,11 @@ theorem integral_betaPDFReal_mul_Ioo (a b : ℝ) (f : ℝ → ℝ) :
   · rw [indicator_of_notMem hu]
     simp only [betaPDFReal, show ¬ (0 < u ∧ u < 1) from hu, ↓reduceIte, zero_mul]
 
-/-- Integration under a beta law agrees with the ordinary real density integral. -/
+/-- Integration under a beta law agrees with the ordinary real density integral.
+Uses `TauCeti.Probability.integral_betaMeasure_eq`. -/
 theorem integral_betaMeasure {a b : ℝ} (ha : 0 < a) (hb : 0 < b) (f : ℝ → ℝ) :
     (∫ u, f u ∂betaMeasure a b) = ∫ u, betaPDFReal a b u * f u := by
-  rw [betaMeasure]
-  change (∫ u, f u ∂volume.withDensity (ENNReal.ofReal ∘ betaPDFReal a b)) = _
-  rw [integral_withDensity_eq_integral_toReal_smul
-    (ENNReal.measurable_ofReal.comp (measurable_betaPDFReal a b))
-    (Filter.Eventually.of_forall (fun _ => ENNReal.ofReal_lt_top))]
-  apply integral_congr_ae
-  filter_upwards with u
-  simp only [Function.comp_apply, ENNReal.toReal_ofReal (betaPDFReal_nonneg ha hb u), smul_eq_mul]
+  simpa only [smul_eq_mul] using TauCeti.Probability.integral_betaMeasure_eq ha hb f
 
 /-- Constant concentration changes preserve the beta mean. -/
 theorem integral_mul_betaPDFReal_concentration {a b c : ℝ}

@@ -147,7 +147,7 @@ theorem regCarlsonRIntegral_tangent (t : ℂ) {b z : ι → ℂ}
     intro u hu
     exact Complex.deriv_cpow_const (carlsonAffineForm_mem_slitPlane hz hu)
   have H := regCarlsonDirichletAverage_tangent convex_carlsonRightHalfPlane hpow hb
-    (Set.range_subset_iff.mpr hz) i j hij
+    (Set.range_subset_iff.mpr hz) i j
   rw [hderiv] at H
   have hcomm : addDirichletUnit (addDirichletUnit b j) i =
       addDirichletUnit (addDirichletUnit b i) j := by

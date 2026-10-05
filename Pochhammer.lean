@@ -13,7 +13,6 @@ public import Pochhammer.PochhammerTransform
 public import Pochhammer.Vandermonde
 public import Pochhammer.BetaShift
 public import Pochhammer.BetaIntegral
-public import Pochhammer.ComplexPowMeasurable
 public import Pochhammer.IncompleteMellin
 public import Pochhammer.PositiveCpow
 
@@ -36,7 +35,6 @@ This module re-exports the following developments:
 * `Pochhammer.Vandermonde`: Chu–Vandermonde identities for the ascending Pochhammer polynomial.
 * `Pochhammer.BetaShift`: Simultaneous beta-parameter shifts, their ratio limit, and summability.
 * `Pochhammer.BetaIntegral`: Further results about the Euler Beta integral.
-* `Pochhammer.ComplexPowMeasurable`: Measurability of complex powers with a real base.
 * `Pochhammer.IncompleteMellin`: Regularized incomplete Mellin transforms.
 * `Pochhammer.PositiveCpow`: Complex powers on the positive half-line.
 

@@ -9,6 +9,7 @@ public import Carlson.Jacobi.ComplexOrthogonality
 public import Carlson.Jacobi.Endpoints
 public import Carlson.Jacobi.SecondKind
 public import Pochhammer.Estimates
+public import TauCeti.Analysis.SpecialFunctions.Pow.Complex
 
 /-!
 # Orthogonality on a complex segment
@@ -28,6 +29,8 @@ and the orthogonality Theorem 7.8-3 to arbitrary distinct complex endpoints, for
 
 ## References
 
+* `TauCeti.Analysis.SpecialFunctions.Pow.Complex`: the Tau Ceti contributors'
+  `TauCeti.ofReal_mul_cpow`, used to split powers of positive real multiples.
 * B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977,
   Representation 7.8-2 and Theorem 7.8-3.
 -/
@@ -37,14 +40,6 @@ open Complex Set Filter Polynomial MeasureTheory
 open scoped Topology Interval
 
 namespace Carlson.TwoVariable
-
-/-- Multiplying by a positive real number does not change the principal branch of a power. -/
-theorem ofReal_mul_cpow_of_pos {t : ℝ} (ht : 0 < t) {z : ℂ} (hz : z ≠ 0) (w : ℂ) :
-    ((t : ℂ) * z) ^ w = (t : ℂ) ^ w * z ^ w := by
-  have htz : (t : ℂ) * z ≠ 0 := mul_ne_zero (ofReal_ne_zero.mpr ht.ne') hz
-  rw [cpow_def_of_ne_zero htz, cpow_def_of_ne_zero (ofReal_ne_zero.mpr ht.ne'),
-    cpow_def_of_ne_zero hz, log_ofReal_mul ht hz, ← exp_add, ofReal_log ht.le]
-  ring_nf
 
 /-- Carlson's weighted integral over the complex segment from `r` to `s`,
 `∫_r^s F(x) (x - r)^β (s - x)^α dx`, with the phases of `x - r` and `s - x` equal to the phase
@@ -71,20 +66,20 @@ theorem jacobiSegmentIntegral_eq (α β : ℂ) {r s : ℂ} (hrs : r ≠ s) (F : 
   rw [uIoc_of_le zero_le_one] at hy
   have hy1' : y < 1 := lt_of_le_of_ne hy.2 hy1
   simp only [complexJacobiWeight]
-  rw [ofReal_mul_cpow_of_pos (by linarith) hsr, show ((1 - (1 - y) : ℝ) : ℂ) = (y : ℂ) by
-    push_cast; ring, ofReal_mul_cpow_of_pos hy.1 hsr]
+  rw [TauCeti.ofReal_mul_cpow (by linarith) _, show ((1 - (1 - y) : ℝ) : ℂ) = (y : ℂ) by
+    push_cast; ring, TauCeti.ofReal_mul_cpow hy.1.le _]
   push_cast
   rw [show r + (1 - (y : ℂ)) * (s - r) = (r - s) * y + s by ring]
   ring
 
-/-- The Pochhammer normalization of the monic polynomials is nonzero when both parameters have
-real part greater than `-1`. -/
-theorem ascPochhammer_ne_zero_of_re_gt {α β : ℂ} (hα : -1 < α.re) (hβ : -1 < β.re) (n : ℕ) :
+/-- The Pochhammer normalization of the monic polynomials is nonzero when `re (α + β) > -2`,
+in particular when both parameters have real part greater than `-1`. -/
+theorem ascPochhammer_ne_zero_of_re_gt {α β : ℂ} (hαβ : -2 < (α + β).re) (n : ℕ) :
     (ascPochhammer ℂ n).eval (α + β + n + 1) ≠ 0 := by
   rcases n with _ | n
   · simp
   · apply ascPochhammer_eval_ne_zero_of_re_pos
-    simp only [add_re, natCast_re, one_re, Nat.cast_add, Nat.cast_one]
+    simp only [add_re, natCast_re, one_re, Nat.cast_add, Nat.cast_one] at hαβ ⊢
     have := Nat.cast_nonneg (α := ℝ) n
     linarith
 
@@ -99,7 +94,7 @@ theorem jacobiSegmentIntegral_mul_jacobiOn {α β : ℂ} (hα : -1 < α.re) (hβ
       (s - r) ^ (α + β + 1) * (s - r) ^ (2 * n) / (ascPochhammer ℂ n).eval (α + β + n + 1) *
         ∫ y in (0 : ℝ)..1, complexJacobiWeight (α + n) (β + n) y *
           iteratedDeriv n f ((r - s) * y + s) := by
-  have hP := ascPochhammer_ne_zero_of_re_gt hα hβ n
+  have hP := ascPochhammer_ne_zero_of_re_gt (α := α) (β := β) (by simp only [add_re]; linarith) n
   have hmem : ∀ y ∈ Icc (0 : ℝ) 1, (r - s) * (y : ℂ) + s ∈ U := fun y hy => hseg
     ⟨y, 1 - y, hy.1, by linarith [hy.2], by ring, by simp [real_smul]; ring⟩
   have han : AnalyticOnNhd ℂ f U := hf.analyticOnNhd hU
@@ -194,14 +189,17 @@ theorem jacobiSegmentIntegral_jacobiOn_mul_jacobiOn {α β : ℂ} (hα : -1 < α
   have hrep := jacobiSegmentIntegral_mul_jacobiOn hα hβ hrs isOpen_univ (subset_univ _)
     ((jacobiOn α β r s m).differentiable.differentiableOn) n
   rw [hrep, iteratedDeriv_eval]
+  have hP (m : ℕ) :=
+    ascPochhammer_ne_zero_of_re_gt (α := α) (β := β) (by simp only [add_re]; linarith) m
   rcases lt_or_eq_of_le hmn with hlt | rfl
   · rw [ite_eq_right (show ¬(m = n) by omega)]
     have hdeg : (jacobiOn α β r s m).natDegree < n := by
-      rw [natDegree_jacobiOn α β r s m (ascPochhammer_ne_zero_of_re_gt hα hβ m)]; exact hlt
+      rw [natDegree_jacobiOn α β r s m (hP m)]
+      exact hlt
     simp [iterate_derivative_eq_zero hdeg]
   · rw [ite_eq_left rfl, iterate_derivative_of_monic
-      (monic_jacobiOn α β r s m (ascPochhammer_ne_zero_of_re_gt hα hβ m))
-      (natDegree_jacobiOn α β r s m (ascPochhammer_ne_zero_of_re_gt hα hβ m))]
+      (monic_jacobiOn α β r s m (hP m))
+      (natDegree_jacobiOn α β r s m (hP m))]
     simp only [eval_C]
     rw [show (fun y : ℝ => complexJacobiWeight (α + m) (β + m) y * (m.factorial : ℂ)) =
       fun y : ℝ => (m.factorial : ℂ) * complexJacobiWeight (α + m) (β + m) y by

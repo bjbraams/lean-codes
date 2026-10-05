@@ -8,6 +8,8 @@ module
 public import Carlson.R.Exponent
 public import Carlson.R.Relations
 public import Carlson.R.SingleIntegralAnalytic
+public import Carlson.R.SlitPlane
+public import Carlson.RPolynomial.Coefficients
 
 /-!
 # Explicit definition of the regularized Carlson R-function
@@ -943,7 +945,7 @@ theorem analyticOnNhd_carlsonR (t : ℂ) (b : ι → ℂ) :
 
 /-- Carlson's single-integral representation with the Gamma factors on the right, on the
 whole product slit plane. -/
-theorem carlsonRUnitIntervalIntegral_eq_gamma_mul_regCarlsonR {a a' : ℂ} {b z : ι → ℂ}
+theorem carlsonRUnitIntervalIntegral_eq_Gamma_mul_regCarlsonR {a a' : ℂ} {b z : ι → ℂ}
     (ha : 0 < a.re) (ha' : 0 < a'.re) (hsum : a + a' = ∑ i, b i)
     (hz : z ∈ carlsonRSlitDomain) :
     carlsonRUnitIntervalIntegral a a' b z = (Gamma a * Gamma a') * regCarlsonR (-a) b z := by
@@ -1009,11 +1011,18 @@ theorem IsRegCarlsonRContinuation.eq_regCarlsonR {t : ℂ} {z : ι → ℂ} {G :
     G = (regCarlsonR t · z) :=
   hG.eq (isRegCarlsonRContinuation_regCarlsonR t hz)
 
-/-- At natural exponents the regularized R-function is the regularized R-polynomial. -/
+/-- At natural exponents the regularized R-function is the regularized R-polynomial,
+on every slit-plane node vector. -/
 theorem regCarlsonR_natCast (n : ℕ) (b : ι → ℂ) {z : ι → ℂ}
-    (hz : z ∈ carlsonRVariableDomain) :
-    regCarlsonR (n : ℂ) b z = regCarlsonRPolynomial n b z :=
-  congrFun (isRegCarlsonRContinuation_regCarlsonR (n : ℂ) hz).eq_regCarlsonR_natCast b
+    (hz : z ∈ carlsonRSlitDomain) :
+    regCarlsonR (n : ℂ) b z = regCarlsonRPolynomial n b z := by
+  refine eqOn_carlsonRSlitDomain_of_eqOn_rightHalfPlane (G := fun w => regCarlsonRPolynomial n b w)
+    (analyticOnNhd_regCarlsonR (n : ℂ) b)
+    (fun w _ => analyticAt_regCarlsonRPolynomial_comp (b := fun _ => b) (z := id)
+      (fun _ => analyticAt_const)
+      (fun i => (ContinuousLinearMap.proj (R := ℂ) (φ := fun _ : ι => ℂ) i).analyticAt w) n)
+    (fun w hw => ?_) hz
+  exact congrFun (isRegCarlsonRContinuation_regCarlsonR (n : ℂ) hw).eq_regCarlsonR_natCast b
 
 /-! ### The third associated relation -/
 

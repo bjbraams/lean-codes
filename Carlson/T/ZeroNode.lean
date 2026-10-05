@@ -102,11 +102,6 @@ theorem tendsto_regCarlsonT_pair_zero {β β' : ℂ} (hβ : 0 < β.re) (hβ' : 0
     exact ((continuous_exp.continuousAt).comp ((by fun_prop : Continuous fun y : ℂ =>
       (u : ℂ) * x + (1 - u : ℂ) * y).continuousAt.inv₀ hne))
 
-/-- A positive real base to a complex power, as an exponential. -/
-private theorem ofReal_cpow_eq_exp' {q : ℝ} (hq : 0 < q) (c : ℂ) :
-    ((q : ℝ) : ℂ) ^ c = exp (Real.log q * c) := by
-  rw [cpow_def_of_ne_zero (by exact_mod_cast hq.ne'), ← ofReal_log hq.le]
-
 /-- **Formula (5.12-3)**: for `re β, re β' > 0` and real `x < 0`,
 `T(β, β'; x, 0)/Γ(β + β') = e^{1/x} (-x)^{β'}/Γ(β) ∫₀^∞ (1 - t x)^{-β-β'} dλ_{β'}(t)`. -/
 theorem regCarlsonTIntegral_pair_zero_eq {β β' : ℂ} (hβ : 0 < β.re) (hβ' : 0 < β'.re) {x : ℝ}
@@ -156,8 +151,8 @@ theorem regCarlsonTIntegral_pair_zero_eq {β β' : ℂ} (hβ : 0 < β.re) (hβ' 
   simp only [F, eulerDensity, carlsonTKernel, real_smul]
   rw [show (1 - (g t : ℂ)) = ((1 - g t : ℝ) : ℂ) by push_cast; ring, mul_zero, add_zero,
     show (g t : ℂ) * x = ((g t * x : ℝ) : ℂ) by push_cast; ring,
-    ofReal_cpow_eq_exp' hu, ofReal_cpow_eq_exp' h1u, ofReal_cpow_eq_exp' ht',
-    ofReal_cpow_eq_exp' (by linarith : (0 : ℝ) < -x), ofReal_cpow_eq_exp' hVpos]
+    Complex.ofReal_cpow_eq_exp hu, Complex.ofReal_cpow_eq_exp h1u, Complex.ofReal_cpow_eq_exp ht',
+    Complex.ofReal_cpow_eq_exp (by linarith : (0 : ℝ) < -x), Complex.ofReal_cpow_eq_exp hVpos]
   have hlogu : Real.log (g t) = -Real.log (1 - t * x) := by simp only [g]; rw [Real.log_inv]
   have hlog1u : Real.log (1 - g t) = Real.log t + Real.log (-x) - Real.log (1 - t * x) := by
     have : 1 - g t = t * (-x) / (1 - t * x) := by simp only [g]; field_simp; ring

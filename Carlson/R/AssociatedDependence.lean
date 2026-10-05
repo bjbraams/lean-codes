@@ -141,23 +141,14 @@ private theorem carlsonRIntegral_mem_of_nat_shift
       ((P.saturation (nonZeroDivisors (MvPolynomial ι ℂ))).smul_mem _ h₀)
           ((P.saturation (nonZeroDivisors (MvPolynomial ι ℂ))).smul_mem _ h₁)
 
-/-- A complex number with positive real part is not a nonpositive integer, so it is Gamma-regular. -/
-private theorem isCarlsonGammaRegular_of_re_pos {w : ℂ} (hw : 0 < w.re) :
-    IsCarlsonGammaRegular w := by
-  intro n hn
-  have he := congrArg Complex.re hn
-  simp only [neg_re, natCast_re] at he
-  have : (0 : ℝ) ≤ n := Nat.cast_nonneg n
-  linarith
-
 /-- Choose common raised parameters and a shifted exponent with both recurrence endpoints
 Gamma-regular. Positive real parts avoid all exceptional integral cases at once. -/
 private theorem exists_common_carlsonAssociated_parameters [Nonempty ι]
     (t : ℂ) (b : ι → ℂ)
-    (s : Fin (Fintype.card ι + 1) → CarlsonRAssociatedShift ι) :
+    (s : Fin (Fintype.card ι + 1) → RAssociatedShift ι) :
     ∃ N : ℕ, ∃ B : ι → ℂ, B ∈ mvBetaConvergent ∧
-      IsCarlsonGammaRegular (1 - (t - N)) ∧
-      IsCarlsonGammaRegular ((∑ i, B i) + (t - N) - Fintype.card ι + 2) ∧
+      IsGammaRegular (1 - (t - N)) ∧
+      IsGammaRegular ((∑ i, B i) + (t - N) - Fintype.card ι + 2) ∧
       ∀ j, ∃ n : ι → ℕ, B = fun i => (s j).parameterValue b i + n i := by
   obtain ⟨N, hN⟩ := exists_nat_gt t.re
   obtain ⟨L, hL⟩ := exists_nat_gt ((N : ℝ) + Fintype.card ι - t.re)
@@ -182,8 +173,8 @@ private theorem exists_common_carlsonAssociated_parameters [Nonempty ι]
     change 0 < (c i + (L : ℂ)).re
     simp only [add_re, natCast_re]
     exact add_pos_of_pos_of_nonneg (hc i) (Nat.cast_nonneg L)
-  refine ⟨N, B, hB, isCarlsonGammaRegular_of_re_pos ?_,
-    isCarlsonGammaRegular_of_re_pos ?_, ?_⟩
+  refine ⟨N, B, hB, .of_re_pos ?_,
+    .of_re_pos ?_, ?_⟩
   · simp only [sub_re, one_re, natCast_re]
     linarith
   · have hcpos := sum_re_pos_of_mem_mvBetaConvergent hc
@@ -202,7 +193,7 @@ private theorem exists_common_carlsonAssociated_parameters [Nonempty ι]
         ((k i : ℤ) + L - (s j).parameter i : ℤ) :=
       congrArg (Int.cast : ℤ → ℂ) (Int.toNat_of_nonneg hnonneg)
     simp only [Int.cast_natCast, Int.cast_sub, Int.cast_add] at he
-    dsimp [B, c, CarlsonRAssociatedShift.parameterValue]
+    dsimp [B, c, RAssociatedShift.parameterValue]
     rw [he]
     ring
 
@@ -210,7 +201,7 @@ private theorem exists_common_carlsonAssociated_parameters [Nonempty ι]
 nontrivial homogeneous relation with polynomial coefficients. -/
 theorem exists_polynomial_relation_associatedR
     (t : ℂ) (b : ι → ℂ)
-    (s : Fin (Fintype.card ι + 1) → CarlsonRAssociatedShift ι)
+    (s : Fin (Fintype.card ι + 1) → RAssociatedShift ι)
     (hconv : ∀ j, (s j).parameterValue b ∈ mvBetaConvergent) :
     ∃ A : Fin (Fintype.card ι + 1) → MvPolynomial ι ℂ,
       (∃ j, A j ≠ 0) ∧
@@ -250,7 +241,7 @@ theorem exists_polynomial_relation_associatedR
       intro m
       rw [← hn, show (s j).exponentValue t + (m : ℂ) =
         (t - N) + ((N : ℤ) + (s j).exponent + m : ℤ) by
-          dsimp [CarlsonRAssociatedShift.exponentValue]; push_cast; ring]
+          dsimp [RAssociatedShift.exponentValue]; push_cast; ring]
       exact hfixed _
     obtain ⟨a, ha, hrel⟩ := Submodule.exists_relation_of_mem_saturation
       (nonZeroDivisors (MvPolynomial ι ℂ)) zero_notMem_nonZeroDivisors v w (by simp) hw
@@ -313,7 +304,7 @@ is nontrivial as a polynomial identity, not merely a pointwise scalar dependence
 Gamma regularization includes all exceptional total parameters. -/
 private theorem exists_polynomial_relation_associatedCarlsonR_of_mem_variableDomain
     (t : ℂ) (b : ι → ℂ)
-    (s : Fin (Fintype.card ι + 1) → CarlsonRAssociatedShift ι) :
+    (s : Fin (Fintype.card ι + 1) → RAssociatedShift ι) :
     ∃ A : Fin (Fintype.card ι + 1) → MvPolynomial ι ℂ,
       (∃ j, A j ≠ 0) ∧
       ∀ (z : ι → ℂ) (_ : z ∈ carlsonRVariableDomain),
@@ -362,7 +353,7 @@ private theorem exists_polynomial_relation_associatedCarlsonR_of_mem_variableDom
       intro m
       rw [← hn, show (s j).exponentValue t + (m : ℂ) =
         (t - N) + ((N : ℤ) + (s j).exponent + m : ℤ) by
-          dsimp [CarlsonRAssociatedShift.exponentValue]; push_cast; ring]
+          dsimp [RAssociatedShift.exponentValue]; push_cast; ring]
       exact hfixedReg _
     obtain ⟨a, ha, hrel⟩ := Submodule.exists_relation_of_mem_saturation
       (nonZeroDivisors (MvPolynomial ι ℂ)) zero_notMem_nonZeroDivisors v w (by simp) hw
@@ -377,7 +368,7 @@ Nontriviality is polynomial nontriviality, not a pointwise assertion. The empty
 index type is included through the existing entire-parameter theorem. -/
 theorem exists_polynomial_relation_associatedCarlsonR
     (t : ℂ) (b : ι → ℂ)
-    (s : Fin (Fintype.card ι + 1) → CarlsonRAssociatedShift ι) :
+    (s : Fin (Fintype.card ι + 1) → RAssociatedShift ι) :
     ∃ A : Fin (Fintype.card ι + 1) → MvPolynomial ι ℂ,
       (∃ j, A j ≠ 0) ∧
       ∀ (z : ι → ℂ), z ∈ carlsonRSlitDomain →

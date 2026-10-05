@@ -52,6 +52,11 @@ $$
 These DLMF formulas use falling factorials. In this file the rising factorials of
 `ascPochhammer` are used and this entails a replacement of `x` by `-x`.
 
+The forward theory (the coefficient formula, the transform, degree preservation and the
+interaction with `X`) holds over any commutative semiring, since it uses only the unsigned
+Stirling numbers of the first kind. The inverse needs signs and is developed over a
+commutative ring.
+
 The resulting transformations define a linear equivalence of `Polynomial R`. It preserves
 the leading coefficient and natural degree. The file also proves its interaction with
 multiplication by `X`.
@@ -76,7 +81,12 @@ C. W. Clark, B. R. Miller, B. V. Saunders, H. S. Cohl, and M. A. McClain, eds.
 
 @[expose] public noncomputable section
 
-variable (R : Type*) [CommRing R]
+
+/-! ### Forward transform over a commutative semiring -/
+
+section Semiring
+
+variable (R : Type*) [CommSemiring R]
 
 /-- The $k$-th coefficient of the $n$-th ascending Pochhammer polynomial is the
 unsigned Stirling number of the first kind. -/
@@ -111,141 +121,6 @@ theorem ascPochhammer_eq_sum_stirlingFirst (n : ℕ) :
       exact h (Finset.mem_range.mpr h_j)
     simp [Nat.stirlingFirst_eq_zero_of_lt h_lt]
 
-/-- The image of `X ^ n` under the inverse ascending Pochhammer transform, expressed in
-the standard monomial basis using signed Stirling numbers of the second kind. -/
-noncomputable def inverseAscPochhammerBasis (n : ℕ) : Polynomial R :=
-  ∑ k ∈ Finset.range (n + 1),
-    Polynomial.monomial k (((-1 : R) ^ (n - k)) * (n.stirlingSecond k : R))
-
-/- Some private defs and theorems towards the proof of `sum_stirlingSecond_mul_ascPochhammer`. -/
-/-- The second-kind Stirling coefficient with sign `(-1) ^ (n + k)`, viewed in the coefficient ring. -/
-private def signedStirlingSecond (n k : ℕ) : R :=
-  (-1 : R) ^ n * (-1 : R) ^ k * (n.stirlingSecond k : R)
-/-- The signed second-kind Stirling coefficients satisfy the recurrence for simultaneous increments
-of both indices. -/
-private theorem signedStirlingSecond_succ_succ (n k : ℕ) :
-    signedStirlingSecond R (n + 1) (k + 1) =
-      signedStirlingSecond R n k -
-        signedStirlingSecond R n (k + 1) * ((k + 1 : ℕ) : R) := by
-  simp [signedStirlingSecond, Nat.stirlingSecond_succ_succ,
-    pow_succ, Nat.cast_add, Nat.cast_mul]; ring
-/-- A signed second-kind Stirling coefficient with positive first index and zero second index
-vanishes. -/
-@[simp] private theorem signedStirlingSecond_succ_zero (n : ℕ) :
-    signedStirlingSecond R (n + 1) 0 = 0 := by
-  simp [signedStirlingSecond]
-/-- Multiplication by `X` raises the degree of the ascending Pochhammer polynomial and subtracts the
-degree times the original polynomial. -/
-private theorem ascPochhammer_mul_X (k : ℕ) :
-    ascPochhammer R k * Polynomial.X =
-      ascPochhammer R (k + 1) -
-        (k : R) • ascPochhammer R k := by
-  rw [ascPochhammer_succ_right]
-  simp [mul_add, Polynomial.smul_eq_C_mul, mul_comm]
-/-- Signed second-kind Stirling coefficients expand the monomial `X ^ n` in the ascending Pochhammer
-basis. -/
-private theorem sum_signedStirlingSecond_mul_ascPochhammer (n : ℕ) :
-    ∑ k ∈ Finset.range (n + 1),
-        signedStirlingSecond R n k • ascPochhammer R k =
-      Polynomial.X ^ n := by
-  induction n with
-  | zero =>
-      simp [signedStirlingSecond]
-  | succ n ih =>
-      have hshift :
-          ∑ k ∈ Finset.range (n + 1),
-              (signedStirlingSecond R n k * (k : R)) •
-                ascPochhammer R k
-            =
-          ∑ k ∈ Finset.range (n + 1),
-              (signedStirlingSecond R n (k + 1) *
-                ((k + 1 : ℕ) : R)) •
-                ascPochhammer R (k + 1) := by
-        rw [
-          Finset.sum_range_succ'
-            (fun k =>
-              (signedStirlingSecond R n k * (k : R)) •
-                ascPochhammer R k) n,
-          Finset.sum_range_succ
-            (fun k =>
-              (signedStirlingSecond R n (k + 1) *
-                ((k + 1 : ℕ) : R)) •
-                ascPochhammer R (k + 1)) n
-        ]
-        simp [signedStirlingSecond,
-          Nat.stirlingSecond_eq_zero_of_lt n.lt_succ_self]
-
-      rw [
-        Finset.sum_range_succ'
-          (fun k =>
-            signedStirlingSecond R (n + 1) k •
-              ascPochhammer R k) (n + 1)
-      ]
-      simp only [signedStirlingSecond_succ_zero, zero_smul]
-      simp_rw [signedStirlingSecond_succ_succ]
-      simp_rw [sub_smul]
-      rw [Finset.sum_sub_distrib]
-      rw [← hshift]
-      rw [pow_succ, ← ih, Finset.sum_mul]
-      rw [← Finset.sum_sub_distrib]
-      simp only [add_zero]
-      simp_rw [smul_mul_assoc]
-      simp_rw [ascPochhammer_mul_X]
-      simp_rw [smul_sub]
-      simp_rw [smul_smul]
-/-- For `k ≤ n`, the sign `(-1) ^ (n - k)` gives the same signed Stirling coefficient as the product
-of the two parity signs. -/
-private theorem neg_one_pow_sub_mul_stirlingSecond
-    {n k : ℕ} (hk : k ≤ n) :
-    ((-1 : R) ^ (n - k)) * (n.stirlingSecond k : R) =
-      signedStirlingSecond R n k := by
-  unfold signedStirlingSecond
-  have hpow :
-      (-1 : R) ^ n =
-        (-1 : R) ^ (n - k) * (-1 : R) ^ k := by
-    rw [← pow_add, Nat.sub_add_cancel hk]
-  rw [hpow]
-  have hs :
-      (-1 : R) ^ k * (-1 : R) ^ k = 1 := by
-    rw [← mul_pow]
-    simp
-  calc
-    (-1 : R) ^ (n - k) * (n.stirlingSecond k : R)
-        =
-      (-1 : R) ^ (n - k) * 1 *
-        (n.stirlingSecond k : R) := by simp
-    _ =
-      (-1 : R) ^ (n - k) *
-        (((-1 : R) ^ k) * ((-1 : R) ^ k)) *
-          (n.stirlingSecond k : R) := by rw [hs]
-    _ =
-      ((-1 : R) ^ (n - k) * (-1 : R) ^ k) *
-        (-1 : R) ^ k * (n.stirlingSecond k : R) := by
-      simp only [mul_assoc]
-/- (End of private defs and theorems towards `sum_stirlingSecond_mul_ascPochhammer`.) -/
-
-/-- Expansion of the standard monomial `X ^ n` in the ascending Pochhammer
-basis, with coefficients given by signed Stirling numbers of the second kind. -/
-theorem sum_stirlingSecond_mul_ascPochhammer (n : ℕ) :
-    ∑ k ∈ Finset.range (n + 1),
-      (((-1 : R) ^ (n - k)) * (n.stirlingSecond k : R)) •
-        ascPochhammer R k
-      = Polynomial.X ^ n := by
-  calc
-    ∑ k ∈ Finset.range (n + 1),
-        (((-1 : R) ^ (n - k)) *
-          (n.stirlingSecond k : R)) • ascPochhammer R k
-        =
-      ∑ k ∈ Finset.range (n + 1),
-        signedStirlingSecond R n k • ascPochhammer R k := by
-          apply Finset.sum_congr rfl
-          intro k hk
-          rw [neg_one_pow_sub_mul_stirlingSecond
-            (R := R)
-            (Nat.le_of_lt_succ (Finset.mem_range.mp hk))]
-    _ = Polynomial.X ^ n :=
-      sum_signedStirlingSecond_mul_ascPochhammer (R := R) n
-
 /-- The `R`-linear transformation of `Polynomial R` sending the standard monomial `X ^ n`
 to the ascending Pochhammer polynomial `ascPochhammer R n`. -/
 noncomputable def ascPochhammerTransform :
@@ -264,59 +139,6 @@ ascending Pochhammer polynomial `ascPochhammer R n`. -/
     ascPochhammerTransform R (Polynomial.X ^ n) = ascPochhammer R n := by
   rw [Polynomial.X_pow_eq_monomial]
   simp
-
-/-- The inverse ascending Pochhammer transform, defined by sending `X ^ n` to
-`inverseAscPochhammerBasis R n` and extending linearly. -/
-noncomputable def ascPochhammerInverseTransform :
-    Polynomial R →ₗ[R] Polynomial R :=
-  Polynomial.lsum fun n =>
-    LinearMap.id.smulRight (inverseAscPochhammerBasis R n)
-
-/-- The inverse ascending Pochhammer transform applied to a monomial. -/
-@[simp] theorem ascPochhammerInverseTransform_monomial
-    (n : ℕ) (a : R) :
-    ascPochhammerInverseTransform R (Polynomial.monomial n a) =
-      a • inverseAscPochhammerBasis R n := by
-  simp [ascPochhammerInverseTransform]
-
-/-- The inverse ascending Pochhammer transform sends `X ^ n` to
-`inverseAscPochhammerBasis R n`. -/
-@[simp] theorem ascPochhammerInverseTransform_X_pow (n : ℕ) :
-    ascPochhammerInverseTransform R (Polynomial.X ^ n) =
-      inverseAscPochhammerBasis R n := by
-  rw [Polynomial.X_pow_eq_monomial]
-  simp
-
-/-- Applying the ascending Pochhammer transform to the inverse basis polynomials recovers
-the standard monomials $X^n$. -/
-theorem ascPochhammerTransform_inverseAscPochhammerBasis (n : ℕ) :
-    ascPochhammerTransform R (inverseAscPochhammerBasis R n) =
-      Polynomial.X ^ n := by
-  simp [inverseAscPochhammerBasis, sum_stirlingSecond_mul_ascPochhammer]
-
-/-- Applying the ascending Pochhammer transform after the inverse transform is the identity
-on polynomials. -/
-theorem ascPochhammerTransform_inverseTransform (p : Polynomial R) :
-    ascPochhammerTransform R
-      (ascPochhammerInverseTransform R p) = p := by
-  induction p using Polynomial.induction_on' with
-  | add p q hp hq =>
-      simp [map_add, hp, hq]
-  | monomial n a =>
-      rw [ascPochhammerInverseTransform_monomial]
-      rw [map_smul]
-      rw [ascPochhammerTransform_inverseAscPochhammerBasis]
-      exact Polynomial.smul_X_eq_monomial
-
-/-- The composition of the ascending Pochhammer transform and its inverse is the identity
-linear map. -/
-theorem ascPochhammerTransform_comp_inverse :
-    (ascPochhammerTransform R).comp
-      (ascPochhammerInverseTransform R) =
-    LinearMap.id := by
-  apply LinearMap.ext
-  intro p
-  exact ascPochhammerTransform_inverseTransform (R := R) p
 
 /-- Expands the ascending Pochhammer transform of `p` by replacing each standard monomial
 `X ^ n` by `ascPochhammer R n`, with the same coefficient. -/
@@ -383,6 +205,227 @@ theorem natDegree_ascPochhammerTransform (p : Polynomial R) :
       exact Polynomial.mem_support_iff.mp
         (Polynomial.natDegree_mem_support_of_nonzero hp)
 
+/-- The ascending Pochhammer transform intertwines multiplication by `X` with multiplication
+by `X` followed by the shift `X ↦ X + 1`: `T (X * p) = X * (T p).comp (X + 1)`. -/
+theorem ascPochhammerTransform_X_mul (p : Polynomial R) :
+    ascPochhammerTransform R (Polynomial.X * p) =
+      Polynomial.X *
+        (ascPochhammerTransform R p).comp (Polynomial.X + 1) := by
+  refine Polynomial.induction_on' p ?_ ?_
+  · intro p q hp hq
+    simp [mul_add, hp, hq]
+  · intro n a
+    rw [Polynomial.X_mul_monomial]
+    rw [ascPochhammerTransform_monomial]
+    rw [ascPochhammerTransform_monomial]
+    rw [ascPochhammer_succ_left]
+    rw [Polynomial.smul_comp]
+    rw [mul_smul_comm]
+
+end Semiring
+
+/-! ### Signed inverse transform over a commutative ring -/
+
+section Ring
+
+variable (R : Type*) [CommRing R]
+
+/-- The image of `X ^ n` under the inverse ascending Pochhammer transform, expressed in
+the standard monomial basis using signed Stirling numbers of the second kind. -/
+noncomputable def inverseAscPochhammerBasis (n : ℕ) : Polynomial R :=
+  ∑ k ∈ Finset.range (n + 1),
+    Polynomial.monomial k (((-1 : R) ^ (n - k)) * (n.stirlingSecond k : R))
+
+/- Some private defs and theorems towards the proof of `sum_stirlingSecond_mul_ascPochhammer`. -/
+
+/-- The second-kind Stirling coefficient with sign `(-1) ^ (n + k)`, viewed in the coefficient
+ring. -/
+private def signedStirlingSecond (n k : ℕ) : R :=
+  (-1 : R) ^ n * (-1 : R) ^ k * (n.stirlingSecond k : R)
+
+/-- The signed second-kind Stirling coefficients satisfy the recurrence for simultaneous increments
+of both indices. -/
+private theorem signedStirlingSecond_succ_succ (n k : ℕ) :
+    signedStirlingSecond R (n + 1) (k + 1) =
+      signedStirlingSecond R n k -
+        signedStirlingSecond R n (k + 1) * ((k + 1 : ℕ) : R) := by
+  simp [signedStirlingSecond, Nat.stirlingSecond_succ_succ,
+    pow_succ, Nat.cast_add, Nat.cast_mul]; ring
+
+/-- A signed second-kind Stirling coefficient with positive first index and zero second index
+vanishes. -/
+@[simp] private theorem signedStirlingSecond_succ_zero (n : ℕ) :
+    signedStirlingSecond R (n + 1) 0 = 0 := by
+  simp [signedStirlingSecond]
+
+/-- Multiplication by `X` raises the degree of the ascending Pochhammer polynomial and subtracts the
+degree times the original polynomial. -/
+private theorem ascPochhammer_mul_X (k : ℕ) :
+    ascPochhammer R k * Polynomial.X =
+      ascPochhammer R (k + 1) -
+        (k : R) • ascPochhammer R k := by
+  rw [ascPochhammer_succ_right]
+  simp [mul_add, Polynomial.smul_eq_C_mul, mul_comm]
+
+/-- Signed second-kind Stirling coefficients expand the monomial `X ^ n` in the ascending Pochhammer
+basis. -/
+private theorem sum_signedStirlingSecond_mul_ascPochhammer (n : ℕ) :
+    ∑ k ∈ Finset.range (n + 1),
+        signedStirlingSecond R n k • ascPochhammer R k =
+      Polynomial.X ^ n := by
+  induction n with
+  | zero =>
+      simp [signedStirlingSecond]
+  | succ n ih =>
+      have hshift :
+          ∑ k ∈ Finset.range (n + 1),
+              (signedStirlingSecond R n k * (k : R)) •
+                ascPochhammer R k
+            =
+          ∑ k ∈ Finset.range (n + 1),
+              (signedStirlingSecond R n (k + 1) *
+                ((k + 1 : ℕ) : R)) •
+                ascPochhammer R (k + 1) := by
+        rw [
+          Finset.sum_range_succ'
+            (fun k =>
+              (signedStirlingSecond R n k * (k : R)) •
+                ascPochhammer R k) n,
+          Finset.sum_range_succ
+            (fun k =>
+              (signedStirlingSecond R n (k + 1) *
+                ((k + 1 : ℕ) : R)) •
+                ascPochhammer R (k + 1)) n
+        ]
+        simp [signedStirlingSecond,
+          Nat.stirlingSecond_eq_zero_of_lt n.lt_succ_self]
+
+      rw [
+        Finset.sum_range_succ'
+          (fun k =>
+            signedStirlingSecond R (n + 1) k •
+              ascPochhammer R k) (n + 1)
+      ]
+      simp only [signedStirlingSecond_succ_zero, zero_smul]
+      simp_rw [signedStirlingSecond_succ_succ]
+      simp_rw [sub_smul]
+      rw [Finset.sum_sub_distrib]
+      rw [← hshift]
+      rw [pow_succ, ← ih, Finset.sum_mul]
+      rw [← Finset.sum_sub_distrib]
+      simp only [add_zero]
+      simp_rw [smul_mul_assoc]
+      simp_rw [ascPochhammer_mul_X]
+      simp_rw [smul_sub]
+      simp_rw [smul_smul]
+
+/-- For `k ≤ n`, the sign `(-1) ^ (n - k)` gives the same signed Stirling coefficient as the product
+of the two parity signs. -/
+private theorem neg_one_pow_sub_mul_stirlingSecond
+    {n k : ℕ} (hk : k ≤ n) :
+    ((-1 : R) ^ (n - k)) * (n.stirlingSecond k : R) =
+      signedStirlingSecond R n k := by
+  unfold signedStirlingSecond
+  have hpow :
+      (-1 : R) ^ n =
+        (-1 : R) ^ (n - k) * (-1 : R) ^ k := by
+    rw [← pow_add, Nat.sub_add_cancel hk]
+  rw [hpow]
+  have hs :
+      (-1 : R) ^ k * (-1 : R) ^ k = 1 := by
+    rw [← mul_pow]
+    simp
+  calc
+    (-1 : R) ^ (n - k) * (n.stirlingSecond k : R)
+        =
+      (-1 : R) ^ (n - k) * 1 *
+        (n.stirlingSecond k : R) := by simp
+    _ =
+      (-1 : R) ^ (n - k) *
+        (((-1 : R) ^ k) * ((-1 : R) ^ k)) *
+          (n.stirlingSecond k : R) := by rw [hs]
+    _ =
+      ((-1 : R) ^ (n - k) * (-1 : R) ^ k) *
+        (-1 : R) ^ k * (n.stirlingSecond k : R) := by
+      simp only [mul_assoc]
+
+/- (End of private defs and theorems towards `sum_stirlingSecond_mul_ascPochhammer`.) -/
+
+/-- Expansion of the standard monomial `X ^ n` in the ascending Pochhammer
+basis, with coefficients given by signed Stirling numbers of the second kind. -/
+theorem sum_stirlingSecond_mul_ascPochhammer (n : ℕ) :
+    ∑ k ∈ Finset.range (n + 1),
+      (((-1 : R) ^ (n - k)) * (n.stirlingSecond k : R)) •
+        ascPochhammer R k
+      = Polynomial.X ^ n := by
+  calc
+    ∑ k ∈ Finset.range (n + 1),
+        (((-1 : R) ^ (n - k)) *
+          (n.stirlingSecond k : R)) • ascPochhammer R k
+        =
+      ∑ k ∈ Finset.range (n + 1),
+        signedStirlingSecond R n k • ascPochhammer R k := by
+          apply Finset.sum_congr rfl
+          intro k hk
+          rw [neg_one_pow_sub_mul_stirlingSecond
+            (R := R)
+            (Nat.le_of_lt_succ (Finset.mem_range.mp hk))]
+    _ = Polynomial.X ^ n :=
+      sum_signedStirlingSecond_mul_ascPochhammer (R := R) n
+
+/-- The inverse ascending Pochhammer transform, defined by sending `X ^ n` to
+`inverseAscPochhammerBasis R n` and extending linearly. -/
+noncomputable def ascPochhammerInverseTransform :
+    Polynomial R →ₗ[R] Polynomial R :=
+  Polynomial.lsum fun n =>
+    LinearMap.id.smulRight (inverseAscPochhammerBasis R n)
+
+/-- The inverse ascending Pochhammer transform applied to a monomial. -/
+@[simp] theorem ascPochhammerInverseTransform_monomial
+    (n : ℕ) (a : R) :
+    ascPochhammerInverseTransform R (Polynomial.monomial n a) =
+      a • inverseAscPochhammerBasis R n := by
+  simp [ascPochhammerInverseTransform]
+
+/-- The inverse ascending Pochhammer transform sends `X ^ n` to
+`inverseAscPochhammerBasis R n`. -/
+@[simp] theorem ascPochhammerInverseTransform_X_pow (n : ℕ) :
+    ascPochhammerInverseTransform R (Polynomial.X ^ n) =
+      inverseAscPochhammerBasis R n := by
+  rw [Polynomial.X_pow_eq_monomial]
+  simp
+
+/-- Applying the ascending Pochhammer transform to the inverse basis polynomials recovers
+the standard monomials $X^n$. -/
+theorem ascPochhammerTransform_inverseAscPochhammerBasis (n : ℕ) :
+    ascPochhammerTransform R (inverseAscPochhammerBasis R n) =
+      Polynomial.X ^ n := by
+  simp [inverseAscPochhammerBasis, sum_stirlingSecond_mul_ascPochhammer]
+
+/-- Applying the ascending Pochhammer transform after the inverse transform is the identity
+on polynomials. -/
+theorem ascPochhammerTransform_inverseTransform (p : Polynomial R) :
+    ascPochhammerTransform R
+      (ascPochhammerInverseTransform R p) = p := by
+  induction p using Polynomial.induction_on' with
+  | add p q hp hq =>
+      simp [map_add, hp, hq]
+  | monomial n a =>
+      rw [ascPochhammerInverseTransform_monomial]
+      rw [map_smul]
+      rw [ascPochhammerTransform_inverseAscPochhammerBasis]
+      exact Polynomial.smul_X_eq_monomial
+
+/-- The composition of the ascending Pochhammer transform and its inverse is the identity
+linear map. -/
+theorem ascPochhammerTransform_comp_inverse :
+    (ascPochhammerTransform R).comp
+      (ascPochhammerInverseTransform R) =
+    LinearMap.id := by
+  apply LinearMap.ext
+  intro p
+  exact ascPochhammerTransform_inverseTransform (R := R) p
+
 /-- The ascending Pochhammer transform is injective. -/
 theorem ascPochhammerTransform_injective :
     Function.Injective (ascPochhammerTransform R) := by
@@ -418,21 +461,6 @@ noncomputable def ascPochhammerLinearEquiv :
   right_inv p := by
     exact ascPochhammerTransform_inverseTransform (R := R) p
 
-/-- The ascending Pochhammer transform intertwines multiplication by `X` with multiplication
-by `X` followed by the shift `X ↦ X + 1`: `T (X * p) = X * (T p).comp (X + 1)`. -/
-theorem ascPochhammerTransform_X_mul (p : Polynomial R) :
-    ascPochhammerTransform R (Polynomial.X * p) =
-      Polynomial.X *
-        (ascPochhammerTransform R p).comp (Polynomial.X + 1) := by
-  refine Polynomial.induction_on' p ?_ ?_
-  · intro p q hp hq
-    simp [mul_add, hp, hq]
-  · intro n a
-    rw [Polynomial.X_mul_monomial]
-    rw [ascPochhammerTransform_monomial]
-    rw [ascPochhammerTransform_monomial]
-    rw [ascPochhammer_succ_left]
-    rw [Polynomial.smul_comp]
-    rw [mul_smul_comm]
+end Ring
 
 end

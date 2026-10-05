@@ -15,7 +15,6 @@ public import StdSimplexMeasure.PositiveSimplex
 import Mathlib.Analysis.SpecialFunctions.Gamma.Beta
 import Mathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 import StdSimplexMeasure.EuclideanCrossSection
-import all StdSimplexMeasure.Measure.Basic
 
 /-!
 # Monomial and polynomial integrals on the standard simplex

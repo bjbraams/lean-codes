@@ -26,7 +26,9 @@ The straight-path specialization recovers the existing slit-plane R-function.
 
 The existence theorem below is conditional on an admissible path and analytic branches.
 It does not yet assert independence of the exterior path or construct paths for arbitrary
-Jordan domains. Those are necessary further steps toward Carlson (1969), Theorems 4–5.
+Jordan domains. Those are necessary further steps toward Carlson (1969), Theorems 4–5. The
+simply connected case of Theorem 8 does not need them; it is proved in
+`Dirichlet.Average.SimplyConnected`.
 
 ## Main results
 
@@ -192,7 +194,7 @@ theorem regCarlsonExteriorPathIntegral_one (n : ℕ) (b : ι → ℂ)
     dsimp only
     rw [carlsonExteriorPathAmplitude_one n b z ⟨hu.1.le, hu.2.le⟩ hz]
     rfl]
-  rw [carlsonRUnitIntervalIntegral_eq_gamma_mul_regCarlsonR ha hb (by ring) hz,
+  rw [carlsonRUnitIntervalIntegral_eq_Gamma_mul_regCarlsonR ha hb (by ring) hz,
     inv_mul_cancel_left₀ (mul_ne_zero (Gamma_ne_zero_of_re_pos ha) (Gamma_ne_zero_of_re_pos hb))]
 
 /-- An entire continuation of the straight-path integral is the established slit resolvent

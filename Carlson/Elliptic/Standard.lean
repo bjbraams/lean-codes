@@ -188,9 +188,6 @@ private theorem Gamma_three_halves_sq : Gamma (3 / 2 : ℂ) * Gamma (3 / 2) = π
   push_cast
   linear_combination (1 / 4 : ℂ) * this
 
-private theorem Gamma_two' : Gamma (2 : ℂ) = 1 := by
-  rw [show (2 : ℂ) = 1 + 1 by norm_num, Gamma_add_one _ one_ne_zero, Gamma_one, mul_one]
-
 /-- **Carlson's (9.2-3) for `R_G`**: `R_G(x, y, z) → (π/4) R_E(x, y)` as `z → 0` in the right
 half-plane. -/
 theorem tendsto_carlsonRG_zero {x y : ℂ} (hx : 0 < x.re) (hy : 0 < y.re) :
@@ -241,7 +238,8 @@ theorem tendsto_carlsonRG_zero {x y : ℂ} (hx : 0 < x.re) (hy : 0 < y.re) :
       regCarlsonR (-(-(1 / 2))) (pair (1 / 2) (1 / 2)) (pair x y))) =
         (π / 4 : ℂ) * carlsonRE x y := by
     unfold carlsonRE carlsonR
-    rw [sum_pair, show (1 / 2 : ℂ) + 1 / 2 = 1 by norm_num, Gamma_one, Gamma_two', inv_one,
+    rw [sum_pair, show (1 / 2 : ℂ) + 1 / 2 = 1 by norm_num, Gamma_one, Gamma_ofNat_eq_factorial,
+      Nat.factorial_one, Nat.cast_one, inv_one,
       one_mul, one_mul, show (2 : ℂ) - 1 / 2 = 3 / 2 by norm_num, ← mul_assoc,
       Gamma_three_halves_sq, neg_neg]
   rw [hval] at H'
@@ -313,7 +311,8 @@ theorem tendsto_carlsonRH_zero {x y ρ : ℂ} (hx : 0 < x.re) (hy : 0 < y.re) (h
     unfold carlsonRL carlsonR
     have hs3 : (∑ i, (![1 / 2, 1 / 2, 1] : Fin 3 → ℂ) i) = 2 := by
       simp [Fin.sum_univ_three]; norm_num
-    rw [hs3, Gamma_two', inv_one, one_mul, show (-(1 / 2) : ℂ) = -1 / 2 by ring]
+    rw [hs3, Gamma_ofNat_eq_factorial, Nat.factorial_one, Nat.cast_one, inv_one, one_mul,
+      show (-(1 / 2) : ℂ) = -1 / 2 by ring]
     simp only [Matrix.cons_val_two, Matrix.tail_cons, Matrix.head_cons]
     rw [show (2 : ℂ) - 1 / 2 = 3 / 2 by norm_num, show (5 / 2 : ℂ) = 3 / 2 + 1 by norm_num,
       Gamma_add_one _ (by norm_num)]
@@ -389,8 +388,8 @@ theorem legendreF_eq {φ k : ℝ} (h0 : 0 < φ) (h1 : φ < π / 2) (hk : k ^ 2 <
   have h2t : 0 ≤ 1 - k ^ 2 * t ^ 2 := by nlinarith [ht.1, ht.2, sq_nonneg k, sq_nonneg t]
   rw [Real.mul_rpow h1t h2t]
 
-/-- **Carlson's (9.2-14), first kind**: `K(k) = (π/2) R_K(1 - k², 1)` for `0 < k < 1`. -/
-theorem legendreK_eq {k : ℝ} (hk0 : 0 < k) (hk1 : k < 1) :
+/-- Carlson's (9.2-14), first kind, for `0 < k < 1`. -/
+private theorem legendreK_eq_of_pos {k : ℝ} (hk0 : 0 < k) (hk1 : k < 1) :
     (legendreK k : ℂ) = π / 2 * carlsonRK (1 - k ^ 2 : ℝ) 1 := by
   rw [← snK_eq hk0 hk1, legendreK, legendreF,
     integral_legendre_eq (by positivity) le_rfl (fun t => (1 - k ^ 2 * t ^ 2) ^ (-1 / 2 : ℝ)),
@@ -401,6 +400,16 @@ theorem legendreK_eq {k : ℝ} (hk0 : 0 < k) (hk1 : k < 1) :
   have h2t : 0 ≤ 1 - k ^ 2 * t ^ 2 := by nlinarith [ht.1, ht.2, sq_nonneg k, sq_nonneg t]
   rw [Real.mul_rpow h1t h2t]
 
+
+/-- **Carlson's (9.2-14), first kind**: `K(k) = (π/2) R_K(1 - k², 1)` for `k² < 1`. -/
+theorem legendreK_eq {k : ℝ} (hk : k ^ 2 < 1) :
+    (legendreK k : ℂ) = π / 2 * carlsonRK (1 - k ^ 2 : ℝ) 1 := by
+  rcases lt_trichotomy k 0 with hneg | rfl | hpos
+  · have h := legendreK_eq_of_pos (k := -k) (by linarith) (by nlinarith)
+    simpa only [legendreK, legendreF, neg_sq] using h
+  · have h1 : carlsonRK 1 1 = 1 := by rw [TwoVariable.carlsonRK_self one_mem_slitPlane, one_cpow]
+    simp [legendreK, legendreF, h1]
+  · exact legendreK_eq_of_pos hpos (by nlinarith)
 /-- The incomplete integral of the second kind as an `R` function:
 `∫₀^y (1 - t²)^{-1/2} (1 - k² t²)^{1/2} dt = y R_{-1/2}(-1/2, 1/2, 3/2; 1 - k² y², 1 - y², 1)`. -/
 theorem integral_Ioo_sn_second {k y : ℝ} (hk : k ^ 2 < 1) (hy0 : 0 < y) (hy1 : y < 1) :
@@ -443,7 +452,7 @@ theorem integral_Ioo_sn_second {k y : ℝ} (hk : k ^ 2 < 1) (hy0 : 0 < y) (hy1 :
     · show ((1 - y ^ 2 : ℝ) : ℂ) ∈ slitPlane
       exact ofReal_mem_slitPlane.mpr (by nlinarith)
     · simp [N]
-  have h := carlsonRUnitIntervalIntegral_eq_gamma_mul_regCarlsonR (a := 1 / 2) (a' := 1)
+  have h := carlsonRUnitIntervalIntegral_eq_Gamma_mul_regCarlsonR (a := 1 / 2) (a' := 1)
     (b := B) (by norm_num) (by norm_num) (by simp [B, Fin.sum_univ_three]; norm_num) hz
   unfold carlsonRUnitIntervalIntegral at h
   rw [← integral_complex_ofReal]

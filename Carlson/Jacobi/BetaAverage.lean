@@ -57,9 +57,9 @@ theorem betaAverage_C_mul_X_pow (a b c : K) (n : ℕ) :
 /-- Avoiding the nonpositive integers makes every rising factorial nonzero. -/
 theorem ascPochhammer_ne_zero_of_add_nat_ne_zero (c : K)
     (hc : ∀ n : ℕ, c + n ≠ 0) (n : ℕ) : (ascPochhammer K n).eval c ≠ 0 := by
-  induction n with
-  | zero => simp
-  | succ n ih => rw [ascPochhammer_succ_eval]; exact mul_ne_zero ih (hc n)
+  rw [Ne, ascPochhammer_eval_eq_zero_iff]
+  rintro ⟨k, -, hk⟩
+  exact hc k (by rw [hk, add_neg_cancel])
 
 /-- Adjacent beta moments satisfy the Pearson recurrence. -/
 theorem betaAverage_moment_succ (a b : K) (hc : ∀ n : ℕ, a + b + n ≠ 0) (n : ℕ) :

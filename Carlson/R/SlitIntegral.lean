@@ -20,7 +20,7 @@ circle-Cauchy representation.
 
 Nodewise membership in the slit plane alone is not enough for native integral
 agreement: the convex hull may meet the cut. The general simply connected
-continuation theorem for arbitrary scalar kernels is still separate work.
+continuation theorem for arbitrary scalar kernels is `Dirichlet.Average.SimplyConnected`.
 
 ## Main results
 

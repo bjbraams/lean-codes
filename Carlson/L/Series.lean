@@ -55,17 +55,6 @@ def carlsonLCoeff (n : ℕ) (t : ℂ) : ℂ :=
   simp [carlsonLCoeff, iteratedDeriv_succ,
     (hasDerivAt_carlsonLKernel t one_mem_slitPlane).deriv, carlsonLKernel]
 
-/-- The unit disk about one avoids the principal logarithm's branch cut. -/
-theorem ball_one_subset_slitPlane : Metric.ball (1 : ℂ) 1 ⊆ slitPlane := by
-  intro w hw
-  apply carlsonRightHalfPlane_subset_slitPlane
-  have hnorm : ‖w - 1‖ < 1 := by simpa [dist_eq] using hw
-  have hre := Complex.abs_re_le_norm (w - 1)
-  have hlow := neg_le_abs (w - 1).re
-  change 0 < w.re
-  simp only [sub_re, one_re] at hre hlow
-  linarith
-
 /-- The continued L-function has the R-polynomial Taylor representation on
 the full unit polydisk, even at exceptional total parameters. -/
 theorem hasSum_regCarlsonL (t : ℂ) (b : ι → ℂ)
@@ -74,14 +63,14 @@ theorem hasSum_regCarlsonL (t : ℂ) (b : ι → ℂ)
     HasSum (fun n => carlsonLCoeff n t * regCarlsonRPolynomial n b (fun i => z i - 1))
       (regCarlsonL t b z) :=
   (isRegCarlsonLContinuation_regCarlsonL t hz).hasSum_taylor
-    ((analyticOnNhd_carlsonLKernel t).mono ball_one_subset_slitPlane) hz1 b
+    ((analyticOnNhd_carlsonLKernel t).mono Complex.ball_one_subset_slitPlane) hz1 b
 
 /-- Absolute convergence of the continued L-expansion. -/
 theorem summable_norm_regCarlsonL_series (t : ℂ) (b : ι → ℂ)
     {z : ι → ℂ} (hz1 : ‖fun i => z i - 1‖ < 1) :
     Summable (fun n => ‖carlsonLCoeff n t * regCarlsonRPolynomial n b (fun i => z i - 1)‖) :=
   summable_norm_regCarlsonTaylorSeries
-    ((analyticOnNhd_carlsonLKernel t).mono ball_one_subset_slitPlane) hz1 b
+    ((analyticOnNhd_carlsonLKernel t).mono Complex.ball_one_subset_slitPlane) hz1 b
 
 /-- At exponent zero the Taylor coefficients are those of `log (1 + x)`. -/
 theorem carlsonLCoeff_exponent_zero (n : ℕ) :

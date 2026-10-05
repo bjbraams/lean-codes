@@ -111,7 +111,7 @@ theorem exists_summable_norm_carlsonTaylor_bounded_variables
     exact ⟨max D 0, le_max_right _ _, fun b hb =>
       (hD (mem_image_of_mem _ hb)).trans (le_max_left _ _)⟩
   choose D hDpos hD using hD
-  obtain ⟨m, G, hG, hgamma⟩ := exists_uniform_norm_invGamma_sum_add_nat hK
+  obtain ⟨m, G, hG, hgamma⟩ := exists_uniform_norm_inv_Gamma_sum_add_nat hK
   let tail := fun k : ℕ => C * G * (ascPochhammer ℝ m).eval (T : ℝ) * (q * r) ^ m *
     ((ascPochhammer ℝ k).eval ((T + m : ℕ) : ℝ) / k.factorial * (q * r) ^ k)
   have htail : Summable tail := by

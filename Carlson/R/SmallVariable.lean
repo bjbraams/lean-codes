@@ -335,16 +335,14 @@ theorem carlsonRVariableDomain_update {z : ι → ℂ} (hz : z ∈ carlsonRVaria
 /-- Carlson's recurrence 8.3(5), used to move both endpoint exponents into
 their convergence half-planes. This regularized form has no denominators. -/
 theorem regCarlsonR_eq_sum_double_shift (t : ℂ) (b : ι → ℂ)
-    {z : ι → ℂ} (hz : z ∈ carlsonRVariableDomain) (i : ι) :
+    {z : ι → ℂ} (hz : z ∈ carlsonRSlitDomain) (i : ι) :
     regCarlsonR t b z =
       ∑ j, addDirichletUnit b i j * (((∑ k, b k) + t) * z j - t * z i) *
         regCarlsonR (t - 1) (addDirichletUnit (addDirichletUnit b i) j) z := by
-  have h := regCarlsonR_add_one_eq_sum_mul_addDirichletUnit (t - 1) (addDirichletUnit b i)
-      (carlsonRVariableDomain_subset_slitDomain hz)
+  have h := regCarlsonR_add_one_eq_sum_mul_addDirichletUnit (t - 1) (addDirichletUnit b i) hz
   rw [sub_add_cancel] at h
-  rw [regCarlsonR_eq_addDirichletUnit t b (carlsonRVariableDomain_subset_slitDomain hz) i, h,
-    regCarlsonR_eq_sum_addDirichletUnit (t - 1) (addDirichletUnit b i)
-        (carlsonRVariableDomain_subset_slitDomain hz),
+  rw [regCarlsonR_eq_addDirichletUnit t b hz i, h,
+    regCarlsonR_eq_sum_addDirichletUnit (t - 1) (addDirichletUnit b i) hz,
     Finset.mul_sum, Finset.mul_sum, ← Finset.sum_sub_distrib]
   apply Finset.sum_congr rfl
   intro j _
@@ -374,7 +372,7 @@ theorem tendsto_regCarlsonR_update_zero_of_pos
     dsimp only [eraseCarlsonParameter]
     linear_combination h
   have hz' : eraseCarlsonVariable i z ∈ carlsonRVariableDomain := fun j => hz j
-  rw [carlsonRUnitIntervalIntegral_eq_gamma_mul_regCarlsonR ha ha'i hs
+  rw [carlsonRUnitIntervalIntegral_eq_Gamma_mul_regCarlsonR ha ha'i hs
       (carlsonRVariableDomain_subset_slitDomain hz')] at H
   have hGa := Gamma_ne_zero_of_re_pos ha
   have hGa' := Gamma_ne_zero_of_re_pos ha'
@@ -388,7 +386,7 @@ theorem tendsto_regCarlsonR_update_zero_of_pos
   apply H'.congr'
   filter_upwards with x
   dsimp only [Function.comp_def]
-  rw [carlsonRUnitIntervalIntegral_eq_gamma_mul_regCarlsonR ha ha' hsum
+  rw [carlsonRUnitIntervalIntegral_eq_Gamma_mul_regCarlsonR ha ha' hsum
       (carlsonRVariableDomain_subset_slitDomain (carlsonRVariableDomain_update hz i (hw x)))]
   field_simp
 

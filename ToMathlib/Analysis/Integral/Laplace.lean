@@ -79,7 +79,7 @@ theorem gaussianAbsMoment_nonneg (c : ℝ) (m : ℕ) : 0 ≤ gaussianAbsMoment c
   integral_nonneg (fun _ => by positivity)
 
 /-- Absolute Gaussian moments evaluated by the Gamma integral. -/
-theorem gaussianAbsMoment_eq_gamma {c : ℝ} (hc : 0 < c) (m : ℕ) :
+theorem gaussianAbsMoment_eq_Gamma {c : ℝ} (hc : 0 < c) (m : ℕ) :
     gaussianAbsMoment c m = c ^ (-((m : ℝ) + 1) / 2) * Real.Gamma (((m : ℝ) + 1) / 2) := by
   let f : ℝ → ℝ := fun t => |t| ^ m * Real.exp (-c * t ^ 2)
   have hneg : (∫ t in Iic (0 : ℝ), f t) = ∫ t in Ioi (0 : ℝ), f t := by
@@ -101,12 +101,12 @@ theorem gaussianAbsMoment_eq_gamma {c : ℝ} (hc : 0 < c) (m : ℕ) :
 
 /-- The first absolute Gaussian moment is the reciprocal of the rate. -/
 theorem gaussianAbsMoment_one {c : ℝ} (hc : 0 < c) : gaussianAbsMoment c 1 = c⁻¹ := by
-  rw [gaussianAbsMoment_eq_gamma hc]
+  rw [gaussianAbsMoment_eq_Gamma hc]
   norm_num [Real.rpow_neg_one]
 
 /-- The third absolute Gaussian moment is the reciprocal square of the rate. -/
 theorem gaussianAbsMoment_three {c : ℝ} (hc : 0 < c) : gaussianAbsMoment c 3 = (c ^ 2)⁻¹ := by
-  rw [gaussianAbsMoment_eq_gamma hc]
+  rw [gaussianAbsMoment_eq_Gamma hc]
   norm_num [Real.rpow_neg hc.le, Real.rpow_two]
 
 end MeasureTheory
@@ -116,7 +116,7 @@ namespace Complex
 /-- A pointwise Gaussian majorant for the error in a rescaled Laplace integrand.
 The constants are independent of `t` and of any auxiliary parameters. -/
 theorem norm_laplace_rescaled_sub_le {A q : ℝ → ℂ} {c L M B r : ℝ}
-    (hL : 0 ≤ L) (hM : 0 ≤ M) (_hB : 0 ≤ B) (hr : 0 < r)
+    (hL : 0 ≤ L) (hM : 0 ≤ M) (hr : 0 < r)
     (hq : ∀ t, c ≤ (q t).re) (hA0 : ‖A 0‖ ≤ M)
     (hA : ∀ t, ‖A t - A 0‖ ≤ L * |t|)
     (hqt : ∀ t, ‖q t - q 0‖ ≤ B * |t|) (t : ℝ) :
@@ -174,7 +174,7 @@ theorem integrable_laplace {A q : ℝ → ℂ} {c L M n : ℝ}
 /-- A quantitative Laplace estimate after rescaling, for a complex quadratic coefficient
 with positive real part. The error is bounded by absolute Gaussian moments. -/
 theorem norm_integral_laplace_rescaled_sub_le {A q : ℝ → ℂ} {c L M B r : ℝ}
-    (hc : 0 < c) (hL : 0 ≤ L) (hM : 0 ≤ M) (hB : 0 ≤ B) (hr : 0 < r)
+    (hc : 0 < c) (hL : 0 ≤ L) (hM : 0 ≤ M) (hr : 0 < r)
     (hAc : Measurable A) (hqc : Measurable q)
     (hq : ∀ t, c ≤ (q t).re) (hA0 : ‖A 0‖ ≤ M)
     (hA : ∀ t, ‖A t - A 0‖ ≤ L * |t|)
@@ -192,7 +192,7 @@ theorem norm_integral_laplace_rescaled_sub_le {A q : ℝ → ℂ} {c L M B r : �
     funext t
     simp only [H, pow_one, Pi.add_apply]; ring
   have hbound : ∀ t, ‖F t - G t‖ ≤ H t :=
-    norm_laplace_rescaled_sub_le hL hM hB hr hq hA0 hA hqt
+    norm_laplace_rescaled_sub_le hL hM hr hq hA0 hA hqt
   have hG : Integrable G := by
     convert (integrable_cexp_neg_mul_sq (hc.trans_le (hq 0))).const_mul (A 0) using 1
     funext t
@@ -222,14 +222,14 @@ theorem norm_integral_laplace_rescaled_sub_le {A q : ℝ → ℂ} {c L M B r : �
 phase `-r² t² q(t)` differs from its complex Gaussian value by at most
 `(L/c + M B/c²)/r`. -/
 theorem norm_mul_integral_laplace_sub_le {A q : ℝ → ℂ} {c L M B r : ℝ}
-    (hc : 0 < c) (hL : 0 ≤ L) (hM : 0 ≤ M) (hB : 0 ≤ B) (hr : 0 < r)
+    (hc : 0 < c) (hL : 0 ≤ L) (hM : 0 ≤ M) (hr : 0 < r)
     (hAc : Measurable A) (hqc : Measurable q)
     (hq : ∀ t, c ≤ (q t).re) (hA0 : ‖A 0‖ ≤ M)
     (hA : ∀ t, ‖A t - A 0‖ ≤ L * |t|)
     (hqt : ∀ t, ‖q t - q 0‖ ≤ B * |t|) :
     ‖(r : ℂ) * (∫ t : ℝ, A t * exp (-(r : ℂ) ^ 2 * (t : ℂ) ^ 2 * q t)) -
         A 0 * (Real.pi / q 0) ^ (1 / 2 : ℂ)‖ ≤ (L / c + M * B / c ^ 2) / r := by
-  have h := norm_integral_laplace_rescaled_sub_le hc hL hM hB hr hAc hqc hq hA0 hA hqt
+  have h := norm_integral_laplace_rescaled_sub_le hc hL hM hr hAc hqc hq hA0 hA hqt
   rw [gaussianAbsMoment_one hc, gaussianAbsMoment_three hc] at h
   have hr0 : (r : ℂ) ≠ 0 := ofReal_ne_zero.mpr hr.ne'
   have he : (∫ t : ℝ, A (t / r) * exp (-(t : ℂ) ^ 2 * q (t / r))) =
@@ -251,14 +251,14 @@ theorem norm_mul_integral_laplace_sub_le {A q : ℝ → ℂ} {c L M B r : ℝ}
 /-- The usual `sqrt n` normalization of the Laplace estimate, valid for every positive real `n`.
 The error constant is uniform whenever the hypotheses have common constants. -/
 theorem norm_sqrt_mul_integral_laplace_sub_le {A q : ℝ → ℂ} {c L M B n : ℝ}
-    (hc : 0 < c) (hL : 0 ≤ L) (hM : 0 ≤ M) (hB : 0 ≤ B) (hn : 0 < n)
+    (hc : 0 < c) (hL : 0 ≤ L) (hM : 0 ≤ M) (hn : 0 < n)
     (hAc : Measurable A) (hqc : Measurable q)
     (hq : ∀ t, c ≤ (q t).re) (hA0 : ‖A 0‖ ≤ M)
     (hA : ∀ t, ‖A t - A 0‖ ≤ L * |t|)
     (hqt : ∀ t, ‖q t - q 0‖ ≤ B * |t|) :
     ‖(Real.sqrt n : ℂ) * (∫ t : ℝ, A t * exp (-(n : ℂ) * (t : ℂ) ^ 2 * q t)) -
         A 0 * (Real.pi / q 0) ^ (1 / 2 : ℂ)‖ ≤ (L / c + M * B / c ^ 2) / Real.sqrt n := by
-  have h := norm_mul_integral_laplace_sub_le hc hL hM hB (Real.sqrt_pos.mpr hn)
+  have h := norm_mul_integral_laplace_sub_le hc hL hM (Real.sqrt_pos.mpr hn)
     hAc hqc hq hA0 hA hqt
   simpa only [← ofReal_pow, Real.sq_sqrt hn.le] using h
 
@@ -266,7 +266,7 @@ theorem norm_sqrt_mul_integral_laplace_sub_le {A q : ℝ → ℂ} {c L M B n : �
 bounds. No topology on the parameter type or nonemptiness of the set is required. -/
 theorem tendstoUniformlyOn_sqrt_mul_integral_laplace {P : Type*} {S : Set P}
     {A q : P → ℝ → ℂ} {c L M B : ℝ}
-    (hc : 0 < c) (hL : 0 ≤ L) (hM : 0 ≤ M) (hB : 0 ≤ B)
+    (hc : 0 < c) (hL : 0 ≤ L) (hM : 0 ≤ M)
     (hAc : ∀ p ∈ S, Measurable (A p)) (hqc : ∀ p ∈ S, Measurable (q p))
     (hq : ∀ p ∈ S, ∀ t, c ≤ (q p t).re) (hA0 : ∀ p ∈ S, ‖A p 0‖ ≤ M)
     (hA : ∀ p ∈ S, ∀ t, ‖A p t - A p 0‖ ≤ L * |t|)
@@ -282,13 +282,13 @@ theorem tendstoUniformlyOn_sqrt_mul_integral_laplace {P : Type*} {S : Set P}
   filter_upwards [eventually_gt_atTop (0 : ℝ), hlim.eventually (gt_mem_nhds hε)] with n hn hεn
   intro p hp
   rw [dist_comm, dist_eq_norm]
-  exact (norm_sqrt_mul_integral_laplace_sub_le hc hL hM hB hn (hAc p hp) (hqc p hp)
+  exact (norm_sqrt_mul_integral_laplace_sub_le hc hL hM hn (hAc p hp) (hqc p hp)
     (hq p hp) (hA0 p hp) (hA p hp) (hqt p hp)).trans_lt hεn
 
 /-- A finite-interval Laplace estimate requiring phase and amplitude bounds only on `[-δ, δ]`.
 The cutoff costs `M/δ` in the amplitude variation constant. -/
 theorem norm_sqrt_mul_integral_laplace_Icc_sub_le {A q : ℝ → ℂ} {c L M B δ n : ℝ}
-    (hc : 0 < c) (hL : 0 ≤ L) (hM : 0 ≤ M) (hB : 0 ≤ B) (hδ : 0 < δ) (hn : 0 < n)
+    (hc : 0 < c) (hL : 0 ≤ L) (hM : 0 ≤ M) (hδ : 0 < δ) (hn : 0 < n)
     (hAc : Measurable A) (hqc : Measurable q)
     (hq : ∀ t ∈ Icc (-δ) δ, c ≤ (q t).re) (hA0 : ‖A 0‖ ≤ M)
     (hA : ∀ t ∈ Icc (-δ) δ, ‖A t - A 0‖ ≤ L * |t|)
@@ -302,6 +302,10 @@ theorem norm_sqrt_mul_integral_laplace_Icc_sub_le {A q : ℝ → ℂ} {c L M B �
   have h0 : (0 : ℝ) ∈ Icc (-δ) δ := ⟨by linarith, hδ.le⟩
   have hA'0 : A' 0 = A 0 := by simp [A', h0]
   have hq'0 : q' 0 = q 0 := by simp [q', h0]
+  have hB : 0 ≤ B := by
+    have h := (norm_nonneg _).trans (hqt δ ⟨by linarith, le_rfl⟩)
+    rw [abs_of_pos hδ] at h
+    exact nonneg_of_mul_nonneg_left h hδ
   have hA'm : Measurable A' := hAc.indicator measurableSet_Icc
   have hq'm : Measurable q' := hqc.piecewise measurableSet_Icc measurable_const
   have hq' : ∀ t, c ≤ (q' t).re := by
@@ -334,7 +338,7 @@ theorem norm_sqrt_mul_integral_laplace_Icc_sub_le {A q : ℝ → ℂ} {c L M B �
         _ ≤ (M / δ) * |t| := mul_le_mul_of_nonneg_left hab (div_nonneg hM hδ.le)
         _ ≤ (L + M / δ) * |t| := by gcongr; linarith
   have H := norm_sqrt_mul_integral_laplace_sub_le hc (by positivity : 0 ≤ L + M / δ)
-    hM hB hn hA'm hq'm hq' (by rwa [hA'0]) hA' hqt'
+    hM hn hA'm hq'm hq' (by rwa [hA'0]) hA' hqt'
   have he : (fun t : ℝ => A' t * exp (-(n : ℂ) * (t : ℂ) ^ 2 * q' t)) =
       (Icc (-δ) δ).indicator (fun t => A t * exp (-(n : ℂ) * (t : ℂ) ^ 2 * q t)) := by
     funext t
@@ -346,7 +350,7 @@ theorem norm_sqrt_mul_integral_laplace_Icc_sub_le {A q : ℝ → ℂ} {c L M B �
 bounds. This applies in particular to compact parameter sets with such bounds. -/
 theorem tendstoUniformlyOn_sqrt_mul_integral_laplace_Icc {P : Type*} {S : Set P}
     {A q : P → ℝ → ℂ} {c L M B δ : ℝ}
-    (hc : 0 < c) (hL : 0 ≤ L) (hM : 0 ≤ M) (hB : 0 ≤ B) (hδ : 0 < δ)
+    (hc : 0 < c) (hL : 0 ≤ L) (hM : 0 ≤ M) (hδ : 0 < δ)
     (hAc : ∀ p ∈ S, Measurable (A p)) (hqc : ∀ p ∈ S, Measurable (q p))
     (hq : ∀ p ∈ S, ∀ t ∈ Icc (-δ) δ, c ≤ (q p t).re)
     (hA0 : ∀ p ∈ S, ‖A p 0‖ ≤ M)
@@ -364,13 +368,13 @@ theorem tendstoUniformlyOn_sqrt_mul_integral_laplace_Icc {P : Type*} {S : Set P}
   filter_upwards [eventually_gt_atTop (0 : ℝ), hlim.eventually (gt_mem_nhds hε)] with n hn hεn
   intro p hp
   rw [dist_comm, dist_eq_norm]
-  exact (norm_sqrt_mul_integral_laplace_Icc_sub_le hc hL hM hB hδ hn (hAc p hp) (hqc p hp)
+  exact (norm_sqrt_mul_integral_laplace_Icc_sub_le hc hL hM hδ hn (hAc p hp) (hqc p hp)
     (hq p hp) (hA0 p hp) (hA p hp) (hqt p hp)).trans_lt hεn
 
 /-- A nonzero saddle amplitude gives the usual asymptotic equivalent on a finite interval.
 The square root in the Gaussian coefficient is the principal complex power. -/
 theorem isEquivalent_integral_laplace_Icc {A q : ℝ → ℂ} {c L M B δ : ℝ}
-    (hc : 0 < c) (hL : 0 ≤ L) (hM : 0 ≤ M) (hB : 0 ≤ B) (hδ : 0 < δ)
+    (hc : 0 < c) (hL : 0 ≤ L) (hM : 0 ≤ M) (hδ : 0 < δ)
     (hAc : Measurable A) (hqc : Measurable q)
     (hq : ∀ t ∈ Icc (-δ) δ, c ≤ (q t).re) (hA0 : ‖A 0‖ ≤ M) (hAne : A 0 ≠ 0)
     (hA : ∀ t ∈ Icc (-δ) δ, ‖A t - A 0‖ ≤ L * |t|)
@@ -379,7 +383,7 @@ theorem isEquivalent_integral_laplace_Icc {A q : ℝ → ℂ} {c L M B δ : ℝ}
       (fun n : ℝ => ∫ t in Icc (-δ) δ, A t * exp (-(n : ℂ) * (t : ℂ) ^ 2 * q t))
       (fun n : ℝ => (A 0 * (Real.pi / q 0) ^ (1 / 2 : ℂ)) / (Real.sqrt n : ℂ)) := by
   have H := (tendstoUniformlyOn_sqrt_mul_integral_laplace_Icc
-    (S := (univ : Set Unit)) (A := fun _ => A) (q := fun _ => q) hc hL hM hB hδ
+    (S := (univ : Set Unit)) (A := fun _ => A) (q := fun _ => q) hc hL hM hδ
     (fun _ _ => hAc) (fun _ _ => hqc) (fun _ _ => hq) (fun _ _ => hA0)
     (fun _ _ => hA) (fun _ _ => hqt)).tendsto_at (mem_univ ())
   have hq0 : q 0 ≠ 0 := by
