@@ -29,6 +29,8 @@ public import ToMathlib.Analysis.Integral.ProdAbsRPow
 public import ToMathlib.Analysis.Integral.Reciprocal
 public import ToMathlib.Analysis.Integral.Tail
 public import ToMathlib.Analysis.Integral.EndpointDeformation
+public import ToMathlib.Analysis.MvMellinTransform
+public import ToMathlib.Analysis.SchwartzExpExp
 public import ToMathlib.Analysis.Integral.StrictMono
 public import ToMathlib.Analysis.Integral.TwoCrossings
 public import ToMathlib.Analysis.OpenMapping
@@ -96,6 +98,9 @@ This module re-exports the following developments:
 * `ToMathlib.Analysis.Integral.TwoCrossings`: Strict convex integral comparison for signed
   kernels with two crossings and vanishing zeroth and first moments.
 * `ToMathlib.Analysis.Integral.Tail`: Uniform control of integral tails.
+* `ToMathlib.Analysis.SchwartzExpExp`: The Schwartz function `exp (∑ i, (c i y i - e^(y i)))`.
+* `ToMathlib.Analysis.MvMellinTransform`: The multivariable Mellin transform, its exponential
+  and Fourier forms, and separable functions.
 * `ToMathlib.Analysis.Integral.EndpointDeformation`: Deforming path integrals with integrable
   singularities at common endpoints, through a convex domain of holomorphy.
 * `ToMathlib.Analysis.OpenMapping`: Open mapping for complete metrizable real or complex

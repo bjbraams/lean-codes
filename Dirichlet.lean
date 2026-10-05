@@ -34,8 +34,6 @@ public import Dirichlet.Transform.Joint
 public import Dirichlet.Transform.Euler
 public import Dirichlet.Transform.Laws
 public import Dirichlet.Transform.Series
-public import Dirichlet.Transform.Face
-public import Dirichlet.Transform.Uniqueness
 public import Dirichlet.Transform.Merge
 public import Dirichlet.Average
 
@@ -67,8 +65,9 @@ Umbrella module for the Dirichlet theory underlying Carlson's special functions.
 * `Dirichlet.GammaPoles`: Gamma poles of regularized functions and their joint removal.
 * `Dirichlet.Transform`: the entire regularized Dirichlet transform of a smooth simplex kernel,
   with its structural laws, aggregation, Euler integrals, series, auxiliary holomorphic
-  parameters, face formulas at nonpositive integer parameters, uniqueness, and the merging
-  (stick-breaking) identity.
+  parameters, and the merging (stick-breaking) identity. The further theory of the transform
+  (face formulas, uniqueness, the Mellin bridge, inversion, Plancherel) is the separate library
+  `SimplexMellin`, which builds on this one.
 * `Dirichlet.Average`: Carlson's Dirichlet averages of a univariate function, their derivatives
   and relations, and their analytic continuation in parameters and nodes, including to all
   nodes in a simply connected domain of holomorphy (Carlson 1969, Theorem 8).

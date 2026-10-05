@@ -10,7 +10,7 @@ report that fact rather than proceeding without it.
 - Lake root: the directory containing this `AGENTS.md`.
 - Build output: `.lake/build-codes`; preserve the matching `buildDir` in `lakefile.toml`.
 - Ordinary build command: `lake build > /tmp/carlson-build.log 2>&1`.
-- Active work: StdSimplexMeasure/ or Dirichlet/ or Carlson/ or Pochhammer/
+- Active work: StdSimplexMeasure/ or Dirichlet/ or SimplexMellin/ or Carlson/ or Pochhammer/
 
 ## Project
 
@@ -19,12 +19,13 @@ intent to form a contribution to Mathlib.
 
 ## Dependencies and import layers
 
-Mathlib and TauCeti are allowed in all seven project layers, including simplex,
-Dirichlet and Carlson theory. Preserve the local import hierarchy:
+Mathlib and TauCeti are allowed in all eight project layers, including simplex,
+Dirichlet, simplex Mellin and Carlson theory. Preserve the local import hierarchy:
 `ToMathlib` imports no application or complex-analysis layer; `ComplexAnalysis` does
 not import `SeveralComplexVariables`; neither complex-analysis layer imports the simplex
-or application layers; simplex foundations do not import Dirichlet or Carlson, and
-Dirichlet does not import Carlson. Follow the master-copy rules below and validate
+or application layers; simplex foundations do not import Dirichlet, SimplexMellin or Carlson;
+Dirichlet does not import SimplexMellin or Carlson; and SimplexMellin and Carlson, which both
+build on Dirichlet, do not import each other. Follow the master-copy rules below and validate
 affected primary projects.
 
 ## Project-specific editing

@@ -26,10 +26,18 @@ coordinate-normalized standard-simplex measure, so the radial factor is `t^(card
 * `MeasureTheory.lintegral_eq_radial_stdSimplex`: Radial integration for a measurable
   nonnegative function supported on the positive orthant. The simplex measure is the
   coordinate-normalized one, with no Euclidean area factor.
+* `MeasureTheory.map_polarMap`: in simplicial polar coordinates `(t, u) ↦ t • u`, Lebesgue
+  measure on the closed positive orthant is the image of `t^(card ι - 1) dt ⊗ du`.
+* `MeasureTheory.integrable_comp_polarMap_iff`: integrability transfers to polar coordinates.
+* `MeasureTheory.integral_eq_radial_stdSimplex`: radial integration for integrable functions with
+  values in a Banach space, supported on the closed positive orthant.
 
 ## References
 
 * `Mathlib.MeasureTheory.Group.LIntegral`: formal background used by this module.
+* The polar decomposition is the measure-theoretic content of the Gamma normalization of the
+  Dirichlet distribution (`Dirichlet.Gamma`) and of the Mellin bridge for the regularized
+  Dirichlet transform (`DirichletTransformProgram.md`, step 5).
 -/
 
 @[expose] public noncomputable section
@@ -138,6 +146,106 @@ theorem lintegral_eq_radial_stdSimplex [Nonempty ι]
     have H := Finset.sum_nonneg (fun j (_ : j ∈ Finset.univ) => hv j)
     rw [sum_radial_slice] at H
     exact ht0 (le_antisymm (le_of_not_gt ht) H)
+
+/-! ### Polar coordinates as a measure identity -/
+
+variable (ι) in
+/-- The radial measure `t^(card ι - 1) dt` on `(0, ∞)`. -/
+def radialMeasure : Measure ℝ :=
+  (volume.restrict (Ioi 0)).withDensity fun t => ENNReal.ofReal (t ^ (Fintype.card ι - 1))
+
+/-- The radial measure is s-finite. -/
+instance : SFinite (radialMeasure ι) := by
+  unfold radialMeasure
+  infer_instance
+
+/-- Simplicial polar coordinates: a radius `t` and a point `u` of the simplex give `t • u`. -/
+def polarMap (p : ℝ × (ι → ℝ)) : ι → ℝ := p.1 • p.2
+
+omit [Fintype ι] in
+/-- Simplicial polar coordinates are continuous. -/
+theorem continuous_polarMap : Continuous (polarMap (ι := ι)) := by
+  unfold polarMap
+  fun_prop
+
+/-- The closed positive orthant. -/
+def nonnegOrthant : Set (ι → ℝ) := {x | ∀ i, 0 ≤ x i}
+
+/-- The closed positive orthant is measurable. -/
+theorem measurableSet_nonnegOrthant : MeasurableSet (nonnegOrthant (ι := ι)) := by
+  have : nonnegOrthant (ι := ι) = Set.univ.pi fun _ => Ici 0 := by
+    ext x; simp [nonnegOrthant, Pi.le_def]
+  rw [this]
+  exact MeasurableSet.univ_pi fun _ => measurableSet_Ici
+
+/-- A positive multiple of a simplex point lies in the closed positive orthant. -/
+theorem smul_mem_nonnegOrthant {t : ℝ} (ht : 0 ≤ t) {u : ι → ℝ}
+    (hu : u ∈ Convexity.StdSimplex.coordinateSet ℝ ι) : t • u ∈ nonnegOrthant :=
+  fun i => mul_nonneg ht (hu.1 i)
+
+/-- **Polar coordinates for Lebesgue measure on the orthant.** Lebesgue measure on the closed
+positive orthant is the image of `t^(card ι - 1) dt ⊗ du` under `(t, u) ↦ t • u`, with `du` the
+coordinate-normalized simplex measure. -/
+theorem map_polarMap [Nonempty ι] :
+    Measure.map polarMap ((radialMeasure ι).prod
+      (stdSimplexMeasure.restrict (Convexity.StdSimplex.coordinateSet ℝ ι))) =
+      volume.restrict nonnegOrthant := by
+  set Δ := Convexity.StdSimplex.coordinateSet ℝ ι
+  have hΔ : MeasurableSet Δ := (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet
+  have hw : Measurable fun t : ℝ => ENNReal.ofReal (t ^ (Fintype.card ι - 1)) := by fun_prop
+  ext s hs
+  have hs' : MeasurableSet (polarMap ⁻¹' s) := continuous_polarMap.measurable hs
+  rw [Measure.map_apply continuous_polarMap.measurable hs, Measure.restrict_apply hs,
+    Measure.prod_apply hs', radialMeasure,
+    lintegral_withDensity_eq_lintegral_mul _ hw (measurable_measure_prodMk_left hs'),
+    ← lintegral_indicator_one (hs.inter measurableSet_nonnegOrthant),
+    lintegral_eq_radial_stdSimplex ((s ∩ nonnegOrthant).indicator 1) (measurable_one.indicator
+      (hs.inter measurableSet_nonnegOrthant))
+      (fun x hx => indicator_of_notMem (fun h => hx h.2) _)]
+  refine setLIntegral_congr_fun measurableSet_Ioi fun t ht => ?_
+  simp only [Pi.mul_apply]
+  congr 1
+  rw [← lintegral_indicator_one (measurable_prodMk_left hs')]
+  refine setLIntegral_congr_fun hΔ fun u hu => ?_
+  by_cases h : t • u ∈ s
+  · rw [indicator_of_mem (show u ∈ Prod.mk t ⁻¹' (polarMap ⁻¹' s) from h),
+      indicator_of_mem (show t • u ∈ s ∩ nonnegOrthant from
+        ⟨h, smul_mem_nonnegOrthant (le_of_lt ht) hu⟩)]
+    rfl
+  · rw [indicator_of_notMem (show u ∉ Prod.mk t ⁻¹' (polarMap ⁻¹' s) from h),
+      indicator_of_notMem (show t • u ∉ s ∩ nonnegOrthant from fun h' => h h'.1)]
+
+/-- **Integrability in polar coordinates.** A function is integrable on the closed positive
+orthant if and only if its composition with simplicial polar coordinates is integrable for
+`t^(card ι - 1) dt ⊗ du`. -/
+theorem integrable_comp_polarMap_iff [Nonempty ι] {E : Type*} [NormedAddCommGroup E]
+    {G : (ι → ℝ) → E} (hG : AEStronglyMeasurable G (volume.restrict nonnegOrthant)) :
+    Integrable (fun p => G (polarMap p)) ((radialMeasure ι).prod
+      (stdSimplexMeasure.restrict (Convexity.StdSimplex.coordinateSet ℝ ι))) ↔
+      IntegrableOn G nonnegOrthant := by
+  rw [IntegrableOn, ← map_polarMap] at *
+  exact (integrable_map_measure hG continuous_polarMap.measurable.aemeasurable).symm
+
+/-- **Integration in simplicial polar coordinates.** For an integrable function supported on the
+closed positive orthant,
+`∫ G = ∫_{t > 0} t^(card ι - 1) • ∫_Δ G (t • u) du dt`. -/
+theorem integral_eq_radial_stdSimplex [Nonempty ι] {E : Type*} [NormedAddCommGroup E]
+    [NormedSpace ℝ E] {G : (ι → ℝ) → E} (hG : Integrable G)
+    (hsupp : ∀ x, ¬ (∀ i, 0 ≤ x i) → G x = 0) :
+    ∫ x, G x = ∫ t in Ioi (0 : ℝ), (t ^ (Fintype.card ι - 1)) •
+      ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι, G (t • u) ∂stdSimplexMeasure := by
+  have hw : Measurable fun t : ℝ => ENNReal.ofReal (t ^ (Fintype.card ι - 1)) := by fun_prop
+  have hGm : AEStronglyMeasurable G (volume.restrict nonnegOrthant) := hG.1.restrict
+  have hGi := (integrable_comp_polarMap_iff hGm).mpr hG.integrableOn
+  rw [← setIntegral_eq_integral_of_forall_compl_eq_zero (s := nonnegOrthant)
+      (fun x hx => hsupp x hx), ← map_polarMap,
+    integral_map continuous_polarMap.measurable.aemeasurable (by rwa [map_polarMap]),
+    integral_prod _ hGi, radialMeasure,
+    integral_withDensity_eq_integral_toReal_smul hw
+      (Filter.Eventually.of_forall fun _ => ENNReal.ofReal_lt_top)]
+  refine setIntegral_congr_fun measurableSet_Ioi fun t ht => ?_
+  simp only [polarMap]
+  rw [ENNReal.toReal_ofReal (pow_nonneg (le_of_lt ht) _)]
 
 end MeasureTheory
 

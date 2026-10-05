@@ -2,10 +2,13 @@
 
 The project's mathematical libraries are the general support in `ToMathlib` (`Algebra`,
 `Analysis`, `Topology`), `Pochhammer`, `StdSimplexMeasure`, the complex-analytic subsets
-`ComplexAnalysis` and `SeveralComplexVariables`, `Dirichlet`, and `Carlson`. General support
-and simplex geometry/integration (`StdSimplexMeasure`) feed into `Dirichlet`, then `Carlson`.
-The support libraries do not import either application layer, and Dirichlet theory
-does not import Carlson functions. The complex-analytic libraries (`ToMathlib`,
+`ComplexAnalysis` and `SeveralComplexVariables`, `Dirichlet`, `SimplexMellin`, and `Carlson`.
+General support and simplex geometry/integration (`StdSimplexMeasure`) feed into `Dirichlet`,
+which is the shared basis of two collections: `SimplexMellin` (the theory of the regularized
+Dirichlet transform as a transform in its own right) and `Carlson` (Carlson's special
+functions). The support libraries do not import the application layers, Dirichlet theory
+imports neither `SimplexMellin` nor `Carlson`, and those two do not import each other.
+The complex-analytic libraries (`ToMathlib`,
 `ComplexAnalysis`, `SeveralComplexVariables`) may depend on Mathlib, the pinned TauCeti and earlier support layers;
 complex kernels integrated over simplices (divided differences, repeated integrals) live in
 `StdSimplexMeasure.Complex`.
@@ -175,6 +178,10 @@ contour constructions or planar exhaustion are needed.
 sum. Two-coordinate interior and ambient-measure projection facts live in
 `StdSimplexMeasure.Interior` and `StdSimplexMeasure.Measure.Basic`; aggregation
 commutes with semiring homomorphisms in `StdSimplexMeasure.Aggregation`.
+`StdSimplexMeasure.Radial` integrates over the positive orthant in simplicial polar
+coordinates `x = t • u` (`t = ∑ xᵢ`, `u` in the simplex): Lebesgue measure on the orthant is the
+image of `t^(card ι - 1) dt ⊗ du` (`map_polarMap`), for nonnegative and for integrable
+Banach-space-valued functions.
 `StdSimplexMeasure.MomentDetermination` shows that finite measures on the simplex are
 determined by their moments, and that functions with vanishing moments vanish almost
 everywhere, and pointwise on the simplex when continuous.
@@ -278,9 +285,7 @@ root-level declarations or extend `MeasureTheory` and `Convexity.StdSimplex`.
 | `Dirichlet.Transform.Joint` | Joint continuation with auxiliary holomorphic parameters and commutation with auxiliary derivatives |
 | `Dirichlet.Transform.Euler` | Two-endpoint Gamma-regularized Euler integrals, their identification with the two-coordinate Dirichlet transform, and joint entire continuation with holomorphic auxiliary parameters |
 | `Dirichlet.Transform.Series` | Dominated native termwise integration and recognition of locally uniformly convergent series of continued transforms |
-| `Dirichlet.Transform.Face` | Face formulas at nonpositive integer parameters: restriction to a face at `bᵢ = 0`, iterated integration by parts, and the binomial face formula at `bᵢ = -m` |
 | `Dirichlet.Transform.Merge` | The merging (stick-breaking) identity `T_b[g] = Γ(b a + b a') T₂[v ↦ T_{b'}[g ∘ mergeMap v]]`: native for continuous kernels, as an identity of entire functions (with `Γ(b a + b a')⁻¹`) given a jointly holomorphic inner continuation, which exists for kernels holomorphic near the simplex |
-| `Dirichlet.Transform.Uniqueness` | Monomial moments as transform values; a continuous kernel is determined on the simplex by its transform at positive integer parameters |
 
 | Topic | Modules |
 | --- | --- |
@@ -319,6 +324,24 @@ over its probability corollaries.
 Analytic continuation remains downstream of native complex integration.
 The general affine-form convex-hull characterization belongs in
 `Dirichlet.Average.Kernel`, not in the T-function application.
+
+## Simplex Mellin transform modules
+
+`SimplexMellin` develops the regularized Dirichlet transform `T_b[g]` beyond what Carlson's
+averages need. Its definition, entire continuation and structural laws stay in
+`Dirichlet.Transform` (shared with `Dirichlet.Average` and `Carlson`). Declarations keep the
+`Dirichlet` namespace. Generic inputs live in `ToMathlib.Analysis.MvMellinTransform`
+(multivariable Mellin transform), `ToMathlib.Analysis.SchwartzExpExp` (a double-exponential
+Schwartz function) and `StdSimplexMeasure.Radial` (simplicial polar coordinates). The research
+programme is [DirichletTransformProgram.md](DirichletTransformProgram.md).
+
+| Module | Content |
+| --- | --- |
+| `SimplexMellin.Face` | Face formulas at nonpositive integer parameters: restriction to a face at `bᵢ = 0`, iterated integration by parts, and the binomial face formula at `bᵢ = -m` |
+| `SimplexMellin.Uniqueness` | Monomial moments as transform values; a continuous kernel is determined on the simplex by its transform at positive integer parameters |
+| `SimplexMellin.Bridge` | The Mellin bridge: in simplicial polar coordinates `mvMellin (φ(∑x) g(x/∑x)) b = mellin φ (∑ bᵢ) · ∏ Γ(bᵢ) · T_b[g]`, without integrability assumptions; for `φ = e^(−t)` the radial factor is `Γ(∑ bᵢ)` |
+| `SimplexMellin.Inversion` | Inversion on a vertical plane `b = c − 2πiξ` by Fourier inversion in logarithmic coordinates, for any radial profile `φ`: `g u = φ(1)⁻¹ ∫ (∏ uᵢ^(−bᵢ)) ℳ[φ](∑ b) ∏ Γ(bᵢ) T_b[g] dξ` (for `φ = e^(−t)`: factor `e` and `Γ(∑ b)`), under integrability on the plane; unconditional for smooth kernels vanishing near the faces with a smooth profile compactly supported in `(0, ∞)` (TauCeti) |
+| `SimplexMellin.Schwartz` | The exponential-profile inversion is unconditional for smooth kernels vanishing near the faces: the function in logarithmic coordinates is `G · A` with `A = exp(∑ (cᵢyᵢ − e^{yᵢ}))` Schwartz (`ToMathlib.Analysis.SchwartzExpExp`) and `G(y) = g(e^y/∑e^y)` of temperate growth |
 
 ## Carlson functions modules
 

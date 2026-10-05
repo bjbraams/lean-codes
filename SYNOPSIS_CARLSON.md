@@ -119,6 +119,36 @@ with $b'$ the remaining parameters. Conversely the transform determines the kern
 at the positive integer parameters $m + 1$ are, up to factorials, the monomial moments of $g$,
 so two continuous kernels with the same transform agree on the simplex.
 
+**The Mellin bridge.** In simplicial polar coordinates $x = t u$ ($t = \sum_i x_i$, $u$ in the
+simplex) Lebesgue measure on the orthant is $t^{|I| - 1}\,dt \otimes du$. Hence the multivariable
+Mellin transform of $\varphi(t)\,g(u)$ factors:
+$$\int_{\mathbb R_{>0}^I} \prod_i x_i^{b_i - 1}\, \varphi\Bigl(\sum_i x_i\Bigr)\,
+g\Bigl(\frac{x}{\sum_i x_i}\Bigr)\, dx = \mathcal M[\varphi]\Bigl(\sum_i b_i\Bigr)\,
+\prod_i \Gamma(b_i)\, \mathcal D_b[g],$$
+and for $\varphi(t) = e^{-t}$ the radial factor is $\Gamma(\sum_i b_i)$. The regularized
+Dirichlet transform is thus the angular part of the multivariable Mellin transform, with the
+Gamma factors divided out; the identity needs no integrability assumptions.
+
+Inversion follows from Fourier inversion in logarithmic coordinates: for $g$ continuous on the
+simplex, $c_i > 0$, and $b = c - 2\pi i \xi$, if $\xi \mapsto \Gamma(\sum_i b_i)
+\prod_i \Gamma(b_i)\, \mathcal D_b[g]$ is integrable over $\mathbb R^I$ then at every interior
+point
+$$g(u) = e \int_{\mathbb R^I} \prod_i u_i^{-b_i}\; \Gamma\Bigl(\sum_i b_i\Bigr)
+\prod_i \Gamma(b_i)\, \mathcal D_b[g]\, d\xi.$$
+The same holds with any radial profile $\varphi$, the factor $e$ becoming $\varphi(1)^{-1}$ and
+$\Gamma(\sum_i b_i)$ becoming $\mathcal M[\varphi](\sum_i b_i)$. For $\varphi$ smooth with compact
+support in $(0, \infty)$ and $g$ smooth and vanishing near the faces of the simplex, the
+function being Fourier-inverted has compact support, the integrability hypothesis is automatic,
+and the inversion formula holds unconditionally. For the exponential profile the same function is
+a Schwartz function (the product of $\exp(\sum_i (c_i y_i - e^{y_i}))$ and a function of temperate
+growth), so the Gamma-factor formula is unconditional too. Plancherel's theorem gives
+$$\int_{\mathbb R^I} \Bigl|\mathcal M[\varphi]\Bigl(\sum_i b_i\Bigr) \prod_i \Gamma(b_i)\,
+\mathcal D_b[g]\Bigr|^2 d\xi = \mathcal M[|\varphi|^2]\Bigl(2\sum_i c_i\Bigr)\prod_i \Gamma(2c_i)\,
+\mathcal D_{2c}[|g|^2].$$
+For smooth $g$ the multivariable Mellin transform of $\varphi(\sum_i x_i)\, g(x / \sum_i x_i)$ is
+$\prod_i \Gamma(b_i)$ times the entire function $\mathcal M[\varphi](\sum_i b_i)\, F_g(b)$ when
+$\mathcal M[\varphi]$ is entire: its continuation has poles only at $b_i \in -\mathbb N$.
+
 **Merging (stick-breaking).** For $a \ne a'$ write $u_a = v_0 s$, $u_{a'} = v_1 s$; the merging map
 sends proportions $v$ on the two-point simplex and merged coordinates $y$ (with $s = y_a$) to the
 simplex. Then

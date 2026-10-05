@@ -42,6 +42,13 @@ smooth simplex kernel. Its structural laws and auxiliary-parameter differentiati
 are independent of Carlson's affine substitution; Carlson averages specialize this
 interface.
 
+- `SimplexMellin/`.
+The regularized Dirichlet transform as a transform in its own right, beyond what Carlson's
+averages need: face formulas at nonpositive integer parameters, uniqueness, the identification
+with the multivariable Mellin transform in simplicial polar coordinates (with its continued
+form), inversion on vertical planes, and Plancherel. It builds on `Dirichlet`, which it shares
+with `Carlson`; the programme is [DirichletTransformProgram.md](DirichletTransformProgram.md).
+
 - `Carlson/`.
 R-polynomials, R/L/S/T functions, and two-variable specializations.
 The regularized functions are entire in the Dirichlet parameters: R and L on

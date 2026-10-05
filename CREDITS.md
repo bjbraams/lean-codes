@@ -103,6 +103,14 @@ image theory, and the Chebyshev developments, remain related work.
   ([RiemannMapping.Existence][tau-codes-riemann]). The simply connected case of Theorem 8
   (`Dirichlet/Average/SimplyConnected.lean`) depends on it.
 
+### Inversion of the Dirichlet transform — 5 October 2026
+
+- `SimplexMellin/Inversion.lean` uses the Tau Ceti contributors'
+  `TauCeti.integrable_fourier_of_contDiff_of_hasCompactSupport`
+  (`TauCeti/Analysis/Fourier/Integrable.lean`: the Fourier transform of a smooth compactly
+  supported function is integrable) for the unconditional inversion formula
+  `Dirichlet.regDirichletIntegral_inversion_of_contDiff`.
+
 ## Related-work review, 2026-10-04
 
 The following notes were moved from the lean-PR review. They compare relevant statements
