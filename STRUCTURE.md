@@ -71,6 +71,8 @@ that matches the underlying API.
 | `ToMathlib.Analysis.SpecialFunctions.Bessel` | The series of the regularized hypergeometric functions, bounds for Bessel functions of integer order, and the modified Bessel function `I_a` |
 | `ToMathlib.Analysis.SpecialFunctions.GammaRatio` | Monotonicity of `Γ(x)/|Γ(x + iy)|` for `x > 0`, the bound `√(cosh πy)` for `x ≥ 1/2`, and `|Γ(1/2 + iy)|² = π/cosh πy` |
 | `ToMathlib.Analysis.SpecialFunctions.Gamma` | Complex-rate Gamma/Laplace kernel bounds, integrability, differentiation, holomorphy, and evaluation |
+| `ToMathlib.Analysis.SpecialFunctions.GammaBounds` | `|Γ(s)| ≤ Γ(re s)`, `Γ(x) ≤ Γ(y)` for `1 ≤ x ≤ y`, `2 ≤ y`, monotonicity of `Γ(x + r)/Γ(x)`, and `(x)ₙ ≤ (x + n)ⁿ` |
+| `ToMathlib.Analysis.SpecialFunctions.LaplaceOneSubCos` | Partial fractions of `1/∏(y + j)` and the Laplace integral of `(1 - cos t)ⁿ` over `(2mπ, ∞)` (Carlson's Exercise 6.6-17) |
 | `ToMathlib.Analysis.SpecialFunctions.Pow` | A power between two others is bounded by their sum; positive real bases to complex powers as exponentials; positivity of `re (1 - v)` for `‖v‖ < 1` |
 | `ToMathlib.Analysis.Integral.ProdAbsRPow` | Integrability on `ℝ` of `∏ |σ - xᵢ|^{-bᵢ}` for distinct nodes, `bᵢ < 1` and `∑ bᵢ > 1`, allowing nonsingular positive powers |
 | `ToMathlib.Analysis.UpperHalfPlaneMaximum` | Minimum principle for `im f` on the upper half-plane, for `f` holomorphic, continuous up to the axis, with a limit at infinity |
@@ -185,6 +187,12 @@ Banach-space-valued functions.
 `StdSimplexMeasure.MomentDetermination` shows that finite measures on the simplex are
 determined by their moments, and that functions with vanishing moments vanish almost
 everywhere, and pointwise on the simplex when continuous.
+`StdSimplexMeasure.MomentProblem` solves the moment problem on the simplex
+(`exists_measure_iff`): a sequence on `ℕ^ι` is the moment sequence of a finite measure on the
+simplex if and only if it is nonnegative and satisfies the sum-shift equation
+`a n = ∑ᵢ a (n + eᵢ)`. Sufficiency uses discrete approximating measures with multinomial weights,
+Stone–Weierstrass, and the Riesz–Markov–Kakutani theorem; for two coordinates this is Hausdorff's
+moment problem on `[0, 1]`.
 
 ### `StdSimplexMeasure.PositiveSimplex`
 
@@ -222,6 +230,15 @@ divided differences including coincident nodes, with the recurrence and exact Ne
 Taylor remainders; segment integration identified with Mathlib curve integrals, and repeated
 integration as a coalesced simplex integral under continuity. These modules depend only on
 `StdSimplexMeasure.SimplexFTC` and Mathlib; they are used by `Dirichlet.Average.NewtonTaylor`.
+
+### `StdSimplexMeasure.Real`
+
+Contains module `NewtonTaylor`.
+
+The same theory for real nodes and kernels `f : ℝ → ℂ` that are only finitely often continuously
+differentiable on an open interval, in the `Real` namespace: simplex FTC for `C¹` kernels,
+Hermite–Genocchi divided differences with the recurrence (Lemma 5.5-1), and Newton and Taylor
+formulas with exact remainder (Theorem 5.5-2, (5.5-8)), all in Carlson's case (i).
 
 ## Dirichlet theory modules
 
@@ -278,7 +295,7 @@ root-level declarations or extend `MeasureTheory` and `Convexity.StdSimplex`.
 | `Dirichlet.Integral.Real` | Nonnegative and real monomial integrals, beta normalization, and real integrability |
 | `Dirichlet.Integral.Complex` | Absolutely convergent complex monomial integrals and logarithmic majorants |
 | `Dirichlet.Complex.Analytic` | Parameter analyticity on the absolute-convergence domain |
-| `Dirichlet.Transform` | Finite-order tangential continuation and existence of entire continuations for smooth simplex kernels |
+| `Dirichlet.Transform` | Finite-order tangential continuation by the explicit formula `regDirichletShiftFormula`, and existence of entire continuations for smooth simplex kernels |
 | `Dirichlet.Transform.Basic` | General continuation predicate, canonical smooth-kernel transform, uniqueness, linearity, and independence of extension away from the simplex |
 | `Dirichlet.Transform.Laws` | Permutations, coordinate and monomial shifts, the sum-shift identity, tangential differentiation, and coordinate-divisibility annihilation |
 | `Dirichlet.Transform.Aggregation` | Aggregation of arbitrary kernels and Dirichlet parameters |
@@ -332,7 +349,12 @@ averages need. Its definition, entire continuation and structural laws stay in
 `Dirichlet.Transform` (shared with `Dirichlet.Average` and `Carlson`). Declarations keep the
 `Dirichlet` namespace. Generic inputs live in `ToMathlib.Analysis.MvMellinTransform`
 (multivariable Mellin transform), `ToMathlib.Analysis.SchwartzExpExp` (a double-exponential
-Schwartz function) and `StdSimplexMeasure.Radial` (simplicial polar coordinates). The research
+Schwartz function), `ToMathlib.Analysis.Fourier.PaleyWiener` (the classical Paley–Wiener theorem
+on `ℝⁿ`, both directions, and injectivity of the Fourier–Laplace transform),
+`ToMathlib.Analysis.Complex.Carlson` (Carlson's theorem on functions of exponential type vanishing
+at `ℕ`), `ToMathlib.Analysis.MellinBarnes` and `ToMathlib.Analysis.SpecialFunctions.RamanujanMaster`
+(moving Mellin–Barnes contours; Ramanujan's master theorem) and `StdSimplexMeasure.Radial`
+(simplicial polar coordinates). The research
 programme is [DirichletTransformProgram.md](DirichletTransformProgram.md).
 
 | Module | Content |
@@ -342,6 +364,13 @@ programme is [DirichletTransformProgram.md](DirichletTransformProgram.md).
 | `SimplexMellin.Bridge` | The Mellin bridge: in simplicial polar coordinates `mvMellin (φ(∑x) g(x/∑x)) b = mellin φ (∑ bᵢ) · ∏ Γ(bᵢ) · T_b[g]`, without integrability assumptions; for `φ = e^(−t)` the radial factor is `Γ(∑ bᵢ)` |
 | `SimplexMellin.Inversion` | Inversion on a vertical plane `b = c − 2πiξ` by Fourier inversion in logarithmic coordinates, for any radial profile `φ`: `g u = φ(1)⁻¹ ∫ (∏ uᵢ^(−bᵢ)) ℳ[φ](∑ b) ∏ Γ(bᵢ) T_b[g] dξ` (for `φ = e^(−t)`: factor `e` and `Γ(∑ b)`), under integrability on the plane; unconditional for smooth kernels vanishing near the faces with a smooth profile compactly supported in `(0, ∞)` (TauCeti) |
 | `SimplexMellin.Schwartz` | The exponential-profile inversion is unconditional for smooth kernels vanishing near the faces: the function in logarithmic coordinates is `G · A` with `A = exp(∑ (cᵢyᵢ − e^{yᵢ}))` Schwartz (`ToMathlib.Analysis.SchwartzExpExp`) and `G(y) = g(e^y/∑e^y)` of temperate growth |
+| `SimplexMellin.PaleyWiener` | Necessity half of Paley–Wiener: for `g` continuous on the simplex and vanishing where some `uᵢ < δ`, the native integral `T_b[g]` is entire (Pochhammer shift identity), `S_g(b) = ∫_Δ u^{b−1} g` satisfies `|S_g(b)| ≤ ‖g‖₁ ∏ max(1, δ^{Re bᵢ−1})`, and `ℳ[φ](∑ b) S_g(b)` is a Schwartz function on vertical planes |
+| `SimplexMellin.LogRatio` | Log-ratio coordinates `u(w) = e^{w̃}/∑e^{w̃}` relative to an index `i₀` and the change of variables `∫_Δ f = ∫ (∏ u(w)) f(u(w)) dw`, proved from the Mellin bridge at `b = 𝟙` and a shear of exponential coordinates |
+| `SimplexMellin.Hyperplane` | On `∑ bᵢ = s`, `S_g(b) = ∫ e^{⟨b′,w⟩} Z(w)^{−s} g(u(w)) dw`; Laplace transforms of compactly supported functions are entire; **sufficiency**: every function of `b′` with Paley–Wiener bounds is the hyperplane restriction of `S_g` for a kernel continuous on and smooth near the simplex, vanishing near the faces (`exists_kernel_of_paleyWiener`); **necessity**: for smooth `g` vanishing near the faces the restriction has Paley–Wiener bounds for the box `|wⱼ| ≤ |log δ|` (`norm_integral_hyperplane_le`); **injectivity** on one hyperplane (`eqOn_of_integral_hyperplane_eq`) |
+| `SimplexMellin.Image` | **Paley–Wiener description of the image** (`exists_kernel_iff`): `S` is `S_g` for a kernel smooth near the simplex and vanishing near its faces iff `S` is entire, satisfies the sum-shift equation `S(b) = ∑ᵢ S(b + eᵢ)`, the bound `‖S b‖ ≤ C ∏ max(1, δ^{Re bᵢ−1})`, and Paley–Wiener bounds on one hyperplane. Sufficiency uses Carlson's theorem on lines transversal to the hyperplanes `∑ b = s₀ − n`; `S_g` is entire (`differentiable_simplexMoment`) |
+| `SimplexMellin.Lattice` | The transform `S_g(b) = ∫_Δ u^{b−1} g` of a continuous kernel is holomorphic on `Re b > 0`, bounded by `‖g‖₁` on `Re b ≥ 1`, and determined there by its values on `ℕ^ι + 𝟙` (the monomial moments), by Carlson's theorem in several variables (`simplexMoment_eqOn_of_moments_eq`). Nonnegative lattice data with the sum-shift equation, shifted by `𝟙`, have a unique continuation holomorphic on `Re b > −1` and bounded on `Re b ≥ 0`, given by the measure of the moment problem (`exists_continuation_of_satisfiesSumShift`, `eqOn_of_natCast_eq_of_bounded`) |
+| `SimplexMellin.Estimate` | Quantitative continuation estimate: on compact parameter sets `‖T_b[g]‖ ≤ C·A` when the derivatives of `g` up to a fixed order are bounded by `A` on the simplex (`exists_norm_regDirichletContinuation_le`, `exists_norm_regDirichletTransform_le`), by bounding the explicit formula `regDirichletShiftFormula` |
+| `SimplexMellin.Master` | A master theorem with simplex structure: for `Φ` the function of Ramanujan's master theorem (`ToMathlib.Analysis.SpecialFunctions.RamanujanMaster`), `Φ(∑x) g(x/∑x) = ∑ φ(k)(−∑x)^k g(x/∑x)` near the origin, and its several-variable Mellin transform is `π/sin(π∑b) · φ(−∑b) · ∏Γ(bᵢ) · T_b[g]` |
 
 ## Carlson functions modules
 
@@ -795,22 +824,45 @@ index type is included, with both continuations equal to zero.
 | Module | Responsibility |
 | --- | --- |
 | `Dirichlet.Average.Intertwining` | The operator identity (5.3-4) for every power |
+| `Dirichlet.Average.RealNodes` | Case (i) of 5.3-2 and 5.4-1: real nodes, `f ∈ Cⁿ` on an open interval; `Cⁿ` regularity of the average, iterated partial derivatives under the integral, (5.3-3), (5.3-4), the tangential relation and the Euler–Poisson system for `f ∈ C²` |
 | `Dirichlet.Average.CauchyCycle` | Cauchy's formula for derivatives on `C¹` cycles, Representation 5.11-2 on cycles, and the contour form of 6.3-6 |
 | `Carlson.R.Homogeneity` | Homogeneity (5.9-3) on the slit node domain under the principal branch condition |
 | `Carlson.R.Confluence` | Confluence (5.10-1) with complex exponent tending to infinity, and the refinement (5.10-9) |
 | `Carlson.R.ContourRepresentation` | Formula (6.8-7) on `C¹` cycles, for all complex parameters |
 | `Carlson.RPolynomial.Concentration` | The concentration limits of Theorem 6.2-5 |
 | `Carlson.Normalization.EqualParameter` | Equal parameters: removable Gamma singularities of `Γ(β) F/Γ(kβ)` (Theorems 6.2-6, 6.8-4, Corollary 6.3-7), by one-variable pole removal and Hartogs' theorem |
+| `Carlson.RPolynomial.Appell` | Theorem 6.4-1 restated: for fixed parameters the R-polynomials satisfy the binomial theorem, are in Carlson's class `A_k` (`ToMathlib.Analysis.AppellSequence`), and satisfy (6.4-4); also in Carlson's normalization `Nₙ/(∑b)ₙ` |
+| `Carlson.Jacobi.Appell` | Carlson (1970), Example 11: `jacobiOn (α - n) (β - n) r s n` is an Appell sequence when `α + β ∉ ℕ` |
+| `Carlson.RPolynomial.NumeratorBinomial` | Theorem 6.4-1 for Pochhammer numerators, without parameter exclusions |
+| `Carlson.RPolynomial.GeneratingIdentities` | Chapter 6 exercises from the generating relation 6.6-1: juxtaposition and addition of parameters (6.2-2, 6.6-6, 6.6-7), squared nodes (6.6-8), a raised parameter (6.6-12), Tobey's relation (6.6-13), degree two (6.2-13) |
+| `Carlson.TwoVariable.RPolynomial.Hypergeometric` | Two-variable R-polynomials as terminating `₂F₁` (Mathlib's `ordinaryHypergeometric`): Exercises 6.2-1, 6.2-4, 6.2-5, 6.4-1, the six forms 6.5-2, 6.5-3 and the generating relation 6.6-10 |
+| `Carlson.TwoVariable.R.ElementaryValues` | Elementary values of R-functions from the Chapter 6 exercises: (6.6-5), 6.3-2, 6.6-16, 6.8-5 – 6.8-7, the inverse trigonometric and hyperbolic functions as `R_C` (6.9-16), and trigonometric `R_C` values (6.9-17) |
+| `Carlson.TwoVariable.RPolynomial.SpecialValues` | Special values of `Rₙ(β, 1 - 2β - n; 2, 1)` and of terminating `₂F₁` at `2`, `-1`, `½` (Exercise 6.9-2); the expansion of `Rₙ(β, β; x + y, x - y)` (6.9-6) |
+| `Carlson.TwoVariable.RPolynomial.QuadraticGenerating` | The expansion of `(at² + 2bt + c)^(-ν)` in R-polynomials near `t = 0` (Exercise 6.6-4) and its second quadratic transform (6.10-6) |
+| `Carlson.RPolynomial.RootsOfUnity` | Roots of unity as nodes (Exercise 6.9-13) and averages over regular polygons (6.9-14) |
+| `Carlson.RPolynomial.PolygonSpecial` | Gauss's multiplication formula for Pochhammer symbols; S- and R-functions over a regular polygon as `₀F_{k-1}` and `ₖF_{k-1}` (Exercise 6.9-14) |
+| `Carlson.RPolynomial.EqualParameterBounds` | Bounds for R-polynomials with equal parameters (Exercises 6.2-10 – 6.2-12) |
+| `Carlson.RPolynomial.NearDiagonal` | The second-order expansion of `R_t(cw; x)` at the diagonal and Exercise 6.2-14 |
+| `Carlson.TwoVariable.RPolynomial.BetaIntegral` | Carlson's normalized form of (6.9-6) and the Beta-integral relation (Exercise 6.9-7) |
+| `Carlson.TwoVariable.SHypergeometric` | Three nodes in arithmetic progression: S as `₁F₂` (Exercise 6.9-15) and R as `₃F₂` (6.9-5) |
+| `Carlson.TwoVariable.QuadraticGauss` | The quadratic transformation `₂F₁(2α, 2β; α + β + ½; z) = ₂F₁(α, β; α + β + ½; 4z(1 - z))` (Exercise 6.10-1), with its R-function form on `re z < 1/2` |
+| `Carlson.R.LogContour` | The logarithmic contour formula on `C¹` cycles (Exercise 6.6-15) |
+| `Carlson.RPolynomial.SmallParameters` | Small parameters: Exercises 6.2-6, 6.2-8 and the limit 6.3-4 |
+| `Carlson.TwoVariable.RPolynomial.EqualParameter` | The explicit expansion of `Rₙ(β, β; x, y)` (Exercise 6.9-3) |
+| `Carlson.Jacobi.GegenbauerProductComplex` | Ossicini's formula 6.11-3 and Gegenbauer's product formula 6.11-4 in the book's generality (complex angles); the bound 6.7-2; Gegenbauer coefficients and values at 0 (6.9-1, 6.9-4) |
 | `Carlson.RPolynomial.Growth` | Theorem 6.6-2 (upper bound; lower bound for distinct nodes) and the counterexample to the printed statement |
 | `Carlson.TwoVariable.FractionalIntegral` | The fractional integral (5.5-14) and its Riemann–Liouville form (5.5-15) |
+| `Carlson.TwoVariable.FractionalContinuation` | Continuation of `I^ν f` in `ν` and `I^{-n} f = f⁽ⁿ⁾` (5.5-16): entire for holomorphic `f` on a convex set (Exercise 6.3-3, via a Taylor disk and the identity theorem, no contour), and to `re ν > -n` for `f ∈ Cⁿ` on a real interval (Riesz's integration by parts); the closed form of `R_m(1, -n; X, Y)/Γ(m+1-n)` |
 | `Carlson.TwoVariable.SEqualParameter` | Theorem 6.9-2: `S(β, β; x, y)` as an exponential times `₀F₁` |
 | `Carlson.TwoVariable.ConfluentHypergeometric` | `S(a, b; x, 0) = ₁F₁` (5.8-6), Kummer's second formula (6.9-6), and `J_μ`, `I_μ` of every complex order as S-functions (6.9-18), (6.9-21), with Mathlib's regularized hypergeometric functions |
 | `Carlson.TwoVariable.QuadraticHybrid` | The hybrid transformation 6.10-4, `R_K` and Gauss's AGM formula, `R_C`, Borchardt's algorithm, and the elementary `R_C` values of 6.9-4 |
 | `Carlson.TwoVariable.Borchardt` | The accelerated Borchardt algorithm (6.10-27)–(6.10-29), from a cubic expansion of `R_C` near the diagonal |
+| `Carlson.TwoVariable.RCAsymptotic` | Asymptotics of `R_C`: Exercise 6.9-18, `((x + 2y)/3) R_C(x², y²) = 1 + (1/5)((x - y)/(x + 2y))² + O(ε³)` for complex `x, y` in the right half-plane; the real expansion of `R_C(x, y)` near the diagonal and `log(4x/y)/(2√x)` as `y → 0⁺` |
 | `Carlson.TwoVariable.BilateralGenerating` | Generating Relation 6.11-1 and Meixner's formula 6.11-2 in the Euler strip |
 | `Carlson.Jacobi.GegenbauerProduct` | Formula (6.7-21), the Gegenbauer generating function, Ossicini's formula 6.11-3, and Gegenbauer's product formula 6.11-4 |
 
-The coverage against the book is recorded in `CarlsonChapters5And6Coverage.md`.
+The coverage against the book is recorded in `CarlsonChapters5And6Coverage.md`, and the
+Chapter 6 exercises in `CarlsonChapter6Exercises.md`.
 
 ### Chapter 8: averages of `xᵗ`
 
@@ -845,6 +897,7 @@ yet have a doubly periodic meromorphic continuation. Further details are in
 | `Carlson.Elliptic.Asymptotic` | Positive-real node comparison for `R_F`; `isEquivalent_carlsonRF_atTop` (9.2-10) and `isEquivalent_carlsonRK_zero` (8.3-16), from comparison with elementary `R_C`, zero-variable duplication and homogeneity |
 | `Carlson.Elliptic.Standard` | `R_G`, `R_H`, `R_E`, `R_L` (9.2-1), (9.2-2) and their symmetries; the zero-variable limits (9.2-3); Legendre's `F`, `E`, `Π`, `K`, `E(k)`, with `F` and `E` as `R` functions (9.2-11), (9.3-2) and `K(k) = (π/2) R_K(1 - k², 1)` (9.2-14) |
 | `Carlson.Elliptic.LegendreThird` | Incomplete and complete `Π` as R-functions (9.2-11), (9.2-14), and their reductions to `R_F`, `R_H` and to `R_K`, `R_L`; Tables 9.3-3 (rows 2, 4) and 9.3-4 (rows 1, 4) on the full complex slit domain, including coincident nodes |
+| `Carlson.Elliptic.CompleteK` | `K(k)` at an imaginary modulus and Landen's transformation for `K` (Exercise 6.10-5) |
 | `Carlson.Elliptic.Addition` | The addition theorem 9.7-1 for positive variables (Euler's algebraic solution, constancy along the branch, and the limit `λ → 0`); the duplication theorem 9.6-1 on the whole slit domain (from positive reals by uniqueness, one variable at a time); Algorithm 9.6-2 for strictly positive real initial values; homogeneity of `R_F` |
 | `Carlson.Elliptic.Landen` | Theorem 9.5-1 for all complex `t` in regularized form (positive `x, y, z, v, w` with `v² + w² = z² + xy`, `vw = zu`), via the substitution `r = s(s + xy)/(s + u²)` and continuation in `t`; Landen's transformation of `R_F` (9.5-4), with Carlson's explicit `v, w` |
 | `Carlson.Elliptic.LandenAlgorithm` | Algorithms 9.5-2 (ascending Landen) and 9.5-3 (descending Gauss), with the limits `(1/M) arcsinh(M/S)` and `(1/M) arcsin(M/T)`; the descending algorithm assumes `t₀ > a₀`, excluding the equality endpoint |

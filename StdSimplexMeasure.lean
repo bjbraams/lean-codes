@@ -23,10 +23,12 @@ public import StdSimplexMeasure.Radial
 public import StdSimplexMeasure.SimplexFTC
 public import StdSimplexMeasure.Smooth
 public import StdSimplexMeasure.MomentDetermination
+public import StdSimplexMeasure.MomentProblem
 public import StdSimplexMeasure.Complex.Integral
 public import StdSimplexMeasure.Complex.DividedDifference
 public import StdSimplexMeasure.Complex.RepeatedIntegral
 public import StdSimplexMeasure.Complex.NewtonTaylor
+public import StdSimplexMeasure.Real.NewtonTaylor
 
 /-!
 # Standard-simplex geometry, measure and integration
@@ -47,11 +49,15 @@ Dirichlet and Carlson developments.
 * `StdSimplexMeasure.Interior`, `Smooth`, `Aggregation`, `MomentDetermination`: the positive
   interior, smooth simplex functions with tangential derivatives, coordinate aggregation, and
   moment determination of measures on the simplex.
+* `StdSimplexMeasure.MomentProblem`: the moment problem on the simplex: nonnegative sequences
+  with the sum-shift equation are exactly the moment sequences of finite measures on the simplex.
 * `StdSimplexMeasure.Complex.Integral`, `DividedDifference`, `NewtonTaylor`, `RepeatedIntegral`:
   complex kernels integrated over simplices, Hermite–Genocchi divided differences with
   coincident nodes, exact Newton and Taylor remainders, and repeated segment integration.
   These are the only modules of the library that mention complex analysis; they depend on
   Mathlib alone and keep `ComplexAnalysis` independent of the simplex measure.
+* `StdSimplexMeasure.Real.NewtonTaylor`: the same theory for real nodes and kernels that are only
+  finitely often continuously differentiable (Carlson's Section 5.5, case (i)).
 
 ## References
 

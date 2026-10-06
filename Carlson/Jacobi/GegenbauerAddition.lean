@@ -48,6 +48,8 @@ theorem for Legendre polynomials (7.3-11) with Carlson's associated Legendre fun
 * `Carlson.TwoVariable.gegenbauer_addition_jacobi`: the Jacobi form, for `re ν > 0`.
 * `Carlson.TwoVariable.gegenbauer_addition`: Theorem 7.3-1.
 * `Carlson.TwoVariable.legendre_addition`: the addition theorem (7.3-11) for Legendre polynomials.
+* `Carlson.TwoVariable.legendre_integral_product`: Legendre's integral for a product, Carlson
+  (6.11-6), for all complex angles.
 * `Carlson.TwoVariable.gegenbauer_eq_carlsonRPolynomial`: (6.10-12) for `C_{n-k}^{1/2+k}`.
 * `Carlson.TwoVariable.assocLegendreNeg_eq`: the reflection (6.10-19).
 * `Carlson.TwoVariable.legendre_addition_exp`: the second form of (7.3-11).
@@ -482,6 +484,54 @@ theorem legendre_addition (n : ℕ) (θ φ ψ : ℂ) :
     rw [← pow_succ']; congr 1; omega
   have h4 : (4 : ℂ) ^ m = 2 ^ m * 2 ^ m := by rw [← mul_pow]; norm_num
   rw [h4, hpow]
+  field_simp
+
+
+/-- `∫₀^π cos (m ψ) dψ = 0` for a positive integer `m`, as a complex integral. -/
+theorem integral_cos_nat_mul_eq_zero {m : ℕ} (hm : m ≠ 0) :
+    ∫ ψ in (0 : ℝ)..Real.pi, cos ((m : ℂ) * (ψ : ℂ)) = 0 := by
+  have hre : ∀ ψ : ℝ, cos ((m : ℂ) * (ψ : ℂ)) = ((Real.cos (m * ψ) : ℝ) : ℂ) := fun ψ => by
+    push_cast; ring_nf
+  simp_rw [hre]
+  rw [intervalIntegral.integral_ofReal, intervalIntegral.integral_comp_mul_left
+    (fun x => Real.cos x) (by exact_mod_cast hm : (m : ℝ) ≠ 0), integral_cos]
+  rw [Real.sin_nat_mul_pi, mul_zero, Real.sin_zero, sub_zero, smul_zero, ofReal_zero]
+
+/-- **Legendre's integral for a product** (Carlson (6.11-6)): for all complex `θ, φ`,
+`(1/π) ∫₀^π Pₙ(cos θ cos φ + sin θ sin φ cos ψ) dψ = Pₙ(cos θ) Pₙ(cos φ)`, with `Pₙ = C_n^{1/2}`.
+It is the case `ν = 1/2` of Gegenbauer's product formula 6.11-4 after `u = sin²(ψ/2)`; here it is
+obtained by integrating the addition theorem (7.3-11) over `ψ`. -/
+theorem legendre_integral_product (n : ℕ) (θ φ : ℂ) :
+    (1 / Real.pi : ℂ) * ∫ ψ in (0 : ℝ)..Real.pi,
+        (gegenbauer (1 / 2 : ℂ) n).eval (cos θ * cos φ + sin θ * sin φ * cos (ψ : ℂ)) =
+      (gegenbauer (1 / 2 : ℂ) n).eval (cos θ) * (gegenbauer (1 / 2 : ℂ) n).eval (cos φ) := by
+  set P := (gegenbauer (1 / 2 : ℂ) n).eval (cos θ) * (gegenbauer (1 / 2 : ℂ) n).eval (cos φ)
+  set c : ℕ → ℂ := fun m => ((n - m).factorial : ℂ) / ((n + m).factorial : ℂ) *
+    (assocLegendre n m θ * assocLegendre n m φ)
+  have hfun : (fun ψ : ℝ => (gegenbauer (1 / 2 : ℂ) n).eval
+      (cos θ * cos φ + sin θ * sin φ * cos (ψ : ℂ))) =
+      fun ψ : ℝ => P + 2 * ∑ m ∈ Finset.Icc 1 n, c m * cos ((m : ℂ) * (ψ : ℂ)) :=
+    funext fun ψ => legendre_addition n θ φ ψ
+  have hcos : ∀ m : ℕ, IntervalIntegrable (fun ψ : ℝ => cos ((m : ℂ) * (ψ : ℂ))) volume 0
+      Real.pi := fun m =>
+    (by fun_prop : Continuous fun ψ : ℝ => cos ((m : ℂ) * (ψ : ℂ))).intervalIntegrable _ _
+  have hsum : ∫ ψ in (0 : ℝ)..Real.pi, ∑ m ∈ Finset.Icc 1 n, c m * cos ((m : ℂ) * (ψ : ℂ)) =
+      0 := by
+    rw [intervalIntegral.integral_finsetSum fun m _ => (hcos m).const_mul _]
+    refine Finset.sum_eq_zero fun m hm => ?_
+    rw [intervalIntegral.integral_const_mul,
+      integral_cos_nat_mul_eq_zero (by have := (Finset.mem_Icc.mp hm).1; omega), mul_zero]
+  have hint2 : IntervalIntegrable (fun ψ : ℝ =>
+      2 * ∑ m ∈ Finset.Icc 1 n, c m * cos ((m : ℂ) * (ψ : ℂ))) volume 0 Real.pi :=
+    (by fun_prop : Continuous fun ψ : ℝ =>
+      2 * ∑ m ∈ Finset.Icc 1 n, c m * cos ((m : ℂ) * (ψ : ℂ))).intervalIntegrable _ _
+  have h2 : ∫ ψ in (0 : ℝ)..Real.pi,
+      2 * ∑ m ∈ Finset.Icc 1 n, c m * cos ((m : ℂ) * (ψ : ℂ)) = 0 := by
+    rw [intervalIntegral.integral_const_mul, hsum, mul_zero]
+  rw [hfun, intervalIntegral.integral_add intervalIntegrable_const hint2, h2,
+    intervalIntegral.integral_const]
+  have hπ : (Real.pi : ℂ) ≠ 0 := ofReal_ne_zero.mpr Real.pi_ne_zero
+  simp only [sub_zero, add_zero, Complex.real_smul]
   field_simp
 
 /-- Carlson's associated Legendre function of negative order, defined by the last member of

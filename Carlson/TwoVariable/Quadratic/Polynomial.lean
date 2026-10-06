@@ -23,6 +23,11 @@ The squared-node regression theorem is retained alongside the correct involutive
   exceptional parameters because no Pochhammer symbol is divided out.
 * `Carlson.TwoVariable.carlsonRPolynomialNumerator₂_firstQuadratic_odd`: Division-free
   polynomial form of the odd-degree first quadratic transformation 6.9-9.
+* `Carlson.TwoVariable.carlsonRPolynomialNumerator₂_linear`: the two-variable linear
+  transformation 6.5-1 in division-free form.
+* `Carlson.TwoVariable.carlsonRPolynomialNumerator₂_firstQuadratic_even_linear`,
+  `Carlson.TwoVariable.carlsonRPolynomialNumerator₂_firstQuadratic_odd_linear`: the combined
+  forms (6.9-10) and (6.9-11), division-free and without exceptions.
 * `Carlson.TwoVariable.secondQuadratic_unsquared_counterexample`: Regression check: the version
   of the second quadratic identity with unsquared right-hand nodes is false, already for `n = β
   = 1`, `x = 2`, `y = 0`.
@@ -298,5 +303,72 @@ theorem carlsonRPolynomialNumerator₂_secondQuadratic
 Extending the branch-sensitive node domains remains separate work.
 No Legendre, Chebyshev, Gegenbauer, or elliptic-integral
 specialization belongs in this file. -/
+
+/-- The two-variable Pochhammer numerator is homogeneous of degree `n` in the nodes. -/
+theorem carlsonRPolynomialNumerator₂_mul_mul (n : ℕ) (b₀ b₁ c x y : ℂ) :
+    carlsonRPolynomialNumerator₂ n b₀ b₁ (c * x) (c * y) =
+      c ^ n * carlsonRPolynomialNumerator₂ n b₀ b₁ x y := by
+  unfold carlsonRPolynomialNumerator₂
+  rw [Finset.mul_sum]
+  refine Finset.sum_congr rfl fun ij hij => ?_
+  have h := Finset.mem_antidiagonal.mp hij
+  rw [mul_pow, mul_pow, ← h, pow_add]
+  ring
+
+/-- The two-variable linear transformation 6.5-1 in division-free form:
+`N_n(b₀, b₁; x, y) = (-1)^n N_n(1 - b₀ - b₁ - n, b₁; x, x - y)`. -/
+theorem carlsonRPolynomialNumerator₂_linear (n : ℕ) (b₀ b₁ x y : ℂ) :
+    carlsonRPolynomialNumerator₂ n b₀ b₁ x y =
+      (-1 : ℂ) ^ n * carlsonRPolynomialNumerator₂ n (1 - b₀ - b₁ - n) b₁ x (x - y) := by
+  rw [← carlsonRPolynomialNumerator_pair, carlsonRPolynomialNumerator_transform n 0,
+    ← carlsonRPolynomialNumerator_pair]
+  congr 2
+  · funext j
+    fin_cases j
+    · simp [carlsonRTransformParameters, Fin.sum_univ_two]; ring
+    · simp [carlsonRTransformParameters]
+  · funext j
+    fin_cases j <;> simp [carlsonRTransformVariables]
+
+/-- **The combined form (6.9-10)**, division-free: the even first quadratic transformation
+followed by the linear transformation,
+`N_{2n}(β, β; x, y) = (-1)^n (β)_n N_n(1/2 - β - n, 1/2 - n; (x + y)², (x - y)²)`.
+Dividing by `(2β)_{2n}` and `(1 - β - 2n)_n` gives Carlson's
+`(2β, 2n) R_{2n}(β, β; x, y) = (β, 2n) R_n[1/2 - β - n, 1/2 - n; (x + y)², (x - y)²]`. -/
+theorem carlsonRPolynomialNumerator₂_firstQuadratic_even_linear (n : ℕ) (β x y : ℂ) :
+    carlsonRPolynomialNumerator₂ (2 * n) β β x y =
+      (-1 : ℂ) ^ n * (ascPochhammer ℂ n).eval β *
+        carlsonRPolynomialNumerator₂ n (1 / 2 - β - n) (1 / 2 - n) ((x + y) ^ 2) ((x - y) ^ 2) := by
+  rw [(numerator₂_firstQuadratic n β x y).1, carlsonRPolynomialNumerator₂_linear n]
+  have hA : arithmeticMeanSq x y = 1 / 4 * (x + y) ^ 2 := by
+    unfold arithmeticMeanSq; ring
+  have hD : arithmeticMeanSq x y - geometricMeanSq x y = 1 / 4 * (x - y) ^ 2 := by
+    unfold arithmeticMeanSq geometricMeanSq; ring
+  have hb : (1 : ℂ) - (β + n) - (1 / 2 - n) - n = 1 / 2 - β - n := by ring
+  have h4 : (4 : ℂ) ^ n * (1 / 4) ^ n = 1 := by rw [← mul_pow]; norm_num
+  rw [hD, hA, hb, carlsonRPolynomialNumerator₂_mul_mul]
+  linear_combination ((-1 : ℂ) ^ n * (ascPochhammer ℂ n).eval β *
+    carlsonRPolynomialNumerator₂ n (1 / 2 - β - n) (1 / 2 - n) ((x + y) ^ 2) ((x - y) ^ 2)) * h4
+
+/-- **The combined form (6.9-11)**, division-free: the odd first quadratic transformation followed
+by the linear transformation,
+`N_{2n+1}(β, β; x, y) = (-1)^n (β)_{n+1} (x + y) N_n(1/2 - β - n, -1/2 - n; (x + y)², (x - y)²)`.
+Dividing by `(2β)_{2n+1}` and `(-β - 2n)_n` gives Carlson's
+`(2β, 2n + 1) R_{2n+1}(β, β; x, y) = (β, 2n + 1)(x + y) R_n[1/2 - β - n, -1/2 - n; …]`. -/
+theorem carlsonRPolynomialNumerator₂_firstQuadratic_odd_linear (n : ℕ) (β x y : ℂ) :
+    carlsonRPolynomialNumerator₂ (2 * n + 1) β β x y =
+      (-1 : ℂ) ^ n * (ascPochhammer ℂ (n + 1)).eval β * (x + y) *
+        carlsonRPolynomialNumerator₂ n (1 / 2 - β - n) (-1 / 2 - n) ((x + y) ^ 2)
+          ((x - y) ^ 2) := by
+  rw [(numerator₂_firstQuadratic n β x y).2, carlsonRPolynomialNumerator₂_linear n]
+  have hA : arithmeticMeanSq x y = 1 / 4 * (x + y) ^ 2 := by
+    unfold arithmeticMeanSq; ring
+  have hD : arithmeticMeanSq x y - geometricMeanSq x y = 1 / 4 * (x - y) ^ 2 := by
+    unfold arithmeticMeanSq geometricMeanSq; ring
+  have hb : (1 : ℂ) - (1 + β + n) - (-1 / 2 - n) - n = 1 / 2 - β - n := by ring
+  have h4 : (4 : ℂ) ^ n * (1 / 4) ^ n = 1 := by rw [← mul_pow]; norm_num
+  rw [hD, hA, hb, carlsonRPolynomialNumerator₂_mul_mul]
+  linear_combination ((-1 : ℂ) ^ n * (ascPochhammer ℂ (n + 1)).eval β * (x + y) *
+    carlsonRPolynomialNumerator₂ n (1 / 2 - β - n) (-1 / 2 - n) ((x + y) ^ 2) ((x - y) ^ 2)) * h4
 
 end Carlson.TwoVariable

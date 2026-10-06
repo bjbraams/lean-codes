@@ -38,6 +38,7 @@ public import Carlson.R.EulerPoisson
 public import Carlson.R.JointRecurrence
 public import Carlson.R.Homogeneity
 public import Carlson.R.ContourRepresentation
+public import Carlson.R.LogContour
 
 /-!
 # Carlson's multivariate R-function

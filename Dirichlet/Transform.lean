@@ -27,7 +27,8 @@ the name (regularized) simplex Mellin transform is also appropriate.
 
 * `dirichletConvergenceRegion`: the parameter region `re (b i) > -N`.
 * `exists_regDirichletContinuation_of_contDiffNear`: `(card ι - 1) * N` derivatives give
-  analytic continuation to the region `re (b i) > -N`.
+  analytic continuation to the region `re (b i) > -N`, by the explicit formula
+  `regDirichletShiftFormula`.
 * `exists_entire_regDirichletContinuation_of_contDiffNear`: smoothness to every finite order
   gives an entire continuation.
 
@@ -282,7 +283,7 @@ theorem regDirichletIntegral_split_at [Nontrivial ι] (i : ι)
 open scoped Classical in
 /-- Iterated parameter shifts. Each step raises a free parameter and either lowers the
 omitted parameter or takes one tangential derivative of the integrand. -/
-private def shiftedDirichletIntegral (i : ι) :
+def shiftedDirichletIntegral (i : ι) :
     List {j : ι // j ≠ i} → (ι → ℂ) → ((ι → ℝ) → ℂ) → ℂ
   | [], b, f => regDirichletIntegral b f
   | j :: l, b, f =>
@@ -324,7 +325,7 @@ theorem shiftRegion_cons (i : ι) (j : {j : ι // j ≠ i})
 
 /-- The shifted Dirichlet integral is analytic on its shift region when the kernel has the required
 number of derivatives near the simplex. -/
-private theorem analyticOnNhd_shiftedDirichletIntegral (i : ι)
+theorem analyticOnNhd_shiftedDirichletIntegral (i : ι)
     (l : List {j : ι // j ≠ i}) {f : (ι → ℝ) → ℂ}
     (hf : ContDiffNearStdSimplex l.length f) :
     AnalyticOnNhd ℂ (fun b => shiftedDirichletIntegral i l b f) (shiftRegion i l) := by
@@ -350,7 +351,7 @@ private theorem analyticOnNhd_shiftedDirichletIntegral (i : ι)
 
 /-- For sufficiently positive parameters, the shifted construction agrees with the native
 regularized Dirichlet integral. -/
-private theorem shiftedDirichletIntegral_eq (i : ι) (l : List {j : ι // j ≠ i})
+theorem shiftedDirichletIntegral_eq (i : ι) (l : List {j : ι // j ≠ i})
     {f : (ι → ℝ) → ℂ} (hf : ContDiffNearStdSimplex l.length f)
     {b : ι → ℂ} (hb : ∀ k, (l.length : ℝ) + 2 < (b k).re) :
     shiftedDirichletIntegral i l b f = regDirichletIntegral b f := by
@@ -494,12 +495,74 @@ theorem forall_length_add_two_lt_re_add_single {N M : ℕ} {b : ι → ℂ} (i :
   · simpa only [Pi.add_apply, Pi.single_eq_of_ne hki, add_zero] using hb k
 
 open scoped Classical in
+/-- The explicit continuation formula of order `N`: with `L = (card ι - 1) * N` and `M = L + N`,
+`∑ i, (b i)_M · S_i(b + M e i)[f / ∑ u^M]`, where `S_i` is the shifted Dirichlet integral along
+the full shift list at `i`. -/
+def regDirichletShiftFormula (N : ℕ) (f : (ι → ℝ) → ℂ) (b : ι → ℂ) : ℂ :=
+  ∑ i, (ascPochhammer ℂ ((Fintype.card ι - 1) * N + N)).eval (b i) *
+    shiftedDirichletIntegral i (shiftList i N)
+      (b + Pi.single i (((Fintype.card ι - 1) * N + N : ℕ) : ℂ))
+      (fun u => f u / powerPartitionDenom ((Fintype.card ι - 1) * N + N) u)
+
+open scoped Classical in
+/-- The explicit continuation formula is analytic on `-N < re (b i)` and agrees with the native
+regularized integral on the ordinary convergence region. -/
+theorem regDirichletShiftFormula_spec [Nonempty ι] {N : ℕ}
+    {f : (ι → ℝ) → ℂ} (hf : ContDiffNearStdSimplex ((Fintype.card ι - 1) * N) f) :
+    AnalyticOnNhd ℂ (regDirichletShiftFormula N f) (dirichletConvergenceRegion N) ∧
+      Set.EqOn (regDirichletShiftFormula N f) (fun b ↦ regDirichletIntegral b f)
+        mvBetaConvergent := by
+  let L := (Fintype.card ι - 1) * N
+  let M := L + N
+  let g := fun u => f u / powerPartitionDenom M u
+  have hg : ContDiffNearStdSimplex L g := contDiffNear_div_powerPartitionDenom hf M
+  have hgl (i : ι) : ContDiffNearStdSimplex (shiftList i N).length g := by
+    simpa [shiftList_length, L] using hg
+  let F := regDirichletShiftFormula N f
+  have hF : AnalyticOnNhd ℂ F (dirichletConvergenceRegion N) := by
+    intro b hb
+    apply Finset.analyticAt_fun_sum
+    intro i _
+    have hp : AnalyticAt ℂ (fun b : ι → ℂ => (ascPochhammer ℂ M).eval (b i)) b :=
+      ((AnalyticOnNhd.eval_polynomial (𝕜 := ℂ) (ascPochhammer ℂ M)) (b i)
+          (mem_univ _)).comp_of_eq
+        ((ContinuousLinearMap.proj i : (ι → ℂ) →L[ℂ] ℂ).analyticAt b) rfl
+    exact hp.mul (((analyticOnNhd_shiftedDirichletIntegral i (shiftList i N) (hgl i))
+      _ (add_single_mem_shiftRegion_shiftList hb i)).comp_of_eq
+        (analyticAt_id.add analyticAt_const) rfl)
+  refine ⟨hF, ?_⟩
+  have hFb : AnalyticOnNhd ℂ F mvBetaConvergent :=
+    hF.mono (mvBetaConvergent_subset_dirichletConvergenceRegion N)
+  have hnative := isOpen_mvBetaConvergent.analyticOn_iff_analyticOnNhd.mp
+    (regDirichletIntegral_analyticOn hf.continuousOn)
+  have hb₀ : (fun _ : ι => ((L + 3 : ℕ) : ℂ)) ∈ mvBetaConvergent := by
+    intro i
+    simp
+    positivity
+  apply hFb.eqOn_of_preconnected_of_eventuallyEq hnative
+    (by simpa using isPreconnected_dirichletConvergenceRegion (ι := ι) 0) hb₀
+  filter_upwards [eventually_forall_lt_re_nhds_natCast L] with b hb
+  have hbpos : b ∈ mvBetaConvergent := by
+    intro i
+    have := hb i
+    have := Nat.cast_nonneg (α := ℝ) L
+    linarith
+  change (∑ i, (ascPochhammer ℂ M).eval (b i) *
+    shiftedDirichletIntegral i (shiftList i N) (b + Pi.single i (M : ℂ)) g) = _
+  rw [regDirichletIntegral_power_partition hbpos hf.continuousOn M]
+  apply Finset.sum_congr rfl
+  intro i _
+  congr 1
+  exact shiftedDirichletIntegral_eq i (shiftList i N) (hgl i)
+    (forall_length_add_two_lt_re_add_single i hb)
+
+open scoped Classical in
 /-- If `f` has `(card ι - 1) * N` continuous derivatives near the closed simplex,
 its regularized Dirichlet integral continues to `-N < re (b i)` for every `i`.
 
 The dimension factor is essential: the former statement with only `N` derivatives was
 false at intersecting faces. The proof uses `N` tangential integrations by parts in
-each of the `card ι - 1` free coordinates. -/
+each of the `card ι - 1` free coordinates (`regDirichletShiftFormula`). -/
 theorem exists_regDirichletContinuation_of_contDiffNear {N : ℕ}
     {f : (ι → ℝ) → ℂ} (hf : ContDiffNearStdSimplex ((Fintype.card ι - 1) * N) f) :
     ∃ F : (ι → ℂ) → ℂ,
@@ -510,50 +573,8 @@ theorem exists_regDirichletContinuation_of_contDiffNear {N : ℕ}
       obtain ⟨F, hF, hEq⟩ := exists_regDirichletContinuation_of_isEmpty f
       exact ⟨F, hF.mono fun _ _ => trivial, hEq⟩
   | inr _ =>
-      let L := (Fintype.card ι - 1) * N
-      let M := L + N
-      let g := fun u => f u / powerPartitionDenom M u
-      have hg : ContDiffNearStdSimplex L g := contDiffNear_div_powerPartitionDenom hf M
-      have hgl (i : ι) : ContDiffNearStdSimplex (shiftList i N).length g := by
-        simpa [shiftList_length, L] using hg
-      let F := fun b : ι → ℂ => ∑ i, (ascPochhammer ℂ M).eval (b i) *
-        shiftedDirichletIntegral i (shiftList i N) (b + Pi.single i (M : ℂ)) g
-      have hF : AnalyticOnNhd ℂ F (dirichletConvergenceRegion N) := by
-        intro b hb
-        apply Finset.analyticAt_fun_sum
-        intro i _
-        have hp : AnalyticAt ℂ (fun b : ι → ℂ => (ascPochhammer ℂ M).eval (b i)) b :=
-          ((AnalyticOnNhd.eval_polynomial (𝕜 := ℂ) (ascPochhammer ℂ M)) (b i)
-              (mem_univ _)).comp_of_eq
-            ((ContinuousLinearMap.proj i : (ι → ℂ) →L[ℂ] ℂ).analyticAt b) rfl
-        exact hp.mul (((analyticOnNhd_shiftedDirichletIntegral i (shiftList i N) (hgl i))
-          _ (add_single_mem_shiftRegion_shiftList hb i)).comp_of_eq
-            (analyticAt_id.add analyticAt_const) rfl)
-      refine ⟨F, hF.analyticOn, ?_⟩
-      have hFb : AnalyticOnNhd ℂ F mvBetaConvergent :=
-        hF.mono (mvBetaConvergent_subset_dirichletConvergenceRegion N)
-      have hnative := isOpen_mvBetaConvergent.analyticOn_iff_analyticOnNhd.mp
-        (regDirichletIntegral_analyticOn hf.continuousOn)
-      have hb₀ : (fun _ : ι => ((L + 3 : ℕ) : ℂ)) ∈ mvBetaConvergent := by
-        intro i
-        simp
-        positivity
-      apply hFb.eqOn_of_preconnected_of_eventuallyEq hnative
-        (by simpa using isPreconnected_dirichletConvergenceRegion (ι := ι) 0) hb₀
-      filter_upwards [eventually_forall_lt_re_nhds_natCast L] with b hb
-      have hbpos : b ∈ mvBetaConvergent := by
-        intro i
-        have := hb i
-        have := Nat.cast_nonneg (α := ℝ) L
-        linarith
-      change (∑ i, (ascPochhammer ℂ M).eval (b i) *
-        shiftedDirichletIntegral i (shiftList i N) (b + Pi.single i (M : ℂ)) g) = _
-      rw [regDirichletIntegral_power_partition hbpos hf.continuousOn M]
-      apply Finset.sum_congr rfl
-      intro i _
-      congr 1
-      exact shiftedDirichletIntegral_eq i (shiftList i N) (hgl i)
-        (forall_length_add_two_lt_re_add_single i hb)
+      obtain ⟨hF, hEq⟩ := regDirichletShiftFormula_spec hf
+      exact ⟨_, hF.analyticOn, hEq⟩
 
 /-- If a simplex function has every finite order of differentiability on a neighborhood of
 the simplex, its compatible finite-order regularized continuations glue to an entire function

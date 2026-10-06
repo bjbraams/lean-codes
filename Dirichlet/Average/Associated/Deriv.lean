@@ -216,20 +216,20 @@ theorem carlsonPartialDeriv_regCarlsonDirichletAverage_of_analyticOnNhd
 
 /-- Iteration of `addDirichletUnit` in the order matching
 `carlsonIteratedPartialDeriv`. -/
-private def iteratedAddDirichletUnit : List ι → (ι → ℂ) → (ι → ℂ)
+def iteratedAddDirichletUnit : List ι → (ι → ℂ) → (ι → ℂ)
   | [], b => b
   | i :: is, b => addDirichletUnit (iteratedAddDirichletUnit is b) i
 
 /-- The product of the successive Dirichlet parameters introduced by repeated parameter
 shifts. -/
-private def iteratedDirichletShiftCoeff : List ι → (ι → ℂ) → ℂ
+def iteratedDirichletShiftCoeff : List ι → (ι → ℂ) → ℂ
   | [], _ => 1
   | i :: is, b =>
       iteratedDirichletShiftCoeff is b * iteratedAddDirichletUnit is b i
 
 omit [Fintype ι] in
 /-- Iterated positive unit shifts preserve the native Dirichlet convergence region. -/
-private lemma iteratedAddDirichletUnit_mem {b : ι → ℂ}
+theorem iteratedAddDirichletUnit_mem {b : ι → ℂ}
     (hb : b ∈ mvBetaConvergent) (is : List ι) :
     iteratedAddDirichletUnit is b ∈ mvBetaConvergent := by
   induction is with
@@ -238,7 +238,7 @@ private lemma iteratedAddDirichletUnit_mem {b : ι → ℂ}
 
 /-- Repeated density shifts convert a product of simplex coordinates into successive
 positive unit shifts of the Dirichlet parameters. -/
-private lemma iteratedDirichletShiftCoeff_mul_regDirichletIntegral
+theorem iteratedDirichletShiftCoeff_mul_regDirichletIntegral
     (is : List ι) {b : ι → ℂ} (hb : b ∈ mvBetaConvergent)
     (g : (ι → ℝ) → ℂ) :
     iteratedDirichletShiftCoeff is b *

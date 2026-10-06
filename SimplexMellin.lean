@@ -10,6 +10,13 @@ public import SimplexMellin.Uniqueness
 public import SimplexMellin.Bridge
 public import SimplexMellin.Inversion
 public import SimplexMellin.Schwartz
+public import SimplexMellin.PaleyWiener
+public import SimplexMellin.LogRatio
+public import SimplexMellin.Hyperplane
+public import SimplexMellin.Image
+public import SimplexMellin.Lattice
+public import SimplexMellin.Estimate
+public import SimplexMellin.Master
 
 /-!
 # The simplex Mellin transform
@@ -30,6 +37,26 @@ Dirichlet averages; this library develops the theory beyond what the averages ne
 * `SimplexMellin.Inversion`: inversion on vertical planes and Plancherel.
 * `SimplexMellin.Schwartz`: the inversion formula with the Gamma factors is unconditional for
   smooth kernels vanishing near the faces.
+* `SimplexMellin.PaleyWiener`: the necessity half of a Paley–Wiener description of the image:
+  for kernels vanishing near the faces the native integral is entire, of exponential type, and
+  Schwartz on vertical planes after multiplication by a compactly supported radial factor.
+* `SimplexMellin.LogRatio`: log-ratio coordinates `w j = log (u j / u i₀)` and the change of
+  variables `∫_Δ f = ∫ (∏ u(w)) f(u(w)) dw`.
+* `SimplexMellin.Hyperplane`: on a hyperplane `∑ b i = s` the transform is a Fourier–Laplace
+  transform in log-ratio coordinates; Paley–Wiener on hyperplanes: every Paley–Wiener function
+  is the hyperplane restriction of the transform of a kernel smooth near the simplex and
+  vanishing near the faces, smooth kernels give Paley–Wiener restrictions, and one hyperplane
+  determines the kernel.
+* `SimplexMellin.Image`: the Paley–Wiener description of the image: the transforms of kernels
+  smooth near the simplex and vanishing near its faces are the entire functions with the sum-shift
+  equation, an exponential bound in the real parts, and Paley–Wiener bounds on one hyperplane
+  (via Carlson's theorem, `ToMathlib.Analysis.Complex.Carlson`).
+* `SimplexMellin.Lattice`: the transform of a continuous kernel on `Re b > 0` is determined by its
+  values on `ℕ^ι + 𝟙` (the monomial moments), by Carlson's theorem in several variables.
+* `SimplexMellin.Estimate`: on compact parameter sets, `|T_b[g]|` is bounded by a constant times
+  a bound for finitely many derivatives of `g` on the simplex.
+* `SimplexMellin.Master`: a master theorem with simplex structure: the several-variable Mellin
+  transform of `Φ(∑ x) g(x / ∑ x)`, `Φ` the function of Ramanujan's master theorem.
 
 The declarations live in the `Dirichlet` namespace. The research programme is recorded in
 `DirichletTransformProgram.md`.

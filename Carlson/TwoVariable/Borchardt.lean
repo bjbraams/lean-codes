@@ -15,7 +15,10 @@ Borchardt's algorithm (Example 6.10-5) computes `R_C(x₀², y₀²) = 1/L` as t
 of the sequences `xₙ₊₁ = (xₙ + yₙ)/2`, `yₙ₊₁ = (xₙ₊₁ yₙ)^{1/2}`, whose squares differ by
 `4⁻ⁿ (x₀² - y₀²)` (6.10-25). Carlson accelerates it with `σₙ = (xₙ + 2yₙ)/3` (6.10-27) and states
 `σₙ/L = 1 + 4^{-2n-1} (x₀² - y₀²)²/(45 L⁴) + O(4^{-3n})` (6.10-28), whence the extrapolation
-`σₙ + (σₙ - σₙ₋₁)/15` has error `O(64⁻ⁿ)` (6.10-29).
+`σₙ + (σₙ - σₙ₋₁)/15` has error `O(64⁻ⁿ)` (6.10-29). One order further,
+`σₙ/L = 1 + 4^{-2n-1} (x₀² - y₀²)²/(45 L⁴) - 4^{-3n} (x₀² - y₀²)³/(1512 L⁶) + O(4^{-4n})`, from
+the quartic expansion `R_C = a⁻¹ + D²/(30 a⁵) - D³/(189 a⁷) + O(D⁴)`, and the second
+extrapolation (6.10-30) has error `O(256⁻ⁿ)`.
 
 The proof of (6.10-28) uses the Dirichlet average `R_C(X, Y) = (1/2) ∫₀¹ u^{-1/2} w^{-1/2} du`,
 `w = uX + (1-u)Y`, and the exact cubic remainder of the quadratic Taylor polynomial of
@@ -35,6 +38,9 @@ estimate at every `n` with a uniform constant.
 * `Carlson.TwoVariable.carlsonRC_borchardtSeq`: the invariance of `R_C` along the sequences.
 * `Carlson.TwoVariable.exists_borchardtSigma_expansion`: (6.10-28).
 * `Carlson.TwoVariable.exists_borchardtSigma_extrapolation`: (6.10-29).
+* `Carlson.TwoVariable.abs_carlsonRC_sub_le₄`: the quartic expansion of `R_C` near the diagonal.
+* `Carlson.TwoVariable.exists_borchardtSigma_expansion₄`: (6.10-28) to the next order.
+* `Carlson.TwoVariable.exists_borchardtSigma_extrapolation₂`: (6.10-30).
 
 ## References
 
@@ -613,5 +619,531 @@ theorem exists_borchardtSigma_extrapolation {x y : ℝ} (hx : 0 < x) (hy : 0 < y
           abs_of_pos (by norm_num : (0 : ℝ) < 15)]
     _ ≤ 16 / 15 * (C / (64 ^ n * 64)) + C / 64 ^ n / 15 := by gcongr
     _ = (16 * C / 64 / 15 + C / 15) / 64 ^ n := by field_simp
+
+/-! ### The next order: Carlson's (6.10-30) -/
+
+/-- The exact quartic remainder of the cubic Taylor polynomial of `w^{-1/2}` at `A = a²`,
+with `w = s²`. -/
+theorem inv_eq_taylor_add₄ {a s : ℝ} (ha : 0 < a) (hs : 0 < s) :
+    s⁻¹ = a⁻¹ - (s ^ 2 - a ^ 2) / (2 * a ^ 3) + 3 * (s ^ 2 - a ^ 2) ^ 2 / (8 * a ^ 5) -
+      5 * (s ^ 2 - a ^ 2) ^ 3 / (16 * a ^ 7) +
+      (s - a) ^ 4 * (16 * a ^ 3 + 29 * a ^ 2 * s + 20 * a * s ^ 2 + 5 * s ^ 3) /
+        (16 * a ^ 7 * s) := by
+  field_simp
+  ring
+
+/-- A bound for the quartic remainder when `a, s ∈ [r, R]`. -/
+theorem abs_taylor_remainder_le₄ {a s r R : ℝ} (hr : 0 < r) (hra : r ≤ a) (hrs : r ≤ s)
+    (haR : a ≤ R) (hsR : s ≤ R) :
+    |(s - a) ^ 4 * (16 * a ^ 3 + 29 * a ^ 2 * s + 20 * a * s ^ 2 + 5 * s ^ 3) /
+        (16 * a ^ 7 * s)| ≤ |s ^ 2 - a ^ 2| ^ 4 * (70 * R ^ 3 / (256 * r ^ 12)) := by
+  have ha : 0 < a := hr.trans_le hra
+  have hs : 0 < s := hr.trans_le hrs
+  have hsa : |s - a| = |s ^ 2 - a ^ 2| / (s + a) := by
+    rw [show s ^ 2 - a ^ 2 = (s - a) * (s + a) by ring, abs_mul,
+      abs_of_pos (by linarith : 0 < s + a)]
+    field_simp
+  rw [abs_div, abs_mul, abs_pow, hsa,
+    abs_of_pos (by positivity : 0 < 16 * a ^ 3 + 29 * a ^ 2 * s + 20 * a * s ^ 2 + 5 * s ^ 3),
+    abs_of_pos (by positivity : 0 < 16 * a ^ 7 * s)]
+  set D := |s ^ 2 - a ^ 2|
+  have hD : 0 ≤ D := abs_nonneg _
+  have h1 : 2 * r ≤ s + a := by linarith
+  have h2 : 16 * a ^ 3 + 29 * a ^ 2 * s + 20 * a * s ^ 2 + 5 * s ^ 3 ≤ 70 * R ^ 3 := by
+    have hR : 0 ≤ R := hr.le.trans (hra.trans haR)
+    have e1 : a ^ 3 ≤ R ^ 3 := pow_le_pow_left₀ ha.le haR 3
+    have e2 : a ^ 2 * s ≤ R ^ 3 := by
+      calc a ^ 2 * s ≤ R ^ 2 * R := by gcongr
+        _ = R ^ 3 := by ring
+    have e3 : a * s ^ 2 ≤ R ^ 3 := by
+      calc a * s ^ 2 ≤ R * R ^ 2 := by gcongr
+        _ = R ^ 3 := by ring
+    have e4 : s ^ 3 ≤ R ^ 3 := pow_le_pow_left₀ hs.le hsR 3
+    linarith
+  have h3 : 16 * r ^ 8 ≤ 16 * a ^ 7 * s := by
+    have : r ^ 7 ≤ a ^ 7 := pow_le_pow_left₀ hr.le hra 7
+    nlinarith [pow_pos hr 7]
+  rw [div_pow, div_mul_eq_mul_div, div_div, div_le_iff₀ (by positivity)]
+  calc D ^ 4 * (16 * a ^ 3 + 29 * a ^ 2 * s + 20 * a * s ^ 2 + 5 * s ^ 3)
+      ≤ D ^ 4 * (70 * R ^ 3) := by gcongr
+    _ = D ^ 4 * (70 * R ^ 3 / (256 * r ^ 12)) * (256 * r ^ 12) := by field_simp
+    _ ≤ D ^ 4 * (70 * R ^ 3 / (256 * r ^ 12)) * ((s + a) ^ 4 * (16 * a ^ 7 * s)) := by
+        have h256 : 256 * r ^ 12 ≤ (s + a) ^ 4 * (16 * a ^ 7 * s) :=
+          calc 256 * r ^ 12 = (2 * r) ^ 4 * (16 * r ^ 8) := by ring
+            _ ≤ (s + a) ^ 4 * (16 * a ^ 7 * s) := by gcongr
+        have hR : 0 ≤ R := hr.le.trans (hra.trans haR)
+        exact mul_le_mul_of_nonneg_left h256 (by positivity)
+
+/-- **The expansion of `R_C` near the diagonal to the next order**: for `X, Y ∈ [r², R²]`, with
+`a² = (X + 2Y)/3` and `D = X - Y`,
+`|R_C(X, Y) - (a⁻¹ + D²/(30 a⁵) - D³/(189 a⁷))| ≤ K |D|⁴`, `K = 70 R³/(256 r¹²)`. -/
+theorem abs_carlsonRC_sub_le₄ {X Y r R : ℝ} (hr : 0 < r) (hRr : r ≤ R) (hX : r ^ 2 ≤ X)
+    (hX' : X ≤ R ^ 2) (hY : r ^ 2 ≤ Y) (hY' : Y ≤ R ^ 2) :
+    |(carlsonRC X Y).re - ((Real.sqrt ((X + 2 * Y) / 3))⁻¹ +
+        (X - Y) ^ 2 / (30 * Real.sqrt ((X + 2 * Y) / 3) ^ 5) -
+        (X - Y) ^ 3 / (189 * Real.sqrt ((X + 2 * Y) / 3) ^ 7))| ≤
+      |X - Y| ^ 4 * (70 * R ^ 3 / (256 * r ^ 12)) := by
+  have hX0 : 0 < X := (by positivity : 0 < r ^ 2).trans_le hX
+  have hY0 : 0 < Y := (by positivity : 0 < r ^ 2).trans_le hY
+  rw [carlsonRC_eq_euler hX0 hY0, ofReal_re]
+  set A := (X + 2 * Y) / 3
+  set a := Real.sqrt A
+  set D := X - Y
+  set K := 70 * R ^ 3 / (256 * r ^ 12)
+  have hA : r ^ 2 ≤ A := by simp only [A]; linarith
+  have hA' : A ≤ R ^ 2 := by simp only [A]; linarith
+  have hsqrt : ∀ {v : ℝ}, r ^ 2 ≤ v → v ≤ R ^ 2 → r ≤ Real.sqrt v ∧ Real.sqrt v ≤ R := by
+    intro v h1 h2
+    exact ⟨Real.le_sqrt_of_sq_le h1, Real.sqrt_le_iff.mpr ⟨hr.le.trans hRr, h2⟩⟩
+  obtain ⟨hra, haR⟩ := hsqrt hA hA'
+  have ha : 0 < a := hr.trans_le hra
+  have haA : a ^ 2 = A := Real.sq_sqrt (by linarith [sq_nonneg r])
+  -- the weights of the four polynomial terms
+  set p := D / (2 * a ^ 3)
+  set q := 3 * D ^ 2 / (8 * a ^ 5)
+  set v := 5 * D ^ 3 / (16 * a ^ 7)
+  set c₀ := a⁻¹ + p / 3 + q / 9 + v / 27
+  set c₁ := -p - 2 * q / 3 - v / 3
+  set c₂ := q + v
+  set c₃ := -v
+  set w : ℝ → ℝ := fun u => u * X + (1 - u) * Y
+  have hw : ∀ u ∈ Ioo (0 : ℝ) 1, r ^ 2 ≤ w u ∧ w u ≤ R ^ 2 := fun u hu => by
+    simp only [w]; constructor <;> nlinarith [hu.1, hu.2]
+  set G : ℝ → ℝ := fun u => u ^ (-(1 / 2 : ℝ)) * w u ^ (-(1 / 2 : ℝ))
+  set P : ℝ → ℝ := fun u => c₀ * u ^ (-(1 / 2 : ℝ)) + c₁ * u ^ (1 / 2 : ℝ) +
+    c₂ * u ^ (3 / 2 : ℝ) + c₃ * u ^ (5 / 2 : ℝ)
+  have i0 := (integrableOn_Ioo_rpow (r := -(1 / 2)) (by norm_num)).const_mul c₀
+  have i1 := (integrableOn_Ioo_rpow (r := 1 / 2) (by norm_num)).const_mul c₁
+  have i2 := (integrableOn_Ioo_rpow (r := 3 / 2) (by norm_num)).const_mul c₂
+  have i3 := (integrableOn_Ioo_rpow (r := 5 / 2) (by norm_num)).const_mul c₃
+  have i01 : Integrable (fun u : ℝ => c₀ * u ^ (-(1 / 2 : ℝ)) + c₁ * u ^ (1 / 2 : ℝ))
+      (volume.restrict (Ioo 0 1)) := i0.add i1
+  have i012 : Integrable (fun u : ℝ => c₀ * u ^ (-(1 / 2 : ℝ)) + c₁ * u ^ (1 / 2 : ℝ) +
+      c₂ * u ^ (3 / 2 : ℝ)) (volume.restrict (Ioo 0 1)) := i01.add i2
+  have hP : IntegrableOn P (Ioo 0 1) := i012.add i3
+  have hG : IntegrableOn G (Ioo 0 1) := by
+    refine Integrable.mono' ((integrableOn_Ioo_rpow (r := -(1 / 2)) (by norm_num)).const_mul r⁻¹)
+      ?_ ?_
+    · refine ContinuousOn.aestronglyMeasurable (fun u hu => ?_) measurableSet_Ioo
+      obtain ⟨h1, _⟩ := hw u hu
+      have hwu : 0 < w u := (by positivity : (0 : ℝ) < r ^ 2).trans_le h1
+      exact ((Real.continuousAt_rpow_const _ _ (Or.inl hu.1.ne')).mul
+        ((Real.continuousAt_rpow_const _ _ (Or.inl hwu.ne')).comp
+          (by fun_prop : Continuous w).continuousAt)).continuousWithinAt
+    · refine (ae_restrict_iff' measurableSet_Ioo).mpr (Eventually.of_forall fun u hu => ?_)
+      obtain ⟨h1, _⟩ := hw u hu
+      have hwu : 0 < w u := (by positivity : (0 : ℝ) < r ^ 2).trans_le h1
+      have hu0 : 0 ≤ u ^ (-(1 / 2 : ℝ)) := Real.rpow_nonneg hu.1.le _
+      rw [Real.norm_of_nonneg (mul_nonneg hu0 (Real.rpow_nonneg hwu.le _)), mul_comm r⁻¹]
+      refine mul_le_mul_of_nonneg_left ?_ hu0
+      rw [Real.rpow_neg hwu.le, ← Real.sqrt_eq_rpow]
+      exact inv_anti₀ hr (hsqrt h1 (hw u hu).2).1
+  -- the pointwise identity `P - G = -u^{-1/2} E`
+  set E : ℝ → ℝ := fun u => (Real.sqrt (w u) - a) ^ 4 *
+    (16 * a ^ 3 + 29 * a ^ 2 * Real.sqrt (w u) + 20 * a * Real.sqrt (w u) ^ 2 +
+      5 * Real.sqrt (w u) ^ 3) / (16 * a ^ 7 * Real.sqrt (w u))
+  have hGP : ∀ u ∈ Ioo (0 : ℝ) 1, P u - G u = -(u ^ (-(1 / 2 : ℝ)) * E u) := by
+    intro u hu
+    obtain ⟨h1, h2⟩ := hw u hu
+    have hwu : 0 < w u := (by positivity : (0 : ℝ) < r ^ 2).trans_le h1
+    have hs : 0 < Real.sqrt (w u) := Real.sqrt_pos.mpr hwu
+    have hT := inv_eq_taylor_add₄ ha hs
+    have hs2 : Real.sqrt (w u) ^ 2 - a ^ 2 = (u - 1 / 3) * D := by
+      rw [Real.sq_sqrt hwu.le, haA]; simp only [w, A, D]; ring
+    rw [hs2] at hT
+    have hu12 : u ^ (1 / 2 : ℝ) = u ^ (-(1 / 2 : ℝ)) * u := by
+      rw [← Real.rpow_add_one hu.1.ne']; norm_num
+    have hu32 : u ^ (3 / 2 : ℝ) = u ^ (-(1 / 2 : ℝ)) * u ^ 2 := by
+      rw [show (3 / 2 : ℝ) = -(1 / 2) + 2 by norm_num, Real.rpow_add hu.1, Real.rpow_two]
+    have hu52 : u ^ (5 / 2 : ℝ) = u ^ (-(1 / 2 : ℝ)) * u ^ 3 := by
+      rw [show (5 / 2 : ℝ) = -(1 / 2) + 3 by norm_num, Real.rpow_add hu.1]
+      norm_cast
+    simp only [P, G, E]
+    rw [hu12, hu32, hu52, Real.rpow_neg hwu.le (1 / 2), ← Real.sqrt_eq_rpow, hT]
+    simp only [c₀, c₁, c₂, c₃, p, q, v]
+    ring
+  have hE : ∀ u ∈ Ioo (0 : ℝ) 1, |E u| ≤ |D| ^ 4 * K := by
+    intro u hu
+    obtain ⟨h1, h2⟩ := hw u hu
+    have hwu : 0 < w u := (by positivity : (0 : ℝ) < r ^ 2).trans_le h1
+    obtain ⟨hrs, hsR⟩ := hsqrt h1 h2
+    refine (abs_taylor_remainder_le₄ hr hra hrs haR hsR).trans ?_
+    rw [Real.sq_sqrt hwu.le, haA, show w u - A = (u - 1 / 3) * D by simp only [w, A, D]; ring,
+      abs_mul]
+    have : |u - 1 / 3| ≤ 1 := by rw [abs_le]; constructor <;> linarith [hu.1, hu.2]
+    have hK : 0 ≤ K := by have := hr.le.trans hRr; positivity
+    gcongr
+    calc |u - 1 / 3| * |D| ≤ 1 * |D| := by gcongr
+      _ = |D| := one_mul _
+  -- integrate
+  have hint : ∫ u in Ioo (0 : ℝ) 1, G u =
+      (∫ u in Ioo (0 : ℝ) 1, P u) - ∫ u in Ioo (0 : ℝ) 1, (P u - G u) := by
+    rw [integral_sub hP hG]; ring
+  have hPint : ∫ u in Ioo (0 : ℝ) 1, P u =
+      2 * (a⁻¹ + D ^ 2 / (30 * a ^ 5) - D ^ 3 / (189 * a ^ 7)) := by
+    simp only [P]
+    rw [integral_add i012 i3, integral_add i01 i2, integral_add i0 i1,
+      integral_const_mul, integral_const_mul, integral_const_mul, integral_const_mul,
+      integral_Ioo_rpow (r := -(1 / 2)) (by norm_num), integral_Ioo_rpow (r := 1 / 2) (by norm_num),
+      integral_Ioo_rpow (r := 3 / 2) (by norm_num), integral_Ioo_rpow (r := 5 / 2) (by norm_num)]
+    simp only [c₀, c₁, c₂, c₃, p, q, v]
+    field_simp
+    ring
+  have hEint : |∫ u in Ioo (0 : ℝ) 1, (P u - G u)| ≤ 2 * (|D| ^ 4 * K) := by
+    have hbound : ∀ u ∈ Ioo (0 : ℝ) 1, ‖P u - G u‖ ≤ (|D| ^ 4 * K) * u ^ (-(1 / 2 : ℝ)) := by
+      intro u hu
+      rw [hGP u hu, Real.norm_eq_abs, abs_neg, abs_mul,
+        abs_of_pos (Real.rpow_pos_of_pos hu.1 _), mul_comm]
+      exact mul_le_mul_of_nonneg_right (hE u hu) (Real.rpow_pos_of_pos hu.1 _).le
+    have hgi : IntegrableOn (fun u : ℝ => (|D| ^ 4 * K) * u ^ (-(1 / 2 : ℝ))) (Ioo 0 1) :=
+      (integrableOn_Ioo_rpow (by norm_num)).const_mul _
+    have h := norm_integral_le_of_norm_le hgi
+      ((ae_restrict_iff' measurableSet_Ioo).mpr (Eventually.of_forall hbound))
+    rw [integral_const_mul, integral_Ioo_rpow (by norm_num), Real.norm_eq_abs] at h
+    refine h.trans (le_of_eq ?_)
+    norm_num; ring
+  rw [hint, hPint]
+  set T := a⁻¹ + D ^ 2 / (30 * a ^ 5) - D ^ 3 / (189 * a ^ 7)
+  calc |1 / 2 * (2 * T - ∫ u in Ioo (0 : ℝ) 1, (P u - G u)) - T|
+      = 1 / 2 * |∫ u in Ioo (0 : ℝ) 1, (P u - G u)| := by
+        rw [show 1 / 2 * (2 * T - ∫ u in Ioo (0 : ℝ) 1, (P u - G u)) - T =
+          -(1 / 2 * ∫ u in Ioo (0 : ℝ) 1, (P u - G u)) by ring,
+          abs_neg, abs_mul, abs_of_pos (by norm_num : (0 : ℝ) < 1 / 2)]
+    _ ≤ 1 / 2 * (2 * (|D| ^ 4 * K)) := by gcongr
+    _ = |D| ^ 4 * K := by ring
+
+/-- The decomposition of the next-order Borchardt error into eight small terms, with
+`r₀ = a⁻¹ + D²/(30 a⁵) - D³/(189 a⁷)`. -/
+theorem borchardt_decomposition₄ {σ a t D R r₀ : ℝ} (ha : a ≠ 0) (hσa : σ + a ≠ 0)
+    (hsq : σ ^ 2 - a ^ 2 = -2 * t / 9)
+    (hr₀ : r₀ = a⁻¹ + D ^ 2 / (30 * a ^ 5) - D ^ 3 / (189 * a ^ 7)) :
+    σ * R - 1 - D ^ 2 * R ^ 4 / 180 + D ^ 3 * R ^ 6 / 1512 =
+      σ * (R - r₀) - D ^ 2 * (R ^ 4 - r₀ ^ 4) / 180 + D ^ 3 * (R ^ 6 - r₀ ^ 6) / 1512 +
+        (σ - a) * (r₀ - a⁻¹) + t * (σ - a) / (9 * a ^ 2 * (σ + a)) -
+        D ^ 2 * (r₀ ^ 4 - a⁻¹ ^ 4) / 180 + D ^ 3 * (r₀ ^ 6 - a⁻¹ ^ 6) / 1512 +
+        (D ^ 2 / (36 * a ^ 4) - D ^ 3 / (216 * a ^ 6) - t / (9 * a ^ 2)) := by
+  subst hr₀
+  rw [show t = -9 * (σ ^ 2 - a ^ 2) / 2 by linarith [hsq]]
+  field_simp
+  ring
+
+/-- The term `D²/(36 a⁴) - D³/(216 a⁶) - t/(9 a²)` of the decomposition, with
+`a² = (x² + 2y²)/3`, `t = (x - y)²`, `D = x² - y²`, is `O(|D|⁴)`. -/
+theorem abs_borchardt_T₄_le {m M x y a : ℝ} (hm : 0 < m) (hx : m ≤ x) (hx' : x ≤ M)
+    (hy : m ≤ y) (hy' : y ≤ M) (ha : a ^ 2 = (x ^ 2 + 2 * y ^ 2) / 3) :
+    |(x ^ 2 - y ^ 2) ^ 2 / (36 * a ^ 4) - (x ^ 2 - y ^ 2) ^ 3 / (216 * a ^ 6) -
+        (x - y) ^ 2 / (9 * a ^ 2)| ≤ 26 * M ^ 2 / (10368 * m ^ 10) * |x ^ 2 - y ^ 2| ^ 4 := by
+  have hx0 : 0 < x := hm.trans_le hx
+  have hy0 : 0 < y := hm.trans_le hy
+  have hxy0 : 0 < x + y := by linarith
+  have hA : 0 < x ^ 2 + 2 * y ^ 2 := by positivity
+  have hid : (x ^ 2 - y ^ 2) ^ 2 / (36 * a ^ 4) - (x ^ 2 - y ^ 2) ^ 3 / (216 * a ^ 6) -
+      (x - y) ^ 2 / (9 * a ^ 2) =
+      -((x - y) ^ 4 * (5 * x ^ 2 + 4 * x * y + 17 * y ^ 2) / (24 * (x ^ 2 + 2 * y ^ 2) ^ 3)) := by
+    rw [show a ^ 4 = (a ^ 2) ^ 2 by ring, show a ^ 6 = (a ^ 2) ^ 3 by ring, ha]
+    field_simp
+    ring
+  have hxy : |x - y| = |x ^ 2 - y ^ 2| / (x + y) := by
+    rw [show x ^ 2 - y ^ 2 = (x - y) * (x + y) by ring, abs_mul, abs_of_pos hxy0]
+    field_simp
+  rw [hid, abs_neg, abs_div, abs_mul, abs_pow, hxy,
+    abs_of_pos (by positivity : (0 : ℝ) < 5 * x ^ 2 + 4 * x * y + 17 * y ^ 2),
+    abs_of_pos (by positivity : (0 : ℝ) < 24 * (x ^ 2 + 2 * y ^ 2) ^ 3)]
+  set D := |x ^ 2 - y ^ 2|
+  have hD : 0 ≤ D := abs_nonneg _
+  have h1 : 5 * x ^ 2 + 4 * x * y + 17 * y ^ 2 ≤ 26 * M ^ 2 := by nlinarith
+  have h2 : 3 * m ^ 2 ≤ x ^ 2 + 2 * y ^ 2 := by nlinarith
+  have h3 : 2 * m ≤ x + y := by linarith
+  calc (D / (x + y)) ^ 4 * (5 * x ^ 2 + 4 * x * y + 17 * y ^ 2) / (24 * (x ^ 2 + 2 * y ^ 2) ^ 3)
+      ≤ (D / (2 * m)) ^ 4 * (26 * M ^ 2) / (24 * (3 * m ^ 2) ^ 3) := by gcongr
+    _ = 26 * M ^ 2 / (10368 * m ^ 10) * D ^ 4 := by field_simp; ring
+
+set_option maxHeartbeats 1600000 in
+/-- The next-order expansion in one step of Borchardt's algorithm: for `x, y ∈ [m, M]`, with
+`R = R_C(x², y²)`, `σ = (x + 2y)/3` and `D = x² - y²`,
+`|σ R - 1 - D² R⁴/180 + D³ R⁶/1512| ≤ C |D|⁴`. -/
+theorem exists_borchardt_step_bound₄ {m M : ℝ} (hm : 0 < m) (hmM : m ≤ M) :
+    ∃ C : ℝ, ∀ x y : ℝ, m ≤ x → x ≤ M → m ≤ y → y ≤ M →
+      |(x + 2 * y) / 3 * (carlsonRC ((x : ℂ) ^ 2) ((y : ℂ) ^ 2)).re - 1 -
+        (x ^ 2 - y ^ 2) ^ 2 * (carlsonRC ((x : ℂ) ^ 2) ((y : ℂ) ^ 2)).re ^ 4 / 180 +
+        (x ^ 2 - y ^ 2) ^ 3 * (carlsonRC ((x : ℂ) ^ 2) ((y : ℂ) ^ 2)).re ^ 6 / 1512| ≤
+        C * |x ^ 2 - y ^ 2| ^ 4 := by
+  have hM0 : 0 < M := hm.trans_le hmM
+  set K := 70 * M ^ 3 / (256 * m ^ 12)
+  have hK : 0 ≤ K := by positivity
+  set ρ₁ := 1 / (30 * m ^ 5) + M ^ 2 / (189 * m ^ 7)
+  have hρ₁ : 0 ≤ ρ₁ := by positivity
+  set B := 1 / m + ρ₁ * M ^ 4 + K * M ^ 8
+  have hB : 0 ≤ B := by positivity
+  refine ⟨M * K + M ^ 4 * K * (4 * B ^ 3) / 180 + M ^ 6 * K * (6 * B ^ 5) / 1512 +
+    ρ₁ / (36 * m ^ 3) + 1 / (4 * 36 * 18 * m ^ 8) + ρ₁ * (4 * B ^ 3) / 180 +
+    M ^ 2 * ρ₁ * (6 * B ^ 5) / 1512 + 26 * M ^ 2 / (10368 * m ^ 10),
+    fun x y hx hx' hy hy' => ?_⟩
+  set R := (carlsonRC ((x : ℂ) ^ 2) ((y : ℂ) ^ 2)).re
+  set a := Real.sqrt ((x ^ 2 + 2 * y ^ 2) / 3)
+  set σ := (x + 2 * y) / 3
+  set D := x ^ 2 - y ^ 2
+  set t := (x - y) ^ 2
+  set r₀ := a⁻¹ + D ^ 2 / (30 * a ^ 5) - D ^ 3 / (189 * a ^ 7) with hr₀def
+  have hx0 : 0 < x := hm.trans_le hx
+  have hy0 : 0 < y := hm.trans_le hy
+  have hA := Real.sq_sqrt (show 0 ≤ (x ^ 2 + 2 * y ^ 2) / 3 by positivity)
+  have hma : m ≤ a := Real.le_sqrt_of_sq_le (by nlinarith)
+  have ha0 : 0 < a := hm.trans_le hma
+  have hσ : m ≤ σ := by simp only [σ]; linarith
+  have hσM : σ ≤ M := by simp only [σ]; linarith
+  have hsq : σ ^ 2 - a ^ 2 = -2 * t / 9 := by rw [hA]; simp only [σ, t]; ring
+  have hD0 : 0 ≤ |D| := abs_nonneg _
+  have hDM : |D| ≤ M ^ 2 := by rw [abs_le]; constructor <;> nlinarith
+  have htD : t ≤ |D| ^ 2 / (4 * m ^ 2) := by
+    rw [sq_abs, le_div_iff₀ (by positivity)]
+    have : D ^ 2 = t * (x + y) ^ 2 := by simp only [D, t]; ring
+    rw [this]
+    exact mul_le_mul_of_nonneg_left (by nlinarith) (sq_nonneg _)
+  have ht0 : 0 ≤ t := sq_nonneg _
+  have h9 := abs_sub_le_of_sq_sub hm hma hσ ht0 htD hsq
+  have hR : |R - r₀| ≤ K * |D| ^ 4 := by
+    have h := abs_carlsonRC_sub_le₄ (X := x ^ 2) (Y := y ^ 2) hm hmM (by nlinarith)
+      (by nlinarith) (by nlinarith) (by nlinarith)
+    push_cast at h
+    rw [mul_comm K]
+    exact h
+  have e7 : |D ^ 2 / (36 * a ^ 4) - D ^ 3 / (216 * a ^ 6) - t / (9 * a ^ 2)| ≤
+      26 * M ^ 2 / (10368 * m ^ 10) * |D| ^ 4 :=
+    abs_borchardt_T₄_le (a := a) hm hx hx' hy hy' hA
+  -- `r₀` is close to `a⁻¹`
+  have hD2 : |D| ^ 2 ≤ M ^ 4 := by
+    calc |D| ^ 2 ≤ (M ^ 2) ^ 2 := pow_le_pow_left₀ hD0 hDM 2
+      _ = M ^ 4 := by ring
+  have hr₀a : |r₀ - a⁻¹| ≤ ρ₁ * |D| ^ 2 := by
+    have e1 : |D ^ 2 / (30 * a ^ 5)| ≤ |D| ^ 2 / (30 * m ^ 5) := by
+      rw [abs_div, abs_pow, abs_of_pos (by positivity : (0 : ℝ) < 30 * a ^ 5)]
+      gcongr
+    have e2 : |D ^ 3 / (189 * a ^ 7)| ≤ M ^ 2 * |D| ^ 2 / (189 * m ^ 7) := by
+      rw [abs_div, abs_pow, abs_of_pos (by positivity : (0 : ℝ) < 189 * a ^ 7)]
+      gcongr
+      calc |D| ^ 3 = |D| * |D| ^ 2 := by ring
+        _ ≤ M ^ 2 * |D| ^ 2 := by gcongr
+    have h := abs_sub (D ^ 2 / (30 * a ^ 5)) (D ^ 3 / (189 * a ^ 7))
+    rw [hr₀def, show a⁻¹ + D ^ 2 / (30 * a ^ 5) - D ^ 3 / (189 * a ^ 7) - a⁻¹ =
+      D ^ 2 / (30 * a ^ 5) - D ^ 3 / (189 * a ^ 7) by ring]
+    calc |D ^ 2 / (30 * a ^ 5) - D ^ 3 / (189 * a ^ 7)|
+        ≤ |D| ^ 2 / (30 * m ^ 5) + M ^ 2 * |D| ^ 2 / (189 * m ^ 7) := h.trans (add_le_add e1 e2)
+      _ = ρ₁ * |D| ^ 2 := by simp only [ρ₁]; ring
+  have hainv : |a⁻¹| ≤ 1 / m := by
+    rw [abs_of_pos (inv_pos.mpr ha0), one_div]; exact inv_anti₀ hm hma
+  have hD4 : |D| ^ 4 ≤ M ^ 8 := by
+    calc |D| ^ 4 ≤ (M ^ 2) ^ 4 := pow_le_pow_left₀ hD0 hDM 4
+      _ = M ^ 8 := by ring
+  have hr₀B : |r₀| ≤ B := by
+    have h := abs_add_le a⁻¹ (r₀ - a⁻¹)
+    rw [add_sub_cancel] at h
+    have : ρ₁ * |D| ^ 2 ≤ ρ₁ * M ^ 4 := mul_le_mul_of_nonneg_left hD2 hρ₁
+    have : 0 ≤ K * M ^ 8 := by positivity
+    simp only [B]; linarith
+  have hRB : |R| ≤ B := by
+    have h := abs_add_le r₀ (R - r₀)
+    rw [add_sub_cancel] at h
+    have : K * |D| ^ 4 ≤ K * M ^ 8 := mul_le_mul_of_nonneg_left hD4 hK
+    have : |r₀ - a⁻¹| ≤ ρ₁ * M ^ 4 := hr₀a.trans (mul_le_mul_of_nonneg_left hD2 hρ₁)
+    have h2 := abs_add_le a⁻¹ (r₀ - a⁻¹)
+    rw [add_sub_cancel] at h2
+    simp only [B]; linarith
+  have hainvB : |a⁻¹| ≤ B := by
+    have : 0 ≤ ρ₁ * M ^ 4 + K * M ^ 8 := by positivity
+    simp only [B]; linarith
+  rw [borchardt_decomposition₄ ha0.ne' (by linarith) hsq hr₀def]
+  clear_value R a σ D t r₀ K ρ₁ B
+  -- powers of `|D|`
+  have hD5 : |D| ^ 5 ≤ M ^ 2 * |D| ^ 4 := by
+    calc |D| ^ 5 = |D| * |D| ^ 4 := by ring
+      _ ≤ M ^ 2 * |D| ^ 4 := by gcongr
+  have hD6 : |D| ^ 6 ≤ M ^ 4 * |D| ^ 4 := by
+    calc |D| ^ 6 = |D| ^ 2 * |D| ^ 4 := by ring
+      _ ≤ M ^ 4 * |D| ^ 4 := by gcongr
+  have hD7 : |D| ^ 7 ≤ M ^ 6 * |D| ^ 4 := by
+    calc |D| ^ 7 = |D| ^ 3 * |D| ^ 4 := by ring
+      _ ≤ (M ^ 2) ^ 3 * |D| ^ 4 := by gcongr
+      _ = M ^ 6 * |D| ^ 4 := by ring
+  have hp4 : ∀ {u v : ℝ}, |u| ≤ B → |v| ≤ B → |u ^ 4 - v ^ 4| ≤ |u - v| * (4 * B ^ 3) :=
+    fun hu hv => (abs_pow_sub_pow_le _ _ 4).trans (by
+      rw [mul_assoc]; gcongr
+      · norm_num
+      · exact max_le hu hv)
+  have hp6 : ∀ {u v : ℝ}, |u| ≤ B → |v| ≤ B → |u ^ 6 - v ^ 6| ≤ |u - v| * (6 * B ^ 5) :=
+    fun hu hv => (abs_pow_sub_pow_le _ _ 6).trans (by
+      rw [mul_assoc]; gcongr
+      · norm_num
+      · exact max_le hu hv)
+  have e0 : |σ * (R - r₀)| ≤ M * K * |D| ^ 4 := by
+    rw [abs_mul, abs_of_pos (hm.trans_le hσ), mul_assoc]
+    exact mul_le_mul hσM hR (abs_nonneg _) (hm.le.trans hmM)
+  have e1 : |D ^ 2 * (R ^ 4 - r₀ ^ 4) / 180| ≤ M ^ 4 * K * (4 * B ^ 3) / 180 * |D| ^ 4 := by
+    rw [abs_div, abs_mul, abs_pow, abs_of_pos (by norm_num : (0 : ℝ) < 180)]
+    have h1 : |R ^ 4 - r₀ ^ 4| ≤ K * |D| ^ 4 * (4 * B ^ 3) :=
+      (hp4 hRB hr₀B).trans (mul_le_mul_of_nonneg_right hR (by positivity))
+    calc |D| ^ 2 * |R ^ 4 - r₀ ^ 4| / 180 ≤ |D| ^ 2 * (K * |D| ^ 4 * (4 * B ^ 3)) / 180 := by
+          gcongr
+      _ = K * (4 * B ^ 3) / 180 * |D| ^ 6 := by ring
+      _ ≤ K * (4 * B ^ 3) / 180 * (M ^ 4 * |D| ^ 4) := by gcongr
+      _ = _ := by ring
+  have e2 : |D ^ 3 * (R ^ 6 - r₀ ^ 6) / 1512| ≤ M ^ 6 * K * (6 * B ^ 5) / 1512 * |D| ^ 4 := by
+    rw [abs_div, abs_mul, abs_pow, abs_of_pos (by norm_num : (0 : ℝ) < 1512)]
+    have h1 : |R ^ 6 - r₀ ^ 6| ≤ K * |D| ^ 4 * (6 * B ^ 5) :=
+      (hp6 hRB hr₀B).trans (mul_le_mul_of_nonneg_right hR (by positivity))
+    calc |D| ^ 3 * |R ^ 6 - r₀ ^ 6| / 1512 ≤ |D| ^ 3 * (K * |D| ^ 4 * (6 * B ^ 5)) / 1512 := by
+          gcongr
+      _ = K * (6 * B ^ 5) / 1512 * |D| ^ 7 := by ring
+      _ ≤ K * (6 * B ^ 5) / 1512 * (M ^ 6 * |D| ^ 4) := by gcongr
+      _ = _ := by ring
+  have e3 : |(σ - a) * (r₀ - a⁻¹)| ≤ ρ₁ / (36 * m ^ 3) * |D| ^ 4 := by
+    rw [abs_mul]
+    calc |σ - a| * |r₀ - a⁻¹| ≤ |D| ^ 2 / (36 * m ^ 3) * (ρ₁ * |D| ^ 2) :=
+          mul_le_mul h9 hr₀a (abs_nonneg _) (by positivity)
+      _ = _ := by ring
+  have e4 : |t * (σ - a) / (9 * a ^ 2 * (σ + a))| ≤ 1 / (4 * 36 * 18 * m ^ 8) * |D| ^ 4 := by
+    have hσa : 2 * m ≤ σ + a := by linarith
+    have hσa0 : 0 < σ + a := by linarith
+    rw [abs_div, abs_mul, abs_of_nonneg ht0,
+      abs_of_pos (by positivity : (0 : ℝ) < 9 * a ^ 2 * (σ + a))]
+    calc t * |σ - a| / (9 * a ^ 2 * (σ + a))
+        ≤ |D| ^ 2 / (4 * m ^ 2) * (|D| ^ 2 / (36 * m ^ 3)) / (9 * m ^ 2 * (2 * m)) := by
+          gcongr
+      _ = _ := by field_simp; ring
+  have e5 : |D ^ 2 * (r₀ ^ 4 - a⁻¹ ^ 4) / 180| ≤ ρ₁ * (4 * B ^ 3) / 180 * |D| ^ 4 := by
+    rw [abs_div, abs_mul, abs_pow, abs_of_pos (by norm_num : (0 : ℝ) < 180)]
+    have h1 : |r₀ ^ 4 - a⁻¹ ^ 4| ≤ ρ₁ * |D| ^ 2 * (4 * B ^ 3) :=
+      (hp4 hr₀B hainvB).trans (mul_le_mul_of_nonneg_right hr₀a (by positivity))
+    calc |D| ^ 2 * |r₀ ^ 4 - a⁻¹ ^ 4| / 180 ≤ |D| ^ 2 * (ρ₁ * |D| ^ 2 * (4 * B ^ 3)) / 180 := by
+          gcongr
+      _ = _ := by ring
+  have e6 : |D ^ 3 * (r₀ ^ 6 - a⁻¹ ^ 6) / 1512| ≤ M ^ 2 * ρ₁ * (6 * B ^ 5) / 1512 * |D| ^ 4 := by
+    rw [abs_div, abs_mul, abs_pow, abs_of_pos (by norm_num : (0 : ℝ) < 1512)]
+    have h1 : |r₀ ^ 6 - a⁻¹ ^ 6| ≤ ρ₁ * |D| ^ 2 * (6 * B ^ 5) :=
+      (hp6 hr₀B hainvB).trans (mul_le_mul_of_nonneg_right hr₀a (by positivity))
+    calc |D| ^ 3 * |r₀ ^ 6 - a⁻¹ ^ 6| / 1512 ≤ |D| ^ 3 * (ρ₁ * |D| ^ 2 * (6 * B ^ 5)) / 1512 := by
+          gcongr
+      _ = ρ₁ * (6 * B ^ 5) / 1512 * |D| ^ 5 := by ring
+      _ ≤ ρ₁ * (6 * B ^ 5) / 1512 * (M ^ 2 * |D| ^ 4) := by gcongr
+      _ = _ := by ring
+  set E0 := σ * (R - r₀)
+  set E1 := D ^ 2 * (R ^ 4 - r₀ ^ 4) / 180
+  set E2 := D ^ 3 * (R ^ 6 - r₀ ^ 6) / 1512
+  set E3 := (σ - a) * (r₀ - a⁻¹)
+  set E4 := t * (σ - a) / (9 * a ^ 2 * (σ + a))
+  set E5 := D ^ 2 * (r₀ ^ 4 - a⁻¹ ^ 4) / 180
+  set E6 := D ^ 3 * (r₀ ^ 6 - a⁻¹ ^ 6) / 1512
+  set E7 := D ^ 2 / (36 * a ^ 4) - D ^ 3 / (216 * a ^ 6) - t / (9 * a ^ 2)
+  have k1 := abs_add_le (E0 - E1 + E2 + E3 + E4 - E5 + E6) E7
+  have k2 := abs_add_le (E0 - E1 + E2 + E3 + E4 - E5) E6
+  have k3 := abs_sub (E0 - E1 + E2 + E3 + E4) E5
+  have k4 := abs_add_le (E0 - E1 + E2 + E3) E4
+  have k5 := abs_add_le (E0 - E1 + E2) E3
+  have k6 := abs_add_le (E0 - E1) E2
+  have k7 := abs_sub E0 E1
+  linarith
+
+/-- **(6.10-28) to the next order**: for positive `x₀, y₀` with Borchardt limit `L`,
+`σₙ/L = 1 + 4^{-2n-1} (x₀² - y₀²)²/(45 L⁴) - 4^{-3n} (x₀² - y₀²)³/(1512 L⁶) + O(4^{-4n})`. -/
+theorem exists_borchardtSigma_expansion₄ {x y : ℝ} (hx : 0 < x) (hy : 0 < y) :
+    ∃ L : ℝ, 0 < L ∧ carlsonRC ((x : ℂ) ^ 2) ((y : ℂ) ^ 2) = ((L : ℂ))⁻¹ ∧
+      ∃ C : ℝ, ∀ n : ℕ, |borchardtSigma x y n / L - 1 -
+        (x ^ 2 - y ^ 2) ^ 2 / (45 * 4 ^ (2 * n + 1) * L ^ 4) +
+        (x ^ 2 - y ^ 2) ^ 3 / (1512 * 64 ^ n * L ^ 6)| ≤ C / 256 ^ n := by
+  obtain ⟨L, hL, -, -, hRC⟩ := exists_borchardt_limit hx hy
+  have hm : 0 < min x y := lt_min hx hy
+  obtain ⟨C₀, hC₀⟩ := exists_borchardt_step_bound₄ hm (min_le_max)
+  refine ⟨L, hL, hRC, C₀ * |x ^ 2 - y ^ 2| ^ 4, fun n => ?_⟩
+  have hb := borchardtSeq_bounds hx hy n
+  have hM := borchardtSeq_le_max hx hy n
+  have h := hC₀ _ _ hb.1 hM.1 hb.2.1 hM.2
+  rw [carlsonRC_borchardtSeq hx hy n, hRC, borchardtSeq_sq_sub hx hy n] at h
+  simp only [← ofReal_inv, ofReal_re] at h
+  have h4 : (4 : ℝ) ^ n ≠ 0 := pow_ne_zero _ (by norm_num)
+  have hkey : borchardtSigma x y n / L - 1 - (x ^ 2 - y ^ 2) ^ 2 / (45 * 4 ^ (2 * n + 1) * L ^ 4) +
+      (x ^ 2 - y ^ 2) ^ 3 / (1512 * 64 ^ n * L ^ 6) =
+      ((borchardtSeq x y n).1 + 2 * (borchardtSeq x y n).2) / 3 * L⁻¹ - 1 -
+        ((x ^ 2 - y ^ 2) / 4 ^ n) ^ 2 * L⁻¹ ^ 4 / 180 +
+        ((x ^ 2 - y ^ 2) / 4 ^ n) ^ 3 * L⁻¹ ^ 6 / 1512 := by
+    unfold borchardtSigma
+    rw [show (4 : ℝ) ^ (2 * n + 1) = (4 ^ n) ^ 2 * 4 by ring,
+      show (64 : ℝ) ^ n = (4 ^ n) ^ 3 by rw [← pow_mul, mul_comm, pow_mul]; norm_num]
+    field_simp
+    ring
+  rw [hkey]
+  refine h.trans (le_of_eq ?_)
+  rw [abs_div, abs_of_pos (by positivity : (0 : ℝ) < 4 ^ n), div_pow, ← pow_mul,
+    show (256 : ℝ) ^ n = (4 ^ n) ^ 4 by rw [← pow_mul, mul_comm, pow_mul]; norm_num]
+  ring
+
+/-- **Carlson's (6.10-30)**: the second extrapolation
+`σₙ₊₂ + (1/15 + 1/63)(σₙ₊₂ - σₙ₊₁) + (σₙ₊₂ - 2σₙ₊₁ + σₙ)/(15·63)` approximates the Borchardt limit
+`L` with error `O(256⁻ⁿ)`. -/
+theorem exists_borchardtSigma_extrapolation₂ {x y : ℝ} (hx : 0 < x) (hy : 0 < y) :
+    ∃ L : ℝ, 0 < L ∧ carlsonRC ((x : ℂ) ^ 2) ((y : ℂ) ^ 2) = ((L : ℂ))⁻¹ ∧
+      ∃ C : ℝ, ∀ n : ℕ, |borchardtSigma x y (n + 2) +
+        (1 / 15 + 1 / 63) * (borchardtSigma x y (n + 2) - borchardtSigma x y (n + 1)) +
+        (borchardtSigma x y (n + 2) - 2 * borchardtSigma x y (n + 1) + borchardtSigma x y n) /
+          (15 * 63) - L| ≤ C / 256 ^ n := by
+  obtain ⟨L, hL, hRC, C, hC⟩ := exists_borchardtSigma_expansion₄ hx hy
+  refine ⟨L, hL, hRC, L * 4 * C, fun n => ?_⟩
+  set c := (x ^ 2 - y ^ 2) ^ 2 / (180 * L ^ 4)
+  set d := -((x ^ 2 - y ^ 2) ^ 3 / (1512 * L ^ 6))
+  set e : ℕ → ℝ := fun k => borchardtSigma x y k / L - 1 - c / 16 ^ k - d / 64 ^ k
+  have he : ∀ k, |e k| ≤ C / 256 ^ k := fun k => by
+    have := hC k
+    convert this using 2
+    simp only [e, c, d]
+    rw [show (4 : ℝ) ^ (2 * k + 1) = 16 ^ k * 4 by rw [pow_succ, pow_mul]; norm_num]
+    field_simp
+    ring
+  have hσ : ∀ k, borchardtSigma x y k = L * (1 + c / 16 ^ k + d / 64 ^ k + e k) := fun k => by
+    simp only [e]; field_simp; ring
+  have h16 : (16 : ℝ) ^ (n + 2) = 16 ^ n * 256 := by rw [pow_add]; norm_num
+  have h16' : (16 : ℝ) ^ (n + 1) = 16 ^ n * 16 := pow_succ _ _
+  have h64 : (64 : ℝ) ^ (n + 2) = 64 ^ n * 4096 := by rw [pow_add]; norm_num
+  have h64' : (64 : ℝ) ^ (n + 1) = 64 ^ n * 64 := pow_succ _ _
+  rw [hσ, hσ, hσ, h16, h16', h64, h64']
+  have hid : L * (1 + c / (16 ^ n * 256) + d / (64 ^ n * 4096) + e (n + 2)) +
+      (1 / 15 + 1 / 63) * (L * (1 + c / (16 ^ n * 256) + d / (64 ^ n * 4096) + e (n + 2)) -
+        L * (1 + c / (16 ^ n * 16) + d / (64 ^ n * 64) + e (n + 1))) +
+      (L * (1 + c / (16 ^ n * 256) + d / (64 ^ n * 4096) + e (n + 2)) -
+        2 * (L * (1 + c / (16 ^ n * 16) + d / (64 ^ n * 64) + e (n + 1))) +
+        L * (1 + c / 16 ^ n + d / 64 ^ n + e n)) / (15 * 63) - L =
+      L * ((1 + 1 / 15 + 1 / 63 + 1 / 945) * e (n + 2) -
+        (1 / 15 + 1 / 63 + 2 / 945) * e (n + 1) + e n / 945) := by
+    field_simp
+    ring
+  rw [hid, abs_mul, abs_of_pos hL, mul_assoc L 4, mul_div_assoc]
+  refine mul_le_mul_of_nonneg_left ?_ hL.le
+  have h2 := he (n + 2)
+  have h1 := he (n + 1)
+  have h0 := he n
+  have hC0 : 0 ≤ C := by
+    have := he 0
+    rw [pow_zero, div_one] at this
+    exact (abs_nonneg _).trans this
+  rw [show (256 : ℝ) ^ (n + 2) = 256 ^ n * 65536 by rw [pow_add]; norm_num] at h2
+  rw [pow_succ] at h1
+  have hp : 0 < (256 : ℝ) ^ n := by positivity
+  have hA := abs_add_le ((1 + 1 / 15 + 1 / 63 + 1 / 945) * e (n + 2) -
+    (1 / 15 + 1 / 63 + 2 / 945) * e (n + 1)) (e n / 945)
+  have hB := abs_sub ((1 + 1 / 15 + 1 / 63 + 1 / 945) * e (n + 2))
+    ((1 / 15 + 1 / 63 + 2 / 945) * e (n + 1))
+  rw [abs_mul, abs_of_pos (by norm_num : (0 : ℝ) < 1 + 1 / 15 + 1 / 63 + 1 / 945)] at hB
+  rw [abs_mul (1 / 15 + 1 / 63 + 2 / 945 : ℝ), abs_of_pos (by norm_num : (0 : ℝ) <
+    1 / 15 + 1 / 63 + 2 / 945)] at hB
+  rw [abs_div, abs_of_pos (by norm_num : (0 : ℝ) < 945)] at hA
+  have e2 : |e (n + 2)| ≤ C / 256 ^ n := h2.trans (div_le_div_of_nonneg_left hC0 hp
+    (by nlinarith))
+  have e1 : |e (n + 1)| ≤ C / 256 ^ n := h1.trans (div_le_div_of_nonneg_left hC0 hp
+    (by nlinarith))
+  have hCn : 0 ≤ C / 256 ^ n := div_nonneg hC0 hp.le
+  calc |(1 + 1 / 15 + 1 / 63 + 1 / 945) * e (n + 2) - (1 / 15 + 1 / 63 + 2 / 945) * e (n + 1) +
+        e n / 945| ≤ (1 + 1 / 15 + 1 / 63 + 1 / 945) * (C / 256 ^ n) +
+          (1 / 15 + 1 / 63 + 2 / 945) * (C / 256 ^ n) + C / 256 ^ n / 945 := by
+        nlinarith [abs_nonneg (e (n + 2)), abs_nonneg (e (n + 1)), abs_nonneg (e n)]
+    _ ≤ 4 * (C / 256 ^ n) := by nlinarith
+    _ = 4 * C / 256 ^ n := by ring
 
 end Carlson.TwoVariable

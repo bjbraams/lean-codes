@@ -8,6 +8,7 @@ module
 public import ToMathlib.Analysis.Analytic.PolynomialApproximation
 public import ToMathlib.Analysis.Connected
 public import ToMathlib.Analysis.Calculus.MeanWeights
+public import ToMathlib.Analysis.Calculus.IteratedDerivOpen
 public import ToMathlib.Analysis.Convex.GeometricMean
 public import ToMathlib.Analysis.Convex.LogReciprocal
 public import ToMathlib.Analysis.Convex.NegativePower
@@ -31,6 +32,12 @@ public import ToMathlib.Analysis.Integral.Tail
 public import ToMathlib.Analysis.Integral.EndpointDeformation
 public import ToMathlib.Analysis.MvMellinTransform
 public import ToMathlib.Analysis.SchwartzExpExp
+public import ToMathlib.Analysis.Fourier.PaleyWiener
+public import ToMathlib.Analysis.Complex.Carlson
+public import ToMathlib.Analysis.MellinBarnes
+public import ToMathlib.Analysis.SpecialFunctions.RamanujanMaster
+public import ToMathlib.Analysis.AppellSequence
+public import ToMathlib.Analysis.Integral.FunSplitAt
 public import ToMathlib.Analysis.Integral.StrictMono
 public import ToMathlib.Analysis.Integral.TwoCrossings
 public import ToMathlib.Analysis.OpenMapping
@@ -42,6 +49,8 @@ public import ToMathlib.Analysis.SpecialFunctions.Pochhammer
 public import ToMathlib.Analysis.SpecialFunctions.Gamma
 public import ToMathlib.Analysis.SpecialFunctions.Pow
 public import ToMathlib.Analysis.SpecialFunctions.GammaRatio
+public import ToMathlib.Analysis.SpecialFunctions.LaplaceOneSubCos
+public import ToMathlib.Analysis.SpecialFunctions.GammaBounds
 public import ToMathlib.Analysis.TaylorBounds
 public import ToMathlib.Analysis.UpperHalfPlaneMaximum
 
@@ -98,6 +107,20 @@ This module re-exports the following developments:
 * `ToMathlib.Analysis.Integral.TwoCrossings`: Strict convex integral comparison for signed
   kernels with two crossings and vanishing zeroth and first moments.
 * `ToMathlib.Analysis.Integral.Tail`: Uniform control of integral tails.
+* `ToMathlib.Analysis.Fourier.PaleyWiener`: The Paley–Wiener theorem for entire functions of
+  exponential type with rapid decay on `ℝⁿ`, and shifting horizontal lines of integration.
+* `ToMathlib.Analysis.Complex.Carlson`: Carlson's theorem: a function of exponential type in the
+  right half-plane, of type less than `π` on the imaginary axis, vanishing at `ℕ`, is zero.
+* `ToMathlib.Analysis.MellinBarnes`: Moving vertical lines of integration, crossing simple poles,
+  and the Mellin transform of an inverse Mellin transform.
+* `ToMathlib.Analysis.SpecialFunctions.RamanujanMaster`: Ramanujan's master theorem in Hardy's
+  form.
+* `ToMathlib.Analysis.Calculus.IteratedDerivOpen`: iterated derivatives of `Cⁿ` functions of one
+  variable on open sets.
+* `ToMathlib.Analysis.AppellSequence`: Carlson's class `A_k` of sequences satisfying a binomial
+  theorem (Carlson 1970): the derivative characterization, closure properties, generating
+  relations and the composition theorem.
+* `ToMathlib.Analysis.Integral.FunSplitAt`: Splitting one coordinate off Lebesgue measure.
 * `ToMathlib.Analysis.SchwartzExpExp`: The Schwartz function `exp (∑ i, (c i y i - e^(y i)))`.
 * `ToMathlib.Analysis.MvMellinTransform`: The multivariable Mellin transform, its exponential
   and Fourier forms, and separable functions.
@@ -116,6 +139,10 @@ This module re-exports the following developments:
   for `x ≥ 1/2`.
 * `ToMathlib.Analysis.SpecialFunctions.Gamma`: The Gamma integral with a complex Laplace parameter.
 * `ToMathlib.Analysis.SpecialFunctions.Pow`: Elementary power bounds and identities.
+* `ToMathlib.Analysis.SpecialFunctions.GammaBounds`: `|Γ(s)| ≤ Γ(re s)`, monotonicity of
+  `Γ(x + r)/Γ(x)`, and `Γ(x) ≤ Γ(y)` for `1 ≤ x ≤ y`, `2 ≤ y`.
+* `ToMathlib.Analysis.SpecialFunctions.LaplaceOneSubCos`: The Laplace transform of `(1 - cos t)ⁿ`
+  and the partial fractions of the reciprocal rising product.
 * `ToMathlib.Analysis.TaylorBounds`: Elementary bounds for Taylor remainders.
 * `ToMathlib.Analysis.UpperHalfPlaneMaximum`: A minimum principle for the imaginary part on the
   upper half-plane.

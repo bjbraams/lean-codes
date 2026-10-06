@@ -83,6 +83,8 @@ public import Carlson.Jacobi.GegenbauerProduct
 public import Carlson.Jacobi.HermiteRepresentation
 public import Carlson.Jacobi.EllipseCoefficient
 public import Carlson.Jacobi.FourierCosine
+public import Carlson.Jacobi.Appell
+public import Carlson.Jacobi.GegenbauerProductComplex
 
 /-!
 # Jacobi polynomials and adjoint functions in Carlson's Chapter 7
@@ -128,6 +130,8 @@ plane-wave expansion, orthogonality on arbitrary complex segments, and the Lague
 Hermite limits with their orthogonality relations complete the main applications. For complex
 parameters with real parts greater than `-1`, Cauchy-integral representations yield separate
 upper and lower boundary values at interior points of any nondegenerate complex segment.
+With both parameters lowered by the degree, the Jacobi polynomials form an Appell sequence
+(Carlson 1970, Example 11).
 On the unit segment, their common principal-value term is also the limit of symmetric
 real-axis truncations.
 Real-variable Rodrigues formulas, weighted coefficient integrals for `Cⁿ` functions

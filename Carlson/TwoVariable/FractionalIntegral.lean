@@ -25,7 +25,8 @@ integral of the two-node average by the substitution `t = a + (x - a) u`.
 ## Implementation notes
 
 The analytic continuation of `I^ν f` in `ν` and the values `I^{-n} f = f⁽ⁿ⁾` (5.5-16), which
-Carlson defers to Section 6.3 and Exercise 6.3-3, are not formalized here.
+Carlson defers to Section 6.3 and Exercise 6.3-3, are in
+`Carlson.TwoVariable.FractionalContinuation`.
 
 ## References
 

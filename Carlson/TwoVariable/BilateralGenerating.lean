@@ -41,7 +41,8 @@ formula (Corollary 6.11-2).
 ## Implementation notes
 
 Carlson removes the conditions on `re a` and `re (c - a)` by analytic continuation; that
-extension is not carried out here.
+extension is `Carlson.hasSum_bilateral_generating_of_nonempty` and
+`Carlson.hasSum_meixner_continued` (`Carlson.TwoVariable.BilateralContinuation`).
 
 ## References
 

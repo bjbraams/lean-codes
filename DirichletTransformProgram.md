@@ -25,7 +25,7 @@ Two directions of continuation must be distinguished:
 
 ## Plan
 
-### Step 1. Complete the parameter theory (done, except the quantitative item 5)
+### Step 1. Complete the parameter theory (done)
 
 1. **Face formula at a zero parameter.** If `bᵢ = 0`, then `T_b[g]` is the transform, on the
    face `uᵢ = 0`, of the restriction of `g`, with the remaining parameters.
@@ -50,9 +50,13 @@ Status of step 1 (5 October 2026):
 | 4 | `IsRegDirichletContinuation.eqOn_of_eq_natCast_add_one`, `eqOn_of_regDirichletTransform_eq` | `SimplexMellin.Uniqueness` |
 | 5 | qualitative form exists: `exists_entire_joint_regDirichletContinuation_kernel` (joint holomorphy in auxiliary parameters), `Dirichlet.Transform.Series` (locally uniform limits) | `Parametric`, `Series` |
 
-The quantitative `Cᴺ` estimate of item 5 is deferred: the continuation arguments of steps 3
-and 4 use holomorphic dependence on parameters, for which the joint theorem suffices. It will
-be added if a limiting argument needs it. Uniqueness needs only the values at the positive
+The quantitative `Cᴺ` estimate of item 5 is done (`SimplexMellin.Estimate`,
+2026-10-06): on a compact set `K ⊆ {-N < Re bᵢ}`, every continuation satisfies `‖T_b[g]‖ ≤ C_K A`
+when the derivatives of `g` of order at most `(card ι - 1) N` are bounded by `A` on the simplex
+(`exists_norm_regDirichletContinuation_le`), and the entire transform satisfies the same on every
+compact set (`exists_norm_regDirichletTransform_le`). The proof bounds the explicit continuation
+formula, now a named definition `regDirichletShiftFormula` in `Dirichlet.Transform` (with
+`regDirichletShiftFormula_spec`; the shifted integrals it uses are no longer private). Uniqueness needs only the values at the positive
 integer parameters `m + 1` (the monomial moments, by `StdSimplexMeasure.MomentDetermination`).
 
 ### Step 2. Stick-breaking representation (done)
@@ -109,7 +113,8 @@ proof needs no monodromy argument: each fibre's Riemann chart gives the value, a
 in `p` comes from comparison with a chart piece of one fibre that lies in all nearby fibres.
 
 Open: fibres that are not simply connected (Carlson's multiply connected case of Theorem 8),
-where the continuation is multivalued. The tool is TauCeti's continuation along paths and
+where the continuation is multivalued. *Feasibility (assessed 2026-10-06):* not feasible with the
+present infrastructure; see the note at the end of step 4. The tool is TauCeti's continuation along paths and
 monodromy theorem (`TauCeti.Analysis.Complex.Conformal.Monodromy`, `GlobalBranch`), which is
 one-dimensional: the natural formulation fixes all but one node and continues in that node.
 For step 4 the simply connected case suffices for the planned applications: by the
@@ -153,6 +158,26 @@ Remarks and possible continuations:
   holomorphic kernels (`exists_merge_continuation`), together with a fibre condition adapted
   to the kernel; this general form is not stated.
 * Multiply connected fibres (monodromy) remain open, by decision of the maintainer.
+
+**Multiply connected case: feasibility assessment (2026-10-06).** The natural formal statement
+fixes all nodes but one and asserts, in TauCeti's sense (`TauCeti.ContinuesAlong`), that the germ
+of the average in the free node continues along every path in `D`. The simply connected method
+does not extend. It glues continuations defined on planar simply connected domains `U ⊆ D`
+containing the nodes, and the germ reached along a path corresponds to a homotopy class of
+contours from the fixed node to the moving one. A chain of planar simply connected domains can
+realize only classes containing an embedded arc, and in `ℂ ∖ {p, q}` there are classes without
+one (commutator classes). A proof therefore needs one of the following:
+
+1. Euler integrals `∫_σ (w − y)^(a−1) (x − w)^(c−1) f(w) dw` over arbitrary contours `σ` in `D`,
+   with branches continued along `σ`, singular endpoints, and invariance under homotopies that
+   move the endpoints. `ToMathlib.Analysis.Integral.EndpointDeformation` covers only convex
+   domains.
+2. Averages on immersed simply connected domains (Riemann surfaces over `D`), which the affine
+   formula `f(∑ uᵢ zᵢ)` does not see directly.
+
+Either is a project of its own, much larger than steps 3–4. The rest of the TauCeti side is in
+place (continuation along paths, concatenation, the monodromy theorem); the missing piece is the
+contour-integral theory of item 1.
 
 ### Step 5. The Mellin bridge (done)
 
@@ -260,6 +285,154 @@ Generic inputs stay in `ToMathlib.Analysis.MvMellinTransform`,
 the quantitative growth estimate, Euler–Mellin integrals, symmetric cones) goes to
 `SimplexMellin`.
 
+### Step 6. Paley–Wiener description of the image (done)
+
+For `g` continuous on `Δ` and vanishing at the points with a coordinate below `δ > 0` (in
+logarithmic coordinates `y = log u`, support in the box `log δ ≤ yᵢ ≤ 0`), consider the simplex
+Mellin transform `S_g(b) = ∫_Δ u^(b−1) g(u) du = ∏ Γ(bᵢ) T_b[g]`.
+
+**Necessity, done** (`SimplexMellin.PaleyWiener`):
+
+| Property of `S_g` | Lean |
+| --- | --- |
+| `T_b[g]` (the native integral) is entire; `S_g = ∏ Γ(bᵢ) · T_b[g]` | `analyticOnNhd_regDirichletIntegral_of_vanish`, via the Pochhammer shift identity `regDirichletIntegral_eq_ascPochhammer_mul` |
+| Sum-shift equation `S_g(b) = ∑ᵢ S_g(b + eᵢ)` | `IsRegDirichletContinuation.sum_shift` (regularized form, existing) |
+| Exponential type: `|S_g(b)| ≤ ‖g‖₁ ∏ max(1, δ^(Re bᵢ − 1))` | `norm_integral_monomial_mul_le_of_vanish` |
+| Schwartz on vertical planes after a radial factor `ℳ[φ](∑ b)`, `φ ∈ C_c^∞(0, ∞)` (smooth `g`) | `exists_schwartzMap_simplexMellinRadial` |
+
+`S_g` alone does not decay rapidly in all imaginary directions: where all `Im bᵢ` have the same
+sign the phase `⟨Im b, log u⟩` has a non-degenerate stationary point on `Δ`, giving decay
+`|Im b|^(−(k−1)/2)` only. So the image is not a classical Paley–Wiener space in `b`; the radial
+factor is part of the description.
+
+**Paley–Wiener on hyperplanes, done** (`SimplexMellin.LogRatio`, `SimplexMellin.Hyperplane`).
+The image is described cleanly on the hyperplanes `∑ bᵢ = s`. In log-ratio coordinates
+`w j = log (u j / u i₀)` (Jacobian `∏ uᵢ`, `Z(w) = 1 + ∑ e^(w j)`),
+
+`S_g(b) = ∫ e^(⟨b', w⟩) Z(w)^(−s) g(u(w)) dw`,   `b' = (b j)_(j ≠ i₀)`,
+
+a Fourier–Laplace transform in `k − 1` variables of the compactly supported function
+`Z^(−s) g(u(w))`. Hence (`exists_kernel_of_paleyWiener`): every entire `P(b')` such that
+`ζ ↦ P(−2πiζ)` has Paley–Wiener bounds for a box `|w j| ≤ ρ j` is `S_g` on the hyperplane, for the
+kernel `g = Z^s ψ(w(u))`, `ψ` the Paley–Wiener inverse, which is continuous on `Δ`, smooth near
+`Δ` (it is scale-invariant and vanishes near the boundary), and vanishes where some
+`uᵢ < (1 + ∑ e^(ρ j))⁻¹ e^(−∑ ρ j)`. Conversely, for smooth `g` vanishing where some `uᵢ < δ` the
+function `Z^(−s) g(u(w))` is smooth and supported in the box `|w j| ≤ |log δ|`, so the
+restriction has Paley–Wiener bounds; and by Fourier inversion the restriction to one hyperplane
+determines a continuous kernel vanishing near the faces.
+
+| Ingredient | Lean |
+| --- | --- |
+| Classical Paley–Wiener on `ℝⁿ` | `paleyWiener` (`ToMathlib.Analysis.Fourier.PaleyWiener`) |
+| Change of variables to log-ratio coordinates | `integral_stdSimplex_eq_integral_logRatio` (via the bridge at `b = 𝟙`, a shear of exponential coordinates, and `∫ e^(kτ) e^(−Z e^τ) dτ = Z^(−k) Γ(k)`) |
+| Hyperplane formula | `integral_monomial_mul_eq_integral_logRatio` |
+| Laplace transforms of compactly supported functions are entire | `analyticOnNhd_integral_cexp_mul` |
+| Identification at complex points | uniqueness from real points (`AnalyticOnNhd.eq_of_eqOn_posReal_pi`) |
+| Sufficiency | `exists_kernel_of_paleyWiener` |
+| Smoothness of the constructed kernel | `smoothNearStdSimplex_logRatioKernel` |
+| Classical necessity on `ℝⁿ` (integration by parts) | `norm_fourierLaplace_le_of_contDiff` |
+| Necessity on hyperplanes | `integral_hyperplane_eq_fourierLaplace`, `norm_integral_hyperplane_le` |
+| Injectivity on one hyperplane | `eqOn_of_integral_hyperplane_eq` (via `eq_zero_of_fourierLaplace_eq_zero`) |
+
+**Global description, done** (`SimplexMellin.Image`). The hyperplane results extend to all of `ℂ^ι` without a
+radial factorization, using Carlson's theorem (step 7). Let `S` be entire with
+(a) the sum-shift equation `S(b) = ∑ᵢ S(b + eᵢ)`,
+(b) the bound `|S(b)| ≤ C ∏ max(1, δ^(Re bᵢ − 1))`, and
+(c) Paley–Wiener bounds on one hyperplane `∑ b = s₀`.
+Sufficiency on that hyperplane gives a kernel `g` with `S = S_g` there. The difference
+`D = S − S_g` satisfies (a) and (b), so it vanishes on every hyperplane `∑ b = s₀ − n`, `n ∈ ℕ`.
+On a line `z ↦ D(b − z 𝟙/k)` it is of exponential type in `Re z ≥ 0`, bounded on vertical lines
+and zero at the integers; Carlson's theorem makes it vanish, hence `D = 0` on
+`Re ∑ b ≤ Re s₀` and everywhere by the identity theorem. Necessity of (a)–(c) is proved above,
+so (a)–(c) characterize the transforms `S_g` of smooth kernels vanishing near the faces.
+
+| Statement | Lean |
+| --- | --- |
+| `S_g(b) = ∫_Δ u^(b−1) g` (native) | `simplexMoment` |
+| `S_g` is entire (shift by `m`, `S_g(b) = ∏ Γ(bᵢ + m) T_(b+m)[g / (∏ u)^m]`) | `differentiable_simplexMoment`, `simplexMoment_eq_prod_Gamma_mul` |
+| Sum-shift equation | `simplexMoment_eq_sum` |
+| Global sufficiency | `exists_kernel_of_sum_shift` |
+| Global necessity | `simplexMoment_necessity` |
+| **Characterization** | `exists_kernel_iff` |
+
+The hyperplane necessity theorem `norm_integral_hyperplane_le` now assumes only smoothness near
+the simplex (`SmoothNearStdSimplex`), the class produced by the sufficiency construction.
+
+The example `D(b) = sin(2π(∑ b − s₀)) S_{g₀}(b)` satisfies (a) and vanishes on the hyperplane
+`∑ b = s₀`; it is excluded by (b) only, through its growth in `Im ∑ b`. So the bound on vertical
+lines in (b) is essential, and no description by one hyperplane plus the sum-shift equation alone
+is possible.
+
+### Step 7. Carlson's theorem (F. Carlson, 1914; done)
+
+**Statement.** Let `f` be holomorphic on `Re z ≥ 0` with `|f(z)| ≤ C e^(τ|z|)` there and
+`|f(iy)| ≤ C e^(c|y|)` with `c < π`. If `f(n) = 0` for all `n ∈ ℕ`, then `f = 0`. The constant `π`
+is sharp (`sin πz`).
+
+**Proof plan (Phragmén–Lindelöf only).** Put `g = f / sin(πz)`, with the removable singularities
+at `ℕ` filled in (`dslope`). Off the `1/4`-discs around the integers `|sin πz|` is bounded below,
+and on the discs the maximum modulus principle applies, so `g` is of exponential type in the
+half-plane; on the imaginary axis `|g(iy)| ≤ C' e^((c − π)|y|)`. Multiply by
+`e^(−α(z+1) log(z+1))` with `0 < α ≤ 2(π − c)/π`: on the imaginary axis the factor grows at most like
+`e^(απ|y|/2)`, so the product stays bounded, and on the positive real axis it decays
+superexponentially. Mathlib's `PhragmenLindelof.eq_zero_on_right_half_plane_of_superexponential_decay`
+then gives `g = 0`, hence `f = 0`.
+
+**Uses.**
+
+1. The global description of the image in step 6 (the main application).
+2. Moments determine `S_g` on `Re b ≥ 1`: there `|S_g(b)| ≤ ‖g‖₁` for every integrable `g`, so
+   Carlson's theorem in each variable shows that `S_g` is determined by its values at `b = n + 𝟙`,
+   `n ∈ ℕ^ι`, the monomial moments. This is an analytic alternative to the moment determination
+   of step 1.4. It applies to `S_g`, not to `T_b[g] = S_g / ∏ Γ(bᵢ)`, which is not of exponential
+   type.
+3. Canonical continuation of lattice data: a sequence `a_n` admits at most one continuation of
+   exponential type with imaginary type below `π`. Existence is a separate question (Hausdorff
+   moment conditions, Newton–Nörlund interpolation series).
+4. A several-variable Ramanujan master theorem with simplex structure, through the Mellin bridge
+   `ℳ[φ](∑ b) ∏ Γ(bᵢ) T_b[g]` of step 5. Exploratory.
+
+**Placement.** `ToMathlib.Analysis.Complex.Carlson` (generic complex analysis, absent from Mathlib
+and TauCeti); the applications go to `SimplexMellin`.
+
+**Status.** The theorem is proved as planned (`Complex.eqOn_zero_of_natCast_eq_zero`), for `f`
+differentiable at every point of the closed half-plane, and in several variables by induction on
+the coordinates (`Complex.eqOn_zero_of_natCast_eq_zero_pi`).
+
+* Use 1: done (`SimplexMellin.Image`).
+* Use 2: done (`SimplexMellin.Lattice`, `simplexMoment_eqOn_of_moments_eq`): kernels continuous
+  on the simplex with the same monomial moments have the same transform on `Re b > 0`, by
+  Carlson's theorem on `Re b ≥ 1`, where `‖S_g‖ ≤ ‖g‖₁` (`norm_simplexMoment_le`), and the identity
+  theorem.
+* Use 3: done. Uniqueness: `Complex.eqOn_of_natCast_eq_pi`. Existence goes through the moment
+  problem on the simplex (`StdSimplexMeasure.MomentProblem`, `exists_measure_iff`): a sequence on
+  `ℕ^ι` is the moment sequence of a finite measure on the simplex iff it is nonnegative and
+  satisfies the sum-shift equation. For two coordinates this is Hausdorff's moment problem. The
+  proof expands `(∑ xᵢ)^K` in the monoid algebra of `ℕ^ι`, uses the falling-factorial identity
+  for the discrete measures `∑_{|k|=N} multinomial(k) a(k) δ_{k/N}`, Stone–Weierstrass, and the
+  Riesz–Markov–Kakutani theorem. The continuation of the shifted data `n ↦ a(n + 𝟙)` is
+  `b ↦ ∫ u^(b+𝟙) dμ`, holomorphic on `Re b > −1` and bounded by `a(0)` on `Re b ≥ 0`
+  (`SimplexMellin.Lattice`: `exists_continuation_of_satisfiesSumShift`,
+  `eqOn_of_natCast_eq_of_bounded`). The shift is necessary: the point mass at a vertex gives
+  data `1, 0, 0, …` in another coordinate, which have no continuation of Carlson's class.
+* Use 4: done.
+  * **One-variable master theorem, Hardy's form** (`ToMathlib.Analysis.SpecialFunctions.RamanujanMaster`,
+    `Complex.ramanujan_master_theorem`). For `φ` holomorphic on `Re z > −δ` with
+    `|φ(z)| ≤ C e^(P Re z + A|Im z|)`, `A < π`, the Mellin–Barnes integral `F` equals
+    `∑ φ(k)(−x)^k` for `0 < x < e^(−P)`, and `∫₀^∞ x^(s−1) F(x) dx = π φ(−s)/sin πs` for
+    `0 < Re s < δ`.
+  * **The contour tools** (`ToMathlib.Analysis.MellinBarnes`), built instead of a residue theorem
+    for rectangles:
+    * Cauchy's theorem on vertical strips.
+    * Crossing a simple pole changes a line integral by `2π·Res`. The proof subtracts a
+      comparison function with explicitly computable line integrals.
+    * `mellin_mellinInv_eq`, the reverse of Mathlib's Mellin inversion.
+  * **Several-variable form with simplex structure** (`SimplexMellin.Master`). Through the
+    bridge, `∫_{ℝ₊^ι} x^(b−1) F(∑x) g(x/∑x) dx = π/sin(π∑b) · φ(−∑b) · ∏Γ(bᵢ) · T_b[g]`, and
+    `F(∑x) g(x/∑x) = ∑ φ(k)(−∑x)^k g(x/∑x)` near the origin.
+  * **Open:** a master theorem for genuinely multivariable series `∑ c(n) ∏(−xᵢ)^{nᵢ}/nᵢ!`
+    (the method of brackets) is not attempted.
+
 ## Status log
 
 * 2026-10-05: programme set up; step 1 started.
@@ -282,3 +455,21 @@ the quantitative growth estimate, Euler–Mellin integrals, symmetric cones) goe
 * 2026-10-05: step 5 complete: continued form (item 4), Plancherel (item 6), and the
   exponential-profile integrability via Schwartz bounds.
 * 2026-10-05: the transform theory moved to the new top-level library `SimplexMellin/`.
+* 2026-10-05: step 6 (Paley–Wiener) started; necessity proved (`SimplexMellin.PaleyWiener`);
+  sufficiency needs a classical Paley–Wiener theorem on `ℝⁿ` and a radial factorization.
+* 2026-10-05: classical Paley–Wiener on `ℝⁿ` proved (`ToMathlib.Analysis.Fourier.PaleyWiener`).
+* 2026-10-06: sufficiency on hyperplanes `∑ b = s` proved (`SimplexMellin.LogRatio`,
+  `SimplexMellin.Hyperplane`).
+* 2026-10-06: hyperplane Paley–Wiener completed: necessity bounds, injectivity on one
+  hyperplane, and smoothness of the constructed kernel.
+* 2026-10-06: step 7 (Carlson's theorem) added and proved
+  (`ToMathlib.Analysis.Complex.Carlson`); with it the global Paley–Wiener description of the
+  image (`SimplexMellin.Image`, `exists_kernel_iff`). Step 6 complete.
+* 2026-10-06: step 1 item 5 (quantitative estimate) done (`SimplexMellin.Estimate`); step 7
+  uses 2 and 3 (uniqueness) done (`SimplexMellin.Lattice`, several-variable Carlson). Feasibility
+  of the remaining open items assessed: multiply connected case (step 3), existence for lattice
+  data, master theorem (step 7).
+* 2026-10-06: moment problem on the simplex solved (`StdSimplexMeasure.MomentProblem`); step 7
+  use 3 complete (existence and uniqueness of continuations of lattice data).
+* 2026-10-06: step 7 use 4: Ramanujan's master theorem (Hardy's form) with Mellin–Barnes contour
+  tools in `ToMathlib`, and its simplex form (`SimplexMellin.Master`). Step 7 complete.

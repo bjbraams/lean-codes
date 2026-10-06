@@ -18,12 +18,23 @@ public import Carlson.TwoVariable.QuadraticContinuation
 public import Carlson.TwoVariable.QuadraticSlit
 public import Carlson.TwoVariable.QuadraticHybrid
 public import Carlson.TwoVariable.BilateralGenerating
+public import Carlson.TwoVariable.BilateralContinuation
 public import Carlson.TwoVariable.SEqualParameter
 public import Carlson.TwoVariable.FractionalIntegral
+public import Carlson.TwoVariable.FractionalContinuation
+public import Carlson.TwoVariable.RPolynomial.Hypergeometric
+public import Carlson.TwoVariable.RPolynomial.EqualParameter
+public import Carlson.TwoVariable.RPolynomial.SpecialValues
+public import Carlson.TwoVariable.RPolynomial.QuadraticGenerating
+public import Carlson.TwoVariable.RPolynomial.BetaIntegral
+public import Carlson.TwoVariable.SHypergeometric
+public import Carlson.TwoVariable.QuadraticGauss
+public import Carlson.TwoVariable.R.ElementaryValues
 public import Carlson.TwoVariable.LQuadratic
 public import Carlson.TwoVariable.EqualParameterSlit
 public import Carlson.TwoVariable.ConfluentHypergeometric
 public import Carlson.TwoVariable.Borchardt
+public import Carlson.TwoVariable.RCAsymptotic
 public import Carlson.TwoVariable.GaussHypergeometric
 public import Carlson.TwoVariable.Reduction
 public import Carlson.TwoVariable.R.Elementary
@@ -45,7 +56,14 @@ Bessel functions.
   (6.10-28).
 * `Carlson.TwoVariable.regCarlsonR_pair_one_one_log`: `(x - y) R_{-1}(1, 1; x, y) = log x - log y`
   (Exercise 5.9-13).
+* `Carlson.TwoVariable.exists_fractionalIntegral_continuation`,
+  `Carlson.TwoVariable.exists_real_fractionalIntegral_continuation`: the fractional integral
+  continued in its order, with `I^{-n} f = f⁽ⁿ⁾` (5.5-16).
 * `Carlson.hasSum_gaussCoeff`, `Carlson.ordinaryHypergeometric_one`: Gauss's theorem (8.3-4).
+* `Carlson.TwoVariable.eventually_hasSum_quadratic_generating`: the expansion of
+  `(at² + 2bt + c)^(-ν)` (Exercises 6.6-4 and 6.10-6).
+* `Carlson.TwoVariable.isBigO_carlsonRC_sub_diagonal`,
+  `Carlson.TwoVariable.tendsto_carlsonRC_sub_log`: asymptotics of `R_C` (Exercise 6.9-18).
 
 ## References
 

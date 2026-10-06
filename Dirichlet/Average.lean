@@ -17,6 +17,7 @@ public import Dirichlet.Average.CauchyContinuation
 public import Dirichlet.Average.CauchyCycle
 public import Dirichlet.Average.Intertwining
 public import Dirichlet.Average.NewtonTaylor
+public import Dirichlet.Average.RealNodes
 public import Dirichlet.Average.Continuation
 public import Dirichlet.Average.JointContinuation
 public import Dirichlet.Average.HolomorphicDomain
@@ -59,6 +60,8 @@ This module re-exports the following developments:
   (formula (5.3-4)).
 * `Dirichlet.Average.NewtonTaylor`: Dirichlet-average identities for divided differences and
   repeated integrals.
+* `Dirichlet.Average.RealNodes`: averages with real nodes of finitely differentiable functions:
+  Theorem 5.3-2, (5.3-3), (5.3-4) and the Euler–Poisson system 5.4-1 in case (i).
 * `Dirichlet.Average.Continuation`: Analytic continuation of Carlson's Dirichlet averages.
 * `Dirichlet.Average.JointContinuation`: Joint continuation of general Carlson averages.
 * `Dirichlet.Average.HolomorphicDomain`: Dirichlet continuation on holomorphy domains.

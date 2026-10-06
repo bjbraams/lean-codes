@@ -71,9 +71,10 @@ Mathlib's confluent hypergeometric and Bessel functions (5.8-6, Kummer's second 
 selected Bessel identities in §6.9), the quadratic transformations with their hybrid, the arithmetic–geometric
 mean and Borchardt's algorithm with Carlson's acceleration (Section 6.10), the associated
 Legendre functions of negative order (6.10-18, 6.10-19), the finer equal-parameter
-normalization on the full slit domain, and product formulas of Section 6.11 (6.11-1 and
-6.11-2 currently in the Euler strip). See
-`CarlsonChapters5And6Coverage.md` for a section-by-section account.
+normalization on the full slit domain, and product formulas of Section 6.11 (all
+parameters, complex angles). See
+`CarlsonChapters5And6Coverage.md` for a section-by-section account
+(`CarlsonChapter6Exercises.md` for the Chapter 6 exercises).
 
 `Carlson.Jacobi` develops the monic Jacobi polynomials and their adjoint functions of
 the second kind at complex endpoints. Biorthogonality and coefficient extraction hold

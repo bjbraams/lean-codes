@@ -6,6 +6,7 @@ Authors: Bastiaan J Braams
 module
 
 public import Carlson.Elliptic.Addition
+public import Carlson.Elliptic.CompleteK
 public import Carlson.Elliptic.Asymptotic
 public import Carlson.Elliptic.Inversion
 public import Carlson.Elliptic.Landen

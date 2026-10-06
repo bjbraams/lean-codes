@@ -17,6 +17,14 @@ public import Carlson.RPolynomial.Growth
 public import Carlson.RPolynomial.PowerSeries
 public import Carlson.RPolynomial.TaylorContinuation
 public import Carlson.RPolynomial.Differential
+public import Carlson.RPolynomial.Appell
+public import Carlson.RPolynomial.NumeratorBinomial
+public import Carlson.RPolynomial.GeneratingIdentities
+public import Carlson.RPolynomial.RootsOfUnity
+public import Carlson.RPolynomial.SmallParameters
+public import Carlson.RPolynomial.EqualParameterBounds
+public import Carlson.RPolynomial.PolygonSpecial
+public import Carlson.RPolynomial.NearDiagonal
 
 /-!
 # Carlson's R-polynomials
@@ -38,6 +46,12 @@ This module re-exports the following developments:
 * `Carlson.RPolynomial.PowerSeries`: Power-series representations using Carlson R-polynomials.
 * `Carlson.RPolynomial.TaylorContinuation`: Carlson's continued Taylor representation.
 * `Carlson.RPolynomial.Differential`: Differentiation of Carlson's Pochhammer numerators.
+* `Carlson.RPolynomial.NumeratorBinomial`: the binomial theorem for Pochhammer numerators.
+* `Carlson.RPolynomial.GeneratingIdentities`: Chapter 6 exercises from the generating relation.
+* `Carlson.RPolynomial.RootsOfUnity`: roots of unity as nodes and regular polygons.
+* `Carlson.RPolynomial.SmallParameters`: small parameters (Exercises 6.2-6, 6.2-8, 6.3-4).
+* `Carlson.RPolynomial.Appell`: R-polynomials as sequences satisfying a binomial theorem
+  (Theorem 6.4-1, (6.4-4)).
 
 ## References
 

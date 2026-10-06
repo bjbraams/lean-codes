@@ -25,7 +25,9 @@ because `(1 - s)^{-b_j}` is not analytic at `s = 1` unless `b_j` is a nonpositiv
 As printed, Carlson's theorem only requires `zᵢ ≠ 0` and no parameter conditions beyond `c`;
 the lower bound then fails when nodes coincide, because the parameters at a repeated node can
 cancel. `carlsonRPolynomial_coincident_counterexample` gives an explicit instance; here the
-lower bound is proved for pairwise distinct nodes, with no `bᵢ` a nonpositive integer.
+lower bound is proved for pairwise distinct nodes, the parameter at the maximal node not a
+nonpositive integer. The form for arbitrary nodes, after aggregating equal nodes, is
+`Carlson.frequently_le_norm_carlsonRPolynomial_aggregate` (`Carlson.Aggregation`).
 
 ## Main results
 
@@ -325,14 +327,14 @@ theorem re_one_sub_pos_of_norm_le_one {w : ℂ} (hw : ‖w‖ ≤ 1) (hw1 : w �
     nlinarith [sq_nonneg w.im]
   exact hw1 (Complex.ext hre1 him)
 
-/-- **Theorem 6.6-2, lower half**, with the hypothesis corrected to pairwise distinct nodes: if no
-parameter `bᵢ` and not `c = ∑ bᵢ` is a nonpositive integer and the nodes are distinct, then for
-a node `z_j` of maximal modulus `r` and every `0 < ε < r`, `‖Rₙ(b, z)‖ ≥ (r - ε)ⁿ` for infinitely
-many `n`. -/
+/-- **Theorem 6.6-2, lower half**, with the hypothesis corrected to pairwise distinct nodes: if
+`c = ∑ bᵢ` is not a nonpositive integer and the nodes are distinct, then for a node `z_j` of
+maximal modulus `r` whose parameter `b_j` is not a nonpositive integer and every `0 < ε < r`,
+`‖Rₙ(b, z)‖ ≥ (r - ε)ⁿ` for infinitely many `n`. Only the parameter at `z_j` matters. -/
 theorem frequently_le_norm_carlsonRPolynomial {ι : Type*} [Fintype ι] [DecidableEq ι]
-    (b z : ι → ℂ) (hb : ∀ i, ∀ m : ℕ, b i ≠ -m) (hc : ∀ m : ℕ, ∑ i, b i ≠ -m)
-    (hz : Function.Injective z) {j : ι} (hj : ∀ i, ‖z i‖ ≤ ‖z j‖) {ε : ℝ} (hε0 : 0 < ε)
-    (hε : ε < ‖z j‖) :
+    (b z : ι → ℂ) (hc : ∀ m : ℕ, ∑ i, b i ≠ -m)
+    (hz : Function.Injective z) {j : ι} (hj : ∀ i, ‖z i‖ ≤ ‖z j‖)
+    (hb : ∀ m : ℕ, b j ≠ -m) {ε : ℝ} (hε0 : 0 < ε) (hε : ε < ‖z j‖) :
     ∃ᶠ n in atTop, (‖z j‖ - ε) ^ n ≤ ‖carlsonRPolynomialNumerator n b z /
       (ascPochhammer ℂ n).eval (∑ i, b i)‖ := by
   set r := ‖z j‖
@@ -468,7 +470,7 @@ theorem frequently_le_norm_carlsonRPolynomial {ι : Type*} [Fintype ι] [Decidab
         inv_mul_cancel₀ ((cpow_ne_zero_iff).mpr (Or.inl hne0))]
     rw [Finset.prod_congr rfl hone, Finset.prod_const_one, mul_one,
       show s / z j * z j = s by field_simp, one_div, ← cpow_neg]
-  exact not_exists_analyticAt_eq_one_sub_cpow (hb j) hh heq
+  exact not_exists_analyticAt_eq_one_sub_cpow hb hh heq
 
 /-- Coefficients of a power series are determined by its sums on a disk. -/
 theorem coeff_eq_of_hasSum_pow {a b : ℕ → ℂ} {δ : ℝ} (hδ : 0 < δ) {F : ℂ → ℂ}
