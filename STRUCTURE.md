@@ -790,6 +790,9 @@ equal-parameter normalization `regEqualR` without proof arguments, jointly holom
 slit-plane nodes, identifies it with the native integral, and extends the finer R and L quadratic
 identities to the same domain. The former proof-dependent half-plane construction
 (`TwoVariable.EqualParameter`) has been retired.
+`QuadraticOpposite` extends the first transformation to nodes in opposite half-planes
+(`im x > 0 > im y`, `re (x + y) > 0`) and, by letting `y → -x` with homogeneity and the
+small-variable limit, proves Exercise 8.3-9 for every non-real `x`.
 
 `Carlson.S` re-exports `S.Basic`, `S.Series`, `S.Analytic`, `S.Continuation`,
 `S.Deriv`, and `S.Properties`: native definitions, series continuation, joint

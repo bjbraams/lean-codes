@@ -152,7 +152,7 @@ Notation: `pₙ = jacobiOn α β r s n` (monic, foci `r, s`), `qₙ = jacobiSeco
 | 8.3-6 | Not located | needs 8.2-3 |
 | 8.3-7 | Partial: arc length and perimeter; not the double periodicity of the lemniscatic sine | `integral_lemniscate_eq_carlsonRF`, `four_mul_integral_lemniscate` |
 | 8.3-8 | Proved | `integral_rpow_sub_abs_rpow`, `hasDerivAt_integral_rpow_sub_abs_rpow`, `integral_rpow_sub_rpow_quarter_period` |
-| 8.3-9 | Partial: the polynomial case `2t ∈ ℕ` (Theorem 6.9-1) | — |
+| 8.3-9 | All complex `t`, non-real `x`; regularized for all `β`, ordinary for `β` not a nonpositive integer | `regCarlsonR_pair_neg`, `carlsonR_pair_neg` (`Carlson.TwoVariable.QuadraticOpposite`), via the first quadratic transformation for nodes in opposite half-planes (`regR_firstQuadratic_of_im`) and Theorem 8.3-2 |
 | 8.3-10 – 8.3-12 | Proved | `summable_threeFTwo`, `continuousOn_threeFTwo`, `betaIntegral_mul_threeFTwo`, `betaIntegral_mul_threeFTwo_one`, `Gamma_div_mul_threeFTwo_one` |
 | 8.4-1 | Proved | `carlsonAssociatedRecurrenceCoeff_const` |
 | 8.4-2 | Not located | — |

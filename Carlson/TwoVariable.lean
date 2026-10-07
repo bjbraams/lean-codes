@@ -16,6 +16,7 @@ public import Carlson.TwoVariable.T
 public import Carlson.TwoVariable.Quadratic
 public import Carlson.TwoVariable.QuadraticContinuation
 public import Carlson.TwoVariable.QuadraticSlit
+public import Carlson.TwoVariable.QuadraticOpposite
 public import Carlson.TwoVariable.QuadraticHybrid
 public import Carlson.TwoVariable.BilateralGenerating
 public import Carlson.TwoVariable.BilateralContinuation
@@ -77,4 +78,7 @@ Bessel functions.
 
 * [Carl77] B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977.
 * [Carl87] B. C. Carlson, *Dirichlet averages of `x^t log x`*, SIAM J. Math. Anal. 18 (1987).
+* `Carlson.TwoVariable.regR_firstQuadratic_of_im`, `Carlson.TwoVariable.carlsonR_pair_neg`: the
+  first quadratic transformation for nodes in opposite half-planes, and Exercise 8.3-9,
+  `R_{2t}(β, β; x, -x)` as an elementary multiple of `(-x²)^t`.
 -/

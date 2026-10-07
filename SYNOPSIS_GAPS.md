@@ -127,7 +127,7 @@ of §3.11 as a general theory. Many Chapter 3 exercises are open.
 * **Branches in §8.1.** Integrals with arbitrary continuously tracked phases beyond
   principal-compatible paths and rays.
 * Exercises 8.1-4, 8.2-1 to 8.2-3, 8.3-6, 8.4-2; partial: 8.3-7 (double periodicity of the
-  lemniscatic sine), 8.3-9; 8.5-1 and 8.5-2 are proved for positive real nodes only.
+  lemniscatic sine); 8.5-1 and 8.5-2 are proved for positive real nodes only.
 
 ### Chapter 9
 

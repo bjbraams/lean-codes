@@ -222,7 +222,12 @@ For $I = \{0, 1\}$, nodes $(x, y)$ and parameters $(u, v)$ or $(\beta, \beta)$:
   in division-free form; the hybrid 6.10-4; and the equal-parameter normalization by
   $\Gamma(\beta + \tfrac12)$ (Remark to 6.8-4), jointly holomorphic on slit-plane nodes, for which both
   transformations and the differentiated $L$-identities (6.4), (6.5), (6.8) of [Carl87] hold
-  including $\beta = 0, -1, \dots$. Also the ${}_2F_1$ quadratic transformation (Exercise 6.10-1).
+  including $\beta = 0, -1, \dots$. The first transformation also holds for nodes in opposite
+  half-planes ($\operatorname{Im} x > 0 > \operatorname{Im} y$, $\operatorname{Re}(x + y) > 0$),
+  and letting $y \to -x$ gives Exercise 8.3-9: for non-real $x$,
+  $R_{2t}(\beta, \beta; x, -x) = \pi^{1/2}\Gamma(\beta + \tfrac12)(-x^2)^t/
+  (\Gamma(\tfrac12 - t)\Gamma(\beta + \tfrac12 + t))$. Also the ${}_2F_1$ quadratic
+  transformation (Exercise 6.10-1).
 * **Means and algorithms.** $R_K(x^2, y^2) = 1/M(x, y)$ for the arithmetic–geometric mean
   (Gauss), $R_K$ and $R_C$ invariance under the AGM and Borchardt steps, Borchardt's algorithm and
   its accelerations (6.10-27)–(6.10-30), and the expansion of $R_C$ near the diagonal and as one
