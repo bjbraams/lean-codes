@@ -406,10 +406,11 @@ theorem carlsonRF_sub_one_sub_one_self {z : ℝ} (hz : 1 < z) :
   rw [hratio, Real.log_pow]
   push_cast; ring
 
-/-- **Carlson's (8.2-18)**, first form: for real `k² < 1` and `0 < y < 1`, the incomplete elliptic
-integral of the first kind is
+/-- **Carlson's (8.2-18)**, first form: for real `k² y² < 1` and `0 < y < 1`, the incomplete
+elliptic integral of the first kind is
 `∫₀^y ((1 - t²)(1 - k² t²))^{-1/2} dt = y R_F(1 - y², 1 - k² y², 1)`. -/
-theorem integral_Ioo_rsqrt_sn_incomplete {k y : ℝ} (hk : k ^ 2 < 1) (hy0 : 0 < y) (hy1 : y < 1) :
+theorem integral_Ioo_rsqrt_sn_incomplete_of_mul_lt {k y : ℝ} (hk : k ^ 2 * y ^ 2 < 1) (hy0 : 0 < y)
+    (hy1 : y < 1) :
     ((∫ t in Ioo (0 : ℝ) y, ((1 - t ^ 2) * (1 - k ^ 2 * t ^ 2)) ^ (-1 / 2 : ℝ) : ℝ) : ℂ) =
       y * carlsonRF ((1 - y ^ 2 : ℝ) : ℂ) ((1 - k ^ 2 * y ^ 2 : ℝ) : ℂ) 1 := by
   set g : ℝ → ℝ := fun t => ((1 - t ^ 2) * (1 - k ^ 2 * t ^ 2)) ^ (-1 / 2 : ℝ)
@@ -442,9 +443,7 @@ theorem integral_Ioo_rsqrt_sn_incomplete {k y : ℝ} (hk : k ^ 2 < 1) (hy0 : 0 <
     · show ((1 - y ^ 2 : ℝ) : ℂ) ∈ slitPlane
       exact ofReal_mem_slitPlane.mpr (by nlinarith)
     · show ((1 - k ^ 2 * y ^ 2 : ℝ) : ℂ) ∈ slitPlane
-      have hky := mul_nonneg (sq_nonneg k) (sq_nonneg y)
-      have hy2 : y ^ 2 < 1 := by nlinarith
-      exact ofReal_mem_slitPlane.mpr (by nlinarith)
+      exact ofReal_mem_slitPlane.mpr (by linarith)
     · simp [N]
   have h := carlsonRUnitIntervalIntegral_eq_Gamma_mul_regCarlsonR (a := 1 / 2) (a' := 1)
     (b := fun _ : Fin 3 => (1 / 2 : ℂ)) (by norm_num) (by norm_num) (by simp; norm_num) hz
@@ -457,7 +456,7 @@ theorem integral_Ioo_rsqrt_sn_incomplete {k y : ℝ} (hk : k ^ 2 < 1) (hy0 : 0 <
     have hsq : Real.sqrt s ^ 2 = s := Real.sq_sqrt hs.1.le
     have h1 : 0 < 1 - y ^ 2 * s := by nlinarith [hs.1, hs.2]
     have h2 : 0 < 1 - k ^ 2 * y ^ 2 * s := by
-      nlinarith [hs.1, hs.2, sq_nonneg k, sq_nonneg y, mul_nonneg (sq_nonneg k) (sq_nonneg y)]
+      nlinarith [mul_le_mul_of_nonneg_left hs.2.le (mul_nonneg (sq_nonneg k) (sq_nonneg y))]
     have hg : g (φ s) =
         (1 - y ^ 2 * s) ^ (-1 / 2 : ℝ) * (1 - k ^ 2 * y ^ 2 * s) ^ (-1 / 2 : ℝ) := by
       simp only [g, φ]
@@ -482,6 +481,15 @@ theorem integral_Ioo_rsqrt_sn_incomplete {k y : ℝ} (hk : k ^ 2 < 1) (hy0 : 0 <
     Gamma_one, show (3 / 2 : ℂ) = 1 / 2 + 1 by norm_num, Gamma_add_one _ (by norm_num)]
   simp only [N]
   ring_nf
+
+/-- **Carlson's (8.2-18)**, first form: for real `k² < 1` and `0 < y < 1`, the incomplete elliptic
+integral of the first kind is
+`∫₀^y ((1 - t²)(1 - k² t²))^{-1/2} dt = y R_F(1 - y², 1 - k² y², 1)`. -/
+theorem integral_Ioo_rsqrt_sn_incomplete {k y : ℝ} (hk : k ^ 2 < 1) (hy0 : 0 < y) (hy1 : y < 1) :
+    ((∫ t in Ioo (0 : ℝ) y, ((1 - t ^ 2) * (1 - k ^ 2 * t ^ 2)) ^ (-1 / 2 : ℝ) : ℝ) : ℂ) =
+      y * carlsonRF ((1 - y ^ 2 : ℝ) : ℂ) ((1 - k ^ 2 * y ^ 2 : ℝ) : ℂ) 1 :=
+  integral_Ioo_rsqrt_sn_incomplete_of_mul_lt
+    (by nlinarith [mul_le_mul_of_nonneg_left (by nlinarith : y ^ 2 ≤ 1) (sq_nonneg k)]) hy0 hy1
 
 /-- **Carlson's (8.2-18)**, second form: `R_F(y⁻² - 1, y⁻² - k², y⁻²) = y R_F(1 - y², 1 - k²y², 1)`
 for `0 < y < 1` and `k² < 1`, by homogeneity. -/

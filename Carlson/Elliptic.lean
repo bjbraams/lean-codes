@@ -6,6 +6,7 @@ Authors: Bastiaan J Braams
 module
 
 public import Carlson.Elliptic.Addition
+public import Carlson.Elliptic.ArcLengthExercises
 public import Carlson.Elliptic.CompleteK
 public import Carlson.Elliptic.Asymptotic
 public import Carlson.Elliptic.Inversion
@@ -20,6 +21,16 @@ public import Carlson.Elliptic.Standard
 public import Carlson.Elliptic.VertexLimits
 public import Carlson.Elliptic.ZeroVariable
 public import Carlson.Elliptic.QuarticReduction
+public import Carlson.Elliptic.QuarticExercise
+public import Carlson.Elliptic.ChapterNineExercises
+public import Carlson.Elliptic.ReductionRelations
+public import Carlson.Elliptic.ReductionTables
+public import Carlson.Elliptic.LegendreStandard
+public import Carlson.Elliptic.LandenExercises
+public import Carlson.Elliptic.AGMSecondKind
+public import Carlson.Elliptic.Independence
+public import Carlson.Elliptic.QuarticIntegral
+public import Carlson.Elliptic.Applications
 
 /-!
 # Elliptic integrals and elliptic functions in Carlson's Chapters 8 and 9
@@ -58,8 +69,27 @@ Umbrella module for the elliptic material of Carlson's Chapters 8 and 9. It cove
   `R_{-1}(1/2, 1/2, 1/2, 1/2; A², B², C², D²) = 2 R_F(X², Y², Z²)`.
 * `Carlson.isEquivalent_carlsonRF_atTop`, `Carlson.isEquivalent_carlsonRK_zero`:
   logarithmic equivalents (9.2-10), (8.3-16) for positive real variables.
+* `Carlson.integral_lemniscate_eq_carlsonRF`, `Carlson.integral_rpow_sub_abs_rpow`: the arc
+  length of the lemniscate and the solution of `|dx/dt|^p + |x|^p = c^p` (Exercises 8.3-7,
+  8.3-8).
+* `Carlson.carlsonR_quartic_eq_carlsonRF_sub`: `R_{-1}(1/2, 1/2, 1/2, 1/2; w, x, y, z)` as a
+  difference of two `R_F` (Exercise 8.5-2).
+* `Carlson.carlsonRF_add_carlsonRF_shift`, `Carlson.carlsonR_neg_one_half_half_one_sq`: Chapter 9
+  exercises (`Carlson.Elliptic.ChapterNineExercises`).
+* `Carlson.carlsonR_table_9_3_1_row1` (and the other rows): Carlson's reduction Tables 9.3-1 to
+  9.3-4 (`Carlson.Elliptic.ReductionTables`).
+* `Carlson.legendreEc_eq`, `Carlson.carlsonRG_eq_legendre`: Legendre's integrals and the
+  symmetric standard functions, (9.2-12)–(9.2-15) and Example 9.3-1.
+* `Carlson.carlsonRE_sq_eq`, `Carlson.carlsonRG_landen`, `Carlson.carlsonRE_eq_agm_div`: Landen
+  transformations of `R_E`, `R_G` and `R_E` along the AGM (Exercises 9.5-2 to 9.5-5).
+* `Carlson.coeff_carlsonRH_eq_zero`: the `R_H` part of Theorem 9.2-1.
 
 ## References
 
 * B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977, Chapters 8 and 9.
+* `Carlson.integral_quartic_eq_carlsonRF`, `Carlson.integral_quadratic_mul_quadratic`: the
+  elliptic integral of the first kind with four real linear factors, (9.8-10)–(9.8-13), and
+  Exercises 9.8-3 and 9.8-6 (`Carlson.Elliptic.QuarticIntegral`).
+* `Carlson.integral_pendulum`, `Carlson.ellipse_perimeter`, `Carlson.integral_mutual_inductance`:
+  applications from §9.4 and Exercises 9.3-2, 9.4-1 (`Carlson.Elliptic.Applications`).
 -/

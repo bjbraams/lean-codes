@@ -68,7 +68,7 @@ that matches the underlying API.
 | Module | Content |
 | --- | --- |
 | `ToMathlib.Algebra.LinearMap.Ordered` | Half-space inclusion and nonnegative or positive proportionality of linear functionals over ordered fields |
-| `ToMathlib.Analysis.SpecialFunctions.Bessel` | The series of the regularized hypergeometric functions, bounds for Bessel functions of integer order, and the modified Bessel function `I_a` |
+| `ToMathlib.Analysis.SpecialFunctions.Bessel` | The series of the regularized hypergeometric functions, bounds for Bessel functions of integer order, the modified Bessel function `I_a`, and for the regularized `₀F₁` termwise derivatives, a contiguous relation and the reflection formula (Carlson's (6.9-23), (6.9-24), Exercise 6.9-20) |
 | `ToMathlib.Analysis.SpecialFunctions.GammaRatio` | Monotonicity of `Γ(x)/|Γ(x + iy)|` for `x > 0`, the bound `√(cosh πy)` for `x ≥ 1/2`, and `|Γ(1/2 + iy)|² = π/cosh πy` |
 | `ToMathlib.Analysis.SpecialFunctions.Gamma` | Complex-rate Gamma/Laplace kernel bounds, integrability, differentiation, holomorphy, and evaluation |
 | `ToMathlib.Analysis.SpecialFunctions.GammaBounds` | `|Γ(s)| ≤ Γ(re s)`, `Γ(x) ≤ Γ(y)` for `1 ≤ x ≤ y`, `2 ≤ y`, monotonicity of `Γ(x + r)/Γ(x)`, and `(x)ₙ ≤ (x + n)ⁿ` |
@@ -521,7 +521,8 @@ parameter continuation of the native average and commutes with affine substituti
 | `Jacobi.EllipseContour` | Confocal ellipses as `C¹` cycles (Joukowski images of circles) and their winding numbers |
 | `Jacobi.EllipticExpansion` | Lemma 7.6-1 on `μ(x) < μ(y)` and Theorem 7.6-2 on open elliptic disks, with uniform convergence on closed subdisks |
 | `Jacobi.GrowthLimits` | Lower bounds by analytic continuation and recurrence dichotomies; Theorem 7.5-1 for `pₙ`, Theorem 7.5-3, uniqueness and the maximal ellipse of convergence |
-| `Jacobi.SecondKindLimits` | The second-kind recurrence for large degrees, Theorem 7.5-1 for `qₙ`, and divergence of second-kind series inside the critical ellipse |
+| `Jacobi.SecondKindLimits` | The second-kind recurrence (for large degrees, and at every degree when `α + β + 1` is regular), the Casoratian (Exercise 7.1-11) and Christoffel's second summation formula (Exercise 7.1-7), Theorem 7.5-1 for `qₙ`, and divergence of second-kind series inside the critical ellipse |
+| `Jacobi.SecondKindJump` | The jump (7.8-5) of `qₙ` across the segment for all complex parameters, via Carlson's Theorem 8 on rotated slit planes, and Carlson's deduction of orthogonality from biorthogonality |
 | `Jacobi.GrowthMaxima` | The maxima `p̂ₙ(ρ)`, `q̂ₙ(σ)` on confocal ellipses and their root limits (Theorem 7.5-2) |
 | `Jacobi.PlaneWave` | The plane-wave expansion of Example 7.7-1 with Carlson `S`-function coefficients |
 | `Jacobi.EllipseCoefficient` | The coefficient formula (7.6-8) on confocal ellipses, as a continued Dirichlet average of `f⁽ⁿ⁾` |
@@ -681,7 +682,7 @@ Example 7.7-4, and boundary theory beyond `re α, re β > -1`. Continuation of t
 boundary formulas to all admissible parameters, endpoint regularization, and
 branches for contours crossing the segment remain open.
 The physical examples in §§7.9–7.10 and many exercises are not formalized.
-[CarlsonChapter7Coverage.md](CarlsonChapter7Coverage.md) records the section-level inventory.
+[CarlsonCoverage.md](CarlsonCoverage.md) records the section-level inventory.
 
 ### R-function analytic construction
 
@@ -832,6 +833,14 @@ index type is included, with both continuations equal to zero.
 | `Carlson.RPolynomial.Concentration` | The concentration limits of Theorem 6.2-5 |
 | `Carlson.Normalization.EqualParameter` | Equal parameters: removable Gamma singularities of `Γ(β) F/Γ(kβ)` (Theorems 6.2-6, 6.8-4, Corollary 6.3-7), by one-variable pole removal and Hartogs' theorem |
 | `Carlson.RPolynomial.Appell` | Theorem 6.4-1 restated: for fixed parameters the R-polynomials satisfy the binomial theorem, are in Carlson's class `A_k` (`ToMathlib.Analysis.AppellSequence`), and satisfy (6.4-4); also in Carlson's normalization `Nₙ/(∑b)ₙ` |
+| `Carlson.Jacobi.RPolynomialExercises` | Chapter 7 R-polynomial exercises: 7.1-1, Bateman's relation 7.1-2, 7.1-5, 7.1-9, 7.2-2, 7.8-5 |
+| `Carlson.Jacobi.ChebyshevU` | The `U`-type Chebyshev cases of Exercise 7.4-1 |
+| `Carlson.Jacobi.SeriesExercises` | Jacobi and Gegenbauer series of particular functions (Exercises 7.6-2, 7.7-14, 7.7-15) |
+| `Carlson.Jacobi.LaguerreExercises` | Standard Laguerre polynomials and Exercises 7.9-1, 7.9-2, 7.9-5, 7.9-6, 7.9-8 |
+| `Carlson.Jacobi.HermiteExercises` | Carlson's Hermite polynomials `Hₙ` and Exercises 7.10-1, 7.10-2, 7.10-4 – 7.10-6 |
+| `Carlson.Jacobi.GegenbauerRecurrence` | The three-term recurrence of Gegenbauer polynomials for all complex parameters, and the Christoffel–Darboux formula (Exercise 6.7-5) |
+| `Carlson.Jacobi.GegenbauerExercises` | Gegenbauer, Chebyshev and Legendre exercises: 6.7-1, 6.7-3, 6.7-4, 6.7-7 – 6.7-12, 6.9-9 – 6.9-11, 6.10-7 – 6.10-12 (Fibonacci part of 6.10-9), 7.1-12, 7.2-1, Unsöld's theorem 7.3-1, 7.3-2, the Rodrigues formulas 7.8-1 |
+| `Carlson.Jacobi.BesselExercises` | Bessel exercises: Sonine's formula 7.7-1, Neumann's series 7.7-2, Bessel's integral 7.7-3, Gegenbauer's addition theorem (Example 7.7-4), 7.7-5 – 7.7-7, 7.8-7, 7.1-10, the Gegenbauer–Bessel limits 6.7-13 and the `(x⁻¹ d/dx)ⁿ` formulas of 6.9-20 |
 | `Carlson.Jacobi.Appell` | Carlson (1970), Example 11: `jacobiOn (α - n) (β - n) r s n` is an Appell sequence when `α + β ∉ ℕ` |
 | `Carlson.RPolynomial.NumeratorBinomial` | Theorem 6.4-1 for Pochhammer numerators, without parameter exclusions |
 | `Carlson.RPolynomial.GeneratingIdentities` | Chapter 6 exercises from the generating relation 6.6-1: juxtaposition and addition of parameters (6.2-2, 6.6-6, 6.6-7), squared nodes (6.6-8), a raised parameter (6.6-12), Tobey's relation (6.6-13), degree two (6.2-13) |
@@ -842,6 +851,7 @@ index type is included, with both continuations equal to zero.
 | `Carlson.RPolynomial.RootsOfUnity` | Roots of unity as nodes (Exercise 6.9-13) and averages over regular polygons (6.9-14) |
 | `Carlson.RPolynomial.PolygonSpecial` | Gauss's multiplication formula for Pochhammer symbols; S- and R-functions over a regular polygon as `₀F_{k-1}` and `ₖF_{k-1}` (Exercise 6.9-14) |
 | `Carlson.RPolynomial.EqualParameterBounds` | Bounds for R-polynomials with equal parameters (Exercises 6.2-10 – 6.2-12) |
+| `Carlson.RPolynomial.DifferentialForm` | R-polynomials as diagonal derivatives of `∏ zⱼ^{-bⱼ}` (Exercise 7.8-6) |
 | `Carlson.RPolynomial.NearDiagonal` | The second-order expansion of `R_t(cw; x)` at the diagonal and Exercise 6.2-14 |
 | `Carlson.TwoVariable.RPolynomial.BetaIntegral` | Carlson's normalized form of (6.9-6) and the Beta-integral relation (Exercise 6.9-7) |
 | `Carlson.TwoVariable.SHypergeometric` | Three nodes in arithmetic progression: S as `₁F₂` (Exercise 6.9-15) and R as `₃F₂` (6.9-5) |
@@ -861,7 +871,7 @@ index type is included, with both continuations equal to zero.
 | `Carlson.TwoVariable.BilateralGenerating` | Generating Relation 6.11-1 and Meixner's formula 6.11-2 in the Euler strip |
 | `Carlson.Jacobi.GegenbauerProduct` | Formula (6.7-21), the Gegenbauer generating function, Ossicini's formula 6.11-3, and Gegenbauer's product formula 6.11-4 |
 
-The coverage against the book is recorded in `CarlsonChapters5And6Coverage.md`, and the
+The coverage against the book is recorded in `CarlsonCoverage.md`, and the
 Chapter 6 exercises in `CarlsonChapter6Exercises.md`.
 
 ### Chapter 8: averages of `xᵗ`
@@ -869,12 +879,29 @@ Chapter 6 exercises in `CarlsonChapter6Exercises.md`.
 | Module | Chapter 8 scope |
 | --- | --- |
 | `Carlson.R.IntegralEvaluation` | Formula 8.1-1 on the straight path from `x` to `y` for all complex Dirichlet parameters when each affine factor stays in the slit plane (the continuous phase is then the principal one), and Formulas 8.1-2 and 8.1-3 on rays with the principal-phase condition explicit; the earlier unit-interval and ray forms with compatible logarithms |
+| `Carlson.R.AverageExercise` | Exercise 8.1-6: the Dirichlet average of `(u·x)^{-a} (u·y)^{-a'}` is `∏ yᵢ^{-bᵢ} R_{-a}(b; x/y) = ∏ xᵢ^{-bᵢ} R_{-a'}(b; y/x)`, by Fubini over two simplices and analytic continuation in `a` |
+| `Carlson.R.IntegralExercises` | Formula 8.1-1 on a real segment with real limits, and Exercises 8.1-1, 8.1-2, 8.1-3 and 8.1-5 by the substitutions `s = t²` and `s = sin² θ` |
 | `Carlson.R.SmallVariableContinuation` | Theorem 8.3-2: the small-variable limit for all complex `a, b` with `re (a' - bₖ) > 0`, by the recurrence 8.3(5), induction, and the identity theorem in the parameters; the one-node value of `R` |
 | `Carlson.R.SmallVariableJoint` | The joint small-variable limit: `R` is continuous as `z → z₀` with `z₀ₖ = 0`, through the right half-plane, with the other nodes varying (the joint form of Theorem 8.3-2) |
 | `Carlson.TwoVariable.GaussHypergeometric` | (8.3-7) with Mathlib's regularized Gauss function, Corollary 8.3-3, and Gauss's theorem 8.3-4 (with Abel's theorem and Euler's limit formula for `Γ`) |
+| `Carlson.TwoVariable.GaussExercises` | Exercises 8.3-1 to 8.3-5: R-values at the nodes `(1/2, 1)`, `(1, 2)`, `(2, 1)`, Kummer's theorems for `₂F₁` at `-1` and `1/2`, and a series for the beta function |
+| `Carlson.TwoVariable.ThreeFTwoExercises` | Euler's transformation of `₂F₁` for real `\|x\| < 1`; the `₃F₂` series, its absolute convergence and continuity on the closed unit disk, and its representation as a Dirichlet average of `₂F₁` (Exercise 8.3-10); the transformations of `₃F₂(1)` in Exercises 8.3-11 and 8.3-12 |
 | `Carlson.TwoVariable.Reduction` | Table 8.5-1 (all seven rows) and Example 8.5-5, equation (6) |
+| `Carlson.R.AssociatedRecurrenceExercises` | Exercise 8.4-1: the coefficients of Relation 8.4-1 for equal Dirichlet parameters are multiples of `Eₙ(z)` |
 | `Carlson.R.AssociatedDependence` | Theorem 8.4-3: any `k+1` associated R-functions admit a nontrivial polynomial relation on slit-plane nodes, for each fixed exponent and parameter vector; coefficient dependence on those parameters is not asserted |
+| `Carlson.R.LogarithmExercise` | Exercise 8.5-1: `R_{-1}(1/2, 1/2, 1; x, y, z)` as a logarithm, for positive real nodes with `z ≠ x, y`, by an explicit antiderivative on the positive ray |
 | `Carlson.R.IntegerReduction` | Theorem 8.5-1: with integral exponent and parameters, `R_t(b; z)` is log-rational on the slit domain (`Q(z) R = P₀(z) + ∑ Pᵢ(z) log zᵢ`, polynomials `Q ≠ 0`, `P₀`, `Pᵢ`); deletion of a zero parameter and `R_t(β eᵢ; z) = zᵢ^t` on the slit domain; `(zᵢ - zⱼ) R_{-1}(eᵢ + eⱼ; z) = log zᵢ - log zⱼ` (8.5-2) |
+| `Carlson.Elliptic.ArcLengthExercises` | Exercises 8.3-7 (lemniscate arc length `R_F(r⁻² + 1, r⁻², r⁻² - 1)`, perimeter `2π R_K(1, 2)`) and 8.3-8 (`t = x R_{-1/p}(1/p, 1; c^p - \|x\|^p, c^p)`, its derivative, and the quarter-period `(π/p) csc(π/p)`) |
+| `Carlson.Elliptic.ChapterNineExercises` | Exercises 9.2-1, 9.2-3, 9.6-2, 9.7-1 to 9.7-5 (9.7-2 and 9.7-5 with the branch condition of Theorem 9.7-1) and 9.8-5 |
+| `Carlson.Elliptic.ReductionRelations` | The contiguous relations of §5.9 for explicit parameter vectors with two, three and four variables, zero-parameter deletion, reindexing along an equivalence, and the closed forms `R̃_{-c}` at half-integer parameters |
+| `Carlson.Elliptic.ReductionTables` | Carlson's reduction Tables 9.3-1 (all rows; the book's row `2b = (1, 3, 3)` has a sign error), 9.3-2 (all rows), the remaining rows 1 and 3 of Table 9.3-3 and rows 2, 3, 5 of Table 9.3-4, and Exercise 9.3-3; each row is a polynomial combination of contiguous relations found by exact linear algebra |
+| `Carlson.Elliptic.LegendreStandard` | (9.2-12)–(9.2-15) and Example 9.3-1 for real arguments: `E(k) = (π/2) R_E(1 - k², 1)`, `F` and `R_G` in terms of `F`, `E`, `R_K`, `R_E` in terms of `K`, `E`, and Exercise 9.3-1 (`R_H` via `Π` and `F`) |
+| `Carlson.Elliptic.LandenExercises` | Exercises 9.3-4 (`R_L(x, y, ρ) + R_L(x, y, xy/ρ) = 2 R_K`), 9.5-2 (Landen for `R_E`) and 9.5-5 (Landen for `R_G`) |
+| `Carlson.Elliptic.AGMSecondKind` | Exercises 9.5-3 and 9.5-4: `R_E` along the arithmetic-geometric mean, `R_E(x², y²) = B/M` |
+| `Carlson.Elliptic.Independence` | The `R_H` part of Theorem 9.2-1: `√ρ R_H(x, y, z, ρ)` has a nonzero limit as `ρ → ∞`, so `R_H` is independent of `(xyz)^{-1/2}`, `R_F`, `R_G` over coefficients polynomial in `ρ` |
+| `Carlson.Elliptic.QuarticIntegral` | (9.8-10)–(9.8-13) and Exercises 9.8-3, 9.8-6: real integrals of `[(a + αt)(b + βt)(c + γt)(d + δt)]^{-1/2}` with positive linear factors as `2 R_F(U², V², W²)` |
+| `Carlson.Elliptic.Applications` | §9.4 and Exercises 9.3-2, 9.4-1: pendulum, anharmonic oscillator, perimeter of an ellipse, arc of a hyperbola, potential of a charged ellipsoid, mutual inductance of coaxial circles |
+| `Carlson.Elliptic.QuarticExercise` | Exercise 8.5-2: `R_{-1}(1/2, 1/2, 1/2, 1/2; w, x, y, z) = 2 [(x - w)(y - w)(z - w)]^{-1/2} [R_F(1/(x - w), …) - w^{1/2} R_F(x/(x - w), …)]` for real `0 < w < x, y, z` |
 | `Carlson.Elliptic.RF` | `R_F` (8.2-6), its symmetry, the integral (8.2-5), `R_F(x, y, y) = R_C(x, y)` (8.2-13), and `R_F(x, y, 0) = (π/2) R_K(x, y)` (8.3-17) |
 | `Carlson.Elliptic.SchwarzChristoffel` | The Schwarz–Christoffel differential equation (8.2-1) and integral (8.2-2), (8.2-3), the phase of the boundary derivative, the half-periods (8.2-8)–(8.2-10), (8.2-20) and (8.2-21) as real integrals, the elementary cases (8.2-14), (8.2-16), and the `sn` integral (8.2-18); identification with TauCeti's normalized Schwarz–Christoffel primitive, with openness and boundedness of the image |
 | `Carlson.Elliptic.VertexLimits` | The Schwarz–Christoffel map `scMap` on the closed upper half-plane: agreement with `R_{-a}(b; z - x)`, continuity up to the real axis by dominated convergence, the boundary limits and vertices `w(xᵢ)`, `w(z) → 0` at infinity by complex homogeneity, and closure of the polygon |
@@ -888,7 +915,7 @@ on the unit disk, and its limit approaches 1 within that disk; the summation
 formula assumes `re(γ-α-β) > 0`. General reduction Theorems 8.5-3/8.5-4 and the
 branch-point splitting formula are not yet proved. The rectangle inverses do not
 yet have a doubly periodic meromorphic continuation. Further details are in
-[CarlsonChapter8Coverage.md](CarlsonChapter8Coverage.md).
+[CarlsonCoverage.md](CarlsonCoverage.md).
 
 ### Chapter 9: elliptic integrals
 
@@ -899,10 +926,10 @@ yet have a doubly periodic meromorphic continuation. Further details are in
 | `Carlson.Elliptic.LegendreThird` | Incomplete and complete `Π` as R-functions (9.2-11), (9.2-14), and their reductions to `R_F`, `R_H` and to `R_K`, `R_L`; Tables 9.3-3 (rows 2, 4) and 9.3-4 (rows 1, 4) on the full complex slit domain, including coincident nodes |
 | `Carlson.Elliptic.CompleteK` | `K(k)` at an imaginary modulus and Landen's transformation for `K` (Exercise 6.10-5) |
 | `Carlson.Elliptic.Addition` | The addition theorem 9.7-1 for positive variables (Euler's algebraic solution, constancy along the branch, and the limit `λ → 0`); the duplication theorem 9.6-1 on the whole slit domain (from positive reals by uniqueness, one variable at a time); Algorithm 9.6-2 for strictly positive real initial values; homogeneity of `R_F` |
-| `Carlson.Elliptic.Landen` | Theorem 9.5-1 for all complex `t` in regularized form (positive `x, y, z, v, w` with `v² + w² = z² + xy`, `vw = zu`), via the substitution `r = s(s + xy)/(s + u²)` and continuation in `t`; Landen's transformation of `R_F` (9.5-4), with Carlson's explicit `v, w` |
-| `Carlson.Elliptic.LandenAlgorithm` | Algorithms 9.5-2 (ascending Landen) and 9.5-3 (descending Gauss), with the limits `(1/M) arcsinh(M/S)` and `(1/M) arcsin(M/T)`; the descending algorithm assumes `t₀ > a₀`, excluding the equality endpoint |
+| `Carlson.Elliptic.Landen` | Theorem 9.5-1 for all complex `t` in regularized form, for all positive `x, y, z` (positive `v, w` with `v² + w² = z² + xy`, `vw = zu`, or complex conjugate `v², w²` when `z` lies between `x` and `y`), via the substitution `r = s(s + xy)/(s + u²)` and continuation in `t`; Landen's transformation of `R_F` (9.5-4), with Carlson's explicit `v, w` |
+| `Carlson.Elliptic.LandenAlgorithm` | Algorithms 9.5-2 (ascending Landen) and 9.5-3 (descending Gauss), with the limits `(1/M) arcsinh(M/S)` and `(1/M) arcsin(M/T)`; the equality endpoint `t₀ = a₀` is in `Carlson.Elliptic.AGMSecondKind` |
 | `Carlson.Elliptic.ZeroVariable` | A vanishing variable: the joint limit (8.3-17), (9.2-4), Algorithm 9.5-2 with `s₀ = 0`, the duplication theorem with one variable `0`, and (9.7-17) |
-| `Carlson.Elliptic.QuarticReduction` | Theorem 9.8-1: (9.8-3) for positive `A, B, C, D` by Carlson's substitution, and (9.8-4) `R_{-1}(1/2, 1/2, 1/2, 1/2; A², B², C², D²) = 2 R_F(X², Y², Z²)` where `A, …, D, X, Y, Z` have positive real parts (identity theorem one variable at a time); the case `D = 0` |
+| `Carlson.Elliptic.QuarticReduction` | Theorem 9.8-1: (9.8-3) for positive `A, B, C, D` by Carlson's substitution, and (9.8-4) `R_{-1}(1/2, 1/2, 1/2, 1/2; A², B², C², D²) = 2 R_F(X², Y², Z²)` where `A, …, D, X, Y, Z` have positive real parts (identity theorem one variable at a time); the case `D = 0`; the case `X = 0` is in `Carlson.Elliptic.QuarticIntegral` |
 
 The logarithmic results are leading asymptotic equivalents: for fixed positive
 `x,y`, `R_F(x,y,z) ∼ log(4√z/(√x+√y))/√z` as `z → ∞`; for fixed positive
@@ -916,10 +943,7 @@ case requires `n < 1`. They cover zero and negative characteristics, but not
 principal-value integrals or complex amplitudes. The polynomial-coefficient
 reduction identities themselves hold for arbitrary slit-plane nodes.
 
-Remaining Chapter 9 work includes standard-function independence 9.2-1,
-the remaining rows of the reduction tables of §9.3, the standard-basis
-reduction of Legendre's `E`, applications §9.4, duplication error estimates and complex iteration, and the practical
-quartic integration formulas (9.8-10)–(9.8-13). The conditional complex Landen
-extension and some zero/equality endpoint cases are also missing. The `D = 0`
-quartic theorem does not cover every permitted zero transformed variable.
-See [CarlsonChapter9Coverage.md](CarlsonChapter9Coverage.md).
+Remaining Chapter 9 work includes the standard-function independence 9.2-1 beyond its `R_H`
+part, complex iteration and error estimates for duplication, Carlson's remark on complex
+Landen transformations, and the multivariable applications of §9.4. See
+[SYNOPSIS_GAPS.md](SYNOPSIS_GAPS.md) and [CarlsonCoverage.md](CarlsonCoverage.md).

@@ -67,6 +67,7 @@ public import Carlson.Jacobi.EllipseContour
 public import Carlson.Jacobi.EllipticExpansion
 public import Carlson.Jacobi.GrowthLimits
 public import Carlson.Jacobi.SecondKindLimits
+public import Carlson.Jacobi.SecondKindJump
 public import Carlson.Jacobi.GrowthMaxima
 public import Carlson.Jacobi.PlaneWave
 public import Carlson.Jacobi.SegmentOrthogonality
@@ -85,6 +86,14 @@ public import Carlson.Jacobi.EllipseCoefficient
 public import Carlson.Jacobi.FourierCosine
 public import Carlson.Jacobi.Appell
 public import Carlson.Jacobi.GegenbauerProductComplex
+public import Carlson.Jacobi.RPolynomialExercises
+public import Carlson.Jacobi.ChebyshevU
+public import Carlson.Jacobi.SeriesExercises
+public import Carlson.Jacobi.LaguerreExercises
+public import Carlson.Jacobi.HermiteExercises
+public import Carlson.Jacobi.GegenbauerRecurrence
+public import Carlson.Jacobi.GegenbauerExercises
+public import Carlson.Jacobi.BesselExercises
 
 /-!
 # Jacobi polynomials and adjoint functions in Carlson's Chapter 7
@@ -189,7 +198,14 @@ exceptional parameters.
   `Carlson.TwoVariable.tendsto_norm_jacobiSecondKind_rpow`: Theorem 7.5-1.
 * `Carlson.TwoVariable.not_summable_jacobiOn`, `Carlson.TwoVariable.not_tendsto_jacobiSecondKind`:
   divergence outside the ellipses of convergence (Theorem 7.5-3).
-* `Carlson.TwoVariable.exists_jacobiSecondKind_three_term`: the second-kind recurrence.
+* `Carlson.TwoVariable.exists_jacobiSecondKind_three_term`,
+  `Carlson.TwoVariable.jacobiSecondKind_three_term`: the second-kind recurrence, for large
+  degrees and, when `α + β + 1` is regular, at every degree (Exercise 7.1-6), with the Casoratian
+  `Carlson.TwoVariable.jacobiOn_casoratian` (Exercise 7.1-11) and
+  `Carlson.TwoVariable.christoffel_second_summation` (Exercise 7.1-7).
+* `Carlson.TwoVariable.tendsto_jacobiSecondKind_sub_all`: the jump (7.8-5) for all complex
+  parameters, and `Carlson.TwoVariable.jacobiCauchyCoefficient_mul_integral_eq_of_biorthogonality`:
+  orthogonality deduced from biorthogonality.
 * `Carlson.TwoVariable.jacobiContourCoefficient_eq_of_hasSum`: uniqueness of Jacobi expansions
   from boundedness at one point.
 * `Carlson.TwoVariable.hasSum_exp_jacobiOn`: the plane-wave expansion (Example 7.7-1).

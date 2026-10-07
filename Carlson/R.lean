@@ -23,10 +23,14 @@ public import Carlson.R.RayKernel
 public import Carlson.R.ContourKernel
 public import Carlson.R.EulerTransform
 public import Carlson.R.IntegralEvaluation
+public import Carlson.R.IntegralExercises
+public import Carlson.R.LogarithmExercise
+public import Carlson.R.AverageExercise
 public import Carlson.R.SmallVariable
 public import Carlson.R.SmallVariableContinuation
 public import Carlson.R.SmallVariableJoint
 public import Carlson.R.AssociatedRecurrence
+public import Carlson.R.AssociatedRecurrenceExercises
 public import Carlson.R.ZeroParameter
 public import Carlson.R.IntegerParameters
 public import Carlson.R.AssociatedDependence
@@ -73,12 +77,18 @@ This module re-exports the following developments:
 * `Carlson.R.ContourKernel`: Compactified exterior-path kernels for Carlson continuation.
 * `Carlson.R.EulerTransform`: Euler transformations of Carlson's R-function.
 * `Carlson.R.IntegralEvaluation`: Evaluation of Euler-type integrals by Carlson R-functions.
+* `Carlson.R.IntegralExercises`: Carlson's Exercises 8.1-1, 8.1-2, 8.1-3 and 8.1-5 (integrals
+  over a real segment by substitution).
+* `Carlson.R.AverageExercise`: Exercise 8.1-6, the Dirichlet average of `(u·x)^{-a} (u·y)^{-a'}`.
+* `Carlson.R.LogarithmExercise`: Exercise 8.5-1, `R_{-1}(1/2, 1/2, 1; x, y, z)` as a logarithm.
 * `Carlson.R.SmallVariable`: Dependence of Carlson's R-function on a small variable.
 * `Carlson.R.SmallVariableJoint`: The joint small-variable limit, with the other nodes varying.
 * `Carlson.R.SmallVariableContinuation`: The small-variable limit for all complex parameters
   (Theorem 8.3-2).
 * `Carlson.R.AssociatedRecurrence`: Fixed-parameter recurrence for associated Carlson
   R-functions.
+* `Carlson.R.AssociatedRecurrenceExercises`: Exercise 8.4-1, the coefficients of Relation 8.4-1
+  for equal Dirichlet parameters.
 * `Carlson.R.ZeroParameter`: Zero-parameter deletion for the continued R-function.
 * `Carlson.R.IntegerParameters`: Reduction of integral Dirichlet parameters.
 * `Carlson.R.AssociatedDependence`: Polynomial dependence of associated Carlson R-functions.

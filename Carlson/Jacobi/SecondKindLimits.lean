@@ -13,7 +13,10 @@ public import Carlson.Jacobi.Recurrence
 
 Computing the Jacobi coefficients of `x ↦ x / (y - x)` on a confocal ellipse in two ways, once
 from the Cauchy kernel expansion and once from the polynomial recurrence, gives Carlson's
-three-term recurrence for the second-kind functions (Exercise 7.1-6). Off the segment the
+three-term recurrence for the second-kind functions (Exercise 7.1-6): at all large degrees in
+general, and at every degree, together with Carlson's first relation `p₁q₀ - W₀q₁ = 1`, when
+`α + β + 1` is not a nonpositive integer. The Casoratian (Exercise 7.1-11) and Christoffel's
+second summation formula (Exercise 7.1-7) follow by induction. Off the segment the
 second-kind functions are the recessive solution of this recurrence: an elementary dichotomy for
 perturbed recurrences, together with the exterior upper bound and the continuation argument,
 gives `‖qₙ(y)‖^{1/n} → 1/μ(y)` (Theorem 7.5-1) and hence both halves of Theorem 7.5-3 for
@@ -21,7 +24,11 @@ second-kind series.
 
 ## Main results
 
-* `exists_jacobiSecondKind_three_term`: the second-kind recurrence.
+* `exists_jacobiSecondKind_three_term`: the second-kind recurrence for large degrees.
+* `jacobiSecondKind_three_term`, `eval_jacobiOn_one_mul_jacobiSecondKind_zero`: the
+  second-kind recurrence at every degree, with its first relation.
+* `jacobiOn_casoratian`: Exercise 7.1-11.
+* `christoffel_second_summation`: Exercise 7.1-7.
 * `exists_lower_bound_norm_jacobiSecondKind`: the lower bound `c (1/μ(y) - ε)ⁿ ≤ ‖qₙ(y)‖`.
 * `tendsto_norm_jacobiSecondKind_rpow`: Theorem 7.5-1 for the second-kind functions.
 * `tendstoLocallyUniformlyOn_sum_jacobiSecondKind_exterior`, `not_tendsto_jacobiSecondKind`:
@@ -30,7 +37,7 @@ second-kind series.
 ## References
 
 * B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press, 1977,
-  Exercise 7.1-6 and Theorems 7.5-1 and 7.5-3.
+  Exercises 7.1-6, 7.1-7, 7.1-11 and Theorems 7.5-1 and 7.5-3.
 -/
 
 @[expose] public noncomputable section
@@ -58,62 +65,17 @@ theorem jacobiContourCoefficient_congr (α β r s : ℂ) (n : ℕ) (Γ : Cycle) 
   intro z hz
   simp only [h hz]
 
-/-- Carlson's recurrence for the second-kind functions (Exercise 7.1-6, second relation), for
-all sufficiently large degrees and every point off the segment:
-`W_{n+1} q_{n+2}(y) = (y - V_n) q_{n+1}(y) - q_n(y)`. It is derived from the polynomial
-recurrence by computing the Jacobi coefficients of `x ↦ x / (y - x)` in two ways. -/
-theorem exists_jacobiSecondKind_three_term (α β r s : ℂ)
-    (hc : IsGammaRegular (α + β + 2)) :
-    ∃ N : ℕ, ∀ n, N ≤ n → ∀ y, y ∉ segment ℝ r s →
-      jacobiRecurrenceW α β r s (n + 1) * jacobiSecondKind α β r s (n + 2) y =
-        (y - jacobiRecurrenceV α β r s n) * jacobiSecondKind α β r s (n + 1) y -
-          jacobiSecondKind α β r s n y := by
-  obtain ⟨Nr, hNr⟩ := exists_forall_jacobiOn_three_term α β r s
-  have hX : ∀ j, Nr ≤ j → X * jacobiOn α β r s (j + 1) = jacobiOn α β r s (j + 2) +
-      C (jacobiRecurrenceV α β r s j) * jacobiOn α β r s (j + 1) +
-        C (jacobiRecurrenceW α β r s j) * jacobiOn α β r s j := by
-    intro j hj
-    apply Polynomial.funext
-    intro x
-    simp only [eval_mul, eval_add, eval_X, eval_C, hNr j hj x]
-    ring
-  refine ⟨Nr + 1, fun n hn y hy => ?_⟩
-  set k := n + 1
+/-- The analytic core of the second-kind recurrences: if the Jacobi coefficients of order `k`
+of `X pₘ` are `cₘ`, with `cₘ = 0` for `m ≥ K`, then off the segment
+`y q_k(y) - δ_{k0} = ∑_{m < K} cₘ qₘ(y)`. It comes from computing the coefficient of
+`x ↦ x/(y - x)` in two ways. -/
+theorem sum_coefficient_mul_jacobiSecondKind (α β r s : ℂ)
+    (hc : IsGammaRegular (α + β + 2)) (k K : ℕ) (c : ℕ → ℂ)
+    (hcoef : ∀ m, carlsonJacobiCoefficient α β r s k (X * jacobiOn α β r s m) = c m)
+    (hK : ∀ m, K ≤ m → c m = 0) {y : ℂ} (hy : y ∉ segment ℝ r s) :
+    y * jacobiSecondKind α β r s k y - (if k = 0 then 1 else 0) =
+      ∑ m ∈ Finset.range K, c m * jacobiSecondKind α β r s m y := by
   set q : ℕ → ℂ := fun m => jacobiSecondKind α β r s m y
-  set c : ℕ → ℂ := fun m => if m = n then 1 else if m = n + 1 then jacobiRecurrenceV α β r s n
-    else if m = n + 2 then jacobiRecurrenceW α β r s (n + 1) else 0
-  -- the coefficients of `X * pₘ`
-  have hcoef : ∀ m, carlsonJacobiCoefficient α β r s k (X * jacobiOn α β r s m) = c m := by
-    intro m
-    rcases le_or_gt m Nr with hm | hm
-    · have hdeg : (X * jacobiOn α β r s m).natDegree < k := by
-        calc
-          _ ≤ 1 + (jacobiOn α β r s m).natDegree := natDegree_mul_le.trans (by
-            rw [natDegree_X])
-          _ ≤ 1 + m := by
-            gcongr
-            simp only [jacobiOn]
-            refine (natDegree_comp_le).trans ?_
-            simp only [natDegree_X_sub_C, mul_one]
-            exact (natDegree_scaleRoots _ _).le.trans (by
-              rw [monicShiftedJacobi]
-              exact (natDegree_C_mul_le _ _).trans (natDegree_shiftedJacobi_le _ _ _))
-          _ < k := by simp only [k]; omega
-      rw [carlsonJacobiCoefficient_eq_zero_of_natDegree_lt α β r s hdeg]
-      simp only [c]
-      split_ifs <;> first | rfl | (exfalso; omega)
-    · obtain ⟨j, rfl⟩ : ∃ j, m = j + 1 := ⟨m - 1, by omega⟩
-      rw [hX j (by omega), map_add, map_add, show C (jacobiRecurrenceV α β r s j) *
-        jacobiOn α β r s (j + 1) = jacobiRecurrenceV α β r s j • jacobiOn α β r s (j + 1) by
-          rw [smul_eq_C_mul], show C (jacobiRecurrenceW α β r s j) * jacobiOn α β r s j =
-            jacobiRecurrenceW α β r s j • jacobiOn α β r s j by rw [smul_eq_C_mul],
-        map_smul, map_smul, carlsonJacobiCoefficient_apply_jacobiOn α β r s hc,
-        carlsonJacobiCoefficient_apply_jacobiOn α β r s hc,
-        carlsonJacobiCoefficient_apply_jacobiOn α β r s hc]
-      simp only [c, k, smul_eq_mul]
-      split_ifs with h1 h2 h3 h4 h5 h6 <;> first | ring1 | (exfalso; omega) |
-        (obtain rfl : j = n := (by omega); ring1) |
-        (obtain rfl : j = n + 1 := (by omega); ring1)
   -- a confocal ellipse inside the elliptic disk of `y`
   have hμy := lt_jacobiEllipseRadius hy
   set ρ := (‖r - s‖ / 4 + jacobiEllipseRadius r s y) / 2
@@ -147,7 +109,8 @@ theorem exists_jacobiSecondKind_three_term (α β r s : ℂ)
     have := hΓρ x hx; rw [← sub_eq_zero.mp h] at this; linarith
   have hcont : ContinuousOn (fun x => (y - x)⁻¹) Γ.range :=
     (continuousOn_const.sub continuousOn_id).inv₀ hyΓ
-  have hG1 : jacobiContourCoefficient α β r s k Γ (fun x => x * (y - x)⁻¹) = y * q k := by
+  have hG1 : jacobiContourCoefficient α β r s k Γ (fun x => x * (y - x)⁻¹) =
+      y * q k - if k = 0 then 1 else 0 := by
     have he : EqOn (fun x => x * (y - x)⁻¹) (fun x => y * (y - x)⁻¹ - (1 : ℂ[X]).eval x)
         Γ.range := fun x hx => by
       simp only [eval_one]; field_simp [hyΓ x hx]; ring
@@ -157,8 +120,8 @@ theorem exists_jacobiSecondKind_three_term (α β r s : ℂ)
         (Polynomial.continuous _).continuousOn,
       jacobiContourCoefficient_const_mul, hc1,
       jacobiContourCoefficient_polynomial α β r s k 1 Γ hΓ havoid, hind, one_mul,
-      ← jacobiOn_zero α β r s, carlsonJacobiCoefficient_apply_jacobiOn α β r s hc,
-      ite_eq_right (by omega), sub_zero]
+      ← jacobiOn_zero α β r s, carlsonJacobiCoefficient_apply_jacobiOn α β r s hc]
+    simp only [eq_comm (a := 0)]
   -- second computation through the polynomial partial sums
   set P : ℕ → ℂ[X] := fun M => ∑ m ∈ Finset.range M, q m • (X * jacobiOn α β r s m)
   have hPeval (M : ℕ) (x : ℂ) : (P M).eval x =
@@ -182,30 +145,262 @@ theorem exists_jacobiSecondKind_three_term (α β r s : ℂ)
       _ < ε := by linarith
   have htend := tendsto_jacobiContourCoefficient α β r s k Γ hΓ havoid
     (fun M => (Polynomial.continuous _).continuousOn) hPlim
-  have hPcoef : ∀ M, n + 3 ≤ M → jacobiContourCoefficient α β r s k Γ (fun x => (P M).eval x) =
-      q n + jacobiRecurrenceV α β r s n * q (n + 1) +
-        jacobiRecurrenceW α β r s (n + 1) * q (n + 2) := by
+  have hPcoef : ∀ M, K ≤ M →
+      jacobiContourCoefficient α β r s k Γ (fun x => (P M).eval x) =
+        ∑ m ∈ Finset.range K, c m * q m := by
     intro M hM
     rw [jacobiContourCoefficient_polynomial α β r s k _ Γ hΓ havoid, hind, one_mul]
     simp only [P, map_sum, map_smul, hcoef, smul_eq_mul]
-    have hexp : ∀ m, q m * c m = (if m = n then q n else 0) +
-        (if m = n + 1 then jacobiRecurrenceV α β r s n * q (n + 1) else 0) +
-        (if m = n + 2 then jacobiRecurrenceW α β r s (n + 1) * q (n + 2) else 0) := by
-      intro m
-      simp only [c]
-      split_ifs <;> first | ring1 | (exfalso; omega) | (subst_vars; ring1)
-    simp only [hexp, Finset.sum_add_distrib, Finset.sum_ite_eq', Finset.mem_range,
-      ite_eq_left (show n < M by omega), ite_eq_left (show n + 1 < M by omega),
-      ite_eq_left (show n + 2 < M by omega)]
-  have hlim2 : Tendsto (fun M => jacobiContourCoefficient α β r s k Γ (fun x => (P M).eval x))
-      atTop (𝓝 (q n + jacobiRecurrenceV α β r s n * q (n + 1) +
-        jacobiRecurrenceW α β r s (n + 1) * q (n + 2))) :=
-    tendsto_const_nhds.congr' (eventually_atTop.mpr ⟨n + 3, fun M hM => (hPcoef M hM).symm⟩)
+    rw [← Finset.sum_range_add_sum_Ico _ hM, Finset.sum_eq_zero (s := Finset.Ico K M)
+      (fun m hm => by rw [hK m (Finset.mem_Ico.mp hm).1, mul_zero]), add_zero]
+    exact Finset.sum_congr rfl fun m _ => mul_comm _ _
+  have hlim2 : Tendsto
+      (fun M => jacobiContourCoefficient α β r s k Γ (fun x => (P M).eval x))
+      atTop (𝓝 (∑ m ∈ Finset.range K, c m * q m)) :=
+    tendsto_const_nhds.congr' (eventually_atTop.mpr ⟨K, fun M hM => (hPcoef M hM).symm⟩)
   have heq := tendsto_nhds_unique htend hlim2
   rw [hG1] at heq
-  simp only [q, k] at heq ⊢
-  linear_combination -heq
+  exact heq
 
+/-- The analytic half of the second-kind recurrence: if the Jacobi coefficients of order
+`n + 1` of `X pₘ` are `1, V_n, W_{n+1}` at `m = n, n + 1, n + 2` and zero otherwise, then
+`W_{n+1} q_{n+2}(y) = (y - V_n) q_{n+1}(y) - q_n(y)` off the segment. -/
+theorem jacobiSecondKind_three_term_of_coefficient (α β r s : ℂ)
+    (hc : IsGammaRegular (α + β + 2)) (n : ℕ)
+    (hcoef : ∀ m, carlsonJacobiCoefficient α β r s (n + 1) (X * jacobiOn α β r s m) =
+      if m = n then 1 else if m = n + 1 then jacobiRecurrenceV α β r s n
+        else if m = n + 2 then jacobiRecurrenceW α β r s (n + 1) else 0)
+    {y : ℂ} (hy : y ∉ segment ℝ r s) :
+    jacobiRecurrenceW α β r s (n + 1) * jacobiSecondKind α β r s (n + 2) y =
+      (y - jacobiRecurrenceV α β r s n) * jacobiSecondKind α β r s (n + 1) y -
+        jacobiSecondKind α β r s n y := by
+  have h := sum_coefficient_mul_jacobiSecondKind α β r s hc (n + 1) (n + 3) _ hcoef
+    (fun m hm => by split_ifs <;> first | rfl | (exfalso; omega)) hy
+  simp only [Nat.add_one_ne_zero, ↓reduceIte, sub_zero] at h
+  rw [show n + 3 = n + 2 + 1 from rfl, Finset.sum_range_succ, Finset.sum_range_succ,
+    Finset.sum_range_succ, Finset.sum_eq_zero (fun m hm => by
+      simp only [Finset.mem_range] at hm
+      simp [show m ≠ n by omega, show m ≠ n + 1 by omega, show m ≠ n + 2 by omega])] at h
+  simp only [show n + 1 ≠ n by omega, show n + 2 ≠ n by omega, show n + 2 ≠ n + 1 by omega,
+    ↓reduceIte, zero_add] at h
+  linear_combination -h
+
+/-- Carlson's recurrence for the second-kind functions (Exercise 7.1-6, second relation), for
+all sufficiently large degrees and every point off the segment:
+`W_{n+1} q_{n+2}(y) = (y - V_n) q_{n+1}(y) - q_n(y)`. It is derived from the polynomial
+recurrence by computing the Jacobi coefficients of `x ↦ x / (y - x)` in two ways. -/
+theorem exists_jacobiSecondKind_three_term (α β r s : ℂ)
+    (hc : IsGammaRegular (α + β + 2)) :
+    ∃ N : ℕ, ∀ n, N ≤ n → ∀ y, y ∉ segment ℝ r s →
+      jacobiRecurrenceW α β r s (n + 1) * jacobiSecondKind α β r s (n + 2) y =
+        (y - jacobiRecurrenceV α β r s n) * jacobiSecondKind α β r s (n + 1) y -
+          jacobiSecondKind α β r s n y := by
+  obtain ⟨Nr, hNr⟩ := exists_forall_jacobiOn_three_term α β r s
+  have hX : ∀ j, Nr ≤ j → X * jacobiOn α β r s (j + 1) = jacobiOn α β r s (j + 2) +
+      C (jacobiRecurrenceV α β r s j) * jacobiOn α β r s (j + 1) +
+        C (jacobiRecurrenceW α β r s j) * jacobiOn α β r s j := by
+    intro j hj
+    apply Polynomial.funext
+    intro x
+    simp only [eval_mul, eval_add, eval_X, eval_C, hNr j hj x]
+    ring
+  refine ⟨Nr + 1, fun n hn y hy => ?_⟩
+  set k := n + 1
+  set q : ℕ → ℂ := fun m => jacobiSecondKind α β r s m y
+  set c : ℕ → ℂ := fun m => if m = n then 1 else if m = n + 1 then jacobiRecurrenceV α β r s n
+    else if m = n + 2 then jacobiRecurrenceW α β r s (n + 1) else 0
+  refine jacobiSecondKind_three_term_of_coefficient α β r s hc n ?_ hy
+  intro m
+  show _ = c m
+  rcases le_or_gt m Nr with hm | hm
+  · have hdeg : (X * jacobiOn α β r s m).natDegree < k := by
+      calc
+        _ ≤ 1 + (jacobiOn α β r s m).natDegree := natDegree_mul_le.trans (by
+          rw [natDegree_X])
+        _ ≤ 1 + m := by
+          gcongr
+          simp only [jacobiOn]
+          refine (natDegree_comp_le).trans ?_
+          simp only [natDegree_X_sub_C, mul_one]
+          exact (natDegree_scaleRoots _ _).le.trans (by
+            rw [monicShiftedJacobi]
+            exact (natDegree_C_mul_le _ _).trans (natDegree_shiftedJacobi_le _ _ _))
+        _ < k := by simp only [k]; omega
+    rw [carlsonJacobiCoefficient_eq_zero_of_natDegree_lt α β r s hdeg]
+    simp only [c]
+    split_ifs <;> first | rfl | (exfalso; omega)
+  · obtain ⟨j, rfl⟩ : ∃ j, m = j + 1 := ⟨m - 1, by omega⟩
+    rw [hX j (by omega), map_add, map_add, show C (jacobiRecurrenceV α β r s j) *
+      jacobiOn α β r s (j + 1) = jacobiRecurrenceV α β r s j • jacobiOn α β r s (j + 1) by
+        rw [smul_eq_C_mul], show C (jacobiRecurrenceW α β r s j) * jacobiOn α β r s j =
+          jacobiRecurrenceW α β r s j • jacobiOn α β r s j by rw [smul_eq_C_mul],
+      map_smul, map_smul, carlsonJacobiCoefficient_apply_jacobiOn α β r s hc,
+      carlsonJacobiCoefficient_apply_jacobiOn α β r s hc,
+      carlsonJacobiCoefficient_apply_jacobiOn α β r s hc]
+    simp only [c, smul_eq_mul]
+    split_ifs with h1 h2 h3 h4 h5 h6 <;> first | ring1 | (exfalso; omega) |
+      (obtain rfl : j = n := (by omega); ring1) |
+      (obtain rfl : j = n + 1 := (by omega); ring1)
+
+
+/-- The polynomial recurrence `X p_{j+1} = p_{j+2} + V_j p_{j+1} + W_j p_j` at every degree when
+`α + β + 1` is not a nonpositive integer. -/
+theorem X_mul_jacobiOn_succ (α β r s : ℂ) (hreg : IsGammaRegular (α + β + 1)) (j : ℕ) :
+    X * jacobiOn α β r s (j + 1) = jacobiOn α β r s (j + 2) +
+      C (jacobiRecurrenceV α β r s j) * jacobiOn α β r s (j + 1) +
+        C (jacobiRecurrenceW α β r s j) * jacobiOn α β r s j := by
+  have hP (j m : ℕ) : (ascPochhammer ℂ m).eval (α + β + j + 1) ≠ 0 := by
+    rw [Ne, ascPochhammer_eval_eq_zero_iff]
+    rintro ⟨i, -, hi⟩
+    exact hreg (i + j) (by push_cast; linear_combination hi)
+  apply Polynomial.funext
+  intro x
+  have h := eval_jacobiOn_three_term α β r s x j (hP j j) (hP (j + 1) (j + 1))
+    (hP (j + 2) (j + 2)) (fun h => hreg (2 * j) (by push_cast; linear_combination h))
+  simp only [eval_mul, eval_add, eval_X, eval_C, h]
+  ring
+
+/-- `X = p₁ + a` with the constant `a = (X - p₁)(0)`, when `α + β + 1` is regular. -/
+theorem X_eq_jacobiOn_one_add (α β r s : ℂ) (hreg : IsGammaRegular (α + β + 1)) :
+    (X : ℂ[X]) = jacobiOn α β r s 1 + C ((X - jacobiOn α β r s 1).coeff 0) := by
+  have h11 : (ascPochhammer ℂ 1).eval (α + β + (1 : ℕ) + 1) ≠ 0 := by
+    simp only [ascPochhammer_one, eval_X]; push_cast
+    intro h; exact hreg 1 (by push_cast; linear_combination h)
+  have h1 := monic_jacobiOn α β r s 1 h11
+  have hdeg1 := natDegree_jacobiOn α β r s 1 h11
+  have hlt : (X - jacobiOn α β r s 1).degree < 1 := by
+    have := degree_sub_lt_left (p := X) (q := jacobiOn α β r s 1)
+      (by rw [degree_X, degree_eq_natDegree h1.ne_zero, hdeg1]; rfl) X_ne_zero
+      (by rw [leadingCoeff_X, h1.leadingCoeff])
+    rwa [degree_X] at this
+  have hC := eq_C_of_degree_le_zero (Nat.WithBot.lt_one_iff_le_zero.mp hlt)
+  rw [← hC]; ring
+
+/-- **Carlson's recurrence for the second-kind functions** (Exercise 7.1-6, second relation) at
+every degree: if `α + β + 1` is not a nonpositive integer, then for every `n` and every `y` off
+the segment, `W_{n+1} q_{n+2}(y) = (y - V_n) q_{n+1}(y) - q_n(y)`. -/
+theorem jacobiSecondKind_three_term (α β r s : ℂ) (hreg : IsGammaRegular (α + β + 1)) (n : ℕ)
+    {y : ℂ} (hy : y ∉ segment ℝ r s) :
+    jacobiRecurrenceW α β r s (n + 1) * jacobiSecondKind α β r s (n + 2) y =
+      (y - jacobiRecurrenceV α β r s n) * jacobiSecondKind α β r s (n + 1) y -
+        jacobiSecondKind α β r s n y := by
+  have hc : IsGammaRegular (α + β + 2) := fun k hk => hreg (k + 1) (by
+    push_cast; linear_combination hk)
+  have hX := X_mul_jacobiOn_succ α β r s hreg
+  refine jacobiSecondKind_three_term_of_coefficient α β r s hc n (fun m => ?_) hy
+  rcases m with _ | j
+  · rw [jacobiOn_zero, mul_one]
+    rcases Nat.eq_zero_or_pos n with rfl | hn
+    · have hsplit := X_eq_jacobiOn_one_add α β r s hreg
+      rw [hsplit, map_add, carlsonJacobiCoefficient_apply_jacobiOn α β r s hc,
+        carlsonJacobiCoefficient_eq_zero_of_natDegree_lt α β r s (by rw [natDegree_C]; omega)]
+      simp
+    · rw [carlsonJacobiCoefficient_eq_zero_of_natDegree_lt α β r s (by
+        rw [natDegree_X]; omega)]
+      split_ifs <;> first | rfl | (exfalso; omega)
+  · rw [hX j, map_add, map_add, show C (jacobiRecurrenceV α β r s j) *
+      jacobiOn α β r s (j + 1) = jacobiRecurrenceV α β r s j • jacobiOn α β r s (j + 1) by
+        rw [smul_eq_C_mul], show C (jacobiRecurrenceW α β r s j) * jacobiOn α β r s j =
+          jacobiRecurrenceW α β r s j • jacobiOn α β r s j by rw [smul_eq_C_mul],
+      map_smul, map_smul, carlsonJacobiCoefficient_apply_jacobiOn α β r s hc,
+      carlsonJacobiCoefficient_apply_jacobiOn α β r s hc,
+      carlsonJacobiCoefficient_apply_jacobiOn α β r s hc]
+    simp only [smul_eq_mul]
+    split_ifs with h1 h2 h3 h4 h5 h6 <;> first | ring1 | (exfalso; omega) |
+      (obtain rfl : j = n := (by omega); ring1) |
+      (obtain rfl : j = n + 1 := (by omega); ring1)
+
+/-- The first second-kind relation (Exercise 7.1-6 with Carlson's convention `q₋₁ = 1`): if
+`α + β + 1` is not a nonpositive integer, then off the segment `p₁(y) q₀(y) - W₀ q₁(y) = 1`. -/
+theorem eval_jacobiOn_one_mul_jacobiSecondKind_zero (α β r s : ℂ)
+    (hreg : IsGammaRegular (α + β + 1)) {y : ℂ} (hy : y ∉ segment ℝ r s) :
+    (jacobiOn α β r s 1).eval y * jacobiSecondKind α β r s 0 y -
+      jacobiRecurrenceW α β r s 0 * jacobiSecondKind α β r s 1 y = 1 := by
+  have hc : IsGammaRegular (α + β + 2) := fun k hk => hreg (k + 1) (by
+    push_cast; linear_combination hk)
+  have hX := X_mul_jacobiOn_succ α β r s hreg
+  have hsplit := X_eq_jacobiOn_one_add α β r s hreg
+  set a := (X - jacobiOn α β r s 1).coeff 0
+  set c : ℕ → ℂ := fun m => if m = 0 then a else if m = 1 then jacobiRecurrenceW α β r s 0
+    else 0
+  have hcoef : ∀ m, carlsonJacobiCoefficient α β r s 0 (X * jacobiOn α β r s m) = c m := by
+    intro m
+    rcases m with _ | j
+    · rw [jacobiOn_zero, mul_one]
+      nth_rewrite 1 [hsplit]
+      rw [map_add, carlsonJacobiCoefficient_apply_jacobiOn α β r s hc,
+        show C a = a • jacobiOn α β r s 0 by rw [jacobiOn_zero, smul_eq_C_mul, mul_one],
+        map_smul, carlsonJacobiCoefficient_apply_jacobiOn α β r s hc]
+      simp [c]
+    · rw [hX j, map_add, map_add, show C (jacobiRecurrenceV α β r s j) *
+        jacobiOn α β r s (j + 1) = jacobiRecurrenceV α β r s j • jacobiOn α β r s (j + 1) by
+          rw [smul_eq_C_mul], show C (jacobiRecurrenceW α β r s j) * jacobiOn α β r s j =
+            jacobiRecurrenceW α β r s j • jacobiOn α β r s j by rw [smul_eq_C_mul],
+        map_smul, map_smul, carlsonJacobiCoefficient_apply_jacobiOn α β r s hc,
+        carlsonJacobiCoefficient_apply_jacobiOn α β r s hc,
+        carlsonJacobiCoefficient_apply_jacobiOn α β r s hc]
+      rcases j with _ | j
+      · simp [c]
+      · simp [c]
+  have h := sum_coefficient_mul_jacobiSecondKind α β r s hc 0 2 c hcoef
+    (fun m hm => by simp only [c]; split_ifs <;> first | rfl | (exfalso; omega)) hy
+  simp only [↓reduceIte, Finset.sum_range_succ, Finset.sum_range_zero, zero_add, c,
+    one_ne_zero] at h
+  have hp1 : (jacobiOn α β r s 1).eval y = y - a := by
+    have := congrArg (eval y) hsplit
+    simp only [eval_X, eval_add, eval_C] at this
+    linear_combination -this
+  rw [hp1]
+  linear_combination h
+
+/-- **Exercise 7.1-11** (Casoratian of the Jacobi recurrence): if `α + β + 1` is not a
+nonpositive integer, then off the segment
+`p_{n+1}(y) qₙ(y) - Wₙ pₙ(y) q_{n+1}(y) = 1` for every `n`. Carlson writes this as
+`pₙ q_{n-1} - Wₙ p_{n-1} qₙ = 1`, with his `Wₙ` our `W_{n-1}`. -/
+theorem jacobiOn_casoratian (α β r s : ℂ) (hreg : IsGammaRegular (α + β + 1)) (n : ℕ) {y : ℂ}
+    (hy : y ∉ segment ℝ r s) :
+    (jacobiOn α β r s (n + 1)).eval y * jacobiSecondKind α β r s n y -
+      jacobiRecurrenceW α β r s n * (jacobiOn α β r s n).eval y *
+        jacobiSecondKind α β r s (n + 1) y = 1 := by
+  induction n with
+  | zero =>
+    have h := eval_jacobiOn_one_mul_jacobiSecondKind_zero α β r s hreg hy
+    rw [jacobiOn_zero, eval_one, mul_one]
+    exact h
+  | succ n ih =>
+    have hp := congrArg (eval y) (X_mul_jacobiOn_succ α β r s hreg n)
+    simp only [eval_mul, eval_X, eval_add, eval_C] at hp
+    have hq := jacobiSecondKind_three_term α β r s hreg n hy
+    linear_combination ih - jacobiSecondKind α β r s (n + 1) y * hp -
+      (jacobiOn α β r s (n + 1)).eval y * hq
+
+/-- **Exercise 7.1-7** (Christoffel's second summation formula): if `α + β + 1` is not a
+nonpositive integer, then for `y` off the segment and every `x`,
+`1 = (y - x) ∑_{n ≤ N} pₙ(x) qₙ(y) + p_{N+1}(x) q_N(y) - W_N p_N(x) q_{N+1}(y)`. Carlson writes
+the last coefficient as `W_{N+1}`. -/
+theorem christoffel_second_summation (α β r s : ℂ) (hreg : IsGammaRegular (α + β + 1)) (N : ℕ)
+    (x : ℂ) {y : ℂ} (hy : y ∉ segment ℝ r s) :
+    (y - x) * ∑ n ∈ Finset.range (N + 1),
+        (jacobiOn α β r s n).eval x * jacobiSecondKind α β r s n y +
+      (jacobiOn α β r s (N + 1)).eval x * jacobiSecondKind α β r s N y -
+        jacobiRecurrenceW α β r s N * (jacobiOn α β r s N).eval x *
+          jacobiSecondKind α β r s (N + 1) y = 1 := by
+  induction N with
+  | zero =>
+    have h := eval_jacobiOn_one_mul_jacobiSecondKind_zero α β r s hreg hy
+    have hsplit := X_eq_jacobiOn_one_add α β r s hreg
+    have hx := congrArg (eval x) hsplit
+    have hyy := congrArg (eval y) hsplit
+    simp only [eval_X, eval_add, eval_C] at hx hyy
+    simp only [zero_add, Finset.sum_range_one, jacobiOn_zero, eval_one, one_mul, mul_one]
+    linear_combination h + jacobiSecondKind α β r s 0 y * (hyy - hx)
+  | succ N ih =>
+    have hp := congrArg (eval x) (X_mul_jacobiOn_succ α β r s hreg N)
+    simp only [eval_mul, eval_X, eval_add, eval_C] at hp
+    have hq := jacobiSecondKind_three_term α β r s hreg N hy
+    rw [Finset.sum_range_succ]
+    linear_combination ih - jacobiSecondKind α β r s (N + 1) y * hp -
+      (jacobiOn α β r s (N + 1)).eval x * hq
 
 /-- A geometric sequence with larger ratio cannot be dominated by one with smaller ratio. -/
 theorem not_forall_mul_pow_le {c C m l : ℝ} (hc : 0 < c) (hl : 0 ≤ l) (hlm : l < m) (N : ℕ) :

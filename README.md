@@ -73,7 +73,7 @@ mean and Borchardt's algorithm with Carlson's acceleration (Section 6.10), the a
 Legendre functions of negative order (6.10-18, 6.10-19), the finer equal-parameter
 normalization on the full slit domain, and product formulas of Section 6.11 (all
 parameters, complex angles). See
-`CarlsonChapters5And6Coverage.md` for a section-by-section account
+`CarlsonCoverage.md` for a section-by-section account
 (`CarlsonChapter6Exercises.md` for the Chapter 6 exercises).
 
 `Carlson.Jacobi` develops the monic Jacobi polynomials and their adjoint functions of
@@ -119,7 +119,7 @@ Chebyshev zeros prevent an unextended quotient from tending to one at the
 midpoint. `Carlson.Jacobi.PolynomialSaddle` proves the exact Chebyshev two-term
 formula (7.4-1), including cancellation points, and its compact-uniform
 dominant-term relative limit on `W`. The general polynomial expansion still
-needs an error formulation accounting for zeros. See [CarlsonChapter7Coverage.md](CarlsonChapter7Coverage.md).
+needs an error formulation accounting for zeros. See [CarlsonCoverage.md](CarlsonCoverage.md).
 
 Chapter 8 includes straight-segment and ray integral evaluations with explicit principal
 phase and endpoint-convergence conditions; the Schwarz–Christoffel map, its boundary
@@ -135,7 +135,7 @@ The associated-function dependence theorem 8.4-3 is proved for fixed arbitrary c
 parameters on slit-plane nodes. Integer log-rational reduction 8.5-1, Table 8.5-1 and
 Example 8.5-5 are proved. General reductions 8.5-3/8.5-4, the connection formula (8.3-10),
 the full logarithmic expansion of `R_K`, and the wider slit-sector limits remain.
-See [CarlsonChapter8Coverage.md](CarlsonChapter8Coverage.md).
+See [CarlsonCoverage.md](CarlsonCoverage.md).
 
 Chapter 9 has the symmetric standard functions `R_F`, `R_G`, `R_H`, `R_K`, `R_E`, `R_L`,
 their symmetries and several zero-variable limits. Legendre's `F`, `E`, `Π`, `K` and
@@ -166,7 +166,7 @@ extension and additive constant-term limits are not asserted by these equivalent
 The standard-basis independence theorem 9.2-1, the remaining reductions of §9.3, applications §9.4,
 algorithmic error estimates, complex duplication iteration, and the practical quartic
 integration formulas (9.8-10)–(9.8-13) remain priorities.
-See [CarlsonChapter9Coverage.md](CarlsonChapter9Coverage.md) for detailed coverage.
+See [CarlsonCoverage.md](CarlsonCoverage.md) for detailed coverage.
 
 Dependencies flow from the support libraries and simplex foundations to
 `Dirichlet`, then to `Carlson`. The simplex foundation never imports either
@@ -185,12 +185,16 @@ averages live in `Dirichlet`; Carlson's special functions live in `Carlson` and
 Each directory has a matching umbrella module (for `ToMathlib`, the three modules
 `ToMathlib.Algebra`, `ToMathlib.Analysis`, and `ToMathlib.Topology`). `Main.lean` imports all of them.
 See the [module structure guide](STRUCTURE.md) for the finer topic splits and import paths.
-A mathematical synopsis addressed to mathematicians, in dependency order and marking what is
-new relative to Mathlib, is in three parts: [SYNOPSIS.md](SYNOPSIS.md) (support libraries,
-simplex measure, and the one-variable complex analysis used here),
-[SYNOPSIS_SCV.md](SYNOPSIS_SCV.md) (the several-variable analysis used here) and
-[SYNOPSIS_CARLSON.md](SYNOPSIS_CARLSON.md) (Dirichlet averages and Carlson's functions). The
-full one- and several-variable theories are documented in their own projects.
+Statements of Carlson's book found false or in need of qualification during the formalization
+are listed, with counterexamples and corrections, in [CARLSON_ERRATA.md](CARLSON_ERRATA.md).
+A mathematical synopsis addressed to mathematicians starts at [SYNOPSIS.md](SYNOPSIS.md), which
+summarizes the whole project and points to one synopsis per library: general algebra, topology
+and analysis (`SYNOPSIS_ALGEBRA.md`, `SYNOPSIS_TOPOLOGY.md`, `SYNOPSIS_ANALYSIS.md`), one and
+several complex variables (`SYNOPSIS_CA.md`, `SYNOPSIS_SCV.md`), Pochhammer symbols and the
+standard simplex (`SYNOPSIS_POCHHAMMER.md`, `SYNOPSIS_STDSIMPLEX.md`), and the target libraries
+(`SYNOPSIS_DIRICHLET.md`, `SYNOPSIS_SIMPLEXMELLIN.md`, `SYNOPSIS_CARLSON.md`). Open problems of
+the target libraries are collected in [SYNOPSIS_GAPS.md](SYNOPSIS_GAPS.md). The full one- and
+several-variable theories are documented in their own projects.
 
 ## Dependencies and upstream reuse
 

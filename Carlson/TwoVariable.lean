@@ -36,6 +36,8 @@ public import Carlson.TwoVariable.ConfluentHypergeometric
 public import Carlson.TwoVariable.Borchardt
 public import Carlson.TwoVariable.RCAsymptotic
 public import Carlson.TwoVariable.GaussHypergeometric
+public import Carlson.TwoVariable.GaussExercises
+public import Carlson.TwoVariable.ThreeFTwoExercises
 public import Carlson.TwoVariable.Reduction
 public import Carlson.TwoVariable.R.Elementary
 
@@ -60,6 +62,12 @@ Bessel functions.
   `Carlson.TwoVariable.exists_real_fractionalIntegral_continuation`: the fractional integral
   continued in its order, with `I^{-n} f = f⁽ⁿ⁾` (5.5-16).
 * `Carlson.hasSum_gaussCoeff`, `Carlson.ordinaryHypergeometric_one`: Gauss's theorem (8.3-4).
+* `Carlson.TwoVariable.regCarlsonR_kummer`,
+  `Carlson.TwoVariable.ordinaryHypergeometric_kummer_half`,
+  `Carlson.TwoVariable.hasSum_beta_series`: Exercises 8.3-1 to 8.3-5.
+* `Carlson.TwoVariable.betaIntegral_mul_threeFTwo`,
+  `Carlson.TwoVariable.Gamma_div_mul_threeFTwo_one`: `₃F₂` as an average of `₂F₁` and its
+  transformations at unit argument (Exercises 8.3-10 to 8.3-12).
 * `Carlson.TwoVariable.eventually_hasSum_quadratic_generating`: the expansion of
   `(at² + 2bt + c)^(-ν)` (Exercises 6.6-4 and 6.10-6).
 * `Carlson.TwoVariable.isBigO_carlsonRC_sub_diagonal`,

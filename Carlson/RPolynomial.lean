@@ -25,6 +25,7 @@ public import Carlson.RPolynomial.SmallParameters
 public import Carlson.RPolynomial.EqualParameterBounds
 public import Carlson.RPolynomial.PolygonSpecial
 public import Carlson.RPolynomial.NearDiagonal
+public import Carlson.RPolynomial.DifferentialForm
 
 /-!
 # Carlson's R-polynomials

@@ -360,7 +360,8 @@ private theorem cos_mul_rpow_neg_half {θ : ℝ} (hc : 0 < Real.cos θ) :
   rw [← Real.cos_sq', show (-1 / 2 : ℝ) = -(1 / 2) by ring, Real.rpow_neg (sq_nonneg _),
     ← Real.sqrt_eq_rpow, Real.sqrt_sq hc.le, mul_inv_cancel₀ hc.ne']
 
-private theorem integral_legendre_eq {φ : ℝ} (h0 : 0 < φ) (h1 : φ ≤ π / 2) (f : ℝ → ℝ) :
+/-- The substitution `t = sin θ` in a Legendre integral, `0 < φ ≤ π/2`. -/
+theorem integral_legendre_eq {φ : ℝ} (h0 : 0 < φ) (h1 : φ ≤ π / 2) (f : ℝ → ℝ) :
     ∫ θ in (0 : ℝ)..φ, f (Real.sin θ) =
       ∫ t in Ioo (0 : ℝ) (Real.sin φ), (1 - t ^ 2) ^ (-1 / 2 : ℝ) * f t := by
   rw [integral_Ioo_comp_sin h0 h1, intervalIntegral.integral_of_le h0.le,
@@ -370,9 +371,10 @@ private theorem integral_legendre_eq {φ : ℝ} (h0 : 0 < φ) (h1 : φ ≤ π / 
     (show θ ∈ Ioo (-(π / 2)) (π / 2) from ⟨by linarith [hθ.1, Real.pi_pos], by linarith [hθ.2]⟩)
   rw [← mul_assoc, cos_mul_rpow_neg_half hc, one_mul]
 
-/-- **Carlson's (9.2-11), (9.3-2), first kind**: for `0 < φ < π/2` and `k² < 1`,
+/-- **Carlson's (9.2-11), (9.3-2), first kind**: for `0 < φ < π/2` and `k² sin² φ < 1`,
 `F(φ, k) = sin φ R_F(cos² φ, 1 - k² sin² φ, 1)`. -/
-theorem legendreF_eq {φ k : ℝ} (h0 : 0 < φ) (h1 : φ < π / 2) (hk : k ^ 2 < 1) :
+theorem legendreF_eq_of_mul_lt {φ k : ℝ} (h0 : 0 < φ) (h1 : φ < π / 2)
+    (hk : k ^ 2 * Real.sin φ ^ 2 < 1) :
     (legendreF φ k : ℂ) = Real.sin φ *
       carlsonRF ((Real.cos φ ^ 2 : ℝ) : ℂ) ((1 - k ^ 2 * Real.sin φ ^ 2 : ℝ) : ℂ) 1 := by
   have hs0 : 0 < Real.sin φ := Real.sin_pos_of_pos_of_lt_pi h0 (by linarith [Real.pi_pos])
@@ -381,12 +383,21 @@ theorem legendreF_eq {φ k : ℝ} (h0 : 0 < φ) (h1 : φ < π / 2) (hk : k ^ 2 <
     exact Real.sin_lt_sin_of_lt_of_le_pi_div_two (by linarith [Real.pi_pos]) le_rfl h1
   have h := integral_legendre_eq h0 h1.le (fun t => (1 - k ^ 2 * t ^ 2) ^ (-1 / 2 : ℝ))
   unfold legendreF
-  rw [h, Real.cos_sq', ← integral_Ioo_rsqrt_sn_incomplete hk hs0 hs1]
+  rw [h, Real.cos_sq', ← integral_Ioo_rsqrt_sn_incomplete_of_mul_lt hk hs0 hs1]
   refine congrArg ofReal (setIntegral_congr_fun measurableSet_Ioo
     fun t (ht : t ∈ Ioo 0 (Real.sin φ)) => ?_)
   have h1t : 0 ≤ 1 - t ^ 2 := by nlinarith [ht.1, ht.2]
-  have h2t : 0 ≤ 1 - k ^ 2 * t ^ 2 := by nlinarith [ht.1, ht.2, sq_nonneg k, sq_nonneg t]
+  have h2t : 0 ≤ 1 - k ^ 2 * t ^ 2 := by
+    nlinarith [mul_le_mul_of_nonneg_left (pow_le_pow_left₀ ht.1.le ht.2.le 2) (sq_nonneg k)]
   rw [Real.mul_rpow h1t h2t]
+
+/-- **Carlson's (9.2-11), (9.3-2), first kind**: for `0 < φ < π/2` and `k² < 1`,
+`F(φ, k) = sin φ R_F(cos² φ, 1 - k² sin² φ, 1)`. -/
+theorem legendreF_eq {φ k : ℝ} (h0 : 0 < φ) (h1 : φ < π / 2) (hk : k ^ 2 < 1) :
+    (legendreF φ k : ℂ) = Real.sin φ *
+      carlsonRF ((Real.cos φ ^ 2 : ℝ) : ℂ) ((1 - k ^ 2 * Real.sin φ ^ 2 : ℝ) : ℂ) 1 :=
+  legendreF_eq_of_mul_lt h0 h1 (by
+    nlinarith [mul_le_mul_of_nonneg_left (Real.sin_sq_le_one φ) (sq_nonneg k)])
 
 /-- Carlson's (9.2-14), first kind, for `0 < k < 1`. -/
 private theorem legendreK_eq_of_pos {k : ℝ} (hk0 : 0 < k) (hk1 : k < 1) :
@@ -410,9 +421,11 @@ theorem legendreK_eq {k : ℝ} (hk : k ^ 2 < 1) :
   · have h1 : carlsonRK 1 1 = 1 := by rw [TwoVariable.carlsonRK_self one_mem_slitPlane, one_cpow]
     simp [legendreK, legendreF, h1]
   · exact legendreK_eq_of_pos hpos (by nlinarith)
-/-- The incomplete integral of the second kind as an `R` function:
+
+/-- The incomplete integral of the second kind as an `R` function: for `0 < y < 1`, `k² y² < 1`,
 `∫₀^y (1 - t²)^{-1/2} (1 - k² t²)^{1/2} dt = y R_{-1/2}(-1/2, 1/2, 3/2; 1 - k² y², 1 - y², 1)`. -/
-theorem integral_Ioo_sn_second {k y : ℝ} (hk : k ^ 2 < 1) (hy0 : 0 < y) (hy1 : y < 1) :
+theorem integral_Ioo_sn_second_of_mul_lt {k y : ℝ} (hk : k ^ 2 * y ^ 2 < 1) (hy0 : 0 < y)
+    (hy1 : y < 1) :
     ((∫ t in Ioo (0 : ℝ) y, (1 - t ^ 2) ^ (-1 / 2 : ℝ) * (1 - k ^ 2 * t ^ 2) ^ (1 / 2 : ℝ) : ℝ) :
         ℂ) =
       y * carlsonR (-1 / 2) ![-1 / 2, 1 / 2, 3 / 2]
@@ -446,9 +459,7 @@ theorem integral_Ioo_sn_second {k y : ℝ} (hk : k ^ 2 < 1) (hy0 : 0 < y) (hy1 :
   have hz : N ∈ carlsonRSlitDomain := by
     intro i; fin_cases i
     · show ((1 - k ^ 2 * y ^ 2 : ℝ) : ℂ) ∈ slitPlane
-      have hky := mul_nonneg (sq_nonneg k) (sq_nonneg y)
-      have hy2 : y ^ 2 < 1 := by nlinarith
-      exact ofReal_mem_slitPlane.mpr (by nlinarith)
+      exact ofReal_mem_slitPlane.mpr (by linarith)
     · show ((1 - y ^ 2 : ℝ) : ℂ) ∈ slitPlane
       exact ofReal_mem_slitPlane.mpr (by nlinarith)
     · simp [N]
@@ -463,7 +474,7 @@ theorem integral_Ioo_sn_second {k y : ℝ} (hk : k ^ 2 < 1) (hy0 : 0 < y) (hy1 :
     have hsq : Real.sqrt s ^ 2 = s := Real.sq_sqrt hs.1.le
     have h1 : 0 < 1 - y ^ 2 * s := by nlinarith [hs.1, hs.2]
     have h2 : 0 < 1 - k ^ 2 * y ^ 2 * s := by
-      nlinarith [hs.1, hs.2, sq_nonneg k, sq_nonneg y, mul_nonneg (sq_nonneg k) (sq_nonneg y)]
+      nlinarith [mul_le_mul_of_nonneg_left hs.2.le (mul_nonneg (sq_nonneg k) (sq_nonneg y))]
     have hg : g (φ s) =
         (1 - y ^ 2 * s) ^ (-1 / 2 : ℝ) * (1 - k ^ 2 * y ^ 2 * s) ^ (1 / 2 : ℝ) := by
       simp only [g, φ]
@@ -489,9 +500,20 @@ theorem integral_Ioo_sn_second {k y : ℝ} (hk : k ^ 2 < 1) (hy0 : 0 < y) (hy1 :
   simp only [N, B]
   ring_nf
 
-/-- **Carlson's (9.3-2), second kind**: for `0 < φ < π/2` and `k² < 1`,
+/-- The incomplete integral of the second kind as an `R` function, for `k² < 1`:
+`∫₀^y (1 - t²)^{-1/2} (1 - k² t²)^{1/2} dt = y R_{-1/2}(-1/2, 1/2, 3/2; 1 - k² y², 1 - y², 1)`. -/
+theorem integral_Ioo_sn_second {k y : ℝ} (hk : k ^ 2 < 1) (hy0 : 0 < y) (hy1 : y < 1) :
+    ((∫ t in Ioo (0 : ℝ) y, (1 - t ^ 2) ^ (-1 / 2 : ℝ) * (1 - k ^ 2 * t ^ 2) ^ (1 / 2 : ℝ) : ℝ) :
+        ℂ) =
+      y * carlsonR (-1 / 2) ![-1 / 2, 1 / 2, 3 / 2]
+        ![((1 - k ^ 2 * y ^ 2 : ℝ) : ℂ), ((1 - y ^ 2 : ℝ) : ℂ), 1] :=
+  integral_Ioo_sn_second_of_mul_lt
+    (by nlinarith [mul_le_mul_of_nonneg_left (by nlinarith : y ^ 2 ≤ 1) (sq_nonneg k)]) hy0 hy1
+
+/-- **Carlson's (9.3-2), second kind**: for `0 < φ < π/2` and `k² sin² φ < 1`,
 `E(φ, k) = sin φ R_{-1/2}(-1/2, 1/2, 3/2; 1 - k² sin² φ, cos² φ, 1)`. -/
-theorem legendreE_eq {φ k : ℝ} (h0 : 0 < φ) (h1 : φ < π / 2) (hk : k ^ 2 < 1) :
+theorem legendreE_eq_of_mul_lt {φ k : ℝ} (h0 : 0 < φ) (h1 : φ < π / 2)
+    (hk : k ^ 2 * Real.sin φ ^ 2 < 1) :
     (legendreE φ k : ℂ) = Real.sin φ * carlsonR (-1 / 2) ![-1 / 2, 1 / 2, 3 / 2]
       ![((1 - k ^ 2 * Real.sin φ ^ 2 : ℝ) : ℂ), ((Real.cos φ ^ 2 : ℝ) : ℂ), 1] := by
   have hs0 : 0 < Real.sin φ := Real.sin_pos_of_pos_of_lt_pi h0 (by linarith [Real.pi_pos])
@@ -500,6 +522,14 @@ theorem legendreE_eq {φ k : ℝ} (h0 : 0 < φ) (h1 : φ < π / 2) (hk : k ^ 2 <
     exact Real.sin_lt_sin_of_lt_of_le_pi_div_two (by linarith [Real.pi_pos]) le_rfl h1
   have h := integral_legendre_eq h0 h1.le (fun t => (1 - k ^ 2 * t ^ 2) ^ (1 / 2 : ℝ))
   unfold legendreE
-  rw [h, integral_Ioo_sn_second hk hs0 hs1, Real.cos_sq']
+  rw [h, integral_Ioo_sn_second_of_mul_lt hk hs0 hs1, Real.cos_sq']
+
+/-- **Carlson's (9.3-2), second kind**: for `0 < φ < π/2` and `k² < 1`,
+`E(φ, k) = sin φ R_{-1/2}(-1/2, 1/2, 3/2; 1 - k² sin² φ, cos² φ, 1)`. -/
+theorem legendreE_eq {φ k : ℝ} (h0 : 0 < φ) (h1 : φ < π / 2) (hk : k ^ 2 < 1) :
+    (legendreE φ k : ℂ) = Real.sin φ * carlsonR (-1 / 2) ![-1 / 2, 1 / 2, 3 / 2]
+      ![((1 - k ^ 2 * Real.sin φ ^ 2 : ℝ) : ℂ), ((Real.cos φ ^ 2 : ℝ) : ℂ), 1] :=
+  legendreE_eq_of_mul_lt h0 h1 (by
+    nlinarith [mul_le_mul_of_nonneg_left (Real.sin_sq_le_one φ) (sq_nonneg k)])
 
 end Carlson

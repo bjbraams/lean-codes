@@ -6,17 +6,29 @@ Authors: Bastiaan J Braams
 module
 
 public import Mathlib.Analysis.SpecialFunctions.Bessel
+public import Mathlib.Analysis.Calculus.SmoothSeries
+public import Mathlib.Analysis.Calculus.IteratedDeriv.Defs
+public import Mathlib.Analysis.SpecialFunctions.Pow.Deriv
 
 /-!
 # Series and bounds for Bessel functions of integer order, and the modified Bessel function
 
 The regularized `₀F₁` is the sum of its series `∑ zᵏ / (k! Γ(c + k))`, and for `c = n + 1` it is
 bounded by `exp ‖z‖ / n!`. Consequently `‖Jₘ(x)‖ ≤ exp (‖x‖²/4) (‖x‖/2)^{|m|} / |m|!` for every
-integer `m`.
+integer `m`. The series is differentiated termwise, and the regularized `₀F₁` satisfies a
+contiguous relation and a reflection formula at integer parameters.
 
 ## Main results
 
 * `Complex.hasSum_regularizedHGFun_zero_singleton`: the series of the regularized `₀F₁`.
+* `Complex.iteratedDeriv_regularizedHGFun_zero_singleton`: `(d/dz)ⁿ F̃₀₁(c; z) = F̃₀₁(c + n; z)`,
+  Carlson's (6.9-23).
+* `Complex.regularizedHGFun_zero_singleton_sub_one`: the contiguous relation
+  `F̃₀₁(c - 1; z) = (c - 1) F̃₀₁(c; z) + z F̃₀₁(c + 1; z)`.
+* `Complex.iteratedDeriv_cpow_mul_regularizedHGFun`: `dⁿ/dzⁿ [z^{c-1} F̃₀₁(c; z)] =
+  z^{c-n-1} F̃₀₁(c - n; z)` on the slit plane (Carlson, Exercise 6.9-20).
+* `Complex.regularizedHGFun_zero_singleton_one_sub_int`: the reflection formula (6.9-24),
+  `F̃₀₁(1 - n; z) = zⁿ F̃₀₁(1 + n; z)` for `n ∈ ℤ` and `z ≠ 0`.
 * `Complex.norm_besselJ_intCast_le`: the bound for integer orders.
 * `Complex.hasSum_regularizedHGFun`: the series of an entire regularized hypergeometric function.
 * `Complex.besselI`: the modified Bessel function `Iₐ`, with `Jₘ(ix) = iᵐ Iₘ(x)`
@@ -39,6 +51,145 @@ theorem hasSum_regularizedHGFun_zero_singleton (c z : ℂ) :
   rw [regularizedHGFunSeries, FormalMultilinearSeries.ofScalars_apply_eq]
   simp [regularizedHGFunCoeff, div_eq_mul_inv, mul_comm]
 
+/-- The series of the regularized `₀F₁` converges absolutely. -/
+theorem summable_norm_regularizedHGFun_zero_singleton (c z : ℂ) :
+    Summable fun n : ℕ => ‖z ^ n / (n.factorial * Gamma (c + n))‖ := by
+  have h := (regularizedHGFunSeries 0 {c}).summable_norm_apply (x := z)
+    (by simp [radius_regularizedHGFunSeries_zero_eq_top])
+  refine h.congr fun n => ?_
+  rw [regularizedHGFunSeries, FormalMultilinearSeries.ofScalars_apply_eq]
+  simp [regularizedHGFunCoeff, div_eq_mul_inv, mul_comm]
+
+/-- The derivative of the regularized `₀F₁`: `d/dz F̃₀₁(c; z) = F̃₀₁(c + 1; z)`. -/
+theorem hasDerivAt_regularizedHGFun_zero_singleton (c y : ℂ) :
+    HasDerivAt (regularizedHGFun 0 {c}) (regularizedHGFun 0 {c + 1} y) y := by
+  set R : ℝ := ‖y‖ + 1
+  have hR : 0 ≤ R := by positivity
+  set g : ℕ → ℂ → ℂ := fun n z => z ^ n / (n.factorial * Gamma (c + n))
+  set g' : ℕ → ℂ → ℂ := fun n z => n * z ^ (n - 1) / (n.factorial * Gamma (c + n))
+  set u : ℕ → ℝ := fun n => ‖g' n R‖
+  have hshift (n : ℕ) (z : ℂ) :
+      g' (n + 1) z = z ^ n / (n.factorial * Gamma (c + 1 + n)) := by
+    simp only [g', Nat.factorial_succ, Nat.add_sub_cancel]
+    push_cast
+    rw [show c + (n + 1 : ℂ) = c + 1 + n by ring]
+    have : ((n : ℂ) + 1) ≠ 0 := by exact_mod_cast n.succ_ne_zero
+    field_simp
+  have hu : Summable u := by
+    rw [← summable_nat_add_iff 1]
+    refine (summable_norm_regularizedHGFun_zero_singleton (c + 1) R).congr fun n => ?_
+    simp only [u, hshift]
+  have hg (n : ℕ) (z : ℂ) (_ : z ∈ Metric.ball (0 : ℂ) R) : HasDerivAt (g n) (g' n z) z :=
+    (hasDerivAt_pow n z).div_const _
+  have hg' (n : ℕ) (z : ℂ) (hz : z ∈ Metric.ball (0 : ℂ) R) : ‖g' n z‖ ≤ u n := by
+    rw [mem_ball_zero_iff] at hz
+    simp only [u, g', norm_div, norm_mul, norm_pow, norm_natCast, Complex.norm_real,
+      Real.norm_of_nonneg hR]
+    gcongr
+  have hyR : y ∈ Metric.ball (0 : ℂ) R := by
+    rw [mem_ball_zero_iff]; simp only [R]; linarith
+  have H := hasDerivAt_tsum_of_isPreconnected hu Metric.isOpen_ball
+    (convex_ball (0 : ℂ) R).isPreconnected hg hg' hyR
+    (summable_norm_regularizedHGFun_zero_singleton c y).of_norm hyR
+  have hf : regularizedHGFun 0 {c} = fun z => ∑' n, g n z := by
+    funext z; exact (hasSum_regularizedHGFun_zero_singleton c z).tsum_eq.symm
+  rw [hf]
+  convert H using 1
+  have hs : HasSum (fun n => g' n y) (regularizedHGFun 0 {c + 1} y) := by
+    refine (hasSum_nat_add_iff' 1).mp ?_
+    rw [Finset.range_one, Finset.sum_singleton, show g' 0 y = 0 by simp [g'], sub_zero]
+    exact (hasSum_regularizedHGFun_zero_singleton (c + 1) y).congr_fun fun n => hshift n y
+  exact hs.tsum_eq.symm
+
+/-- The iterated derivatives of the regularized `₀F₁`:
+`(d/dz)ⁿ F̃₀₁(c; z) = F̃₀₁(c + n; z)`. -/
+theorem iteratedDeriv_regularizedHGFun_zero_singleton (c : ℂ) (n : ℕ) :
+    iteratedDeriv n (regularizedHGFun 0 {c}) = regularizedHGFun 0 {c + n} := by
+  induction n generalizing c with
+  | zero => simp
+  | succ n ih =>
+    rw [iteratedDeriv_succ', show c + ((n + 1 : ℕ) : ℂ) = c + 1 + n by push_cast; ring, ← ih]
+    congr 1
+    funext y
+    exact (hasDerivAt_regularizedHGFun_zero_singleton c y).deriv
+
+
+/-- The reciprocal Gamma function satisfies `1/Γ(z) = z/Γ(z + 1)` everywhere, including at the
+poles, where both sides vanish. -/
+theorem inv_Gamma_eq_mul_inv_Gamma_add_one (z : ℂ) : (Gamma z)⁻¹ = z * (Gamma (z + 1))⁻¹ := by
+  rcases eq_or_ne z 0 with rfl | hz
+  · simp [Gamma_zero]
+  · rw [Gamma_add_one z hz, mul_inv, ← mul_assoc, mul_inv_cancel₀ hz, one_mul]
+
+/-- The contiguous relation `F̃₀₁(c - 1; z) = (c - 1) F̃₀₁(c; z) + z F̃₀₁(c + 1; z)`. -/
+theorem regularizedHGFun_zero_singleton_sub_one (c z : ℂ) :
+    regularizedHGFun 0 {c - 1} z =
+      (c - 1) * regularizedHGFun 0 {c} z + z * regularizedHGFun 0 {c + 1} z := by
+  set b : ℕ → ℂ := fun k => z ^ k / (k.factorial * Gamma (c + 1 + k))
+  set b' : ℕ → ℂ := fun k => if k = 0 then 0 else z * b (k - 1)
+  have hb' : HasSum b' (z * regularizedHGFun 0 {c + 1} z) := by
+    refine (hasSum_nat_add_iff' 1).mp ?_
+    simp only [b', Finset.range_one, Finset.sum_singleton, ↓reduceIte, sub_zero,
+      Nat.add_one_ne_zero, Nat.add_sub_cancel]
+    exact (hasSum_regularizedHGFun_zero_singleton (c + 1) z).mul_left z
+  have H := ((hasSum_regularizedHGFun_zero_singleton c z).mul_left (c - 1)).add hb'
+  refine ((hasSum_regularizedHGFun_zero_singleton (c - 1) z).unique (H.congr_fun fun k => ?_))
+  rcases k with _ | k
+  · simp only [b', ↓reduceIte, add_zero, pow_zero, Nat.factorial_zero, Nat.cast_one, one_mul,
+      Nat.cast_zero]
+    rw [one_div, one_div, inv_Gamma_eq_mul_inv_Gamma_add_one (c - 1), sub_add_cancel]
+  · simp only [b, b', Nat.add_one_ne_zero, ↓reduceIte, Nat.add_sub_cancel, Nat.factorial_succ]
+    push_cast
+    rw [show c - 1 + (k + 1) = c + k by ring, show c + (k + 1) = c + 1 + k by ring,
+      div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, mul_inv, mul_inv, mul_inv, mul_inv,
+      inv_Gamma_eq_mul_inv_Gamma_add_one (c + k), show c + k + 1 = c + 1 + k by ring]
+    have : ((k : ℂ) + 1) ≠ 0 := by exact_mod_cast k.succ_ne_zero
+    field_simp
+    ring
+
+/-- The derivative of `z^{c-1} F̃₀₁(c; z)` on the slit plane is `z^{c-2} F̃₀₁(c - 1; z)`. -/
+theorem hasDerivAt_cpow_mul_regularizedHGFun (c : ℂ) {z : ℂ} (hz : z ∈ slitPlane) :
+    HasDerivAt (fun y => y ^ (c - 1) * regularizedHGFun 0 {c} y)
+      (z ^ (c - 1 - 1) * regularizedHGFun 0 {c - 1} z) z := by
+  have hz0 : z ≠ 0 := slitPlane_ne_zero hz
+  have h := ((hasStrictDerivAt_cpow_const (c := c - 1) hz).hasDerivAt).mul
+    (hasDerivAt_regularizedHGFun_zero_singleton c z)
+  have hp : z ^ (c - 1) = z ^ (c - 1 - 1) * z := by
+    conv_lhs => rw [show c - 1 = c - 1 - 1 + 1 by ring]
+    rw [cpow_add _ _ hz0, cpow_one]
+  convert h using 1
+  rw [regularizedHGFun_zero_singleton_sub_one, hp]
+  ring
+
+/-- **Exercise 6.9-20** (second formula): on the slit plane,
+`dⁿ/dzⁿ [z^{c-1} F̃₀₁(c; z)] = z^{c-n-1} F̃₀₁(c - n; z)`. -/
+theorem iteratedDeriv_cpow_mul_regularizedHGFun (c : ℂ) (n : ℕ) {z : ℂ} (hz : z ∈ slitPlane) :
+    iteratedDeriv n (fun y => y ^ (c - 1) * regularizedHGFun 0 {c} y) z =
+      z ^ (c - n - 1) * regularizedHGFun 0 {c - n} z := by
+  induction n generalizing z with
+  | zero => simp
+  | succ n ih =>
+    rw [iteratedDeriv_succ]
+    have he : iteratedDeriv n (fun y => y ^ (c - 1) * regularizedHGFun 0 {c} y) =ᶠ[nhds z]
+        fun y => y ^ (c - n - 1) * regularizedHGFun 0 {c - n} y :=
+      (isOpen_slitPlane.eventually_mem hz).mono fun y hy => ih hy
+    rw [he.deriv_eq, (hasDerivAt_cpow_mul_regularizedHGFun (c - n) hz).deriv]
+    push_cast
+    rw [show c - (n + 1) = c - n - 1 by ring]
+
+/-- **Carlson's reflection formula (6.9-24)** at integer order: for `z ≠ 0` and `n ∈ ℤ`,
+`F̃₀₁(1 - n; z) = zⁿ F̃₀₁(1 + n; z)`. -/
+theorem regularizedHGFun_zero_singleton_one_sub_int (n : ℤ) {z : ℂ} (hz : z ≠ 0) :
+    regularizedHGFun 0 {1 - (n : ℂ)} z = z ^ n * regularizedHGFun 0 {1 + (n : ℂ)} z := by
+  obtain ⟨k, rfl | rfl⟩ := Int.eq_nat_or_neg n
+  · have h := regularizedHGFun_zero_singleton_neg_nat_add_one k z
+    rw [show -(k : ℂ) + 1 = 1 - k by ring, add_comm (k : ℂ)] at h
+    simpa using h
+  · have h := regularizedHGFun_zero_singleton_neg_nat_add_one k z
+    rw [show -(k : ℂ) + 1 = 1 - k by ring, add_comm (k : ℂ)] at h
+    push_cast
+    rw [sub_neg_eq_add, ← sub_eq_add_neg, h, zpow_neg, zpow_natCast, ← mul_assoc,
+      inv_mul_cancel₀ (pow_ne_zero _ hz), one_mul]
 
 /-- The regularized `₀F₁(n + 1; z)` is bounded by `exp ‖z‖ / n!`. -/
 theorem norm_regularizedHGFun_natCast_add_one_le (n : ℕ) (z : ℂ) :
