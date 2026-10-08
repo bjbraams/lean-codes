@@ -21,7 +21,8 @@ The local singularity estimate specializes the Tau Ceti contributors'
 
 ## Main results
 
-* `intervalIntegrable_abs_sub_rpow`: `|σ - c|^r` is interval integrable for `r > -1`.
+* `intervalIntegral.intervalIntegrable_abs_sub_rpow`: `|σ - c|^r` is interval integrable for
+  `r > -1`.
 * `integrable_prod_abs_sub_rpow_neg`: integrability of `∏ |σ - xᵢ|^{-bᵢ}` on `ℝ`.
 -/
 
@@ -31,7 +32,7 @@ open Set Filter MeasureTheory Topology
 
 /-- For `r > -1`, `σ ↦ |σ - c|^r` is interval integrable on every interval.
 Uses `TauCeti.locallyIntegrable_norm_sub_rpow`. -/
-theorem intervalIntegrable_abs_sub_rpow {r : ℝ} (hr : -1 < r) (c a b : ℝ) :
+theorem intervalIntegral.intervalIntegrable_abs_sub_rpow {r : ℝ} (hr : -1 < r) (c a b : ℝ) :
     IntervalIntegrable (fun σ : ℝ ↦ |σ - c| ^ r) volume a b := by
   have h : LocallyIntegrable (fun y : ℝ ↦ ‖c - y‖ ^ r) volume :=
     TauCeti.locallyIntegrable_norm_sub_rpow (by simpa using hr) c
@@ -107,7 +108,7 @@ theorem integrable_prod_abs_sub_rpow_neg {ι : Type*} [Fintype ι] {x : ι → �
           simp only [this, ↓reduceIte]
         rw [hgeq]
         refine Integrable.const_mul ?_ _
-        have := intervalIntegrable_abs_sub_rpow (r := -b j) (by linarith [hb1 j]) y
+        have := intervalIntegral.intervalIntegrable_abs_sub_rpow (r := -b j) (by linarith [hb1 j]) y
           (y - δ) (y + δ)
         rw [intervalIntegrable_iff_integrableOn_Ioo_of_le (by linarith)] at this
         exact this

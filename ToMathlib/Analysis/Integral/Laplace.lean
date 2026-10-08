@@ -64,7 +64,7 @@ end Complex
 namespace MeasureTheory
 
 /-- The absolute Gaussian moment of natural order `m` and real rate `c`. -/
-def gaussianAbsMoment (c : ℝ) (m : ℕ) : ℝ :=
+private def gaussianAbsMoment (c : ℝ) (m : ℕ) : ℝ :=
   ∫ t : ℝ, |t| ^ m * Real.exp (-c * t ^ 2)
 
 /-- Every absolute Gaussian moment is integrable when its rate is positive. -/
@@ -76,11 +76,11 @@ theorem integrable_abs_pow_mul_gaussian {c : ℝ} (hc : 0 < c) (m : ℕ) :
     abs_of_pos (Real.exp_pos _)] using h.norm
 
 /-- Absolute Gaussian moments are nonnegative, also for totalized divergent integrals. -/
-theorem gaussianAbsMoment_nonneg (c : ℝ) (m : ℕ) : 0 ≤ gaussianAbsMoment c m :=
+private theorem gaussianAbsMoment_nonneg (c : ℝ) (m : ℕ) : 0 ≤ gaussianAbsMoment c m :=
   integral_nonneg (fun _ ↦ by positivity)
 
 /-- Absolute Gaussian moments evaluated by the Gamma integral. -/
-theorem gaussianAbsMoment_eq_Gamma {c : ℝ} (hc : 0 < c) (m : ℕ) :
+private theorem gaussianAbsMoment_eq_Gamma {c : ℝ} (hc : 0 < c) (m : ℕ) :
     gaussianAbsMoment c m = c ^ (-((m : ℝ) + 1) / 2) * Real.Gamma (((m : ℝ) + 1) / 2) := by
   let f : ℝ → ℝ := fun t ↦ |t| ^ m * Real.exp (-c * t ^ 2)
   have hneg : (∫ t in Iic (0 : ℝ), f t) = ∫ t in Ioi (0 : ℝ), f t := by
@@ -101,12 +101,13 @@ theorem gaussianAbsMoment_eq_Gamma {c : ℝ} (hc : 0 < c) (m : ℕ) :
   ring
 
 /-- The first absolute Gaussian moment is the reciprocal of the rate. -/
-theorem gaussianAbsMoment_one {c : ℝ} (hc : 0 < c) : gaussianAbsMoment c 1 = c⁻¹ := by
+private theorem gaussianAbsMoment_one {c : ℝ} (hc : 0 < c) : gaussianAbsMoment c 1 = c⁻¹ := by
   rw [gaussianAbsMoment_eq_Gamma hc]
   norm_num [Real.rpow_neg_one]
 
 /-- The third absolute Gaussian moment is the reciprocal square of the rate. -/
-theorem gaussianAbsMoment_three {c : ℝ} (hc : 0 < c) : gaussianAbsMoment c 3 = (c ^ 2)⁻¹ := by
+private theorem gaussianAbsMoment_three {c : ℝ} (hc : 0 < c) :
+    gaussianAbsMoment c 3 = (c ^ 2)⁻¹ := by
   rw [gaussianAbsMoment_eq_Gamma hc]
   norm_num [Real.rpow_neg hc.le, Real.rpow_two]
 
@@ -177,7 +178,7 @@ theorem integrable_laplace {A q : ℝ → ℂ} {c L M n : ℝ}
 
 /-- A quantitative Laplace estimate after rescaling, for a complex quadratic coefficient
 with positive real part. The error is bounded by absolute Gaussian moments. -/
-theorem norm_integral_laplace_rescaled_sub_le {A q : ℝ → ℂ} {c L M B r : ℝ}
+private theorem norm_integral_laplace_rescaled_sub_le {A q : ℝ → ℂ} {c L M B r : ℝ}
     (hc : 0 < c) (hr : 0 < r)
     (hAc : Measurable A) (hqc : Measurable q)
     (hq : ∀ t, c ≤ (q t).re) (hA0 : ‖A 0‖ ≤ M)

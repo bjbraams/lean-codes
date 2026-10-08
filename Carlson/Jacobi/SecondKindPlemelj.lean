@@ -68,7 +68,7 @@ theorem intervalIntegrable_jacobiCauchyDifferenceQuotient {α β : ℂ}
     (hα : -1 < α.re) (hβ : -1 < β.re) (n : ℕ) {x : ℝ}
     (hx : x ∈ Ioo (0 : ℝ) 1) :
     IntervalIntegrable (fun t : ℝ =>
-      (jacobiCauchyDensity α β n t - jacobiCauchyDensity α β n x) / ((x : ℂ) - t)) volume 0 1 :=
+      ((x : ℂ) - t)⁻¹ • (jacobiCauchyDensity α β n t - jacobiCauchyDensity α β n x)) volume 0 1 :=
   intervalIntegrable_cauchyDifferenceQuotient (intervalIntegrable_jacobiCauchyDensity hα hβ n)
     (differentiableAt_jacobiCauchyDensity α β n hx)
 
@@ -89,15 +89,18 @@ theorem tendsto_jacobiSecondKind_upper {α β : ℂ} (hα : -1 < α.re)
       (jacobiCauchyCoefficient α β n)
   have he : jacobiCauchyCoefficient α β n *
       (cauchyPrincipalValue (jacobiCauchyDensity α β n) 0 1 x -
-        (Real.pi : ℂ) * I * jacobiCauchyDensity α β n x) =
+        ((Real.pi : ℂ) * I) • jacobiCauchyDensity α β n x) =
       jacobiSecondKindPrincipalValue α β n x -
         (Real.pi : ℂ) * I * jacobiCauchyCoefficient α β n * jacobiCauchyDensity α β n x := by
     dsimp [jacobiSecondKindPrincipalValue]; ring
   rw [he] at h
   apply h.congr'
   filter_upwards [eventually_gt_atTop (0 : ℝ)] with c hc
-  exact (jacobiSecondKind_eq_complexCauchyIntegral hα hβ n
-    (not_mem_unitSegment_of_im_ne_zero (by simp [hc.ne']))).symm
+  rw [jacobiSecondKind_eq_complexCauchyIntegral hα hβ n
+    (not_mem_unitSegment_of_im_ne_zero (by simp [hc.ne']))]
+  congr 1
+  exact intervalIntegral.integral_congr fun t _ ↦ by
+    simp only [jacobiCauchyDensity, smul_eq_mul]; ring
 
 /-- The lower boundary value equals the normalized principal value plus the
 half-jump `πi` times the normalized density. -/
@@ -112,15 +115,18 @@ theorem tendsto_jacobiSecondKind_lower {α β : ℂ} (hα : -1 < α.re)
       (jacobiCauchyCoefficient α β n)
   have he : jacobiCauchyCoefficient α β n *
       (cauchyPrincipalValue (jacobiCauchyDensity α β n) 0 1 x +
-        (Real.pi : ℂ) * I * jacobiCauchyDensity α β n x) =
+        ((Real.pi : ℂ) * I) • jacobiCauchyDensity α β n x) =
       jacobiSecondKindPrincipalValue α β n x +
         (Real.pi : ℂ) * I * jacobiCauchyCoefficient α β n * jacobiCauchyDensity α β n x := by
     dsimp [jacobiSecondKindPrincipalValue]; ring
   rw [he] at h
   apply h.congr'
   filter_upwards [eventually_gt_atTop (0 : ℝ)] with c hc
-  exact (jacobiSecondKind_eq_complexCauchyIntegral hα hβ n
-    (not_mem_unitSegment_of_im_ne_zero (by simp [hc.ne']))).symm
+  rw [jacobiSecondKind_eq_complexCauchyIntegral hα hβ n
+    (not_mem_unitSegment_of_im_ne_zero (by simp [hc.ne']))]
+  congr 1
+  exact intervalIntegral.integral_congr fun t _ ↦ by
+    simp only [jacobiCauchyDensity, smul_eq_mul]; ring
 
 /-- The normalized symmetric real-axis truncations converge to the same
 principal value that occurs in both separate Jacobi boundary formulas. -/
@@ -129,10 +135,11 @@ theorem tendsto_jacobiSecondKind_principalValue {α β : ℂ} (hα : -1 < α.re)
     Tendsto (fun c : ℝ => jacobiCauchyCoefficient α β n *
       ((∫ t in (0 : ℝ)..x - c⁻¹, jacobiCauchyDensity α β n t * ((x : ℂ) - t)⁻¹) +
        (∫ t in x + c⁻¹..1, jacobiCauchyDensity α β n t * ((x : ℂ) - t)⁻¹))) atTop
-      (𝓝 (jacobiSecondKindPrincipalValue α β n x)) :=
-  (tendsto_intervalIntegral_cauchy_principalValue hx
+      (𝓝 (jacobiSecondKindPrincipalValue α β n x)) := by
+  refine ((tendsto_intervalIntegral_cauchy_principalValue hx
     (intervalIntegrable_jacobiCauchyDifferenceQuotient hα hβ n hx)).const_mul
-      (jacobiCauchyCoefficient α β n)
+      (jacobiCauchyCoefficient α β n)).congr fun c ↦ ?_
+  congr 2 <;> exact intervalIntegral.integral_congr fun t _ ↦ by rw [smul_eq_mul, mul_comm]
 
 /-- The upper Jacobi boundary value transported to distinct complex endpoints.
 The approach is perpendicular to the segment in affine unit coordinates. -/

@@ -277,9 +277,9 @@ theorem contDiffOn_regCarlsonRealAverage {Ω : Set ℝ} (hΩo : IsOpen Ω) (hΩc
     exact contDiffOn_zero.mpr (continuousOn_regCarlsonRealAverage hΩo hΩc hf.continuousOn hb)
   | succ n ih =>
     have hd : ∀ x ∈ Ω, HasDerivAt f (deriv f x) x := fun x hx => by
-      simpa using hf.hasDerivAt_iteratedDeriv_of_isOpen hΩo (k := 0) (by omega) hx
+      simpa using hf.hasDerivAt_iteratedDeriv_of_isOpen hΩo (k := 0) (by norm_cast; omega) hx
     have hf' : ContDiffOn ℝ n (deriv f) Ω := by
-      simpa using hf.contDiffOn_iteratedDeriv_of_isOpen hΩo (k := 1) (by omega)
+      simpa using hf.contDiffOn_iteratedDeriv_of_isOpen hΩo (m := n) (k := 1) (by norm_cast)
     have hF : ∀ z ∈ realNodeDomain Ω, HasFDerivAt (fun x => regCarlsonRealAverage b x f)
         (realAverageDeriv b (deriv f) z) z := fun z hz =>
       hasFDerivAt_regCarlsonRealAverage hΩo hΩc hd hf'.continuousOn hb hz
@@ -346,8 +346,8 @@ theorem realIteratedPartialDeriv_eq_iteratedShift {Ω : Set ℝ} (hΩo : IsOpen 
       exact ih (by omega) hw
     have hk : is.length < n := by omega
     have hF := (hasFDerivAt_regCarlsonRealAverage hΩo hΩc
-      (fun x hx => hf.hasDerivAt_iteratedDeriv_of_isOpen hΩo hk hx)
-      (hf.contDiffOn_iteratedDeriv_of_isOpen hΩo (k := is.length + 1) (by omega)).continuousOn
+      (fun x hx => hf.hasDerivAt_iteratedDeriv_of_isOpen hΩo (by exact_mod_cast hk) hx)
+      (hf.continuousOn_iteratedDeriv_of_isOpen hΩo (k := is.length + 1) (by norm_cast))
       (iteratedAddDirichletUnit_mem hb is) hz).const_mul (iteratedDirichletShiftCoeff is b)
     rw [realPartialDeriv_eq_of_hasFDerivAt (hF.congr_of_eventuallyEq hev)]
     simp only [smul_apply, FunLike.coe_sum, Finset.sum_apply, realProj_apply, smul_eq_mul]
@@ -424,8 +424,8 @@ theorem realDiagDeriv_iterate_regCarlsonRealAverage {Ω : Set ℝ} (hΩo : IsOpe
       exact ih (by omega) hw
     rw [hev.fderiv_eq, ← realDiagDeriv]
     exact realDiagDeriv_regCarlsonRealAverage hΩo hΩc
-      (fun x hx => hf.hasDerivAt_iteratedDeriv_of_isOpen hΩo (by omega) hx)
-      (hf.contDiffOn_iteratedDeriv_of_isOpen hΩo (k := k + 1) hk).continuousOn hb hz
+      (fun x hx => hf.hasDerivAt_iteratedDeriv_of_isOpen hΩo (by norm_cast) hx)
+      (hf.continuousOn_iteratedDeriv_of_isOpen hΩo (k := k + 1) (by exact_mod_cast hk)) hb hz
 
 omit [Fintype ι] in
 open scoped Classical in
@@ -451,7 +451,7 @@ theorem contDiffOn_realCarlsonDelta {Ω : Set ℝ} (hΩo : IsOpen Ω) {m : ℕ} 
     (hg : ContDiffOn ℝ (m + 1 : ℕ) g Ω) (α β γ : ℂ) :
     ContDiffOn ℝ m (realCarlsonDelta α β γ g) Ω := by
   have hg' : ContDiffOn ℝ m (deriv g) Ω := by
-    simpa using hg.contDiffOn_iteratedDeriv_of_isOpen hΩo (k := 1) (by omega)
+    simpa using hg.contDiffOn_iteratedDeriv_of_isOpen hΩo (m := m) (k := 1) (by norm_cast)
   unfold realCarlsonDelta
   exact (contDiffOn_const.mul (hg.of_le (by push_cast; exact le_self_add))).add
     ((contDiffOn_const.add (contDiffOn_const.mul (ofRealCLM.contDiff.contDiffOn))).mul hg')
@@ -465,11 +465,10 @@ theorem realCarlsonCapDelta_regCarlsonRealAverage {Ω : Set ℝ} (hΩo : IsOpen 
   have hd : ∀ x ∈ Ω, HasDerivAt g (deriv g x) x := fun x hx => by
     simpa using ContDiffOn.hasDerivAt_iteratedDeriv_of_isOpen (hs := hΩo) (n := 1)
       (by simpa using hg)
-      (k := 0) (by omega) hx
+      (k := 0) (by norm_cast) hx
   have hg' : ContinuousOn (deriv g) Ω := by
-    simpa using (ContDiffOn.contDiffOn_iteratedDeriv_of_isOpen (hs := hΩo) (n := 1)
-      (by simpa using hg)
-      (k := 1) le_rfl).continuousOn
+    simpa using ContDiffOn.continuousOn_iteratedDeriv_of_isOpen (hs := hΩo) (n := 1)
+      (by simpa using hg) (k := 1) (by norm_cast)
   have hgc := continuousOn_comp_realAffineForm hΩc hg.continuousOn hz
   have hdc := continuousOn_comp_realAffineForm hΩc hg' hz
   simp only [realCarlsonCapDelta, realPartialDeriv_regCarlsonRealAverage hΩo hΩc hd hg' hb hz]
@@ -646,10 +645,10 @@ theorem realEulerPoissonOperator_regCarlsonRealAverage {Ω : Set ℝ} (hΩo : Is
     realEulerPoissonOperator i j b z (fun x => regCarlsonRealAverage b x f) = 0 := by
   have hf2 : ContDiffOn ℝ (2 : ℕ) f Ω := by simpa using hf
   have hd0 : ∀ x ∈ Ω, HasDerivAt f (iteratedDeriv 1 f x) x := fun x hx => by
-    simpa using hf2.hasDerivAt_iteratedDeriv_of_isOpen hΩo (k := 0) (by omega) hx
+    simpa using hf2.hasDerivAt_iteratedDeriv_of_isOpen hΩo (k := 0) (by norm_cast) hx
   have hd1 : ∀ x ∈ Ω, HasDerivAt (iteratedDeriv 1 f) (iteratedDeriv 2 f x) x := fun x hx =>
-    hf2.hasDerivAt_iteratedDeriv_of_isOpen hΩo (k := 1) (by omega) hx
-  have hc1 := hf2.continuousOn_iteratedDeriv_of_isOpen hΩo (k := 1) (by omega)
+    hf2.hasDerivAt_iteratedDeriv_of_isOpen hΩo (k := 1) (by norm_cast) hx
+  have hc1 := hf2.continuousOn_iteratedDeriv_of_isOpen hΩo (k := 1) (by norm_cast)
   have hc2 := hf2.continuousOn_iteratedDeriv_of_isOpen hΩo (k := 2) le_rfl
   have hD (k : ι) : realPartialDeriv k (fun x => regCarlsonRealAverage b x f) =ᶠ[𝓝 z]
       fun x => b k * regCarlsonRealAverage (addDirichletUnit b k) x (iteratedDeriv 1 f) := by

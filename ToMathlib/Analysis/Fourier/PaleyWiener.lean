@@ -30,24 +30,27 @@ box `|x i| ≤ ρ i`, and `F` is the Fourier–Laplace transform of `f`.
 
 The support statement reduces to one variable. For `|x j| > ρ j`, Fubini isolates the `j`-th
 frequency, and in that variable the line of integration is shifted to `ℝ + iη` by Cauchy's
-theorem on rectangles (`integral_add_mul_I_eq_of_bound`). The shifted integral is bounded by a
-multiple of `exp (2π (ρ j - |x j|) |η|)`, which tends to zero as `|η| → ∞` in the right direction.
+theorem on rectangles (`Complex.integral_add_mul_I_eq_of_bound`). The shifted integral is bounded
+by a multiple of `exp (2π (ρ j - |x j|) |η|)`, which tends to zero as `|η| → ∞` in the right
+direction.
 
 ## Main results
 
-* `integral_add_mul_I_eq_of_bound`: shifting a line of integration for an entire function that
-  decays like `(1 + |x|)^(-2)` uniformly in a horizontal strip.
-* `fourierInv_eq_zero_of_paleyWiener`: the support statement, from one bound with
+* `Complex.integral_add_mul_I_eq_of_bound`: shifting a line of integration for an entire
+  function that decays like `(1 + |x|)^(-2)` uniformly in a horizontal strip.
+* `PaleyWiener.fourierInv_eq_zero_of_bound`: the support statement, from one bound with
   `N = card ι + 2`.
-* `paleyWiener`: under the bounds for every `N`, `f = 𝓕⁻ (F|ℝ^ι)` is smooth, vanishes outside the
-  box, has compact support, and `𝓕 f = F|ℝ^ι`.
-* `norm_fourierLaplace_le_of_contDiff`: the converse bounds for smooth `ψ` supported in the box.
-* `fourier_eq_fourierLaplace`, `eq_zero_of_fourierLaplace_eq_zero`: the Fourier–Laplace transform
-  on real frequencies and its injectivity.
+* `PaleyWiener.fourierInv_of_bound`: under the bounds for every `N`, `f = 𝓕⁻ (F|ℝ^ι)` is smooth,
+  vanishes outside the box, has compact support, and `𝓕 f = F|ℝ^ι`.
+* `PaleyWiener.norm_fourierLaplace_le_of_contDiff`: the converse bounds for smooth `ψ` supported
+  in the box `Function.support ψ ⊆ Set.univ.pi fun j ↦ Icc (-ρ j) (ρ j)`.
+* `PaleyWiener.fourierLaplace_lineDeriv`: integration by parts for `lineDeriv`.
+* `PaleyWiener.fourier_eq_fourierLaplace`, `PaleyWiener.eq_zero_of_fourierLaplace_eq_zero`: the
+  Fourier–Laplace transform on real frequencies and its injectivity.
 
 Conversely (`norm_fourierLaplace_le_of_contDiff`), the Fourier–Laplace transform
-`FL ψ(ζ) = ∫ e^(-2πi ⟨ζ, w⟩) ψ(w) dw` of a smooth function vanishing outside the box satisfies these
-bounds: `‖FL ψ(ζ)‖ ≤ ‖ψ‖₁ exp (2π ∑ ρ j |Im ζ j|)`, and integration by parts gives
+`FL ψ(ζ) = ∫ e^(-2πi ⟨ζ, w⟩) ψ(w) dw` of a smooth function vanishing outside the box satisfies
+these bounds: `‖FL ψ(ζ)‖ ≤ ‖ψ‖₁ exp (2π ∑ ρ j |Im ζ j|)`, and integration by parts gives
 `FL (∂_j ψ) = 2πi ζ_j FL ψ`. A continuous compactly supported `ψ` whose transform vanishes at the
 real points is zero (`eq_zero_of_fourierLaplace_eq_zero`, by Fourier inversion).
 
@@ -70,7 +73,7 @@ open scoped Topology FourierTransform Real ContDiff
 `‖f (x + y I)‖ ≤ C (1 + |x|)^(-2)` whenever `|y| ≤ |η|`, then
 `∫ f (x + η I) dx = ∫ f x dx`. This is `Complex.integral_vertical_eq_of_bound` for
 `s ↦ f (I s)`. -/
-theorem integral_add_mul_I_eq_of_bound {f : ℂ → ℂ} (hf : Differentiable ℂ f) {η C : ℝ}
+theorem Complex.integral_add_mul_I_eq_of_bound {f : ℂ → ℂ} (hf : Differentiable ℂ f) {η C : ℝ}
     (hC : ∀ x y : ℝ, |y| ≤ |η| → ‖f (x + y * I)‖ ≤ C * (1 + |x|) ^ (-2 : ℝ)) :
     ∫ x : ℝ, f (x + η * I) = ∫ x : ℝ, f x := by
   have hrot (σ t : ℝ) : I * ((σ : ℂ) + t * I) = ((-t : ℝ) : ℂ) + σ * I := by
@@ -95,6 +98,8 @@ theorem integral_add_mul_I_eq_of_bound {f : ℂ → ℂ} (hf : Differentiable �
   · simpa [min_eq_left h, max_eq_right h] using h0.symm
   · simpa [min_eq_right h, max_eq_left h] using h0
 
+namespace PaleyWiener
+
 section Support
 
 variable {ι : Type*} [Fintype ι]
@@ -113,7 +118,7 @@ theorem norm_le_norm_of_re {v : ι → ℝ} {ζ : ι → ℂ} (h : ∀ i, (ζ i)
 `‖F ζ‖ ≤ C (1 + ‖ζ‖)^(-(card ι + 2)) exp (2π ∑ i, ρ i |Im ζ i|)` and `ρ ≥ 0`. Then the inverse
 Fourier transform of the restriction of `F` to `ℝ^ι` vanishes at every `x` with `|x j| > ρ j`
 for some `j`. -/
-theorem fourierInv_eq_zero_of_paleyWiener {F : (ι → ℂ) → ℂ} (hF : Differentiable ℂ F)
+theorem fourierInv_eq_zero_of_bound {F : (ι → ℂ) → ℂ} (hF : Differentiable ℂ F)
     {ρ : ι → ℝ} (hρ : ∀ i, 0 ≤ ρ i) {C : ℝ}
     (hbd : ∀ ζ, ‖F ζ‖ ≤ C * (1 + ‖ζ‖) ^ (-(Fintype.card ι + 2 : ℝ)) *
       Real.exp (2 * π * ∑ i, ρ i * |(ζ i).im|))
@@ -323,7 +328,7 @@ theorem one_add_norm_rpow_neg_le (ξ : EuclideanSpace ℝ ι) {N : ℝ} (hN : 0 
 /-- **The Paley–Wiener theorem.** Let `F` be entire on `ℂ^ι`, `ρ ≥ 0`, and suppose that for every
 `N` there is `C` with `‖F ζ‖ ≤ C (1 + ‖ζ‖)^(-N) exp (2π ∑ i, ρ i |Im ζ i|)`. Then
 `f = 𝓕⁻ (F|ℝ^ι)` is smooth, vanishes outside the box `|x i| ≤ ρ i`, and `𝓕 f = F|ℝ^ι`. -/
-theorem paleyWiener {F : (ι → ℂ) → ℂ} (hF : Differentiable ℂ F) {ρ : ι → ℝ}
+theorem fourierInv_of_bound {F : (ι → ℂ) → ℂ} (hF : Differentiable ℂ F) {ρ : ι → ℝ}
     (hρ : ∀ i, 0 ≤ ρ i)
     (hbd : ∀ N : ℕ, ∃ C, ∀ ζ, ‖F ζ‖ ≤ C * (1 + ‖ζ‖) ^ (-(N : ℝ)) *
       Real.exp (2 * π * ∑ i, ρ i * |(ζ i).im|)) :
@@ -374,7 +379,7 @@ theorem paleyWiener {F : (ι → ℂ) → ℂ} (hF : Differentiable ℂ F) {ρ :
   -- Support.
   obtain ⟨C, hC⟩ := hbd (Fintype.card ι + 2)
   have hsupp : ∀ x : EuclideanSpace ℝ ι, ∀ j, ρ j < |x j| → 𝓕⁻ g x = 0 := fun x j hj ↦
-    fourierInv_eq_zero_of_paleyWiener hF hρ (C := C) (by exact_mod_cast hC) hj
+    fourierInv_eq_zero_of_bound hF hρ (C := C) (by exact_mod_cast hC) hj
   have hcpt : HasCompactSupport (𝓕⁻ g) := by
     set K : Set (EuclideanSpace ℝ ι) := WithLp.toLp 2 '' (univ.pi fun i ↦ Icc (-ρ i) (ρ i))
     have hK : IsCompact K :=
@@ -408,8 +413,8 @@ def fourierLaplace (ψ : (m → ℝ) → ℂ) (ζ : m → ℂ) : ℂ :=
   ∫ w, Complex.exp (-(2 * π * I) * ∑ j, ζ j * w j) * ψ w
 
 omit [Fintype m] [DecidableEq m] in
-/-- A function vanishing outside a box has compact support. -/
-theorem hasCompactSupport_of_box {ψ : (m → ℝ) → ℂ} {ρ : m → ℝ}
+/-- A function vanishing outside a box, in the pointwise form, has compact support. -/
+private theorem hasCompactSupport_of_forall_abs_le {ψ : (m → ℝ) → ℂ} {ρ : m → ℝ}
     (hψ : ∀ w, ψ w ≠ 0 → ∀ j, |w j| ≤ ρ j) : HasCompactSupport ψ := by
   refine HasCompactSupport.intro (isCompact_univ_pi fun j ↦ isCompact_Icc (a := -ρ j)
     (b := ρ j)) fun w hw ↦ ?_
@@ -433,13 +438,12 @@ theorem norm_cexp_fourierLaplace_le {ρ : m → ℝ} {w : m → ℝ} (hw : ∀ j
     _ = ρ j * |(ζ j).im| := mul_comm _ _
 
 omit [DecidableEq m] in
-/-- **The basic bound.** For `ψ` continuous and vanishing outside the box `|w j| ≤ ρ j`,
-`‖FL ψ (ζ)‖ ≤ ‖ψ‖₁ exp (2π ∑ ρ j |Im ζ j|)`. -/
-theorem norm_fourierLaplace_le {ψ : (m → ℝ) → ℂ} (hψc : Continuous ψ) {ρ : m → ℝ}
+/-- `norm_fourierLaplace_le` with the box condition in pointwise form. -/
+private theorem norm_fourierLaplace_le_aux {ψ : (m → ℝ) → ℂ} (hψc : Continuous ψ) {ρ : m → ℝ}
     (hψ : ∀ w, ψ w ≠ 0 → ∀ j, |w j| ≤ ρ j) (ζ : m → ℂ) :
     ‖fourierLaplace ψ ζ‖ ≤ (∫ w, ‖ψ w‖) * Real.exp (2 * π * ∑ j, ρ j * |(ζ j).im|) := by
   have hint : Integrable fun w ↦ ‖ψ w‖ :=
-    (hψc.norm.integrable_of_hasCompactSupport (hasCompactSupport_of_box hψ).norm)
+    (hψc.norm.integrable_of_hasCompactSupport (hasCompactSupport_of_forall_abs_le hψ).norm)
   rw [← MeasureTheory.integral_mul_const]
   refine norm_integral_le_of_norm_le (hint.mul_const _) (Eventually.of_forall fun w ↦ ?_)
   by_cases h : ψ w = 0
@@ -448,16 +452,16 @@ theorem norm_fourierLaplace_le {ψ : (m → ℝ) → ℂ} (hψc : Continuous ψ)
     exact mul_le_mul_of_nonneg_left (norm_cexp_fourierLaplace_le (hψ w h) ζ) (norm_nonneg _)
 
 /-- The derivative of `ψ` in the `j`-th coordinate direction. -/
-def coordDeriv (j : m) (ψ : (m → ℝ) → ℂ) (w : m → ℝ) : ℂ := fderiv ℝ ψ w (Pi.single j 1)
+private def coordDeriv (j : m) (ψ : (m → ℝ) → ℂ) (w : m → ℝ) : ℂ := fderiv ℝ ψ w (Pi.single j 1)
 
 /-- Coordinate derivatives of smooth functions are smooth. -/
-theorem contDiff_coordDeriv (j : m) {ψ : (m → ℝ) → ℂ} (hψ : ContDiff ℝ ∞ ψ) :
+private theorem contDiff_coordDeriv (j : m) {ψ : (m → ℝ) → ℂ} (hψ : ContDiff ℝ ∞ ψ) :
     ContDiff ℝ ∞ (coordDeriv j ψ) :=
   (hψ.fderiv_right (by simp)).clm_apply contDiff_const
 
 omit [Fintype m] in
 /-- Coordinate derivatives keep a box support. -/
-theorem coordDeriv_box (j : m) {ψ : (m → ℝ) → ℂ} {ρ : m → ℝ}
+private theorem coordDeriv_box (j : m) {ψ : (m → ℝ) → ℂ} {ρ : m → ℝ}
     (hψ : ∀ w, ψ w ≠ 0 → ∀ j, |w j| ≤ ρ j) :
     ∀ w, coordDeriv j ψ w ≠ 0 → ∀ i, |w i| ≤ ρ i := by
   intro w hw i
@@ -470,10 +474,10 @@ theorem coordDeriv_box (j : m) {ψ : (m → ℝ) → ℂ} {ρ : m → ℝ}
       continuous_const
   exact (closure_minimal (fun w hw ↦ hψ w hw) hclosed) hsupp i
 
-/-- **Integration by parts.** For `ψ` smooth with box support,
-`FL (∂_j ψ)(ζ) = 2πi ζ j FL ψ(ζ)`. -/
-theorem fourierLaplace_coordDeriv (j : m) {ψ : (m → ℝ) → ℂ} (hψ : ContDiff ℝ ∞ ψ) {ρ : m → ℝ}
-    (hbox : ∀ w, ψ w ≠ 0 → ∀ j, |w j| ≤ ρ j) (ζ : m → ℂ) :
+/-- Integration by parts for the Fréchet coordinate derivative, with the box condition in
+pointwise form. -/
+private theorem fourierLaplace_coordDeriv (j : m) {ψ : (m → ℝ) → ℂ} (hψ : ContDiff ℝ ∞ ψ)
+    {ρ : m → ℝ} (hbox : ∀ w, ψ w ≠ 0 → ∀ j, |w j| ≤ ρ j) (ζ : m → ℂ) :
     fourierLaplace (coordDeriv j ψ) ζ = 2 * π * I * ζ j * fourierLaplace ψ ζ := by
   set e : (m → ℝ) → ℂ := fun w ↦ Complex.exp (-(2 * π * I) * ∑ j, ζ j * w j)
   set L : (m → ℝ) →L[ℝ] ℂ := ∑ i, (-(2 * π * I) * ζ i) • (Complex.ofRealCLM.comp
@@ -495,12 +499,12 @@ theorem fourierLaplace_coordDeriv (j : m) {ψ : (m → ℝ) → ℂ} (hψ : Cont
     intro w
     rw [(he w).fderiv, smul_apply, hL, smul_eq_mul, hsing]
     ring
-  have hcpt := hasCompactSupport_of_box hbox
+  have hcpt := hasCompactSupport_of_forall_abs_le hbox
   have hec : Continuous e := by fun_prop
   have hψ1 : ∀ w, DifferentiableAt ℝ ψ w := fun w ↦ hψ.differentiable (by simp) w
   have hD : Continuous (coordDeriv j ψ) := (contDiff_coordDeriv j hψ).continuous
   have hDcpt : HasCompactSupport (coordDeriv j ψ) :=
-    hasCompactSupport_of_box (coordDeriv_box j hbox)
+    hasCompactSupport_of_forall_abs_le (coordDeriv_box j hbox)
   have hibp := integral_mul_fderiv_eq_neg_fderiv_mul_of_integrable (μ := volume) (f := e) (g := ψ)
     (v := Pi.single j 1) ?_ ?_ ?_ (fun w _ ↦ (he w).differentiableAt) (fun w _ ↦ hψ1 w)
   · have hde := hde'
@@ -520,10 +524,8 @@ theorem fourierLaplace_coordDeriv (j : m) {ψ : (m → ℝ) → ℂ} (hψ : Cont
   · exact (hec.mul hψ.continuous).integrable_of_hasCompactSupport hcpt.mul_left
 
 omit [DecidableEq m] in
-/-- **Paley–Wiener, necessity.** The Fourier–Laplace transform of a smooth function vanishing
-outside the box `|w j| ≤ ρ j` satisfies, for every `N`,
-`‖FL ψ(ζ)‖ ≤ C (1 + ‖ζ‖)^(-N) exp (2π ∑ j, ρ j |Im ζ j|)`. -/
-theorem norm_fourierLaplace_le_of_contDiff {ψ : (m → ℝ) → ℂ} (hψ : ContDiff ℝ ∞ ψ)
+/-- `norm_fourierLaplace_le_of_contDiff` with the box condition in pointwise form. -/
+private theorem norm_fourierLaplace_le_of_contDiff_aux {ψ : (m → ℝ) → ℂ} (hψ : ContDiff ℝ ∞ ψ)
     {ρ : m → ℝ} (hbox : ∀ w, ψ w ≠ 0 → ∀ j, |w j| ≤ ρ j) (N : ℕ) :
     ∃ C, ∀ ζ : m → ℂ, ‖fourierLaplace ψ ζ‖ ≤
       C * (1 + ‖ζ‖) ^ (-(N : ℝ)) * Real.exp (2 * π * ∑ j, ρ j * |(ζ j).im|) := by
@@ -554,10 +556,10 @@ theorem norm_fourierLaplace_le_of_contDiff {ψ : (m → ℝ) → ℂ} (hψ : Con
   set H := Real.exp (2 * π * ∑ j, ρ j * |(ζ j).im|)
   have hH : 0 < H := Real.exp_pos _
   -- Bounds for `FL ψ` alone and with the factor `(2π ζ j)^N`.
-  have h0 : ‖fourierLaplace ψ ζ‖ ≤ A₀ * H := norm_fourierLaplace_le hψ.continuous hbox ζ
+  have h0 : ‖fourierLaplace ψ ζ‖ ≤ A₀ * H := norm_fourierLaplace_le_aux hψ.continuous hbox ζ
   have hj : ∀ j, ‖ζ j‖ ^ N * ‖fourierLaplace ψ ζ‖ ≤ A j * H := by
     intro j
-    have h := norm_fourierLaplace_le (hiter j N).1.continuous (hiter j N).2 ζ
+    have h := norm_fourierLaplace_le_aux (hiter j N).1.continuous (hiter j N).2 ζ
     rw [hFL, norm_mul, norm_pow] at h
     have h2π : 1 ≤ ‖2 * π * I * ζ j‖ / ‖ζ j‖ ∨ ζ j = 0 := by
       by_cases hz : ζ j = 0
@@ -651,4 +653,49 @@ theorem eq_zero_of_fourierLaplace_eq_zero {ψ : (m → ℝ) → ℂ} (hψ : Cont
   rw [hF] at hinv
   simpa [f, Real.fourierInv_eq'] using hinv.symm
 
+omit [Fintype m] [DecidableEq m] in
+/-- Support in the box `∏ⱼ [-ρ j, ρ j]` means vanishing wherever some `|w j| > ρ j`. -/
+theorem support_subset_pi_Icc_iff {E : Type*} [Zero E] {ψ : (m → ℝ) → E} {ρ : m → ℝ} :
+    Function.support ψ ⊆ Set.univ.pi (fun j ↦ Icc (-ρ j) (ρ j)) ↔
+      ∀ w, ψ w ≠ 0 → ∀ j, |w j| ≤ ρ j := by
+  simp only [Set.subset_def, Function.mem_support, Set.mem_univ_pi, Set.mem_Icc, abs_le]
+
+omit [Fintype m] [DecidableEq m] in
+/-- A function supported in a box has compact support. -/
+theorem hasCompactSupport_of_box {ψ : (m → ℝ) → ℂ} {ρ : m → ℝ}
+    (hsupp : Function.support ψ ⊆ Set.univ.pi fun j ↦ Icc (-ρ j) (ρ j)) :
+    HasCompactSupport ψ :=
+  hasCompactSupport_of_forall_abs_le (support_subset_pi_Icc_iff.mp hsupp)
+
+omit [DecidableEq m] in
+/-- **The basic bound.** For `ψ` continuous and supported in the box `∏ⱼ [-ρ j, ρ j]`,
+`‖FL ψ (ζ)‖ ≤ ‖ψ‖₁ exp (2π ∑ ρ j |Im ζ j|)`. -/
+theorem norm_fourierLaplace_le {ψ : (m → ℝ) → ℂ} (hψc : Continuous ψ) {ρ : m → ℝ}
+    (hsupp : Function.support ψ ⊆ Set.univ.pi fun j ↦ Icc (-ρ j) (ρ j)) (ζ : m → ℂ) :
+    ‖fourierLaplace ψ ζ‖ ≤ (∫ w, ‖ψ w‖) * Real.exp (2 * π * ∑ j, ρ j * |(ζ j).im|) :=
+  norm_fourierLaplace_le_aux hψc (support_subset_pi_Icc_iff.mp hsupp) ζ
+
+/-- **Integration by parts.** For `ψ` smooth and supported in a box, the partial derivative
+`∂ⱼ ψ = lineDeriv ℝ ψ · (Pi.single j 1)` satisfies `FL (∂ⱼ ψ)(ζ) = 2πi ζ j FL ψ(ζ)`. -/
+theorem fourierLaplace_lineDeriv (j : m) {ψ : (m → ℝ) → ℂ} (hψ : ContDiff ℝ ∞ ψ) {ρ : m → ℝ}
+    (hsupp : Function.support ψ ⊆ Set.univ.pi fun j ↦ Icc (-ρ j) (ρ j)) (ζ : m → ℂ) :
+    fourierLaplace (fun w ↦ lineDeriv ℝ ψ w (Pi.single j 1)) ζ =
+      2 * π * I * ζ j * fourierLaplace ψ ζ := by
+  have he : (fun w ↦ lineDeriv ℝ ψ w (Pi.single j 1)) = coordDeriv j ψ :=
+    funext fun w ↦ ((hψ.differentiable (by simp)).differentiableAt).lineDeriv_eq_fderiv
+  rw [he]
+  exact fourierLaplace_coordDeriv j hψ (support_subset_pi_Icc_iff.mp hsupp) ζ
+
+omit [DecidableEq m] in
+/-- **Paley–Wiener, necessity.** The Fourier–Laplace transform of a smooth function supported in
+the box `∏ⱼ [-ρ j, ρ j]` satisfies, for every `N`,
+`‖FL ψ(ζ)‖ ≤ C (1 + ‖ζ‖)^(-N) exp (2π ∑ j, ρ j |Im ζ j|)`. -/
+theorem norm_fourierLaplace_le_of_contDiff {ψ : (m → ℝ) → ℂ} (hψ : ContDiff ℝ ∞ ψ)
+    {ρ : m → ℝ} (hsupp : Function.support ψ ⊆ Set.univ.pi fun j ↦ Icc (-ρ j) (ρ j)) (N : ℕ) :
+    ∃ C, ∀ ζ : m → ℂ, ‖fourierLaplace ψ ζ‖ ≤
+      C * (1 + ‖ζ‖) ^ (-(N : ℝ)) * Real.exp (2 * π * ∑ j, ρ j * |(ζ j).im|) :=
+  norm_fourierLaplace_le_of_contDiff_aux hψ (support_subset_pi_Icc_iff.mp hsupp) N
+
 end Necessity
+
+end PaleyWiener

@@ -57,9 +57,10 @@ argument allows it.
   $\sum b_i > 1$, $\sigma \mapsto \prod_i |\sigma - x_i|^{-b_i}$ is integrable on $\mathbb R$.
 * **Coordinate splitting.** Lebesgue measure on $\mathbb R^{I}$ is the product of Lebesgue
   measure on one coordinate and on the others.
-* **Endpoint deformation.** Let $\omega$ be holomorphic on a convex open $U \subseteq \mathbb C$
-  and $\gamma_1, \gamma_2$ paths whose interiors lie in $U$; the endpoints may lie outside $U$,
-  where $\omega$ may be singular, provided both path integrals exist. If the segments joining
+* **Endpoint deformation.** Let $\omega$ be holomorphic on a convex open $U \subseteq \mathbb C$,
+  with values in a complex Banach space, and $\gamma_1, \gamma_2$ paths whose interiors lie in
+  $U$; the endpoints may lie outside $U$, where $\omega$ may be singular, provided both path
+  integrals exist. If the segments joining
   $\gamma_1(\varepsilon)$ and $\gamma_2(\varepsilon)$ near each end stay in $U$ and their lengths
   times a bound for $\omega$ on them tend to zero, the two path integrals are equal.
 
@@ -78,9 +79,9 @@ normed spaces):
   explicit rates for power decay faster than the reciprocal radius with at most linearly
   growing speeds.
 
-**Cauchy boundary values (Plemelj).** For an integrable complex density on $\mathbb R$
-continuous at $x_0$, the difference of its Cauchy integrals just above and below $x_0$ tends to
-$-2\pi i$ times the density (approximate identity of the Poisson kernel). On a finite interval
+**Cauchy boundary values (Plemelj).** For an integrable density on $\mathbb R$ with values in a
+complex Banach space, continuous at $x_0$, the difference of its Cauchy integrals just above and
+below $x_0$ tends to $-2\pi i$ times the density (approximate identity of the Poisson kernel). On a finite interval
 with the regularized difference quotient integrable at an interior point (for instance when
 the density is differentiable there), the separate upper and lower vertical limits exist and
 equal the principal value $\mp \pi i$ times the density; the principal value is the limit of
@@ -133,15 +134,18 @@ families with common bounds, and the asymptotic equivalent when $A(0) \ne 0$.
   and a continuous compactly supported function whose transform vanishes on $\mathbb R^{I}$ is
   zero. Horizontal lines of integration can be shifted for entire functions decaying like
   $(1 + |x|)^{-2}$ in a strip.
-* **Carlson's theorem (F. Carlson, 1914).** A function holomorphic on the closed right
-  half-plane, of exponential type there and of type less than $\pi$ on the imaginary axis,
-  vanishing at every natural number, vanishes identically; the constant $\pi$ is sharp. The
-  proof divides by $\sin \pi z$, multiplies by a damping factor
+* **Carlson's theorem (F. Carlson, 1914).** A function with values in a complex normed space,
+  holomorphic on the open right half-plane and continuous on its closure, of exponential type
+  there and of type less than $\pi$ on the imaginary axis, vanishing at every natural number,
+  vanishes identically; the constant $\pi$ is sharp. The proof reduces to scalar functions,
+  divides $z f(z)$ by $\sin \pi z$, multiplies by a damping factor
   $e^{-\alpha(z + 1)\log(z + 1)}$ and applies Phragmén–Lindelöf. The several-variable version
   (by induction on the coordinates) gives uniqueness of continuations of data on $\mathbb N^{I}$.
-* **Mellin–Barnes tools.** Cauchy's theorem on a vertical strip for functions that are
-  $O((1 + |t|)^{-2})$; crossing a simple pole with residue $r$ changes a line integral by
-  $2\pi r$; and the Mellin transform of an inverse Mellin transform.
+* **Mellin–Barnes tools.** Cauchy's theorem on a vertical strip, for vector-valued functions
+  holomorphic in the open strip, continuous on its closure, integrable on the boundary lines and
+  tending to zero as $|\operatorname{Im} s| \to \infty$ uniformly in the strip; crossing a
+  simple pole with residue $r$ changes a line integral by $2\pi r$; and the Mellin transform of
+  an inverse Mellin transform.
 * **Ramanujan's master theorem (Hardy's form).** Let $\varphi$ be holomorphic on
   $\operatorname{Re} z > -\delta$, $0 < \delta < 1$, with
   $|\varphi(z)| \le C e^{P \operatorname{Re} z + A|\operatorname{Im} z|}$, $A < \pi$. The
@@ -173,14 +177,14 @@ families with common bounds, and the asymptotic equivalent when $A(0) \ne 0$.
 * **Beta laws and concentration.** Real integrability, mass and mean of beta densities; the
   kernel $u^a(1 - u)^b$ ($a, b > 0$) increases up to $a/(a + b)$ and decreases afterwards;
   scaling both beta parameters by a common factor greater than one strictly decreases the
-  expectation of every continuous strictly convex function. For $0 < w < 1$ the ratio
+  expectation of every strictly convex function. For $0 < w < 1$ the ratio
   $(cw)_n/(c)_n$ is decreasing and log-convex in $c > 0$, strictly for $n \ge 2$.
 * **Elementary power facts**: a power between two others is bounded by their sum; positive real
   bases to complex powers as exponentials; $\operatorname{Re}(1 - v) > 0$ for $|v| < 1$.
 
 ## Sequences satisfying a binomial theorem (Carlson 1970)
 
-Carlson's class $A_k$ consists of sequences $(p_n)$ of functions on $\mathbb C^k$ satisfying
+Carlson's class $A_k$ consists of sequences $(p_n)$ of functions on $R^k$ satisfying
 $p_n(z + \lambda\mathbf 1) = \sum_m \binom nm \lambda^{n - m} p_m(z)$; for $k = 1$ these are
 Appell sequences. Proved, without any polynomiality assumption unless stated: the
 characterization by $\sum_i \partial_i p_n = n p_{n-1}$ (Theorem 1); closure under affine maps and
@@ -188,4 +192,8 @@ differentiation; the correspondence with data on a slice transverse to the diago
 and Corollary 2); Appell sequences correspond to sequences of constants, with the exponential
 generating relation; the formal-series theorems (Theorem 3, its converse, Corollary 4); the
 reindexing theorem (Theorem 4); the coefficient relation for polynomial sequences; the
-composition (umbral) theorem (Theorem 5); and Carlson's Example 20.
+composition (umbral) theorem (Theorem 5); and Carlson's Example 20. The binomial-theorem
+algebra (closure properties, slice theorems, the one-variable correspondence and umbral
+evaluation) holds for functions over any commutative ring; Theorem 1 and the composition theorem
+hold over $\mathbb R$ or $\mathbb C$; the generating relations hold over any field of
+characteristic zero.

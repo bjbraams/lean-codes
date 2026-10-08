@@ -16,18 +16,22 @@ public import Mathlib.Analysis.SpecialFunctions.Trigonometric.DerivHyp
 /-!
 # Carlson's theorem
 
-**Carlson's theorem** (F. Carlson, 1914): a function holomorphic on the closed right half-plane,
-of exponential type there and of type less than `π` on the imaginary axis, that vanishes at the
-natural numbers vanishes identically. The constant `π` is sharp, as `sin (π z)` shows.
+**Carlson's theorem** (F. Carlson, 1914): a function holomorphic on the open right half-plane and
+continuous on its closure, of exponential type there and of type less than `π` on the imaginary
+axis, that vanishes at the natural numbers vanishes identically. Values may lie in any complex
+normed space. The constant `π` is sharp, as `sin (π z)` shows.
 
 ## Proof
 
-The quotient `G = f / sin (π z)` (`sinPiQuot`, with the removable singularities at the integers
-filled in through `dslope`) is holomorphic. It is of exponential type: off the `1/4`-discs around
-the integers `‖sin (π z)‖ ≥ 1/4` (`quarter_le_norm_sin_pi_mul`), on the discs around positive
-integers the maximum modulus principle applies, and near `0` compactness. On the imaginary axis
-`‖sin (π i y)‖ ≥ e^(π |y|) / 4`, so `G` decays like `e^((c - π) |y|)`. The damping factor
-`e^(-α (z + 1) log (z + 1))` (`carlsonDamping`) with `α = 2 (π - c) / π` grows at most like
+Continuous linear functionals reduce the statement to complex-valued `f`. The quotient
+`G = f / sin (π z)` (with the removable singularities at the positive integers filled
+in through `dslope`) is holomorphic on the open half-plane, and `G₁ = z G` is moreover continuous
+on the closed half-plane, also at the boundary zero `0`, where only continuity of `f` is
+available. `G₁` is of exponential type: off the `1/4`-discs around the integers
+`‖sin (π z)‖ ≥ 1/4` (`quarter_le_norm_sin_pi_mul`), on the discs around positive integers the
+maximum modulus principle applies, and near `0` compactness. On the imaginary axis
+`‖sin (π i y)‖ ≥ e^(π |y|) / 4`, so `G₁` is `O(|y| e^((c - π) |y|))`. The damping factor
+`e^(-α (z + 1) log (z + 1))` with `α = (π - c) / π` grows at most like
 `e^(α π |y| / 2)` on the imaginary axis and decays superexponentially on the positive real axis.
 The product is bounded on the imaginary axis, of exponential type, and superexponentially
 decaying on the real axis, so it vanishes by the Phragmén–Lindelöf principle
@@ -41,7 +45,6 @@ decaying on the real axis, so it vanishes by the Phragmén–Lindelöf principle
   data on `ℕ^ι`.
 * `Complex.quarter_le_norm_sin_pi_mul`, `Complex.exp_div_four_le_norm_sin_pi_mul_I`: lower bounds
   for `sin (π z)`.
-* `Complex.sinPiQuot`: the quotient `f / sin (π z)` and its regularity.
 
 ## References
 
@@ -170,11 +173,11 @@ theorem sin_pi_mul_ne_zero_of_re_mem {s : ℂ} (h0 : 0 < s.re) (h1 : s.re < 1) :
 
 /-- The quotient `f z / sin (π z)`, with the value `f' z / (π cos (π z))` at the integers. When
 `f` vanishes at an integer and is differentiable there, the singularity is removable. -/
-def sinPiQuot (f : ℂ → ℂ) (z : ℂ) : ℂ :=
+private def sinPiQuot (f : ℂ → ℂ) (z : ℂ) : ℂ :=
   if sin (π * z) = 0 then deriv f z / (π * cos (π * z)) else f z / sin (π * z)
 
 /-- The quotient away from the integers. -/
-theorem sinPiQuot_of_ne {f : ℂ → ℂ} {z : ℂ} (hz : sin (π * z) ≠ 0) :
+private theorem sinPiQuot_of_ne {f : ℂ → ℂ} {z : ℂ} (hz : sin (π * z) ≠ 0) :
     sinPiQuot f z = f z / sin (π * z) := by simp [sinPiQuot, hz]
 
 /-- The slope of `sin (π w)` at an integer is nonzero: it is `π cos (π n) = ± π`. -/
@@ -189,7 +192,7 @@ theorem dslope_sin_pi_mul_intCast_ne_zero (n : ℤ) :
   exact_mod_cast zpow_ne_zero n (by norm_num : (-1 : ℝ) ≠ 0)
 
 /-- Near an integer zero of `f`, the quotient is a quotient of slopes. -/
-theorem sinPiQuot_eventuallyEq_dslope {f : ℂ → ℂ} {n : ℤ} (hn : f n = 0) :
+private theorem sinPiQuot_eventuallyEq_dslope {f : ℂ → ℂ} {n : ℤ} (hn : f n = 0) :
     sinPiQuot f =ᶠ[𝓝 (n : ℂ)]
       fun w ↦ dslope f n w / dslope (fun w ↦ sin (π * w)) n w := by
   have hball : ball (n : ℂ) 1 ∈ 𝓝 (n : ℂ) := ball_mem_nhds _ one_pos
@@ -209,7 +212,7 @@ theorem sinPiQuot_eventuallyEq_dslope {f : ℂ → ℂ} {n : ℤ} (hn : f n = 0)
     ring
 
 /-- The quotient is continuous at an integer zero of `f` where `f` is differentiable. -/
-theorem continuousAt_sinPiQuot_intCast {f : ℂ → ℂ} {n : ℤ} (hn : f n = 0)
+private theorem continuousAt_sinPiQuot_intCast {f : ℂ → ℂ} {n : ℤ} (hn : f n = 0)
     (hf : DifferentiableAt ℂ f n) : ContinuousAt (sinPiQuot f) n := by
   refine ContinuousAt.congr ?_ (sinPiQuot_eventuallyEq_dslope hn).symm
   have hs : DifferentiableAt ℂ (fun w : ℂ ↦ sin (π * w)) n := by fun_prop
@@ -217,7 +220,7 @@ theorem continuousAt_sinPiQuot_intCast {f : ℂ → ℂ} {n : ℤ} (hn : f n = 0
     (dslope_sin_pi_mul_intCast_ne_zero n)
 
 /-- The quotient is differentiable at an integer zero of `f` near which `f` is differentiable. -/
-theorem differentiableAt_sinPiQuot_intCast {f : ℂ → ℂ} {n : ℤ} (hn : f n = 0) {U : Set ℂ}
+private theorem differentiableAt_sinPiQuot_intCast {f : ℂ → ℂ} {n : ℤ} (hn : f n = 0) {U : Set ℂ}
     (hU : U ∈ 𝓝 (n : ℂ)) (hf : DifferentiableOn ℂ f U) :
     DifferentiableAt ℂ (sinPiQuot f) n := by
   refine DifferentiableAt.congr_of_eventuallyEq ?_ (sinPiQuot_eventuallyEq_dslope hn)
@@ -228,7 +231,7 @@ theorem differentiableAt_sinPiQuot_intCast {f : ℂ → ℂ} {n : ℤ} (hn : f n
   exact h1.div h2 (dslope_sin_pi_mul_intCast_ne_zero n)
 
 /-- Away from the integers the quotient is continuous where `f` is. -/
-theorem continuousAt_sinPiQuot_of_ne {f : ℂ → ℂ} {z : ℂ} (hz : sin (π * z) ≠ 0)
+private theorem continuousAt_sinPiQuot_of_ne {f : ℂ → ℂ} {z : ℂ} (hz : sin (π * z) ≠ 0)
     (hf : ContinuousAt f z) : ContinuousAt (sinPiQuot f) z := by
   have hev : ∀ᶠ w in 𝓝 z, sin (π * w) ≠ 0 :=
     (by fun_prop : Continuous fun w : ℂ ↦ sin (π * w)).continuousAt.eventually_ne hz
@@ -237,7 +240,7 @@ theorem continuousAt_sinPiQuot_of_ne {f : ℂ → ℂ} {z : ℂ} (hz : sin (π *
   exact (sinPiQuot_of_ne hw).symm
 
 /-- Away from the integers the quotient is differentiable where `f` is. -/
-theorem differentiableAt_sinPiQuot_of_ne {f : ℂ → ℂ} {z : ℂ} (hz : sin (π * z) ≠ 0)
+private theorem differentiableAt_sinPiQuot_of_ne {f : ℂ → ℂ} {z : ℂ} (hz : sin (π * z) ≠ 0)
     (hf : DifferentiableAt ℂ f z) : DifferentiableAt ℂ (sinPiQuot f) z := by
   have hev : ∀ᶠ w in 𝓝 z, sin (π * w) ≠ 0 :=
     (by fun_prop : Continuous fun w : ℂ ↦ sin (π * w)).continuousAt.eventually_ne hz
@@ -249,10 +252,10 @@ theorem differentiableAt_sinPiQuot_of_ne {f : ℂ → ℂ} {z : ℂ} (hz : sin (
 /-- The damping factor `e^(-α (z + 1) log (z + 1))` of the proof of Carlson's theorem: it grows at
 most like `e^(α π |Im z| / 2)` in the closed right half-plane and decays superexponentially on
 the positive real axis. -/
-def carlsonDamping (α : ℝ) (z : ℂ) : ℂ := exp (-(α : ℂ) * ((z + 1) * log (z + 1)))
+private def carlsonDamping (α : ℝ) (z : ℂ) : ℂ := exp (-(α : ℂ) * ((z + 1) * log (z + 1)))
 
 /-- The norm of the damping factor. -/
-theorem norm_carlsonDamping (α : ℝ) (z : ℂ) :
+private theorem norm_carlsonDamping (α : ℝ) (z : ℂ) :
     ‖carlsonDamping α z‖ =
       Real.exp (-α * ((z + 1).re * Real.log ‖z + 1‖ - (z + 1).im * arg (z + 1))) := by
   rw [carlsonDamping, norm_exp]
@@ -261,7 +264,7 @@ theorem norm_carlsonDamping (α : ℝ) (z : ℂ) :
     sub_zero]
 
 /-- The damping factor grows at most like `e^(α π |Im z| / 2)` in the closed right half-plane. -/
-theorem norm_carlsonDamping_le {α : ℝ} (hα : 0 ≤ α) {z : ℂ} (hz : 0 ≤ z.re) :
+private theorem norm_carlsonDamping_le {α : ℝ} (hα : 0 ≤ α) {z : ℂ} (hz : 0 ≤ z.re) :
     ‖carlsonDamping α z‖ ≤ Real.exp (α * (π / 2) * |z.im|) := by
   rw [norm_carlsonDamping]
   refine Real.exp_le_exp.mpr ?_
@@ -278,50 +281,86 @@ theorem norm_carlsonDamping_le {α : ℝ} (hα : 0 ≤ α) {z : ℂ} (hz : 0 ≤
   nlinarith [mul_nonneg (zero_le_one.trans hre) hlog]
 
 /-- On the positive real axis the damping factor is `e^(-α (x + 1) log (x + 1))`. -/
-theorem norm_carlsonDamping_ofReal (α : ℝ) {x : ℝ} (hx : 0 ≤ x) :
+private theorem norm_carlsonDamping_ofReal (α : ℝ) {x : ℝ} (hx : 0 ≤ x) :
     ‖carlsonDamping α x‖ = Real.exp (-α * ((x + 1) * Real.log (x + 1))) := by
   rw [norm_carlsonDamping]
   have h1 : ((x : ℂ) + 1) = ((x + 1 : ℝ) : ℂ) := by push_cast; ring
   rw [h1, ofReal_re, ofReal_im, zero_mul, sub_zero, norm_real, Real.norm_of_nonneg (by linarith)]
 
 /-- The damping factor is differentiable to the right of `-1`. -/
-theorem differentiableAt_carlsonDamping (α : ℝ) {z : ℂ} (hz : -1 < z.re) :
+private theorem differentiableAt_carlsonDamping (α : ℝ) {z : ℂ} (hz : -1 < z.re) :
     DifferentiableAt ℂ (carlsonDamping α) z := by
   have hs : z + 1 ∈ slitPlane := mem_slitPlane_iff.mpr (Or.inl (by simp; linarith))
   have h1 : DifferentiableAt ℂ (fun w : ℂ ↦ w + 1) z := by fun_prop
   exact ((h1.mul (h1.clog hs)).const_mul _).cexp
 
-/-- **Carlson's theorem.** Let `f` be holomorphic on the closed right half-plane, of exponential
-type there, `‖f z‖ ≤ C e^(τ ‖z‖)`, and of type `c < π` on the imaginary axis,
-`‖f (i y)‖ ≤ C e^(c |y|)`. If `f` vanishes at the natural numbers, then `f` vanishes on the closed
-right half-plane. -/
-theorem eqOn_zero_of_natCast_eq_zero {f : ℂ → ℂ}
-    (hf : ∀ z : ℂ, 0 ≤ z.re → DifferentiableAt ℂ f z) {C τ c : ℝ}
+/-- **Carlson's theorem** for complex-valued functions; see `eqOn_zero_of_natCast_eq_zero`.
+The proof uses the quotient `z f(z) / sin (π z)`, which is continuous at the boundary zero `z = 0`
+under continuity of `f` alone. -/
+private theorem eqOn_zero_of_natCast_eq_zero_complex {f : ℂ → ℂ}
+    (hf : DiffContOnCl ℂ f {z | 0 < z.re}) {C τ c : ℝ}
     (hexp : ∀ z : ℂ, 0 ≤ z.re → ‖f z‖ ≤ C * Real.exp (τ * ‖z‖))
     (him : ∀ y : ℝ, ‖f (y * I)‖ ≤ C * Real.exp (c * |y|)) (hc : c < π)
     (hzero : ∀ n : ℕ, f n = 0) : ∀ z : ℂ, 0 ≤ z.re → f z = 0 := by
   set G := sinPiQuot f
+  set G₁ : ℂ → ℂ := fun z ↦ z * G z
   have hnat : ∀ n : ℤ, 0 ≤ ((n : ℂ)).re → f n = 0 := fun n hn ↦ by
     have h0 : 0 ≤ n := by exact_mod_cast (show (0 : ℝ) ≤ n by simpa using hn)
     obtain ⟨m, rfl⟩ := Int.eq_ofNat_of_zero_le h0
     simpa using hzero m
-  -- Regularity of the quotient.
-  have hGc : ∀ z : ℂ, 0 ≤ z.re → ContinuousAt G z := by
-    intro z hz
-    by_cases hs : sin (π * z) = 0
-    · obtain ⟨n, rfl⟩ := sin_pi_mul_eq_zero_iff.mp hs
-      exact continuousAt_sinPiQuot_intCast (hnat n hz) (hf _ hz)
-    · exact continuousAt_sinPiQuot_of_ne hs (hf z hz).continuousAt
   have hopen : IsOpen {z : ℂ | 0 < z.re} := isOpen_lt continuous_const continuous_re
-  have hfU : DifferentiableOn ℂ f {z | 0 < z.re} := fun z hz ↦
-    (hf z (le_of_lt hz)).differentiableWithinAt
+  have hfU : DifferentiableOn ℂ f {z | 0 < z.re} := hf.differentiableOn
+  have hfc : ContinuousOn f {z : ℂ | 0 ≤ z.re} := by
+    simpa only [closure_setOfPred_lt_re] using hf.continuousOn
+  have hzexp : ∀ z : ℂ, ‖z‖ ≤ Real.exp ‖z‖ := fun z ↦ by linarith [Real.add_one_le_exp ‖z‖]
+  -- Regularity of the quotients.
   have hGd : ∀ z : ℂ, 0 < z.re → DifferentiableAt ℂ G z := by
     intro z hz
     by_cases hs : sin (π * z) = 0
     · obtain ⟨n, rfl⟩ := sin_pi_mul_eq_zero_iff.mp hs
       exact differentiableAt_sinPiQuot_intCast (hnat n hz.le) (hopen.mem_nhds hz) hfU
-    · exact differentiableAt_sinPiQuot_of_ne hs (hf z hz.le)
-  -- Exponential type of the quotient.
+    · exact differentiableAt_sinPiQuot_of_ne hs (hf.differentiableAt hopen hz)
+  have hG₁d : ∀ z : ℂ, 0 < z.re → DifferentiableAt ℂ G₁ z := fun z hz ↦
+    differentiableAt_id.mul (hGd z hz)
+  have hG₁c : ∀ z : ℂ, 0 ≤ z.re → ContinuousWithinAt G₁ {w : ℂ | 0 ≤ w.re} z := by
+    intro z hz
+    by_cases hz0 : z = 0
+    · rw [hz0]
+      set s : ℂ → ℂ := fun w ↦ sin (π * w)
+      have hs : DifferentiableAt ℂ s 0 := by fun_prop
+      have hd0 : dslope s 0 0 ≠ 0 := by
+        simpa using dslope_sin_pi_mul_intCast_ne_zero 0
+      have hf0 : f 0 = 0 := by simpa using hzero 0
+      have hev : G₁ =ᶠ[𝓝 0] fun w ↦ f w * (dslope s 0 w)⁻¹ := by
+        filter_upwards [ball_mem_nhds (0 : ℂ) one_pos] with w hw
+        by_cases hw0 : w = 0
+        · rw [hw0]; simp [G₁, hf0]
+        · have hsw : sin (π * w) ≠ 0 := sin_pi_mul_ne_zero_of_norm_sub_lt_one (n := 0)
+            (by simpa using hw0) (by simpa [dist_eq_norm] using hw)
+          rw [dslope_of_ne _ hw0, slope_def_field]
+          simp only [G₁, G, sinPiQuot_of_ne hsw, s, mul_zero, sin_zero, sub_zero]
+          field_simp
+      refine ContinuousWithinAt.congr_of_eventuallyEq ?_
+        (eventually_nhdsWithin_of_eventually_nhds hev) hev.eq_of_nhds
+      exact (hfc 0 (by simp)).mul
+        ((continuousAt_dslope_same.mpr hs).continuousWithinAt.inv₀ hd0)
+    · by_cases hs : sin (π * z) = 0
+      · obtain ⟨n, rfl⟩ := sin_pi_mul_eq_zero_iff.mp hs
+        have hn : 0 < (n : ℂ).re := by
+          have h0 : (0 : ℝ) ≤ n := by simpa using hz
+          have h1 : (n : ℝ) ≠ 0 := by exact_mod_cast fun h ↦ hz0 (by simp [h])
+          simpa using lt_of_le_of_ne h0 (Ne.symm h1)
+        exact (hG₁d _ hn).continuousAt.continuousWithinAt
+      · have hev : ∀ᶠ w in 𝓝 z, sin (π * w) ≠ 0 :=
+          (by fun_prop : Continuous fun w : ℂ ↦ sin (π * w)).continuousAt.eventually_ne hs
+        refine ContinuousWithinAt.congr_of_eventuallyEq
+          (f := fun w ↦ w * (f w / sin (π * w))) ?_ ?_ ?_
+        · exact continuousWithinAt_id.mul ((hfc z hz).div
+            (by fun_prop : Continuous fun w : ℂ ↦ sin (π * w)).continuousWithinAt hs)
+        · filter_upwards [eventually_nhdsWithin_of_eventually_nhds hev] with w hw
+          simp only [G₁, G, sinPiQuot_of_ne hw]
+        · simp only [G₁, G, sinPiQuot_of_ne hs]
+  -- Exponential type of the quotients.
   set C' := max C 0
   set τ' := |τ|
   have hC' : 0 ≤ C' := le_max_right _ _
@@ -338,15 +377,23 @@ theorem eqOn_zero_of_natCast_eq_zero {f : ℂ → ℂ}
     calc ‖f z‖ ≤ C' * Real.exp (τ' * ‖z‖) := hexp' z hz
       _ = 4 * C' * Real.exp (τ' * ‖z‖) * (1 / 4) := by ring
       _ ≤ 4 * C' * Real.exp (τ' * ‖z‖) * ‖sin (π * z)‖ := by gcongr
-  obtain ⟨K₀, hK₀⟩ : ∃ K₀, ∀ z ∈ closedBall (0 : ℂ) 1 ∩ {z | 0 ≤ z.re}, ‖G z‖ ≤ K₀ :=
+  obtain ⟨K₀, hK₀⟩ : ∃ K₀, ∀ z ∈ closedBall (0 : ℂ) 1 ∩ {z | 0 ≤ z.re}, ‖G₁ z‖ ≤ K₀ :=
     ((isCompact_closedBall 0 1).inter_right
       (isClosed_le continuous_const continuous_re)).exists_bound_of_continuousOn
-      fun z hz ↦ (hGc z hz.2).continuousWithinAt
+      fun z hz ↦ (hG₁c z hz.2).mono inter_subset_right
   set M := max K₀ (4 * C' * Real.exp (τ' / 2))
   have hM0 : 0 ≤ M := le_trans (by positivity) (le_max_right _ _)
-  have hGbd : ∀ z : ℂ, 0 ≤ z.re → ‖G z‖ ≤ M * Real.exp (τ' * ‖z‖) := by
+  set τ'' := τ' + 1
+  have hG₁far : ∀ z : ℂ, ‖G z‖ ≤ M * Real.exp (τ' * ‖z‖) →
+      ‖G₁ z‖ ≤ M * Real.exp (τ'' * ‖z‖) := by
     intro z hz
-    have hM1 : M ≤ M * Real.exp (τ' * ‖z‖) :=
+    simp only [G₁, norm_mul, τ'']
+    calc ‖z‖ * ‖G z‖ ≤ Real.exp ‖z‖ * (M * Real.exp (τ' * ‖z‖)) :=
+          mul_le_mul (hzexp z) hz (norm_nonneg _) (Real.exp_pos _).le
+      _ = M * Real.exp ((τ' + 1) * ‖z‖) := by rw [add_mul, one_mul, Real.exp_add]; ring
+  have hGbd : ∀ z : ℂ, 0 ≤ z.re → ‖G₁ z‖ ≤ M * Real.exp (τ'' * ‖z‖) := by
+    intro z hz
+    have hM1 : M ≤ M * Real.exp (τ'' * ‖z‖) :=
       le_mul_of_one_le_right hM0 (Real.one_le_exp (by positivity))
     by_cases hnear : ∃ n : ℤ, ‖z - n‖ < 1 / 4
     · obtain ⟨n, hn⟩ := hnear
@@ -364,7 +411,8 @@ theorem eqOn_zero_of_natCast_eq_zero {f : ℂ → ℂ}
           simp only [Int.cast_zero, sub_zero] at hn
           linarith
         exact (hK₀ z ⟨hz1, hz⟩).trans ((le_max_left _ _).trans hM1)
-      · have hn1 : (1 : ℝ) ≤ n := by exact_mod_cast h1
+      · refine hG₁far z ?_
+        have hn1 : (1 : ℝ) ≤ n := by exact_mod_cast h1
         have hball : closedBall (n : ℂ) (1 / 4) ⊆ {w | 0 < w.re} := by
           intro w hw
           have : |w.re - n| ≤ 1 / 4 :=
@@ -377,7 +425,7 @@ theorem eqOn_zero_of_natCast_eq_zero {f : ℂ → ℂ}
           refine ⟨fun w hw ↦ (hGd w (hball (ball_subset_closedBall hw))).differentiableWithinAt,
             ?_⟩
           rw [closure_ball _ (by norm_num)]
-          exact fun w hw ↦ (hGc w (hball hw).le).continuousWithinAt
+          exact fun w hw ↦ (hGd w (hball hw)).continuousAt.continuousWithinAt
         have hzb : z ∈ ball (n : ℂ) (1 / 4) := by rwa [mem_ball, dist_eq_norm]
         have hmax := Complex.norm_le_of_forall_mem_frontier_norm_le isBounded_ball hdc
           (C := 4 * C' * Real.exp (τ' * (‖z‖ + 1 / 2))) ?_ (subset_closure hzb)
@@ -405,51 +453,60 @@ theorem eqOn_zero_of_natCast_eq_zero {f : ℂ → ℂ}
           rw [norm_sub_rev (n : ℂ) z] at this
           linarith
     · push Not at hnear
-      refine (hoff z hz hnear).trans ?_
+      refine hG₁far z ((hoff z hz hnear).trans ?_)
       gcongr
       exact (le_mul_of_one_le_right (by positivity) (Real.one_le_exp (by positivity))).trans
         (le_max_right _ _)
   -- The quotient on the imaginary axis.
-  have hGim : ∀ y : ℝ, 1 / 4 ≤ |y| → ‖G (y * I)‖ ≤ 4 * C' * Real.exp ((c - π) * |y|) := by
+  have hGim : ∀ y : ℝ, 1 / 4 ≤ |y| →
+      ‖G₁ (y * I)‖ ≤ 4 * C' * (|y| * Real.exp ((c - π) * |y|)) := by
     intro y hy
     have hq := exp_div_four_le_norm_sin_pi_mul_I hy
     have hpos : 0 < ‖sin (π * (y * I))‖ := lt_of_lt_of_le (by positivity) hq
     have hs : sin (π * (y * I)) ≠ 0 := norm_pos_iff.mp hpos
-    rw [show G (y * I) = f (y * I) / sin (π * (y * I)) from sinPiQuot_of_ne hs, norm_div,
-      div_le_iff₀ hpos]
     have hf' : ‖f (y * I)‖ ≤ C' * Real.exp (c * |y|) :=
       (him y).trans (mul_le_mul_of_nonneg_right (le_max_left _ _) (Real.exp_pos _).le)
-    calc ‖f (y * I)‖ ≤ C' * Real.exp (c * |y|) := hf'
-      _ = 4 * C' * Real.exp ((c - π) * |y|) * (Real.exp (π * |y|) / 4) := by
-          rw [sub_mul, Real.exp_sub]; field_simp
-      _ ≤ _ := by gcongr
+    have hG : ‖G (y * I)‖ ≤ 4 * C' * Real.exp ((c - π) * |y|) := by
+      rw [show G (y * I) = f (y * I) / sin (π * (y * I)) from sinPiQuot_of_ne hs, norm_div,
+        div_le_iff₀ hpos]
+      calc ‖f (y * I)‖ ≤ C' * Real.exp (c * |y|) := hf'
+        _ = 4 * C' * Real.exp ((c - π) * |y|) * (Real.exp (π * |y|) / 4) := by
+            rw [sub_mul, Real.exp_sub]; field_simp
+        _ ≤ _ := by gcongr
+    have hn : ‖(y : ℂ) * I‖ = |y| := by simp
+    simp only [G₁]
+    rw [norm_mul, hn]
+    calc |y| * ‖G (y * I)‖ ≤ |y| * (4 * C' * Real.exp ((c - π) * |y|)) := by gcongr
+      _ = _ := by ring
   -- The damped function.
-  set α := 2 * (π - c) / π
+  set α := (π - c) / π
   have hα : 0 < α := div_pos (by linarith) Real.pi_pos
-  have hαπ : (c - π) + α * (π / 2) = 0 := by
-    simp only [α]; field_simp; ring
-  set K := fun z ↦ G z * carlsonDamping α z
+  obtain ⟨κ, hκdef⟩ : ∃ κ : ℝ, κ = (π - c) / 2 := ⟨_, rfl⟩
+  have hκ : 0 < κ := by rw [hκdef]; linarith
+  have hαπ : (c - π) + α * (π / 2) = -κ := by
+    rw [hκdef]; simp only [α]; field_simp; ring
+  set K := fun z ↦ G₁ z * carlsonDamping α z
   have hKd : DiffContOnCl ℂ K {z | 0 < z.re} := by
-    refine ⟨fun z hz ↦ ((hGd z hz).mul (differentiableAt_carlsonDamping α
+    refine ⟨fun z hz ↦ ((hG₁d z hz).mul (differentiableAt_carlsonDamping α
       (by simp only [mem_ofPred_eq] at hz; linarith))).differentiableWithinAt, ?_⟩
     rw [closure_setOfPred_lt_re]
-    exact fun z hz ↦ ((hGc z hz).mul (differentiableAt_carlsonDamping α
-      (by simp only [mem_ofPred_eq] at hz; linarith)).continuousAt).continuousWithinAt
+    exact fun z hz ↦ (hG₁c z hz).mul (differentiableAt_carlsonDamping α
+      (by simp only [mem_ofPred_eq] at hz; linarith)).continuousAt.continuousWithinAt
   have hKexp : ∃ c < (2 : ℝ), ∃ B,
       K =O[Bornology.cobounded ℂ ⊓ 𝓟 {z | 0 < z.re}] fun z ↦ Real.exp (B * ‖z‖ ^ c) := by
-    refine ⟨1, one_lt_two, τ' + α * (π / 2), IsBigO.of_bound M ?_⟩
+    refine ⟨1, one_lt_two, τ'' + α * (π / 2), IsBigO.of_bound M ?_⟩
     refine eventually_inf_principal.mpr (Eventually.of_forall fun z hz ↦ ?_)
     have hz' : 0 ≤ z.re := le_of_lt hz
     rw [Real.rpow_one, Real.norm_of_nonneg (Real.exp_pos _).le, norm_mul]
-    calc ‖G z‖ * ‖carlsonDamping α z‖
-        ≤ (M * Real.exp (τ' * ‖z‖)) * Real.exp (α * (π / 2) * ‖z‖) :=
+    calc ‖G₁ z‖ * ‖carlsonDamping α z‖
+        ≤ (M * Real.exp (τ'' * ‖z‖)) * Real.exp (α * (π / 2) * ‖z‖) :=
           mul_le_mul (hGbd z hz') ((norm_carlsonDamping_le hα.le hz').trans
             (Real.exp_le_exp.mpr (mul_le_mul_of_nonneg_left (abs_im_le_norm z)
               (by positivity)))) (norm_nonneg _) (by positivity)
-      _ = M * Real.exp ((τ' + α * (π / 2)) * ‖z‖) := by
+      _ = M * Real.exp ((τ'' + α * (π / 2)) * ‖z‖) := by
           rw [mul_assoc, ← Real.exp_add]; ring_nf
   have hKim : ∃ C, ∀ x : ℝ, ‖K (x * I)‖ ≤ C := by
-    refine ⟨max (4 * C') (M * Real.exp (τ' / 4) * Real.exp (α * (π / 2) / 4)), fun y ↦ ?_⟩
+    refine ⟨max (4 * C' / κ) (M * Real.exp (τ'' / 4) * Real.exp (α * (π / 2) / 4)), fun y ↦ ?_⟩
     have hre : 0 ≤ ((y : ℂ) * I).re := by simp
     have himy : |((y : ℂ) * I).im| = |y| := by simp
     have hD := norm_carlsonDamping_le hα.le hre
@@ -457,38 +514,44 @@ theorem eqOn_zero_of_natCast_eq_zero {f : ℂ → ℂ}
     simp only [K, norm_mul]
     by_cases hy : 1 / 4 ≤ |y|
     · refine le_trans ?_ (le_max_left _ _)
-      calc ‖G (y * I)‖ * ‖carlsonDamping α (y * I)‖
-          ≤ 4 * C' * Real.exp ((c - π) * |y|) * Real.exp (α * (π / 2) * |y|) :=
+      have hyκ : |y| ≤ Real.exp (κ * |y|) / κ := by
+        rw [le_div_iff₀ hκ]; linarith [Real.add_one_le_exp (κ * |y|)]
+      calc ‖G₁ (y * I)‖ * ‖carlsonDamping α (y * I)‖
+          ≤ 4 * C' * (|y| * Real.exp ((c - π) * |y|)) * Real.exp (α * (π / 2) * |y|) :=
             mul_le_mul (hGim y hy) hD (norm_nonneg _) (by positivity)
-        _ = 4 * C' := by
-            rw [mul_assoc, ← Real.exp_add, ← add_mul, hαπ, zero_mul, Real.exp_zero, mul_one]
+        _ = 4 * C' * |y| * Real.exp (-κ * |y|) := by
+            rw [← hαπ, add_mul, Real.exp_add]; ring
+        _ ≤ 4 * C' * (Real.exp (κ * |y|) / κ) * Real.exp (-κ * |y|) := by gcongr
+        _ = 4 * C' / κ * (Real.exp (κ * |y|) * Real.exp (-κ * |y|)) := by ring
+        _ = 4 * C' / κ := by
+            rw [← Real.exp_add, show κ * |y| + -κ * |y| = 0 by ring, Real.exp_zero, mul_one]
     · push Not at hy
       refine le_trans ?_ (le_max_right _ _)
       have hn : ‖(y : ℂ) * I‖ = |y| := by simp
       have h1 := hGbd _ hre
       rw [hn] at h1
-      have hτ : 0 ≤ τ' := abs_nonneg _
+      have hτ : 0 ≤ τ'' := by positivity
       have hy' : |y| ≤ 1 / 4 := hy.le
       refine mul_le_mul (h1.trans ?_) (hD.trans ?_) (norm_nonneg _) (by positivity)
       · gcongr; nlinarith
-      · gcongr; nlinarith [Real.pi_pos]
+      · gcongr; nlinarith [Real.pi_pos, hα, abs_nonneg y]
   have hKre : SuperpolynomialDecay atTop Real.exp fun x : ℝ ↦ ‖K x‖ := by
     intro n
-    set L : ℝ := n + τ'
+    set L : ℝ := n + τ''
     have hb : ∀ x : ℝ, 0 ≤ x → Real.exp x ^ n * ‖K x‖ ≤
         M * Real.exp (L * x - α * ((x + 1) * Real.log (x + 1))) := by
       intro x hx
       have hG := hGbd x (by simpa using hx)
       rw [norm_real, Real.norm_of_nonneg hx] at hG
       simp only [K, norm_mul, norm_carlsonDamping_ofReal α hx]
-      calc Real.exp x ^ n * (‖G x‖ * Real.exp (-α * ((x + 1) * Real.log (x + 1))))
-          ≤ Real.exp x ^ n * ((M * Real.exp (τ' * x)) *
+      calc Real.exp x ^ n * (‖G₁ x‖ * Real.exp (-α * ((x + 1) * Real.log (x + 1))))
+          ≤ Real.exp x ^ n * ((M * Real.exp (τ'' * x)) *
               Real.exp (-α * ((x + 1) * Real.log (x + 1)))) := by gcongr
         _ = M * Real.exp (L * x - α * ((x + 1) * Real.log (x + 1))) := by
             rw [← Real.exp_nat_mul]
             simp only [L]
-            rw [show (↑n + τ') * x - α * ((x + 1) * Real.log (x + 1)) =
-              ↑n * x + τ' * x + -α * ((x + 1) * Real.log (x + 1)) by ring,
+            rw [show (↑n + τ'') * x - α * ((x + 1) * Real.log (x + 1)) =
+              ↑n * x + τ'' * x + -α * ((x + 1) * Real.log (x + 1)) by ring,
               Real.exp_add, Real.exp_add]
             ring
     have ht : Tendsto (fun x : ℝ ↦ L * x - α * ((x + 1) * Real.log (x + 1))) atTop atBot := by
@@ -509,19 +572,41 @@ theorem eqOn_zero_of_natCast_eq_zero {f : ℂ → ℂ}
     hKre hKim
   intro z hz
   have hKz : K z = 0 := hK0 hz
-  have hGz : G z = 0 := (mul_eq_zero.mp hKz).resolve_right (exp_ne_zero _)
+  have hG₁z : G₁ z = 0 := (mul_eq_zero.mp hKz).resolve_right (exp_ne_zero _)
   by_cases hs : sin (π * z) = 0
   · obtain ⟨n, rfl⟩ := sin_pi_mul_eq_zero_iff.mp hs
     exact hnat n hz
-  · rw [show G z = f z / sin (π * z) from sinPiQuot_of_ne hs, div_eq_zero_iff] at hGz
+  · have hz0 : z ≠ 0 := fun h ↦ hs (by simp [h])
+    have hGz : G z = 0 := (mul_eq_zero.mp hG₁z).resolve_left hz0
+    rw [show G z = f z / sin (π * z) from sinPiQuot_of_ne hs, div_eq_zero_iff] at hGz
     exact hGz.resolve_right hs
+
+/-- **Carlson's theorem.** Let `f` be holomorphic on the open right half-plane and continuous on its
+closure, with values in a complex normed space, of exponential type there,
+`‖f z‖ ≤ C e^(τ ‖z‖)`, and of type `c < π` on the imaginary axis, `‖f (i y)‖ ≤ C e^(c |y|)`. If
+`f` vanishes at the natural numbers, then `f` vanishes on the closed right half-plane.
+
+The vector-valued case reduces to the scalar case through continuous linear functionals. -/
+theorem eqOn_zero_of_natCast_eq_zero {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
+    {f : ℂ → E} (hf : DiffContOnCl ℂ f {z | 0 < z.re}) {C τ c : ℝ}
+    (hexp : ∀ z : ℂ, 0 ≤ z.re → ‖f z‖ ≤ C * Real.exp (τ * ‖z‖))
+    (him : ∀ y : ℝ, ‖f (y * I)‖ ≤ C * Real.exp (c * |y|)) (hc : c < π)
+    (hzero : ∀ n : ℕ, f n = 0) : ∀ z : ℂ, 0 ≤ z.re → f z = 0 := by
+  intro z hz
+  refine SeparatingDual.eq_zero_of_forall_dual_eq_zero (R := ℂ) fun ℓ ↦ ?_
+  have hb : ∀ w : ℂ, ‖ℓ (f w)‖ ≤ ‖ℓ‖ * ‖f w‖ := fun w ↦ ℓ.le_opNorm _
+  refine eqOn_zero_of_natCast_eq_zero_complex (f := fun w ↦ ℓ (f w))
+    (ℓ.differentiable.comp_diffContOnCl hf) (C := ‖ℓ‖ * C) (τ := τ) (c := c)
+    (fun w hw ↦ (hb w).trans ?_) (fun y ↦ (hb _).trans ?_) hc (fun n ↦ by simp [hzero n]) z hz
+  · rw [mul_assoc]; exact mul_le_mul_of_nonneg_left (hexp w hw) (norm_nonneg _)
+  · rw [mul_assoc]; exact mul_le_mul_of_nonneg_left (him y) (norm_nonneg _)
 
 /-- **Carlson's theorem in several variables.** Let `F` be holomorphic on the closed product of
 right half-planes `Re b i ≥ 0`, with `‖F b‖ ≤ C exp (∑ i, (τ |Re b i| + c |Im b i|))` there and
 `c < π`. If `F` vanishes on `ℕ^ι`, then `F` vanishes on the closed product of half-planes. -/
-theorem eqOn_zero_of_natCast_eq_zero_pi {ι : Type*} [Fintype ι]
-    {F : (ι → ℂ) → ℂ} (hF : ∀ b : ι → ℂ, (∀ i, 0 ≤ (b i).re) → DifferentiableAt ℂ F b)
-    {C τ c : ℝ}
+theorem eqOn_zero_of_natCast_eq_zero_pi {ι E : Type*} [Fintype ι] [NormedAddCommGroup E]
+    [NormedSpace ℂ E] {F : (ι → ℂ) → E}
+    (hF : ∀ b : ι → ℂ, (∀ i, 0 ≤ (b i).re) → DifferentiableAt ℂ F b) {C τ c : ℝ}
     (hbd : ∀ b : ι → ℂ, (∀ i, 0 ≤ (b i).re) →
       ‖F b‖ ≤ C * Real.exp (∑ i, (τ * |(b i).re| + c * |(b i).im|)))
     (hc : c < π) (hzero : ∀ n : ι → ℕ, F (fun i ↦ n i) = 0) :
@@ -542,7 +627,7 @@ theorem eqOn_zero_of_natCast_eq_zero_pi {ι : Type*} [Fintype ι]
     exact hzero n
   | insert j s hj ih =>
     intro b hb hnat
-    set f : ℂ → ℂ := fun z ↦ F (Function.update b j z)
+    set f : ℂ → E := fun z ↦ F (Function.update b j z)
     have hupd : ∀ z : ℂ, 0 ≤ z.re → ∀ i, 0 ≤ (Function.update b j z i).re := by
       intro z hz i
       by_cases hi : i = j
@@ -573,7 +658,9 @@ theorem eqOn_zero_of_natCast_eq_zero_pi {ι : Type*} [Fintype ι]
       simp only [C']
       gcongr
       · exact le_max_left _ _
-    have hzf := eqOn_zero_of_natCast_eq_zero (f := f) hf (C := C') (τ := |τ| + |c|) (c := c)
+    have hfd : DiffContOnCl ℂ f {z | 0 < z.re} := DifferentiableOn.diffContOnCl (by
+      rw [closure_setOfPred_lt_re]; exact fun z hz ↦ (hf z hz).differentiableWithinAt)
+    have hzf := eqOn_zero_of_natCast_eq_zero (f := f) hfd (C := C') (τ := |τ| + |c|) (c := c)
       (fun z hz ↦ (hfb z hz).trans (mul_le_mul_of_nonneg_left (Real.exp_le_exp.mpr (by
         have h1 : τ * |z.re| ≤ |τ| * ‖z‖ :=
           (le_abs_self _).trans (by rw [abs_mul, abs_abs]; gcongr; exact abs_re_le_norm z)
@@ -592,8 +679,8 @@ theorem eqOn_zero_of_natCast_eq_zero_pi {ι : Type*} [Fintype ι]
 /-- **Uniqueness of the continuation of lattice data.** Two functions holomorphic on the closed
 product of right half-planes, with bounds `C exp (∑ i, (τ |Re b i| + c |Im b i|))`, `c < π`, that
 agree on `ℕ^ι` agree on the closed product of half-planes. -/
-theorem eqOn_of_natCast_eq_pi {ι : Type*} [Fintype ι]
-    {F₁ F₂ : (ι → ℂ) → ℂ}
+theorem eqOn_of_natCast_eq_pi {ι E : Type*} [Fintype ι] [NormedAddCommGroup E]
+    [NormedSpace ℂ E] {F₁ F₂ : (ι → ℂ) → E}
     (hF₁ : ∀ b : ι → ℂ, (∀ i, 0 ≤ (b i).re) → DifferentiableAt ℂ F₁ b)
     (hF₂ : ∀ b : ι → ℂ, (∀ i, 0 ≤ (b i).re) → DifferentiableAt ℂ F₂ b) {C τ c : ℝ}
     (hbd₁ : ∀ b : ι → ℂ, (∀ i, 0 ≤ (b i).re) →

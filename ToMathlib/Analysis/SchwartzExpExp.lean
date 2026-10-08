@@ -29,7 +29,7 @@ one-variable bounds `(1 + |s|)^k (K + e^s)^n e^(a s - e^s) ≤ C`.
 
 ## Main results
 
-* `pow_mul_exp_exp_le`: the one-variable bound.
+* `Real.pow_mul_exp_exp_le`: the one-variable bound.
 * `expExpSchwartz`: the Schwartz function, with `expExpSchwartz_apply`.
 -/
 
@@ -40,7 +40,7 @@ open scoped ContDiff Nat
 
 /-- **One-variable bound.** For `a > 0` and `K ≥ 0`,
 `(1 + |s|)^k (K + e^s)^n e^(a s - e^s)` is bounded on `ℝ`. -/
-theorem pow_mul_exp_exp_le {a : ℝ} (ha : 0 < a) {K : ℝ} (hK : 0 ≤ K) (k n : ℕ) :
+theorem Real.pow_mul_exp_exp_le {a : ℝ} (ha : 0 < a) {K : ℝ} (hK : 0 ≤ K) (k n : ℕ) :
     ∃ C, ∀ s : ℝ, (1 + |s|) ^ k * (K + exp s) ^ n * exp (a * s - exp s) ≤ C := by
   set M : ℝ := k + n + a
   have hM : 0 < M := by positivity
@@ -103,7 +103,7 @@ theorem pow_mul_exp_exp_le {a : ℝ} (ha : 0 < a) {K : ℝ} (hK : 0 ≤ K) (k n 
           rw [← exp_add, show a * t + a * s = 0 by simp [t], exp_zero, mul_one]
 
 /-- The derivatives of positive order of `s ↦ c s - e^s` are bounded by `|c| + e^s`. -/
-theorem norm_iteratedDeriv_linear_sub_exp_le (c : ℝ) {i : ℕ} (hi : 1 ≤ i) (s : ℝ) :
+theorem Real.norm_iteratedDeriv_linear_sub_exp_le (c : ℝ) {i : ℕ} (hi : 1 ≤ i) (s : ℝ) :
     ‖iteratedDeriv i (fun s ↦ c * s - exp s) s‖ ≤ |c| + exp s := by
   have hd : deriv (fun s ↦ c * s - exp s) = fun s ↦ c - exp s := by
     funext s
@@ -133,7 +133,7 @@ variable {ι : Type*} [Fintype ι]
 
 omit [Fintype ι] in
 /-- `1 + ∑ i, a i ≤ ∏ i, (1 + a i)` for nonnegative `a`. -/
-theorem one_add_sum_le_prod_one_add {s : Finset ι} {a : ι → ℝ} (ha : ∀ i ∈ s, 0 ≤ a i) :
+theorem Finset.one_add_sum_le_prod_one_add {s : Finset ι} {a : ι → ℝ} (ha : ∀ i ∈ s, 0 ≤ a i) :
     1 + ∑ i ∈ s, a i ≤ ∏ i ∈ s, (1 + a i) := by
   classical
   induction s using Finset.induction_on with
@@ -188,7 +188,7 @@ theorem norm_iteratedFDeriv_expExpExponent_le (c : ι → ℝ) {n : ℕ} (hn : 1
   calc ‖iteratedDeriv n (fun s ↦ c i * s - exp s) (pr i y)‖ * ‖pr i‖ ^ n
       ≤ (|c i| + exp (pr i y)) * 1 := by
         gcongr
-        · exact norm_iteratedDeriv_linear_sub_exp_le (c i) hn _
+        · exact Real.norm_iteratedDeriv_linear_sub_exp_le (c i) hn _
         · exact pow_le_one₀ (norm_nonneg _) (hpr i)
     _ = |c i| + exp (y i) := by simp [pr]
 
@@ -199,7 +199,7 @@ def expExpSchwartz (c : ι → ℝ) (hc : ∀ i, 0 < c i) : SchwartzMap (Euclide
   decay' := by
     intro k n
     -- One-variable constants.
-    choose C hC using fun i ↦ pow_mul_exp_exp_le (hc i) (by positivity : 0 ≤ 1 + |c i|) k n
+    choose C hC using fun i ↦ Real.pow_mul_exp_exp_le (hc i) (by positivity : 0 ≤ 1 + |c i|) k n
     have hC0 : ∀ i, 0 ≤ C i := fun i ↦ le_trans (by positivity) (hC i 0)
     refine ⟨n ! * ∏ i, C i, fun y ↦ ?_⟩
     set D : ℝ := 1 + ∑ i, (|c i| + exp (y i))
@@ -229,11 +229,11 @@ def expExpSchwartz (c : ι → ℝ) (hc : ∀ i, 0 < c i) : SchwartzMap (Euclide
     -- Factorization of the weight.
     have hy : ‖y‖ ≤ ∏ i, (1 + |y i|) := by
       refine (EuclideanSpace.norm_le_sum_abs y).trans ?_
-      have := one_add_sum_le_prod_one_add (s := Finset.univ) (a := fun i ↦ |y i|)
+      have := Finset.one_add_sum_le_prod_one_add (s := Finset.univ) (a := fun i ↦ |y i|)
         fun i _ ↦ abs_nonneg _
       linarith
     have hDp : D ≤ ∏ i, (1 + |c i| + exp (y i)) := by
-      have := one_add_sum_le_prod_one_add (s := Finset.univ)
+      have := Finset.one_add_sum_le_prod_one_add (s := Finset.univ)
         (a := fun i ↦ |c i| + exp (y i)) fun i _ ↦ by positivity
       simpa [D, add_assoc] using this
     have hexp : exp (expExpExponent c y) = ∏ i, exp (c i * y i - exp (y i)) := by

@@ -33,7 +33,7 @@ on `V × V`. The kernel is holomorphic in all variables, so the joint Euler cont
 Agreement with the native average near a diagonal point is the statement that the Euler
 integral over the straight segment from `y` to `x` equals the integral over its curved
 deformation through `φ`; it is proved with a primitive on a convex strip and explicit endpoint
-estimates (`Complex.intervalIntegral_mul_comp_eq_of_endpoint`). The identity theorem on the
+estimates (`Complex.intervalIntegral_smul_comp_eq_of_endpoint`). The identity theorem on the
 connected open set of node pairs whose segment lies in `D` then gives agreement everywhere.
 
 ## Main definitions
@@ -781,8 +781,11 @@ theorem regEulerIntegral_twoNodeKernel_eventually_eq {D V : Set ℂ} {φ ψ : �
             have : 0 ≤ t ^ e₁.re := Real.rpow_nonneg ht.1.le _
             unfold eulerWeightConst; positivity
         _ = eulerWeightConst e₁ e₀ * Cg * t ^ b₁.re := by rw [← hpow]; ring
-  have hdef := Complex.intervalIntegral_mul_comp_eq_of_endpoint hUo hUc hω hid hγd hU₁ hU₂
-    hi₁ hi₂ h₀ h₁ ht₀ ht₁
+  have hfun : ∀ u u' : ℝ → ℂ, (fun t : ℝ => u' t • ω (u t)) = fun t => ω (u t) * u' t :=
+    fun u u' => funext fun t => by rw [smul_eq_mul, mul_comm]
+  have hdef := Complex.intervalIntegral_smul_comp_eq_of_endpoint hUo hUc hω hid hγd hU₁ hU₂
+    (by rw [hfun]; exact hi₁) (by rw [hfun]; exact hi₂) h₀ h₁ ht₀ ht₁
+  rw [hfun, hfun] at hdef
   -- Assemble.
   unfold regEulerIntegral
   congr 1

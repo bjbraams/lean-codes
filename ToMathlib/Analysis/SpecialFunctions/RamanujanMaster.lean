@@ -26,9 +26,9 @@ Mellin–Barnes integral
   strips (`norm_ramanujanIntegrand_le`) and has simple poles at `s = -k` with residues
   `φ(k) (-x)^k` (`RamanujanClass.exists_pole`).
 * Moving the line of integration to `Re s = -N - 1/2` across these poles
-  (`Complex.integral_vertical_sub_eq_of_simplePole`) gives the partial sums of the series plus
-  a remainder bounded by `K (x e^P)^(N + 1/2)`, which tends to zero for `x < e^(-P)`
-  (`RamanujanClass.hasSum_mellinInv`).
+  (`Complex.integral_vertical_sub_eq_of_simplePole_of_tail_bound`) gives the partial sums of the
+  series plus a remainder bounded by `K (x e^P)^(N + 1/2)`, which tends to zero for
+  `x < e^(-P)` (`RamanujanClass.hasSum_mellinInv`).
 * Within `0 < Re s < δ` the line can be moved freely (`RamanujanClass.mellinInv_eq_mellinInv`),
   which bounds `F(x)` by `x^(-σ)` for every `σ ∈ (0, δ)` and gives Mellin convergence. Mellin
   inversion in the reverse direction (`mellin_mellinInv_eq`) gives the transform.
@@ -71,12 +71,12 @@ theorem abs_sinh_le_norm_sin_pi (σ t : ℝ) :
   exact (pow_le_pow_iff_left₀ (abs_nonneg _) (norm_nonneg _) two_ne_zero).mp hkey
 
 /-- `cosh x ≥ e^|x| / 2`. -/
-theorem exp_abs_div_two_le_cosh (x : ℝ) : Real.exp |x| / 2 ≤ Real.cosh x := by
+theorem _root_.Real.exp_abs_div_two_le_cosh (x : ℝ) : Real.exp |x| / 2 ≤ Real.cosh x := by
   rw [← Real.cosh_abs, Real.cosh_eq]
   linarith [Real.exp_pos (-|x|)]
 
 /-- `|sinh x| ≥ e^|x| / 4` for `|x| ≥ 1/2`. -/
-theorem exp_abs_div_four_le_abs_sinh {x : ℝ} (hx : 1 / 2 ≤ |x|) :
+theorem _root_.Real.exp_abs_div_four_le_abs_sinh {x : ℝ} (hx : 1 / 2 ≤ |x|) :
     Real.exp |x| / 4 ≤ |Real.sinh x| := by
   rw [Real.abs_sinh, Real.sinh_eq]
   set u := |x|
@@ -86,7 +86,7 @@ theorem exp_abs_div_four_le_abs_sinh {x : ℝ} (hx : 1 / 2 ≤ |x|) :
 
 /-- Exponential decay beats `(1 + |t|)^(-2)`: `e^(-κ |t|) ≤ m⁻² (1 + |t|)^(-2)`,
 `m = min 1 (κ / 2)`, for `κ > 0`. -/
-theorem exp_neg_mul_abs_le {κ : ℝ} (hκ : 0 < κ) (t : ℝ) :
+theorem _root_.Real.exp_neg_mul_abs_le {κ : ℝ} (hκ : 0 < κ) (t : ℝ) :
     Real.exp (-(κ * |t|)) ≤ (min 1 (κ / 2))⁻¹ ^ 2 * (1 + |t|) ^ (-2 : ℝ) := by
   set m := min 1 (κ / 2)
   have hm : 0 < m := lt_min one_pos (by positivity)
@@ -127,7 +127,7 @@ theorem norm_ramanujanIntegrand_le {φ : ℂ → ℂ} {δ C P A : ℝ}
     have := mul_neg_of_neg_of_pos (not_le.mp h) (Real.exp_pos (P * -σ + A * |t|))
     linarith [norm_nonneg (φ (-((σ : ℂ) + t * I)))]
   have hsinh : Real.exp (π * |t|) / 4 ≤ ‖sin (π * ((σ : ℂ) + t * I))‖ := by
-    have h1 := exp_abs_div_four_le_abs_sinh (x := π * t) (by
+    have h1 := Real.exp_abs_div_four_le_abs_sinh (x := π * t) (by
       rw [abs_mul, abs_of_pos Real.pi_pos]; nlinarith [Real.pi_gt_three])
     rw [abs_mul, abs_of_pos Real.pi_pos] at h1
     exact h1.trans (abs_sinh_le_norm_sin_pi σ t)
@@ -197,7 +197,7 @@ theorem exists_tail_bound (h : RamanujanClass φ δ C P A) {x : ℝ} (hx : 0 < x
   set K₀ := 4 * π * C * (x ^ (-a) + x ^ (-b)) * (Real.exp (-P * a) + Real.exp (-P * b))
   refine ⟨|K₀| * (min 1 ((π - A) / 2))⁻¹ ^ 2, fun σ t h1 h2 ht ↦ ?_⟩
   refine (norm_ramanujanIntegrand_le h.bound hx h1 h2 hbδ ht).trans ?_
-  have he := exp_neg_mul_abs_le hκ t
+  have he := Real.exp_neg_mul_abs_le hκ t
   rw [show (A - π) * |t| = -((π - A) * |t|) by ring]
   calc K₀ * Real.exp (-((π - A) * |t|)) ≤ |K₀| * Real.exp (-((π - A) * |t|)) :=
         mul_le_mul_of_nonneg_right (le_abs_self _) (Real.exp_pos _).le
@@ -288,13 +288,14 @@ theorem mellinInv_sub_mellinInv (h : RamanujanClass φ δ C P A) {x : ℝ} (hx :
   obtain ⟨g, hg, hpole⟩ := h.exists_pole hx k
   obtain ⟨K, hK⟩ := h.exists_tail_bound hx (a := a) hbδ
   have hre : (-(k : ℂ)).re = -(k : ℝ) := by simp
-  have hcross := integral_vertical_sub_eq_of_simplePole (f := ramanujanIntegrand φ x)
-    (s₀ := -(k : ℂ)) (by rw [hre]; exact ha) (by rw [hre]; exact hb)
+  have hcross := integral_vertical_sub_eq_of_simplePole_of_tail_bound
+    (f := ramanujanIntegrand φ x) (s₀ := -(k : ℂ)) (by rw [hre]; exact ha) (by rw [hre]; exact hb)
     (fun s hs1 hs2 hne ↦ h.differentiableAt_integrand hx (hs2.trans_lt hbδ)
       (sin_pi_mul_ne_zero_of_re (k := -(k : ℤ)) (by push_cast; linarith)
         (by push_cast; linarith) (by push_cast; exact hne)))
-    hg hpole (T₀ := 1) (fun σ t h1 h2 ht ↦ hK σ t h1 h2 ht)
-  rw [mellinInv_ramanujanKernel, mellinInv_ramanujanKernel, ← smul_sub, hcross.2.2]
+    hg (hpole.mono fun s hs ↦ by rw [hs, smul_eq_mul, div_eq_inv_mul]) (T₀ := 1)
+    (fun σ t h1 h2 ht ↦ hK σ t h1 h2 ht)
+  rw [mellinInv_ramanujanKernel, mellinInv_ramanujanKernel, ← smul_sub, hcross.2.2, smul_eq_mul]
   rw [Complex.real_smul]
   push_cast
   field_simp
@@ -349,7 +350,7 @@ theorem exists_norm_mellinInv_le (h : RamanujanClass φ δ C P A) {x : ℝ} (hx 
       sub_self, add_zero, neg_im, add_im, mul_im, zero_add, abs_neg] at hφ
     have hsin := abs_sin_mul_cosh_le_norm_sin_pi σ t
     rw [abs_sin_pi_neg_nat_sub_half, one_mul] at hsin
-    have hcosh := exp_abs_div_two_le_cosh (π * t)
+    have hcosh := Real.exp_abs_div_two_le_cosh (π * t)
     rw [abs_mul, abs_of_pos Real.pi_pos] at hcosh
     have hspos : 0 < ‖sin (π * ((σ : ℂ) + t * I))‖ :=
       lt_of_lt_of_le (by positivity) (hcosh.trans hsin)
@@ -360,7 +361,7 @@ theorem exists_norm_mellinInv_le (h : RamanujanClass φ δ C P A) {x : ℝ} (hx 
       ring
     have hexp : Real.exp (P * -σ) = Real.exp P ^ ((N : ℝ) + 1 / 2) := by
       rw [← Real.exp_mul]; congr 1; simp only [σ]; ring
-    have he := exp_neg_mul_abs_le hκ t
+    have he := Real.exp_neg_mul_abs_le hκ t
     unfold ramanujanIntegrand ramanujanKernel
     rw [norm_mul, norm_mul, norm_div, norm_real, Real.norm_of_nonneg Real.pi_pos.le, hxpow]
     calc x ^ ((N : ℝ) + 1 / 2) * (π / ‖sin (π * ((σ : ℂ) + t * I))‖ * ‖φ (-((σ : ℂ) + t * I))‖)
@@ -464,11 +465,11 @@ theorem kernel_line (h : RamanujanClass φ δ C P A) {σ : ℝ} (hσ0 : 0 < σ) 
   simp only [neg_re, add_re, ofReal_re, mul_re, I_re, mul_zero, ofReal_im, I_im, mul_one,
     sub_self, add_zero, neg_im, add_im, mul_im, zero_add, abs_neg] at hφ
   have hsin := abs_sin_mul_cosh_le_norm_sin_pi σ t
-  have hcosh := exp_abs_div_two_le_cosh (π * t)
+  have hcosh := Real.exp_abs_div_two_le_cosh (π * t)
   rw [abs_mul, abs_of_pos Real.pi_pos] at hcosh
   have hlow : |Real.sin (π * σ)| * (Real.exp (π * |t|) / 2) ≤ ‖sin (π * ((σ : ℂ) + t * I))‖ :=
     (mul_le_mul_of_nonneg_left hcosh (abs_nonneg _)).trans hsin
-  have he := exp_neg_mul_abs_le hκ t
+  have he := Real.exp_neg_mul_abs_le hκ t
   unfold ramanujanKernel
   rw [norm_mul, norm_div, norm_real, Real.norm_of_nonneg Real.pi_pos.le]
   calc π / ‖sin (π * ((σ : ℂ) + t * I))‖ * ‖φ (-((σ : ℂ) + t * I))‖

@@ -405,7 +405,7 @@ theorem rieszIntegral_succ {Ω : Set ℝ} (hΩo : IsOpen Ω) (hΩc : Convex ℝ 
     rieszIntegral (n + 1) g a x ν = rieszIntegral n g a x ν := by
   have hI := Icc_subset_of_convex hΩc ha hx
   have hstep := rlIntegral_eq_add (g := iteratedDeriv n g) (g' := iteratedDeriv (n + 1) g) hax
-    (fun t ht => hg.hasDerivAt_iteratedDeriv_of_isOpen hΩo (k := n) (by omega) (hI ht))
+    (fun t ht => hg.hasDerivAt_iteratedDeriv_of_isOpen hΩo (k := n) (by norm_cast; omega) (hI ht))
     ((hg.continuousOn_iteratedDeriv_of_isOpen hΩo le_rfl).mono hI)
     (ν := ν + n) (by simp; linarith)
   rw [rieszIntegral, rieszIntegral, sum_range_succ, hstep]
@@ -475,7 +475,7 @@ theorem rieszIntegral_neg_nat {Ω : Set ℝ} (hΩo : IsOpen Ω) (hΩc : Convex �
       iteratedDeriv m g x - iteratedDeriv m g a := by
     refine intervalIntegral.integral_eq_sub_of_hasDerivAt (fun t ht => ?_) ?_
     · rw [Set.uIcc_of_le hax] at ht
-      exact hg.hasDerivAt_iteratedDeriv_of_isOpen hΩo (k := m) (by omega) (hI ht)
+      exact hg.hasDerivAt_iteratedDeriv_of_isOpen hΩo (k := m) (by norm_cast; omega) (hI ht)
     · exact ((hg.continuousOn_iteratedDeriv_of_isOpen hΩo le_rfl).mono
         (by rw [Set.uIcc_of_le hax]; exact hI)).intervalIntegrable
   rw [rieszIntegral, sum_range_succ, sum_eq_zero hzero, rlIntegral]

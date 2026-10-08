@@ -59,6 +59,7 @@ so the hypothesis holds by the integrability of Fourier transforms of test funct
 -/
 
 open Complex MeasureTheory Set
+open MvMellin
 open scoped FourierTransform ContDiff
 
 @[expose] public noncomputable section

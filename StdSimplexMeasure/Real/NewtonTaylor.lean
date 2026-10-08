@@ -233,7 +233,7 @@ theorem dividedDifference_sub {Ω : Set ℝ} (hΩo : IsOpen Ω) (hΩ : Convex �
     dividedDifference n f (Fin.snoc z x) - dividedDifference n f (Fin.snoc z y) =
       (x - y) * dividedDifference (n + 1) f (Fin.snoc (Fin.snoc z x) y) :=
   simplexIntegral_sub hΩ (fun w hw => ContDiffOn.hasDerivAt_iteratedDeriv_of_isOpen (hs := hΩo) hf
-    (by omega) hw) (hf.continuousOn_iteratedDeriv_of_isOpen hΩo le_rfl) z hz hx hy
+    (by norm_cast; omega) hw) (hf.continuousOn_iteratedDeriv_of_isOpen hΩo le_rfl) z hz hx hy
 
 /-- The Newton basis polynomial `∏ᵢ (x - zᵢ)` of real nodes, as a complex number. -/
 def newtonBasis (z : Fin n → ℝ) (x : ℝ) : ℂ := ∏ i, ((x - z i : ℝ) : ℂ)

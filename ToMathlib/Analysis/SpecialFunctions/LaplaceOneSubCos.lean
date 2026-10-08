@@ -18,7 +18,8 @@ the integral to the alternating partial-fraction sum `∑ⱼ (-1)ʲ (N choose j)
 
 ## Main results
 
-* `Complex.altBinomialInvSum_eq`: `∑_{j ≤ N} (-1)ʲ (N choose j)/(y + j) = N!/∏_{j ≤ N} (y + j)`.
+* `altBinomialInvSum_eq`: over any field,
+  `∑_{j ≤ N} (-1)ʲ (N choose j)/(y + j) = N!/∏_{j ≤ N} (y + j)`.
 * `Complex.integral_exp_mul_one_sub_cos_pow`: Carlson's Exercise 6.6-17,
   `∫_{2mπ}^∞ e^{-xt} (1 - cos t)ⁿ dt = 2⁻ⁿ (2n)! e^{-2mπx}/(x (x² + 1) ⋯ (x² + n²))`.
 
@@ -31,35 +32,33 @@ open Finset MeasureTheory Set
 
 @[expose] public noncomputable section
 
-namespace Complex
-
 /-- The alternating binomial sum `∑_{j ≤ N} (-1)ʲ (N choose j)/(y + j)`. -/
-def altBinomialInvSum (N : ℕ) (y : ℂ) : ℂ :=
-  ∑ j ∈ range (N + 1), (-1 : ℂ) ^ j * (N.choose j : ℂ) / (y + j)
+def altBinomialInvSum {K : Type*} [Field K] (N : ℕ) (y : K) : K :=
+  ∑ j ∈ range (N + 1), (-1 : K) ^ j * (N.choose j : K) / (y + j)
 
 /-- Pascal's rule for the alternating sums: `f_{N+1}(y) = f_N(y) - f_N(y + 1)`. -/
-theorem altBinomialInvSum_succ (N : ℕ) (y : ℂ) :
+theorem altBinomialInvSum_succ {K : Type*} [Field K] (N : ℕ) (y : K) :
     altBinomialInvSum (N + 1) y = altBinomialInvSum N y - altBinomialInvSum N (y + 1) := by
   unfold altBinomialInvSum
   rw [sum_range_succ' _ (N + 1)]
   simp_rw [Nat.choose_succ_succ, Nat.cast_add, mul_add, add_div, sum_add_distrib]
-  have hA : ∑ j ∈ range (N + 1), (-1 : ℂ) ^ (j + 1) * (N.choose j : ℂ) / (y + (j + 1 : ℕ)) =
-      -∑ j ∈ range (N + 1), (-1 : ℂ) ^ j * (N.choose j : ℂ) / (y + 1 + j) := by
+  have hA : ∑ j ∈ range (N + 1), (-1 : K) ^ (j + 1) * (N.choose j : K) / (y + (j + 1 : ℕ)) =
+      -∑ j ∈ range (N + 1), (-1 : K) ^ j * (N.choose j : K) / (y + 1 + j) := by
     rw [← sum_neg_distrib]
     exact sum_congr rfl fun j _ ↦ by push_cast; ring_nf
-  have hB : ∑ j ∈ range (N + 1), (-1 : ℂ) ^ (j + 1) * (N.choose (j + 1) : ℂ) /
-        (y + (j + 1 : ℕ)) + (-1 : ℂ) ^ 0 * ((N + 1).choose 0 : ℂ) / (y + (0 : ℕ)) =
-      ∑ j ∈ range (N + 1), (-1 : ℂ) ^ j * (N.choose j : ℂ) / (y + j) := by
-    rw [sum_range_succ (fun j ↦ (-1 : ℂ) ^ (j + 1) * (N.choose (j + 1) : ℂ) /
+  have hB : ∑ j ∈ range (N + 1), (-1 : K) ^ (j + 1) * (N.choose (j + 1) : K) /
+        (y + (j + 1 : ℕ)) + (-1 : K) ^ 0 * ((N + 1).choose 0 : K) / (y + (0 : ℕ)) =
+      ∑ j ∈ range (N + 1), (-1 : K) ^ j * (N.choose j : K) / (y + j) := by
+    rw [sum_range_succ (fun j ↦ (-1 : K) ^ (j + 1) * (N.choose (j + 1) : K) /
       (y + (j + 1 : ℕ))), Nat.choose_succ_self, Nat.cast_zero, mul_zero, zero_div, add_zero,
-      sum_range_succ' (fun j ↦ (-1 : ℂ) ^ j * (N.choose j : ℂ) / (y + j))]
+      sum_range_succ' (fun j ↦ (-1 : K) ^ j * (N.choose j : K) / (y + j))]
     simp
   simp only [Nat.succ_eq_add_one] at *
   push_cast at hA hB ⊢
   linear_combination hA + hB
 
 /-- The rising product `∏_{j ≤ N} (y + j)`. -/
-theorem prod_range_add_succ_left (N : ℕ) (y : ℂ) :
+theorem prod_range_add_succ_left {K : Type*} [CommRing K] (N : ℕ) (y : K) :
     ∏ j ∈ range (N + 2), (y + j) = y * ∏ j ∈ range (N + 1), (y + 1 + j) := by
   rw [prod_range_succ', mul_comm]
   congr 1
@@ -68,8 +67,8 @@ theorem prod_range_add_succ_left (N : ℕ) (y : ℂ) :
 
 /-- **Partial fractions for the reciprocal rising product**:
 `∑_{j ≤ N} (-1)ʲ (N choose j)/(y + j) = N!/∏_{j ≤ N} (y + j)` when no `y + j` vanishes. -/
-theorem altBinomialInvSum_eq (N : ℕ) {y : ℂ} (hy : ∀ j ≤ N, y + j ≠ 0) :
-    altBinomialInvSum N y = (N.factorial : ℂ) / ∏ j ∈ range (N + 1), (y + j) := by
+theorem altBinomialInvSum_eq {K : Type*} [Field K] (N : ℕ) {y : K} (hy : ∀ j ≤ N, y + j ≠ 0) :
+    altBinomialInvSum N y = (N.factorial : K) / ∏ j ∈ range (N + 1), (y + j) := by
   induction N generalizing y with
   | zero => simp [altBinomialInvSum]
   | succ N ih =>
@@ -78,7 +77,7 @@ theorem altBinomialInvSum_eq (N : ℕ) {y : ℂ} (hy : ∀ j ≤ N, y + j ≠ 0)
       have := hy (j + 1) (by omega); push_cast at this
       rwa [show y + 1 + j = y + (j + 1) by ring]
     have hyN : ∀ j ≤ N, y + j ≠ 0 := fun j hj ↦ hy j (by omega)
-    have hlast : y + ((N + 1 : ℕ) : ℂ) ≠ 0 := hy (N + 1) le_rfl
+    have hlast : y + ((N + 1 : ℕ) : K) ≠ 0 := hy (N + 1) le_rfl
     have hP0 : ∏ j ∈ range (N + 1), (y + j) ≠ 0 :=
       prod_ne_zero_iff.mpr fun j hj ↦ hyN j (Nat.lt_succ_iff.mp (mem_range.mp hj))
     have hP1 : ∏ j ∈ range (N + 1), (y + 1 + j) ≠ 0 :=
@@ -88,9 +87,9 @@ theorem altBinomialInvSum_eq (N : ℕ) {y : ℂ} (hy : ∀ j ≤ N, y + j ≠ 0)
     have hL := prod_range_add_succ_left N y
     rw [altBinomialInvSum_succ, ih hyN, ih hy1]
     rw [show N + 1 + 1 = N + 2 by ring]
-    have key : (N.factorial : ℂ) / ∏ j ∈ range (N + 1), (y + j) -
-        (N.factorial : ℂ) / ∏ j ∈ range (N + 1), (y + 1 + j) =
-        (N.factorial : ℂ) * ((y + (N + 1 : ℕ)) - y) / ∏ j ∈ range (N + 2), (y + j) := by
+    have key : (N.factorial : K) / ∏ j ∈ range (N + 1), (y + j) -
+        (N.factorial : K) / ∏ j ∈ range (N + 1), (y + 1 + j) =
+        (N.factorial : K) * ((y + (N + 1 : ℕ)) - y) / ∏ j ∈ range (N + 2), (y + j) := by
       rw [mul_sub, sub_div]
       congr 1
       · rw [hR, mul_div_mul_right _ _ hlast]
@@ -98,6 +97,8 @@ theorem altBinomialInvSum_eq (N : ℕ) {y : ℂ} (hy : ∀ j ≤ N, y + j ≠ 0)
     rw [key, Nat.factorial_succ]
     push_cast
     ring_nf
+
+namespace Complex
 
 /-- The exponential expansion
 `(1 - cos t)ⁿ = (-1/2)ⁿ ∑_{j ≤ 2n} (-1)ʲ (2n choose j) e^{i(j - n)t}`. -/

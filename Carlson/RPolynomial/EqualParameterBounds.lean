@@ -371,7 +371,7 @@ theorem norm_Gamma_mul_regCarlsonRPolynomial_const_le_poly [Nonempty ι] (β : �
           (by linarith)
     rw [div_le_iff₀ hGa]
     calc Real.Gamma (a + r) ≤ Real.Gamma (a + m) := h1
-      _ = (ascPochhammer ℝ m).eval a * Real.Gamma a := Real.Gamma_add_nat_eq (by linarith) m
+      _ = (ascPochhammer ℝ m).eval a * Real.Gamma a := Real.Gamma_add_nat_eq_of_pos (by linarith) m
       _ ≤ (a + m) ^ m * Real.Gamma a := by
           gcongr; exact Real.ascPochhammer_eval_le_pow (by linarith) m
       _ ≤ ((n : ℝ) + m) ^ m * Real.Gamma a := by gcongr
@@ -396,12 +396,12 @@ theorem norm_Gamma_mul_regCarlsonRPolynomial_const_le_poly [Nonempty ι] (β : �
         _ ≤ (ascPochhammer ℝ n).eval (M : ℝ) * Real.Gamma M := by
             have := ascPochhammer_eval_nonneg_of_nonneg (by positivity : (0 : ℝ) ≤ M) n
             nlinarith
-        _ = Real.Gamma (M + n) := (Real.Gamma_add_nat_eq (by linarith) n).symm
+        _ = Real.Gamma (M + n) := (Real.Gamma_add_nat_eq_of_pos (by linarith) n).symm
     have hmono : Real.Gamma (n - L) ≤ Real.Gamma (n - k * r) :=
       Real.Gamma_le_Gamma_of_one_le hnL (by linarith) (by linarith)
     have hratio : Real.Gamma (M + n) = (ascPochhammer ℝ (M + L)).eval ((n : ℝ) - L) *
         Real.Gamma (n - L) := by
-      rw [← Real.Gamma_add_nat_eq (by linarith)]; push_cast; ring_nf
+      rw [← Real.Gamma_add_nat_eq_of_pos (by linarith)]; push_cast; ring_nf
     rw [div_le_iff₀ hGnk]
     calc (ascPochhammer ℝ n).eval (k * r + k) ≤ Real.Gamma (M + n) := hP
       _ = (ascPochhammer ℝ (M + L)).eval ((n : ℝ) - L) * Real.Gamma (n - L) := hratio

@@ -11,20 +11,23 @@ public import Mathlib.Analysis.SpecialFunctions.Log.Deriv
 /-!
 # Log-convexity of a constant plus a reciprocal
 
-The function `a + b / (x + k)` is strictly decreasing and strictly log-convex
-where its denominator is positive, for `a ≥ 0` and `b > 0`. This includes the
+The function `a + b / (x + k)` is strictly decreasing and strictly log-convex on the real line
+where its denominator is positive, for `a ≥ 0` and `b > 0`; its derivative is computed over any
+nontrivially normed field. This includes the
 individual factors of concentration-dependent Pochhammer ratios.
 -/
 
 open Set
 public section
-namespace Real
 
-/-- The derivative of a constant plus a reciprocal. -/
-theorem hasDerivAt_add_div {a b k x : ℝ} (hx : x + k ≠ 0) :
-    HasDerivAt (fun y : ℝ ↦ a + b / (y + k)) (-b / (x + k) ^ 2) x := by
+/-- The derivative of a constant plus a reciprocal, over any nontrivially normed field. -/
+theorem hasDerivAt_add_div {𝕜 : Type*} [NontriviallyNormedField 𝕜] {a b k x : 𝕜}
+    (hx : x + k ≠ 0) :
+    HasDerivAt (fun y : 𝕜 ↦ a + b / (y + k)) (-b / (x + k) ^ 2) x := by
   simpa only [zero_mul, mul_one, zero_sub, id_eq, Pi.div_apply] using
     ((hasDerivAt_const x b).div ((hasDerivAt_id x).add_const k) hx).const_add a
+
+namespace Real
 
 /-- The logarithmic derivative of a nonnegative constant plus a positive reciprocal. -/
 theorem hasDerivAt_log_add_div {a b k x : ℝ} (ha : 0 ≤ a) (hb : 0 < b) (hx : 0 < x + k) :

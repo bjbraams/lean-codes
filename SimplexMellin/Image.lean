@@ -316,7 +316,8 @@ theorem exists_kernel_of_sum_shift (i₀ : ι) (s₀ : ℂ) {S : (ι → ℂ) �
         _ = β + |z.re| := by
             rw [Finset.sum_add_distrib, Finset.sum_const, Finset.card_univ, nsmul_eq_mul,
               show (Fintype.card ι : ℝ) = k from rfl, mul_div_cancel₀ _ hk.ne']
-    have hzero := Complex.eqOn_zero_of_natCast_eq_zero (f := φ) (fun z _ => hφd z)
+    have hzero := Complex.eqOn_zero_of_natCast_eq_zero (f := φ)
+      (Differentiable.diffContOnCl fun z => hφd z)
       (C := (|C| + |A|) * Real.exp (L * β)) (τ := L) (c := 0)
       (fun z _ => (hφbd z).trans (mul_le_mul_of_nonneg_left (Real.exp_le_exp.mpr
         (mul_le_mul_of_nonneg_left (abs_re_le_norm z) hL)) (by positivity)))

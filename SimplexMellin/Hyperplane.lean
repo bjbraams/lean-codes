@@ -21,12 +21,12 @@ Mellin transform restricted to a hyperplane `∑ i, b i = s` is a Fourier–Lapl
 
 `S_g(b) = ∫ e^(⟨b', w⟩) Z(w)^(-s) g(u(w)) dw`,   `b' = (b j)_(j ≠ i₀)`.
 
-Combined with the classical Paley–Wiener theorem (`paleyWiener`) this gives a Paley–Wiener
-description of the hyperplane restrictions. Every entire function of `b'` with Paley–Wiener
-bounds is the restriction of the simplex Mellin transform of a kernel that is continuous on the
-simplex, smooth near it and vanishing near its faces. Conversely, for a smooth kernel vanishing
-near the faces the restriction has Paley–Wiener bounds, and the restriction to one hyperplane
-determines a continuous kernel vanishing near the faces.
+Combined with the classical Paley–Wiener theorem (`PaleyWiener.fourierInv_of_bound`) this gives
+a Paley–Wiener description of the hyperplane restrictions. Every entire function of `b'` with
+Paley–Wiener bounds is the restriction of the simplex Mellin transform of a kernel that is
+continuous on the simplex, smooth near it and vanishing near its faces. Conversely, for a smooth
+kernel vanishing near the faces the restriction has Paley–Wiener bounds, and the restriction to
+one hyperplane determines a continuous kernel vanishing near the faces.
 
 ## Main results
 
@@ -41,7 +41,8 @@ determines a continuous kernel vanishing near the faces.
 * `Dirichlet.eqOn_of_integral_hyperplane_eq`: **injectivity** on one hyperplane.
 -/
 
-open Complex MeasureTheory Set Filter
+open Complex MeasureTheory Set Filter PaleyWiener
+open MvMellin
 open scoped Topology FourierTransform Real ContDiff
 
 @[expose] public noncomputable section
@@ -471,7 +472,7 @@ theorem exists_kernel_of_paleyWiener (i₀ : ι) (s : ℂ) {P : ({j : ι // j �
   -- The classical Paley–Wiener theorem in the frequency variable `ζ`, `b' = -2πi ζ`.
   set F : ({j : ι // j ≠ i₀} → ℂ) → ℂ := fun ζ => P (fun j => -(2 * π * I) * ζ j)
   have hF : Differentiable ℂ F := hP.comp (by fun_prop)
-  obtain ⟨hsm, hsupp, hcpt, hfour⟩ := paleyWiener hF hρ hbd
+  obtain ⟨hsm, hsupp, hcpt, hfour⟩ := fourierInv_of_bound hF hρ hbd
   set f := 𝓕⁻ fun ξ => F (realPoint ξ)
   set ψ : ({j : ι // j ≠ i₀} → ℝ) → ℂ := fun w => f (WithLp.toLp 2 w)
   have hψc : Continuous ψ := hsm.continuous.comp (PiLp.continuous_toLp 2 _)
@@ -652,7 +653,8 @@ theorem norm_integral_hyperplane_le (i₀ : ι) {g : (ι → ℝ) → ℂ} (hgs 
     exact (contDiff_logRatioZ_cpow i₀ (-s)).of_le (by exact_mod_cast le_top) |>.mul
       (hgU.comp_contDiff ((contDiff_logRatioPoint i₀).of_le (by exact_mod_cast le_top))
         fun w => hΔU (logRatioPoint_mem i₀ w))
-  obtain ⟨C, hC⟩ := norm_fourierLaplace_le_of_contDiff hψ (hyperplaneKernel_box i₀ s hδ hgsupp) N
+  obtain ⟨C, hC⟩ := norm_fourierLaplace_le_of_contDiff hψ
+    (support_subset_pi_Icc_iff.mpr (hyperplaneKernel_box i₀ s hδ hgsupp)) N
   refine ⟨C, fun ζ => ?_⟩
   rw [integral_hyperplane_eq_fourierLaplace i₀ hgs.continuousOn hδ hgsupp]
   exact hC ζ
@@ -677,8 +679,10 @@ theorem eqOn_of_integral_hyperplane_eq (i₀ : ι) {g₁ g₂ : (ι → ℝ) →
     · exact hv₁ u hu h1 i
   have hc₁ := continuous_hyperplaneKernel i₀ s hg₁
   have hc₂ := continuous_hyperplaneKernel i₀ s hg₂
-  have hcpt₁ := hasCompactSupport_of_box (hyperplaneKernel_box i₀ s hδ hv₁)
-  have hcpt₂ := hasCompactSupport_of_box (hyperplaneKernel_box i₀ s hδ hv₂)
+  have hcpt₁ := hasCompactSupport_of_box
+      (support_subset_pi_Icc_iff.mpr (hyperplaneKernel_box i₀ s hδ hv₁))
+  have hcpt₂ := hasCompactSupport_of_box
+      (support_subset_pi_Icc_iff.mpr (hyperplaneKernel_box i₀ s hδ hv₂))
   -- The difference of the hyperplane kernels has vanishing Fourier transform.
   have hφ : hyperplaneKernel i₀ s g₁ - hyperplaneKernel i₀ s g₂ = 0 := by
     refine eq_zero_of_fourierLaplace_eq_zero (hc₁.sub hc₂) (hcpt₁.sub hcpt₂) fun ξ => ?_

@@ -200,8 +200,8 @@ theorem tendsto_jacobiSecondKind_sub_complex {α β : ℂ} (hα : -1 < α.re)
   have hc : ContinuousAt ρ x := hw.fun_mul
     ((shiftedJacobi α β n).continuous.comp continuous_ofReal).continuousAt
   have h := (tendsto_intervalIntegral_cauchy_sub hi hx hc).const_mul (jacobiCauchyCoefficient α β n)
-  have he : jacobiCauchyCoefficient α β n * (-2 * (Real.pi : ℂ) * I * ρ x) =
-      -2 * (Real.pi : ℂ) * I * jacobiCauchyCoefficient α β n * ρ x := by ring
+  have he : jacobiCauchyCoefficient α β n * ((-2 * (Real.pi : ℂ) * I) • ρ x) =
+      -2 * (Real.pi : ℂ) * I * jacobiCauchyCoefficient α β n * ρ x := by rw [smul_eq_mul]; ring
   rw [he] at h
   apply h.congr'
   filter_upwards [eventually_gt_atTop (0 : ℝ)] with c hc
@@ -210,6 +210,8 @@ theorem tendsto_jacobiSecondKind_sub_complex {α β : ℂ} (hα : -1 < α.re)
   rw [jacobiSecondKind_eq_complexCauchyIntegral hα hβ n (not_mem_unitSegment_of_im_ne_zero hp),
     jacobiSecondKind_eq_complexCauchyIntegral hα hβ n (not_mem_unitSegment_of_im_ne_zero hm),
     mul_sub]
+  congr 2 <;> exact intervalIntegral.integral_congr fun t _ ↦ by
+    simp only [ρ, smul_eq_mul]; ring
 
 /-- The complex-parameter jump transported to distinct complex endpoints by an
 invertible affine map, with a perpendicular approach to the segment. -/

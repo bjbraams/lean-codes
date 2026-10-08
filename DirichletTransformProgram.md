@@ -323,7 +323,7 @@ determines a continuous kernel vanishing near the faces.
 
 | Ingredient | Lean |
 | --- | --- |
-| Classical Paley–Wiener on `ℝⁿ` | `paleyWiener` (`ToMathlib.Analysis.Fourier.PaleyWiener`) |
+| Classical Paley–Wiener on `ℝⁿ` | `PaleyWiener.fourierInv_of_bound` (`ToMathlib.Analysis.Fourier.PaleyWiener`) |
 | Change of variables to log-ratio coordinates | `integral_stdSimplex_eq_integral_logRatio` (via the bridge at `b = 𝟙`, a shear of exponential coordinates, and `∫ e^(kτ) e^(−Z e^τ) dτ = Z^(−k) Γ(k)`) |
 | Hyperplane formula | `integral_monomial_mul_eq_integral_logRatio` |
 | Laplace transforms of compactly supported functions are entire | `analyticOnNhd_integral_cexp_mul` |

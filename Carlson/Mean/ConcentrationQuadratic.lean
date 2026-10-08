@@ -78,7 +78,7 @@ theorem hasDerivAt_carlsonRReal_two_concentration {c : ℝ} (hc : 0 < c) {w : ι
     (hw : ∀ i, 0 < w i) (hw1 : ∑ i, w i = 1) (x : ι → ℝ) :
     HasDerivAt (fun d : ℝ => carlsonRReal 2 (fun i => d * w i) x)
       (-((∑ i, w i * x i ^ 2) - (∑ i, w i * x i) ^ 2) / (c + 1) ^ 2) c := by
-  apply (Real.hasDerivAt_add_div (a := (∑ i, w i * x i) ^ 2)
+  apply (hasDerivAt_add_div (a := (∑ i, w i * x i) ^ 2)
     (by positivity : c + 1 ≠ 0)).congr_of_eventuallyEq
   filter_upwards [eventually_gt_nhds hc] with d hd
   exact carlsonRReal_two_concentration hd hw hw1 x

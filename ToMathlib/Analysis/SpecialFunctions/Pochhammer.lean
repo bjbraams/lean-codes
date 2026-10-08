@@ -16,26 +16,29 @@ log-convex on `c > 0`. Decrease and log-convexity are strict for `n ≥ 2`;
 the orders zero and one give the constants one and `w` respectively.
 
 The proof factors the ratio into positive functions
-`w + k * (1 - w) / (c + k)`. These are the scalar factors in the
+`w + k * (1 - w) / (c + k)`; the factorization (`ascPochhammer_ratio_succ`,
+`concentration_factor_eq`) holds over any field. These are the scalar factors in the
 Carlson–Tobey concentration argument.
 -/
 
 open Set Polynomial
 public noncomputable section
-namespace Real
 
-/-- Raising the Pochhammer order adds one rational factor to the concentration ratio. -/
-theorem ascPochhammer_ratio_succ (c w : ℝ) (n : ℕ) :
-    (ascPochhammer ℝ (n + 1)).eval (c * w) / (ascPochhammer ℝ (n + 1)).eval c =
-      ((ascPochhammer ℝ n).eval (c * w) / (ascPochhammer ℝ n).eval c) *
+/-- Over any field, raising the Pochhammer order adds one rational factor to the concentration
+ratio. -/
+theorem ascPochhammer_ratio_succ {K : Type*} [Field K] (c w : K) (n : ℕ) :
+    (ascPochhammer K (n + 1)).eval (c * w) / (ascPochhammer K (n + 1)).eval c =
+      ((ascPochhammer K n).eval (c * w) / (ascPochhammer K n).eval c) *
         ((c * w + n) / (c + n)) := by
   rw [ascPochhammer_succ_eval, ascPochhammer_succ_eval, mul_div_mul_comm]
 
-/-- Each concentration factor is a constant plus a positive reciprocal. -/
-theorem concentration_factor_eq {c k : ℝ} (hck : c + k ≠ 0) (w : ℝ) :
+/-- Each concentration factor is a constant plus a reciprocal, over any field. -/
+theorem concentration_factor_eq {K : Type*} [Field K] {c k : K} (hck : c + k ≠ 0) (w : K) :
     (c * w + k) / (c + k) = w + k * (1 - w) / (c + k) := by
   field_simp
   ring
+
+namespace Real
 
 /-- Every Pochhammer concentration ratio with positive weight is positive. -/
 theorem ascPochhammer_ratio_pos {c w : ℝ} (hc : 0 < c) (hw : 0 < w) (n : ℕ) :

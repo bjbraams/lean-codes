@@ -13,7 +13,9 @@ public import ToMathlib.Analysis.Integral.TwoCrossings
 # Strict convex comparison of beta distributions
 
 Increasing both beta parameters by a common factor strictly decreases the
-expectation of any continuous strictly convex function on the unit interval.
+expectation of any strictly convex function on the unit interval. No continuity is assumed: a
+convex function on `[0, 1]` is integrable against every beta density
+(`ProbabilityTheory.integrable_betaPDFReal_mul_of_convexOn`).
 The proof uses the two crossings of the density ratio and cancellation of the
 zeroth and first moments, following Carlson–Tobey (1968).
 -/
@@ -76,11 +78,11 @@ private theorem beta_concentration_ratio_max {a b c d : ℝ}
     integral_betaPDFReal (mul_pos hc ha) (mul_pos hc hb)] at h
   exact (lt_irrefl _ h)
 
-/-- Increasing concentration strictly decreases a continuous strictly convex beta average. -/
+/-- Increasing concentration strictly decreases a strictly convex beta average. No continuity
+is needed: a convex function on `[0, 1]` is integrable against every beta density. -/
 theorem integral_betaMeasure_lt_of_concentration {a b c d : ℝ}
     (ha : 0 < a) (hb : 0 < b) (hc : 0 < c) (hcd : c < d)
-    {f : ℝ → ℝ} (hf : StrictConvexOn ℝ (Icc 0 1) f)
-    (hfcont : ContinuousOn f (Icc 0 1)) :
+    {f : ℝ → ℝ} (hf : StrictConvexOn ℝ (Icc 0 1) f) :
     (∫ u, f u ∂betaMeasure (d * a) (d * b)) <
       ∫ u, f u ∂betaMeasure (c * a) (c * b) := by
   have hd := hc.trans hcd
@@ -95,29 +97,37 @@ theorem integral_betaMeasure_lt_of_concentration {a b c d : ℝ}
   let : NeZero μ := ⟨volume_unitInterval_ne_zero⟩
   have hpc : Integrable pc := integrable_betaPDFReal hca hcb
   have hpd : Integrable pd := integrable_betaPDFReal hda hdb
-  have hip (h : ℝ → ℝ) (hh : ContinuousOn h (Icc 0 1)) :
+  have hip (h : ℝ → ℝ)
+      (hh : ∀ p q : ℝ, 0 < p → 0 < q → Integrable (fun u ↦ betaPDFReal p q u * h u)) :
       Integrable (fun u ↦ h u * g u) := by
-    have h1 := integrable_betaPDFReal_mul_of_continuousOn hda hdb hh
-    have h2 := integrable_betaPDFReal_mul_of_continuousOn hca hcb hh
+    have h1 := hh _ _ hda hdb
+    have h2 := hh _ _ hca hcb
     convert h1.sub h2 using 1
     ext u
     dsimp [g, pd, pc]
     ring
-  have he (h : ℝ → ℝ) (hh : ContinuousOn h (Icc 0 1)) :
+  have he (h : ℝ → ℝ)
+      (hh : ∀ p q : ℝ, 0 < p → 0 < q → Integrable (fun u ↦ betaPDFReal p q u * h u)) :
       (∫ u, h u * g u ∂μ) = (∫ u, pd u * h u) - ∫ u, pc u * h u := by
-    have h1 := integrable_betaPDFReal_mul_of_continuousOn hda hdb hh
-    have h2 := integrable_betaPDFReal_mul_of_continuousOn hca hcb hh
+    have h1 := hh _ _ hda hdb
+    have h2 := hh _ _ hca hcb
     have heq : (fun u ↦ h u * g u) =
         (fun u ↦ pd u * h u - pc u * h u) := by funext u; dsimp [g]; ring
     rw [heq, integral_sub h1.restrict h2.restrict]
     exact congrArg₂ (· - ·) (integral_betaPDFReal_mul_Ioo _ _ h)
       (integral_betaPDFReal_mul_Ioo _ _ h)
+  have hconst : ∀ p q : ℝ, 0 < p → 0 < q → Integrable (fun u ↦ betaPDFReal p q u * 1) :=
+    fun p q hp hq ↦ integrable_betaPDFReal_mul_of_continuousOn hp hq continuousOn_const
+  have hid : ∀ p q : ℝ, 0 < p → 0 < q → Integrable (fun u ↦ betaPDFReal p q u * u) :=
+    fun p q hp hq ↦ integrable_betaPDFReal_mul_of_continuousOn hp hq continuousOn_id
+  have hfi : ∀ p q : ℝ, 0 < p → 0 < q → Integrable (fun u ↦ betaPDFReal p q u * f u) :=
+    fun p q hp hq ↦ integrable_betaPDFReal_mul_of_convexOn hp hq hf.convexOn
   have h0 : (∫ u, g u ∂μ) = 0 := by
-    have h := he (fun _ ↦ 1) continuousOn_const
+    have h := he (fun _ ↦ 1) hconst
     simpa only [one_mul, mul_one, pd, pc, integral_betaPDFReal hda hdb,
       integral_betaPDFReal hca hcb, sub_self] using h
   have h1 : (∫ u, u * g u ∂μ) = 0 := by
-    rw [he (fun u ↦ u) continuousOn_id]
+    rw [he (fun u ↦ u) hid]
     have hed : (∫ u, pd u * u) = a / (a + b) := by
       simpa only [pd, mul_comm] using integral_mul_betaPDFReal_concentration ha hb hd
     have hec : (∫ u, pc u * u) = a / (a + b) := by
@@ -147,20 +157,19 @@ theorem integral_betaMeasure_lt_of_concentration {a b c d : ℝ}
     (hs.mono fun _ hu ↦ ⟨hu.1.le, hu.2.le⟩)
     (by filter_upwards [ae_restrict_of_ae (volume.ae_ne l), ae_restrict_of_ae (volume.ae_ne r)]
         with u hu hv; exact ⟨hu, hv⟩)
-    hp hn (hpd.sub hpc).restrict (hip _ continuousOn_id).restrict
-    (hip _ hfcont).restrict h0 h1
-  rw [he _ hfcont] at h
+    hp hn (hpd.sub hpc).restrict (hip _ hid).restrict
+    (hip _ hfi).restrict h0 h1
+  rw [he _ hfi] at h
   rw [integral_betaMeasure hda hdb, integral_betaMeasure hca hcb]
   exact sub_neg.mp h
 
-/-- Increasing concentration strictly increases a continuous strictly concave beta average. -/
+/-- Increasing concentration strictly increases a strictly concave beta average. -/
 theorem integral_betaMeasure_lt_of_concentration_concave {a b c d : ℝ}
     (ha : 0 < a) (hb : 0 < b) (hc : 0 < c) (hcd : c < d)
-    {f : ℝ → ℝ} (hf : StrictConcaveOn ℝ (Icc 0 1) f)
-    (hfcont : ContinuousOn f (Icc 0 1)) :
+    {f : ℝ → ℝ} (hf : StrictConcaveOn ℝ (Icc 0 1) f) :
     (∫ u, f u ∂betaMeasure (c * a) (c * b)) <
       ∫ u, f u ∂betaMeasure (d * a) (d * b) := by
-  have h := integral_betaMeasure_lt_of_concentration ha hb hc hcd hf.neg hfcont.neg
+  have h := integral_betaMeasure_lt_of_concentration ha hb hc hcd hf.neg
   simpa only [Pi.neg_apply, integral_neg, neg_lt_neg_iff] using h
 
 end ProbabilityTheory

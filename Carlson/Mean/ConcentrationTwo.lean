@@ -27,12 +27,6 @@ open MeasureTheory ProbabilityTheory Set
 public noncomputable section
 namespace Carlson
 
-/-- Real powers are continuous on the positive axis for every real exponent. -/
-private theorem continuousOn_positive_rpow (t : ℝ) :
-    ContinuousOn (fun u : ℝ => u ^ t) (Ioi 0) := by
-  intro u hu
-  exact (Real.continuousAt_rpow_const u t (Or.inl (ne_of_gt hu))).continuousWithinAt
-
 /-- At orders above one, the two-node R-average strictly decreases in concentration. -/
 theorem strictAntiOn_carlsonRReal_fin_two_concentration_of_one_lt {t a b x y : ℝ}
     (ht : 1 < t) (ha : 0 < a) (hb : 0 < b) (hx : 0 < x) (hy : 0 < y) (hxy : x ≠ y) :
@@ -40,7 +34,7 @@ theorem strictAntiOn_carlsonRReal_fin_two_concentration_of_one_lt {t a b x y : �
   intro c hc d _ hcd
   exact integral_dirichletMeasure_fin_two_lt_of_concentration ha hb hc hcd
     ((strictConvexOn_rpow ht).subset (fun _ hu => hu.le) (convex_Ioi 0))
-    (continuousOn_positive_rpow t) (by fun_prop) hx hy hxy
+    (by fun_prop) hx hy hxy
 
 /-- At negative orders, the two-node R-average strictly decreases in concentration. -/
 theorem strictAntiOn_carlsonRReal_fin_two_concentration_of_neg {t a b x y : ℝ}
@@ -48,8 +42,7 @@ theorem strictAntiOn_carlsonRReal_fin_two_concentration_of_neg {t a b x y : ℝ}
     StrictAntiOn (fun c : ℝ => carlsonRReal t (![c * a, c * b]) (![x, y])) (Ioi 0) := by
   intro c hc d _ hcd
   exact integral_dirichletMeasure_fin_two_lt_of_concentration ha hb hc hcd
-    (Real.strictConvexOn_rpow_of_neg ht) (continuousOn_positive_rpow t)
-    (by fun_prop) hx hy hxy
+    (Real.strictConvexOn_rpow_of_neg ht) (by fun_prop) hx hy hxy
 
 /-- Between orders zero and one, the two-node R-average strictly increases in concentration. -/
 theorem strictMonoOn_carlsonRReal_fin_two_concentration {t a b x y : ℝ}
@@ -59,7 +52,7 @@ theorem strictMonoOn_carlsonRReal_fin_two_concentration {t a b x y : ℝ}
   intro c hc d _ hcd
   exact integral_dirichletMeasure_fin_two_lt_of_concentration_concave ha hb hc hcd
     ((Real.strictConcaveOn_rpow ht ht1).subset (fun _ hu => hu.le) (convex_Ioi 0))
-    (continuousOn_positive_rpow t) (by fun_prop) hx hy hxy
+    (by fun_prop) hx hy hxy
 
 /-- The logarithmic two-node average strictly increases in concentration. -/
 theorem strictMonoOn_carlsonLReal_zero_fin_two_concentration {a b x y : ℝ}
@@ -67,8 +60,7 @@ theorem strictMonoOn_carlsonLReal_zero_fin_two_concentration {a b x y : ℝ}
     StrictMonoOn (fun c : ℝ => carlsonLReal 0 (![c * a, c * b]) (![x, y])) (Ioi 0) := by
   intro c hc d _ hcd
   have h := integral_dirichletMeasure_fin_two_lt_of_concentration_concave ha hb hc hcd
-    strictConcaveOn_log_Ioi (Real.continuousOn_log.mono (fun _ hu => ne_of_gt hu))
-    Real.measurable_log hx hy hxy
+    strictConcaveOn_log_Ioi Real.measurable_log hx hy hxy
   simpa only [carlsonLReal, Real.rpow_zero, one_mul] using h
 
 /-- Above order one, the two-node hypergeometric mean strictly decreases in concentration. -/

@@ -9,6 +9,7 @@ public import Mathlib.Probability.Distributions.Beta
 public import Mathlib.MeasureTheory.Function.LocallyIntegrable
 public import Mathlib.MeasureTheory.Integral.Bochner.Set
 public import Mathlib.Analysis.SpecialFunctions.Pow.Deriv
+public import Mathlib.Analysis.Convex.Continuous
 public import TauCeti.Analysis.SpecialFunctions.Beta
 public import TauCeti.Probability.Distributions.Beta.Basic
 
@@ -89,6 +90,49 @@ theorem integrable_betaPDFReal_mul_of_continuousOn {a b : ℝ} (ha : 0 < a) (hb 
   · rw [indicator_of_notMem hu]
     have hn : ¬ (0 < u ∧ u < 1) := fun h ↦ hu ⟨h.1.le, h.2.le⟩
     simp only [betaPDFReal, hn, ↓reduceIte, zero_mul]
+
+/-- A function convex on the closed unit interval is integrable against every beta density with
+positive parameters. No continuity is needed: a convex function on `[0, 1]` is bounded above by
+`max (f 0) (f 1)`, bounded below by midpoint convexity, and continuous on `(0, 1)`. -/
+theorem integrable_betaPDFReal_mul_of_convexOn {a b : ℝ} (ha : 0 < a) (hb : 0 < b)
+    {f : ℝ → ℝ} (hf : ConvexOn ℝ (Icc 0 1) f) :
+    Integrable (fun u ↦ betaPDFReal a b u * f u) := by
+  have h0 : (0 : ℝ) ∈ Icc (0 : ℝ) 1 := ⟨le_rfl, zero_le_one⟩
+  have h1 : (1 : ℝ) ∈ Icc (0 : ℝ) 1 := ⟨zero_le_one, le_rfl⟩
+  set M := max (f 0) (f 1)
+  have hup : ∀ u ∈ Icc (0 : ℝ) 1, f u ≤ M := fun u hu ↦ hf.le_max_of_mem_Icc h0 h1 hu
+  have hlow : ∀ u ∈ Icc (0 : ℝ) 1, 2 * f (1 / 2) - M ≤ f u := by
+    intro u hu
+    have hu' : 1 - u ∈ Icc (0 : ℝ) 1 := ⟨by linarith [hu.2], by linarith [hu.1]⟩
+    have h := hf.2 hu hu' (by norm_num : (0 : ℝ) ≤ 1 / 2) (by norm_num : (0 : ℝ) ≤ 1 / 2)
+      (by norm_num)
+    simp only [smul_eq_mul] at h
+    rw [show 1 / 2 * u + 1 / 2 * (1 - u) = 1 / 2 by ring] at h
+    linarith [hup _ hu']
+  set C := max |M| |2 * f (1 / 2) - M|
+  have hbd : ∀ u ∈ Icc (0 : ℝ) 1, |f u| ≤ C := fun u hu ↦ abs_le.mpr
+    ⟨by linarith [neg_abs_le (2 * f (1 / 2) - M), le_max_right |M| |2 * f (1 / 2) - M|,
+        hlow u hu],
+      by linarith [le_abs_self M, le_max_left |M| |2 * f (1 / 2) - M|, hup u hu]⟩
+  have hmeas : AEStronglyMeasurable (fun u ↦ betaPDFReal a b u * f u) volume := by
+    have hc : ContinuousOn f (Ioo 0 1) := by
+      simpa only [interior_Icc] using hf.continuousOn_interior
+    have heq : (fun u ↦ betaPDFReal a b u * f u) =
+        (Ioo (0 : ℝ) 1).indicator (fun u ↦ betaPDFReal a b u * f u) := by
+      funext u
+      by_cases hu : u ∈ Ioo (0 : ℝ) 1
+      · rw [indicator_of_mem hu]
+      · rw [indicator_of_notMem hu]
+        simp only [betaPDFReal, show ¬ (0 < u ∧ u < 1) from hu, ↓reduceIte, zero_mul]
+    rw [heq, aestronglyMeasurable_indicator_iff measurableSet_Ioo]
+    exact (measurable_betaPDFReal a b).aestronglyMeasurable.mul
+      (hc.aestronglyMeasurable measurableSet_Ioo)
+  refine ((integrable_betaPDFReal ha hb).mul_const C).mono' hmeas
+    (Filter.Eventually.of_forall fun u ↦ ?_)
+  by_cases hu : 0 < u ∧ u < 1
+  · rw [norm_mul, Real.norm_of_nonneg (betaPDFReal_nonneg ha hb u), Real.norm_eq_abs]
+    exact mul_le_mul_of_nonneg_left (hbd u ⟨hu.1.le, hu.2.le⟩) (betaPDFReal_nonneg ha hb u)
+  · simp only [betaPDFReal, hu, ↓reduceIte, zero_mul, norm_zero, le_refl]
 
 /-- Increasing concentration multiplies the beta density by a positive-power kernel. -/
 theorem betaPDFReal_concentration_ratio {a b c d u : ℝ}

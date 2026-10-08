@@ -14,8 +14,10 @@ public import Mathlib.Analysis.Convex.Slope
 
 * `Complex.norm_Gamma_le_Gamma_re`: `|Γ(s)| ≤ Γ(re s)` for `re s > 0`.
 * `Real.Gamma_le_Gamma_of_one_le`: `Γ(x) ≤ Γ(y)` for `1 ≤ x ≤ y` and `2 ≤ y`.
-* `Real.Gamma_add_div_Gamma_le`: `x ↦ Γ(x + r)/Γ(x)` is nondecreasing on `x > 0` for `r ≥ 0`.
-* `Real.Gamma_add_nat_eq`: `Γ(x + n) = (x)ₙ Γ(x)` for `x > 0`.
+* `Real.monotoneOn_Gamma_add_div_Gamma`, `Real.Gamma_add_div_Gamma_le`: `x ↦ Γ(x + r)/Γ(x)` is
+  nondecreasing on `x > 0` for `r ≥ 0`.
+* `Real.Gamma_add_nat_eq`: `Γ(x + n) = (x)ₙ Γ(x)` unless `x` is one of `0, -1, …, -(n - 1)`;
+  `Real.Gamma_add_nat_eq_of_pos` is the case `x > 0`.
 * `Real.ascPochhammer_eval_le_pow`: `(x)ₙ ≤ (x + n)ⁿ` for `x ≥ 0`.
 -/
 
@@ -100,14 +102,26 @@ theorem Gamma_add_div_Gamma_le {x y r : ℝ} (hx : 0 < x) (hxy : x ≤ y) (hr : 
       (hp hx).ne']
   linarith
 
-/-- `Γ(x + n) = (x)ₙ Γ(x)` for `x > 0`. -/
-theorem Gamma_add_nat_eq {x : ℝ} (hx : 0 < x) (n : ℕ) :
+/-- For `r ≥ 0`, `x ↦ Γ(x + r)/Γ(x)` is monotone on the positive real axis. -/
+theorem monotoneOn_Gamma_add_div_Gamma {r : ℝ} (hr : 0 ≤ r) :
+    MonotoneOn (fun x ↦ Gamma (x + r) / Gamma x) (Set.Ioi 0) :=
+  fun _ hx _ _ hxy ↦ Gamma_add_div_Gamma_le hx hxy hr
+
+/-- `Γ(x + n) = (x)ₙ Γ(x)` whenever `x + m ≠ 0` for `m < n`. At the remaining poles both sides
+vanish with Mathlib's convention `Γ(-k) = 0`, so this is the exact condition. -/
+theorem Gamma_add_nat_eq {x : ℝ} {n : ℕ} (hx : ∀ m < n, x + m ≠ 0) :
     Gamma (x + n) = (ascPochhammer ℝ n).eval x * Gamma x := by
   induction n with
   | zero => simp
   | succ n ih =>
-    rw [Nat.cast_succ, ← add_assoc, Gamma_add_one (by positivity), ih, ascPochhammer_succ_eval]
+    rw [Nat.cast_succ, ← add_assoc, Gamma_add_one (hx n n.lt_succ_self),
+      ih fun m hm ↦ hx m (hm.trans n.lt_succ_self), ascPochhammer_succ_eval]
     ring
+
+/-- `Γ(x + n) = (x)ₙ Γ(x)` for `x > 0`. -/
+theorem Gamma_add_nat_eq_of_pos {x : ℝ} (hx : 0 < x) (n : ℕ) :
+    Gamma (x + n) = (ascPochhammer ℝ n).eval x * Gamma x :=
+  Gamma_add_nat_eq fun m _ ↦ (add_pos_of_pos_of_nonneg hx m.cast_nonneg).ne'
 
 /-- `(x)ₙ ≤ (x + n)ⁿ` for `x ≥ 0`. -/
 theorem ascPochhammer_eval_le_pow {x : ℝ} (hx : 0 ≤ x) (n : ℕ) :

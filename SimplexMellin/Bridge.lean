@@ -47,6 +47,7 @@ of measures (`MeasureTheory.map_polarMap`), and the factorization uses
 -/
 
 open Complex MeasureTheory Set
+open MvMellin
 
 @[expose] public noncomputable section
 

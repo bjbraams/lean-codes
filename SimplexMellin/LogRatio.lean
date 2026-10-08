@@ -40,6 +40,7 @@ off `y i₀ = τ`) the integral over `τ` is `Γ(card ι) Z(w)^(-card ι)`.
 -/
 
 open Complex MeasureTheory Set
+open MvMellin
 open scoped Topology
 
 @[expose] public noncomputable section

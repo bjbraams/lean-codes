@@ -60,7 +60,7 @@ private theorem strictConvexOn_segment {s : Set ℝ} {f : ℝ → ℝ}
 theorem integral_dirichletMeasure_fin_two_lt_of_concentration {a b c d x y : ℝ}
     (ha : 0 < a) (hb : 0 < b) (hc : 0 < c) (hcd : c < d)
     {s : Set ℝ} {f : ℝ → ℝ} (hf : StrictConvexOn ℝ s f)
-    (hfcont : ContinuousOn f s) (hfmeas : Measurable f)
+    (hfmeas : Measurable f)
     (hx : x ∈ s) (hy : y ∈ s) (hxy : x ≠ y) :
     (∫ u : Fin 2 → ℝ, f (∑ i, u i * (![x, y] : Fin 2 → ℝ) i)
       ∂dirichletMeasure (![d * a, d * b])) <
@@ -69,24 +69,21 @@ theorem integral_dirichletMeasure_fin_two_lt_of_concentration {a b c d x y : ℝ
   rw [integral_dirichletMeasure_fin_two_affine (mul_pos (hc.trans hcd) ha)
     (mul_pos (hc.trans hcd) hb) _ _ hfmeas,
     integral_dirichletMeasure_fin_two_affine (mul_pos hc ha) (mul_pos hc hb) _ _ hfmeas]
-  apply integral_betaMeasure_lt_of_concentration ha hb hc hcd
+  exact integral_betaMeasure_lt_of_concentration ha hb hc hcd
     (strictConvexOn_segment hf hx hy hxy)
-  apply hfcont.comp (by fun_prop)
-  intro u hu
-  exact hf.1 hx hy hu.1 (sub_nonneg.mpr hu.2) (by ring)
 
 /-- A strictly concave two-node average strictly increases as concentration increases. -/
 theorem integral_dirichletMeasure_fin_two_lt_of_concentration_concave {a b c d x y : ℝ}
     (ha : 0 < a) (hb : 0 < b) (hc : 0 < c) (hcd : c < d)
     {s : Set ℝ} {f : ℝ → ℝ} (hf : StrictConcaveOn ℝ s f)
-    (hfcont : ContinuousOn f s) (hfmeas : Measurable f)
+    (hfmeas : Measurable f)
     (hx : x ∈ s) (hy : y ∈ s) (hxy : x ≠ y) :
     (∫ u : Fin 2 → ℝ, f (∑ i, u i * (![x, y] : Fin 2 → ℝ) i)
       ∂dirichletMeasure (![c * a, c * b])) <
     ∫ u : Fin 2 → ℝ, f (∑ i, u i * (![x, y] : Fin 2 → ℝ) i)
       ∂dirichletMeasure (![d * a, d * b]) := by
   have h := integral_dirichletMeasure_fin_two_lt_of_concentration ha hb hc hcd
-    hf.neg hfcont.neg hfmeas.neg hx hy hxy
+    hf.neg hfmeas.neg hx hy hxy
   simpa only [Pi.neg_apply, integral_neg, neg_lt_neg_iff] using h
 
 end ProbabilityTheory

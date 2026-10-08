@@ -11,14 +11,16 @@ public import Mathlib.Topology.Homeomorph.Lemmas
 public import Mathlib.MeasureTheory.Measure.Haar.OfBasis
 
 /-!
-# Splitting one coordinate off Lebesgue measure
+# Splitting one coordinate off a product measure
 
-Lebesgue measure on `ι → ℝ` is the product of Lebesgue measure on one coordinate and Lebesgue
-measure on the remaining coordinates, through `Homeomorph.funSplitAt`.
+For a σ-finite measure `μ`, the product measure `Measure.pi (fun _ ↦ μ)` on `ι → Y` is the product
+of `μ` on one coordinate and the product measure on the remaining coordinates, through
+`Homeomorph.funSplitAt`. In particular this holds for Lebesgue measure on `ι → ℝ`.
 
 ## Main results
 
-* `MeasureTheory.volume_preserving_funSplitAt`: the splitting map is measure preserving.
+* `MeasureTheory.measurePreserving_funSplitAt`: the splitting map is measure preserving.
+* `MeasureTheory.volume_preserving_funSplitAt`: the case of Lebesgue measure on `ι → ℝ`.
 -/
 
 @[expose] public noncomputable section
@@ -27,10 +29,12 @@ namespace MeasureTheory
 
 variable {ι : Type*} [Fintype ι] [DecidableEq ι]
 
-/-- Splitting one coordinate from a finite real coordinate space preserves product Lebesgue
+/-- Splitting one coordinate from a finite product preserves the product of a σ-finite
 measure. -/
-theorem volume_preserving_funSplitAt (i : ι) :
-    MeasurePreserving (Homeomorph.funSplitAt ℝ i) volume (volume.prod volume) := by
+theorem measurePreserving_funSplitAt {Y : Type*} [TopologicalSpace Y] [MeasurableSpace Y]
+    (μ : Measure Y) [SigmaFinite μ] (i : ι) :
+    MeasurePreserving (Homeomorph.funSplitAt Y i) (Measure.pi fun _ : ι ↦ μ)
+      (μ.prod (Measure.pi fun _ : {j : ι // j ≠ i} ↦ μ)) := by
   let eidx : Unit ⊕ {j : ι // j ≠ i} ≃ ι :=
     { toFun := fun q ↦ Sum.elim (fun _ ↦ i) Subtype.val q
       invFun := fun j ↦ if h : j = i then Sum.inl () else Sum.inr ⟨j, h⟩
@@ -44,17 +48,14 @@ theorem volume_preserving_funSplitAt (i : ι) :
         split_ifs with h
         · exact h.symm
         · rfl }
-  let ec := MeasurableEquiv.piCongrLeft (fun _ : ι ↦ ℝ) eidx
-  let es := MeasurableEquiv.sumPiEquivProdPi (fun _ : Unit ⊕ {j : ι // j ≠ i} ↦ ℝ)
   let eu := MeasurableEquiv.prodCongr
-    (MeasurableEquiv.funUnique Unit ℝ)
-    (MeasurableEquiv.refl ({j : ι // j ≠ i} → ℝ))
-  have hc := (volume_measurePreserving_piCongrLeft (fun _ : ι ↦ ℝ) eidx).symm
-  have hs := volume_measurePreserving_sumPiEquivProdPi
-    (fun _ : Unit ⊕ {j : ι // j ≠ i} ↦ ℝ)
-  have hu : MeasurePreserving eu volume (volume.prod volume) := by
-    rw [Measure.volume_eq_prod]
-    exact (volume_preserving_funUnique Unit ℝ).prod (MeasurePreserving.id volume)
+    (MeasurableEquiv.funUnique Unit Y)
+    (MeasurableEquiv.refl ({j : ι // j ≠ i} → Y))
+  have hc := (measurePreserving_piCongrLeft (α := fun _ : ι ↦ Y) (fun _ ↦ μ) eidx).symm
+  have hs := measurePreserving_sumPiEquivProdPi (fun _ : Unit ⊕ {j : ι // j ≠ i} ↦ μ)
+  have hu : MeasurePreserving eu ((Measure.pi fun _ : Unit ↦ μ).prod
+      (Measure.pi fun _ : {j : ι // j ≠ i} ↦ μ)) (μ.prod (Measure.pi fun _ ↦ μ)) :=
+    (measurePreserving_funUnique μ Unit).prod (MeasurePreserving.id _)
   have h := hu.comp (hs.comp hc)
   convert h using 1
   funext x
@@ -64,6 +65,12 @@ theorem volume_preserving_funSplitAt (i : ι) :
   · funext j
     change x j = x (eidx (Sum.inr j))
     rfl
+
+/-- Splitting one coordinate from a finite real coordinate space preserves product Lebesgue
+measure. -/
+theorem volume_preserving_funSplitAt (i : ι) :
+    MeasurePreserving (Homeomorph.funSplitAt ℝ i) volume (volume.prod volume) :=
+  measurePreserving_funSplitAt volume i
 
 end MeasureTheory
 

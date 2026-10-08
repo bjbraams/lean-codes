@@ -11,9 +11,11 @@ public import Mathlib.Analysis.Calculus.IteratedDeriv.Defs
 /-!
 # Iterated derivatives of finitely differentiable functions on open sets
 
-For a function of one variable that is `n` times continuously differentiable on an open set,
-the global iterated derivatives `iteratedDeriv k f` behave as expected there: they are
-`C^(n-k)`, continuous for `k ≤ n`, and have `iteratedDeriv (k + 1) f` as derivative for `k < n`.
+For a function of one variable that is `C^n` on an open set, `n : ℕ∞ω`, the global iterated
+derivatives `iteratedDeriv k f` behave as expected there: they are `C^m` for `m + k ≤ n`,
+continuous for `k ≤ n`, and have `iteratedDeriv (k + 1) f` as derivative for `k < n`. On an open
+set they agree with Mathlib's `iteratedDerivWithin` (`iteratedDerivWithin_of_isOpen`), and the
+continuity and differentiability statements are transferred from there.
 
 ## Main results
 
@@ -24,35 +26,39 @@ the global iterated derivatives `iteratedDeriv k f` behave as expected there: th
 
 @[expose] public section
 
+open scoped ContDiff
+
 variable {𝕜 : Type*} [NontriviallyNormedField 𝕜] {F : Type*} [NormedAddCommGroup F]
-  [NormedSpace 𝕜 F] {s : Set 𝕜} {f : 𝕜 → F} {n k : ℕ}
+  [NormedSpace 𝕜 F] {s : Set 𝕜} {f : 𝕜 → F} {n : ℕ∞ω} {k : ℕ}
 
 namespace ContDiffOn
 
-/-- Iterated derivatives of a `Cⁿ` function on an open set are `C^(n-k)` there. -/
-theorem contDiffOn_iteratedDeriv_of_isOpen (hf : ContDiffOn 𝕜 n f s) (hs : IsOpen s)
-    (hk : k ≤ n) : ContDiffOn 𝕜 (n - k : ℕ) (iteratedDeriv k f) s := by
-  induction k with
-  | zero => simpa using hf
+/-- Iterated derivatives of a `Cⁿ` function on an open set are `C^m` there when `m + k ≤ n`. -/
+theorem contDiffOn_iteratedDeriv_of_isOpen {m : ℕ∞ω} (hf : ContDiffOn 𝕜 n f s) (hs : IsOpen s)
+    (hmn : m + k ≤ n) : ContDiffOn 𝕜 m (iteratedDeriv k f) s := by
+  induction k generalizing m with
+  | zero => simpa using hf.of_le (by simpa using hmn)
   | succ k ih =>
     rw [iteratedDeriv_succ]
-    exact (ih (by omega)).deriv_of_isOpen hs (by
-      rw [show n - k = (n - (k + 1)) + 1 by omega]; push_cast; exact le_rfl)
+    refine (ih (m := m + 1) ?_).deriv_of_isOpen hs le_rfl
+    calc m + 1 + k = m + (k + 1 : ℕ) := by push_cast; ring
+      _ ≤ n := hmn
+
+/-- Up to the order of smoothness, the iterated derivatives of a `Cⁿ` function on an open set
+are continuous there. -/
+theorem continuousOn_iteratedDeriv_of_isOpen (hf : ContDiffOn 𝕜 n f s) (hs : IsOpen s)
+    (hk : k ≤ n) : ContinuousOn (iteratedDeriv k f) s :=
+  (hf.continuousOn_iteratedDerivWithin hk hs.uniqueDiffOn).congr
+    (iteratedDerivWithin_of_isOpen hs).symm
 
 /-- Below the order of smoothness, the iterated derivatives of a `Cⁿ` function on an open set
 have the next iterated derivative as derivative. -/
 theorem hasDerivAt_iteratedDeriv_of_isOpen (hf : ContDiffOn 𝕜 n f s) (hs : IsOpen s)
     (hk : k < n) {x : 𝕜} (hx : x ∈ s) :
     HasDerivAt (iteratedDeriv k f) (iteratedDeriv (k + 1) f x) x := by
-  have hd := ((hf.contDiffOn_iteratedDeriv_of_isOpen hs hk.le).differentiableOn
-    (by rw [Nat.cast_ne_zero]; omega)).differentiableAt (hs.mem_nhds hx)
+  have hd := ((hf.differentiableOn_iteratedDerivWithin hk hs.uniqueDiffOn).congr
+    (iteratedDerivWithin_of_isOpen hs).symm).differentiableAt (hs.mem_nhds hx)
   rw [iteratedDeriv_succ]
   exact hd.hasDerivAt
-
-/-- Up to the order of smoothness, the iterated derivatives of a `Cⁿ` function on an open set
-are continuous there. -/
-theorem continuousOn_iteratedDeriv_of_isOpen (hf : ContDiffOn 𝕜 n f s) (hs : IsOpen s)
-    (hk : k ≤ n) : ContinuousOn (iteratedDeriv k f) s :=
-  (hf.contDiffOn_iteratedDeriv_of_isOpen hs hk).continuousOn
 
 end ContDiffOn

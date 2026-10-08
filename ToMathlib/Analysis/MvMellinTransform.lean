@@ -52,12 +52,18 @@ open scoped FourierTransform
 
 variable {ι : Type*} [Fintype ι] {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 
+namespace MvMellin
+
 /-- The open positive orthant of `ℝ^ι`. -/
 def posOrthant (ι : Type*) : Set (ι → ℝ) := univ.pi fun _ ↦ Ioi 0
 
 /-- The open positive orthant is measurable. -/
 theorem measurableSet_posOrthant : MeasurableSet (posOrthant ι) :=
   MeasurableSet.univ_pi fun _ ↦ measurableSet_Ioi
+
+end MvMellin
+
+open MvMellin
 
 /-- The Mellin weight `∏ i, x i ^ (s i - 1)`. -/
 def mvMellinWeight (s : ι → ℂ) (x : ι → ℝ) : ℂ := ∏ i, (x i : ℂ) ^ (s i - 1)
@@ -70,6 +76,8 @@ def mvMellin (f : (ι → ℝ) → E) (s : ι → ℂ) : E :=
 /-- The defining integral of the multivariable Mellin transform converges absolutely. -/
 def MvMellinConvergent (f : (ι → ℝ) → E) (s : ι → ℂ) : Prop :=
   IntegrableOn (fun x ↦ mvMellinWeight s x • f x) (posOrthant ι)
+
+namespace MvMellin
 
 /-- Coordinatewise exponential map from `ℝ^ι` onto the open positive orthant. -/
 def piExp (y : ι → ℝ) : ι → ℝ := fun i ↦ Real.exp (y i)
@@ -93,17 +101,17 @@ theorem piExp_injective : Function.Injective (piExp (ι := ι)) := fun _ _ h ↦
 
 /-- The derivative of the coordinatewise exponential: the diagonal map with entries
 `exp (y i)`. -/
-def piExpDeriv (y : ι → ℝ) : (ι → ℝ) →L[ℝ] (ι → ℝ) :=
+private def piExpDeriv (y : ι → ℝ) : (ι → ℝ) →L[ℝ] (ι → ℝ) :=
   ContinuousLinearMap.pi fun i ↦ Real.exp (y i) • ContinuousLinearMap.proj i
 
 /-- The coordinatewise exponential has the diagonal derivative. -/
-theorem hasFDerivAt_piExp (y : ι → ℝ) : HasFDerivAt piExp (piExpDeriv y) y := by
+private theorem hasFDerivAt_piExp (y : ι → ℝ) : HasFDerivAt piExp (piExpDeriv y) y := by
   refine hasFDerivAt_pi.mpr fun i ↦ ?_
   exact (Real.hasDerivAt_exp (y i)).comp_hasFDerivAt y
     (ContinuousLinearMap.proj (R := ℝ) (φ := fun _ : ι ↦ ℝ) i).hasFDerivAt
 
 /-- The Jacobian of the coordinatewise exponential is `∏ i, exp (y i)`. -/
-theorem det_piExpDeriv (y : ι → ℝ) : (piExpDeriv y).det = ∏ i, Real.exp (y i) := by
+private theorem det_piExpDeriv (y : ι → ℝ) : (piExpDeriv y).det = ∏ i, Real.exp (y i) := by
   classical
   have h : (piExpDeriv y : (ι → ℝ) →ₗ[ℝ] (ι → ℝ)) =
       Matrix.toLin' (Matrix.diagonal fun i ↦ Real.exp (y i)) := by
@@ -111,8 +119,10 @@ theorem det_piExpDeriv (y : ι → ℝ) : (piExpDeriv y).det = ∏ i, Real.exp (
     simp [piExpDeriv, Matrix.mulVec_diagonal]
   rw [ContinuousLinearMap.det, h, LinearMap.det_toLin', Matrix.det_diagonal]
 
+end MvMellin
+
 /-- The Mellin weight times the Jacobian, in exponential coordinates. -/
-theorem abs_det_smul_mvMellinWeight_piExp (s : ι → ℂ) (y : ι → ℝ) :
+private theorem abs_det_smul_mvMellinWeight_piExp (s : ι → ℂ) (y : ι → ℝ) :
     ((|(piExpDeriv y).det| : ℝ) : ℂ) * mvMellinWeight s (piExp y) =
       Complex.exp (∑ i, s i * y i) := by
   rw [det_piExpDeriv, abs_of_pos (Finset.prod_pos fun i _ ↦ Real.exp_pos (y i)),
