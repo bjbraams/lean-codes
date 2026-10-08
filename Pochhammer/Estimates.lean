@@ -130,7 +130,9 @@ theorem pow_le_norm_ascPochhammer_eval {a : ℂ} {d : ℝ} (hd : 0 ≤ d)
   | succ n ih =>
     rw [pow_succ, ascPochhammer_succ_eval, norm_mul]
     apply mul_le_mul ih _ hd (norm_nonneg _)
-    exact (ha.trans (by simp only [add_re, natCast_re]; exact le_add_of_nonneg_right (Nat.cast_nonneg n))).trans (re_le_norm _)
+    refine (ha.trans ?_).trans (re_le_norm _)
+    simp only [add_re, natCast_re]
+    exact le_add_of_nonneg_right (Nat.cast_nonneg n)
 
 /-- The half-integer Pochhammer factors are a lower bound for the denominator. -/
 theorem norm_ascPochhammer_half_le {c : ℂ} (hc : 1 / 2 ≤ c.re) (n : ℕ) :

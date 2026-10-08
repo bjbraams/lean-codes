@@ -43,7 +43,8 @@ theorem carlsonMeanReal_zero_geom_lt {a c : ℝ} (ha : 0 < a) (hc : 0 < c) (hac 
     simp only [carlsonLReal, Real.rpow_zero, one_mul]
     rw [← integral_const_mul, ← integral_const_mul,
       ← integral_add ((hi x hx).const_mul a) ((hi y hy).const_mul c)]
-    apply integral_lt_integral_of_ae_lt (hi _ hz) (((hi x hx).const_mul a).add ((hi y hy).const_mul c))
+    apply integral_lt_integral_of_ae_lt (hi _ hz)
+        (((hi x hx).const_mul a).add ((hi y hy).const_mul c))
     filter_upwards [ae_mem_stdSimplexInterior_dirichletMeasure b] with u hu
     have hfin := Real.sum_mul_rpow_mul_rpow_lt ha hc hac hu.2 hx hy hne
     have hlog := Real.log_lt_log (dirichlet_affine_mem (convex_Ioi 0) hz hu.1) hfin
@@ -133,7 +134,8 @@ theorem carlsonMeanReal_geom_eq_of_proportional (t : ℝ) {a c : ℝ} (hac : a +
   rw [he, carlsonMeanReal_mul t hb hx (Real.rpow_pos_of_pos hk c), funext hxy,
     carlsonMeanReal_mul t hb hx hk, Real.mul_rpow hk.le (carlsonMeanReal_pos t b x).le]
   calc
-    k ^ c * carlsonMeanReal t b x = k ^ c * (carlsonMeanReal t b x ^ a * carlsonMeanReal t b x ^ c) := by
+    k ^ c * carlsonMeanReal t b x = k ^ c *
+        (carlsonMeanReal t b x ^ a * carlsonMeanReal t b x ^ c) := by
       rw [← Real.rpow_add (carlsonMeanReal_pos t b x), hac, Real.rpow_one]
     _ = _ := by ring
 
@@ -160,7 +162,8 @@ theorem carlsonMeanReal_geom_eq_iff {t : ℝ} (ht : 0 ≤ t)
     exact (carlsonMeanReal_geom_lt ht ha hc hac hb hx hy h).ne he
   · exact carlsonMeanReal_geom_eq_of_proportional t hac hb hx
 
-/-- Positive-order R is strictly log-convex under geometric interpolation of nonproportional nodes. -/
+/-- Positive-order R is strictly log-convex under geometric interpolation of nonproportional
+nodes. -/
 theorem log_carlsonRReal_geom_lt_of_pos {t : ℝ} (ht : 0 < t)
     {a c : ℝ} (ha : 0 < a) (hc : 0 < c) (hac : a + c = 1)
     {b x y : ι → ℝ} (hb : b ∈ mvRealBetaDomain) (hx : ∀ i, 0 < x i) (hy : ∀ i, 0 < y i)
@@ -201,7 +204,8 @@ theorem log_carlsonRReal_geom_lt_of_lt_neg_sum {t : ℝ} {b x y : ι → ℝ}
     rw [Real.inv_rpow (hx i).le, Real.inv_rpow (hy i).le, mul_inv]
   rw [he] at h
   have hz i := mul_pos (Real.rpow_pos_of_pos (hx i) a) (Real.rpow_pos_of_pos (hy i) c)
-  rw [log_carlsonRReal_euler t hb hz, log_carlsonRReal_euler t hb hx, log_carlsonRReal_euler t hb hy]
+  rw [log_carlsonRReal_euler t hb hz, log_carlsonRReal_euler t hb hx,
+      log_carlsonRReal_euler t hb hy]
   have hl : (∑ i, b i * Real.log (x i ^ a * y i ^ c)) =
       a * (∑ i, b i * Real.log (x i)) + c * (∑ i, b i * Real.log (y i)) := by
     simp_rw [Real.log_mul (Real.rpow_pos_of_pos (hx _) a).ne' (Real.rpow_pos_of_pos (hy _) c).ne',
@@ -279,7 +283,8 @@ theorem carlsonMeanReal_geom_eq_iff_of_lt_neg_sum {t : ℝ} {b x y : ι → ℝ}
     exact (lt_carlsonMeanReal_geom_of_lt_neg_sum hb ht ha hc hac hx hy h).ne he.symm
   · exact carlsonMeanReal_geom_eq_of_proportional t hac hb hx
 
-/-- At minus the total parameter, geometric interpolation is an identity for all positive vectors. -/
+/-- At minus the total parameter, geometric interpolation is an identity for all positive
+vectors. -/
 theorem carlsonMeanReal_neg_sum_geom (a c : ℝ) {b x y : ι → ℝ}
     (hb : b ∈ mvRealBetaDomain) (hx : ∀ i, 0 < x i) (hy : ∀ i, 0 < y i) :
     carlsonMeanReal (-(∑ i, b i)) b (fun i => x i ^ a * y i ^ c) =

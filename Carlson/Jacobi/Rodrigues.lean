@@ -99,9 +99,11 @@ theorem shiftedJacobi_rodrigues_nat {R : Type*} [CommRing R] [Algebra ℚ R] (a 
       C (n.factorial : ℚ) * X ^ a * (1 - X) ^ b * shiftedJacobi (a : ℚ) b n := by
     apply Polynomial.map_injective (algebraMap ℚ ℂ) (RingHom.injective _)
     simpa only [← iterate_derivative_map, Polynomial.map_mul, Polynomial.map_pow,
-      Polynomial.map_sub, Polynomial.map_one, map_X, map_C, map_natCast, Polynomial.map_natCast, hc] using shiftedJacobi_rodrigues_nat_complex a b n
+      Polynomial.map_sub, Polynomial.map_one, map_X, map_C, map_natCast, Polynomial.map_natCast, hc]
+          using shiftedJacobi_rodrigues_nat_complex a b n
   have h := congrArg (Polynomial.map (algebraMap ℚ R)) hq
   simpa only [← iterate_derivative_map, Polynomial.map_mul, Polynomial.map_pow,
-    Polynomial.map_sub, Polynomial.map_one, map_X, map_C, map_natCast, Polynomial.map_natCast, hr] using h
+    Polynomial.map_sub, Polynomial.map_one, map_X, map_C, map_natCast, Polynomial.map_natCast, hr]
+        using h
 
 end Polynomial

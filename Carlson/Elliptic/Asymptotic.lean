@@ -252,7 +252,8 @@ theorem tendsto_carlsonRK_sq_one_re_mul_div_log :
       have hi : 0 < 1 + 1 / t := by positivity
       have hi1 : 1 ≤ 1 + 1 / t := by linarith [one_div_pos.mpr ht0]
       have hi2 : 1 + 1 / t ≤ 2 := by
-        have h : 1 / t ≤ (1 : ℝ) := (one_div_le_one_div_of_le zero_lt_one ht.le).trans_eq (by norm_num)
+        have h : 1 / t ≤ (1 : ℝ) :=
+            (one_div_le_one_div_of_le zero_lt_one ht.le).trans_eq (by norm_num)
         linarith
       apply div_le_div_of_nonneg_right _ (Real.log_pos ht).le
       apply mul_le_mul_of_nonneg_right _ (Real.sqrt_nonneg _)

@@ -131,7 +131,7 @@ theorem hasSum_jacobiOn_mul_jacobiSecondKind_of_circle (α β r s : ℂ)
     intro z hz
     exact (mem_ball.mpr ((mem_sphere.mp (hrange hz)).trans_lt hσρ))
   have h := hasSum_jacobiContourCoefficient_on_ball α β r s hc
-    (show 0 < ρ by exact_mod_cast hσ.trans hσρ) hx hC hR hd hRd hp Γ hΓ hind hΓball
+    hx hC hR hd hRd hp Γ hΓ hind hΓball
     (fun z hz => hdist z (hrange hz)) (differentiableOn_cauchyKernel_closedBall hy)
   have he (n : ℕ) : jacobiContourCoefficient α β r s n Γ (fun w => (y - w)⁻¹) =
       jacobiSecondKind α β r s n y := by
@@ -239,7 +239,8 @@ theorem eqOn_cauchyKernel_of_tendstoLocallyUniformlyOn (α β r s : ℂ)
       exact (not_lt_of_ge hx) hy
     exact (analyticAt_id.sub analyticAt_const).inv (sub_ne_zero.mpr hyx)
   obtain ⟨T, hT, hkernel⟩ := exists_radius_hasSum_jacobiOn_mul_jacobiSecondKind α β r s x hc
-  obtain ⟨B, hB, hball⟩ := (isCompact_jacobiClosedEllipseDisk r s ρ).isBounded.subset_ball_lt T (0 : ℂ)
+  obtain ⟨B, hB, hball⟩ :=
+      (isCompact_jacobiClosedEllipseDisk r s ρ).isBounded.subset_ball_lt T (0 : ℂ)
   have hB0 : 0 < B := hT.trans hB
   have hnormB : ‖(B : ℂ)‖ = B := by simp [Complex.norm_real, Real.norm_eq_abs, abs_of_pos hB0]
   have hBU : (B : ℂ) ∈ U := by
@@ -248,7 +249,8 @@ theorem eqOn_cauchyKernel_of_tendstoLocallyUniformlyOn (α β r s : ℂ)
     have hm : (B : ℂ) ∈ jacobiClosedEllipseDisk r s ρ := le_of_not_gt hn
     have := hball hm
     simp only [mem_ball, dist_zero_right, hnormB, lt_self_iff_false] at this
-  apply hF.eqOn_of_preconnected_of_eventuallyEq hg (isPreconnected_jacobiEllipse_exterior r s hρ) hBU
+  apply hF.eqOn_of_preconnected_of_eventuallyEq hg
+      (isPreconnected_jacobiEllipse_exterior r s hρ) hBU
   filter_upwards [hU.mem_nhds hBU,
     (isOpen_lt continuous_const continuous_norm).mem_nhds
       (show T < ‖(B : ℂ)‖ by rwa [hnormB])] with y hy hTy

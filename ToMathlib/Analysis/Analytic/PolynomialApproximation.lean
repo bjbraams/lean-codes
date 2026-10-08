@@ -25,7 +25,7 @@ variable {𝕜 : Type*} [NontriviallyNormedField 𝕜]
 
 /-- The polynomial given by the first `N` terms of a scalar power series centered at `c`. -/
 @[expose] def partialSumPolynomial (a : FormalMultilinearSeries 𝕜 𝕜 𝕜) (c : 𝕜) (N : ℕ) : 𝕜[X] :=
-  ∑ n ∈ Finset.range N, C (a n (fun _ => 1)) * (X - C c) ^ n
+  ∑ n ∈ Finset.range N, C (a n (fun _ ↦ 1)) * (X - C c) ^ n
 
 /-- Evaluation of the polynomial partial sum agrees with the translated series partial sum. -/
 @[simp] theorem eval_partialSumPolynomial (a : FormalMultilinearSeries 𝕜 𝕜 𝕜)
@@ -36,7 +36,7 @@ variable {𝕜 : Type*} [NontriviallyNormedField 𝕜]
   apply Finset.sum_congr rfl
   intro n _
   simpa only [smul_eq_mul, mul_one, Finset.prod_const, Finset.card_fin, mul_comm] using
-    ((a n).map_smul_univ (fun _ => z - c) (fun _ => 1)).symm
+    ((a n).map_smul_univ (fun _ ↦ z - c) (fun _ ↦ 1)).symm
 
 end FormalMultilinearSeries
 
@@ -45,7 +45,7 @@ theorem HasFPowerSeriesOnBall.tendstoLocallyUniformlyOn_partialSumPolynomial
     {𝕜 : Type*} [NontriviallyNormedField 𝕜]
     {f : 𝕜 → 𝕜} {a : FormalMultilinearSeries 𝕜 𝕜 𝕜} {c : 𝕜} {ρ : ℝ≥0∞}
     (hf : HasFPowerSeriesOnBall f a c ρ) :
-    TendstoLocallyUniformlyOn (fun N z => (a.partialSumPolynomial c N).eval z) f atTop
+    TendstoLocallyUniformlyOn (fun N z ↦ (a.partialSumPolynomial c N).eval z) f atTop
       (Metric.eball c ρ) := by
   simpa only [FormalMultilinearSeries.eval_partialSumPolynomial] using hf.tendstoLocallyUniformlyOn'
 
@@ -55,6 +55,6 @@ theorem HasFPowerSeriesOnBall.exists_polynomial_tendstoLocallyUniformlyOn
     {𝕜 : Type*} [NontriviallyNormedField 𝕜]
     {f : 𝕜 → 𝕜} {a : FormalMultilinearSeries 𝕜 𝕜 𝕜} {c : 𝕜} {ρ : ℝ≥0∞}
     (hf : HasFPowerSeriesOnBall f a c ρ) :
-    ∃ p : ℕ → 𝕜[X], TendstoLocallyUniformlyOn (fun N z => (p N).eval z) f atTop
+    ∃ p : ℕ → 𝕜[X], TendstoLocallyUniformlyOn (fun N z ↦ (p N).eval z) f atTop
       (Metric.eball c ρ) :=
   ⟨a.partialSumPolynomial c, hf.tendstoLocallyUniformlyOn_partialSumPolynomial⟩

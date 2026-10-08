@@ -109,7 +109,8 @@ theorem integral_mul_monicHermite_mul_exp {f : ℝ → ℂ} {n : ℕ}
     | zero => simp
     | succ k ih =>
       have hkn : k < n := by omega
-      have hI : ∀ m ≤ n, ∀ j, Integrable (fun x => iteratedDeriv m f x * hermiteGaussianDeriv j x) :=
+      have hI : ∀ m ≤ n, ∀ j,
+          Integrable (fun x => iteratedDeriv m f x * hermiteGaussianDeriv j x) :=
         fun m hm j => integrable_mul_hermiteGaussianDeriv (hmeas m hm (by omega)) hε (hC m hm) j
       have hsplit : n - k = n - (k + 1) + 1 := by omega
       rw [ih (by omega), hsplit]

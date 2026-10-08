@@ -190,7 +190,7 @@ that disk when an index-one cycle in the disk satisfies the sufficient separatio
 condition. This proves existence without assuming convergence of the Jacobi series. -/
 theorem hasSum_jacobiContourCoefficient_on_ball (α β r s : ℂ)
     (hc : IsGammaRegular (α + β + 2)) {x c : ℂ} {ρ : ℝ≥0}
-    (hρ : 0 < ρ) (hx : x ∈ Metric.ball c ρ) {C R d : ℝ}
+    (hx : x ∈ Metric.ball c ρ) {C R d : ℝ}
     (hC : 0 ≤ C) (hR : 0 ≤ R) (hd : 0 < d) (hRd : R < d)
     (hp : ∀ n, ‖(jacobiOn α β r s n).eval x‖ ≤ C * R ^ n)
     (Γ : Cycle) (hΓ : Γ.IsC1) (hind : Γ.index r = 1)
@@ -199,7 +199,8 @@ theorem hasSum_jacobiContourCoefficient_on_ball (α β r s : ℂ)
     {f : ℂ → ℂ} (hf : DifferentiableOn ℂ f (Metric.closedBall c ρ)) :
     HasSum (fun n => jacobiContourCoefficient α β r s n Γ f *
       (jacobiOn α β r s n).eval x) (f x) := by
-  obtain ⟨p, hlim⟩ := exists_polynomial_tendstoLocallyUniformlyOn_on_ball hρ (hf.mono Metric.ball_subset_closedBall)
+  obtain ⟨p, hlim⟩ := exists_polynomial_tendstoLocallyUniformlyOn_on_ball
+    (hf.mono Metric.ball_subset_closedBall)
   exact hasSum_jacobiContourCoefficient_of_polynomial_approximation α β r s hc
     hC hR hd hRd hp Γ hΓ hind hdist
     ((tendstoLocallyUniformlyOn_iff_forall_isCompact Metric.isOpen_ball).mp hlim

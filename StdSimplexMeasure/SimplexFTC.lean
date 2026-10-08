@@ -30,7 +30,8 @@ the last free coordinate gives the one-dimensional slices used by the simplex FT
 
 ## References
 
-* `Mathlib.MeasureTheory.Integral.IntervalIntegral.FundThmCalculus`: formal background used by this module.
+* `Mathlib.MeasureTheory.Integral.IntervalIntegral.FundThmCalculus`: formal background used by this
+  module.
 * `Mathlib.MeasureTheory.Integral.Prod`: formal background used by this module.
 * `Mathlib.MeasureTheory.Measure.Haar.NormedSpace`: formal background used by this module.
 -/

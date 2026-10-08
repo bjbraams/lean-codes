@@ -183,7 +183,8 @@ theorem tendsto_unitIntervalIntegral_nhdsWithin_zero (k : ι) {a a' : ℂ} {b z�
   simpa only [integral_jointKernel] using H
 
 /-- The joint Theorem 8.3-1 with the classical decidability instances. -/
-private theorem tendsto_regCarlsonR_nhdsWithin_zero_of_pos_classical (k : ι) {a a' : ℂ} {b z₀ : ι → ℂ}
+private theorem tendsto_regCarlsonR_nhdsWithin_zero_of_pos_classical
+    (k : ι) {a a' : ℂ} {b z₀ : ι → ℂ}
     (ha : 0 < a.re) (ha' : 0 < a'.re) (hak : 0 < (a' - b k).re) (hsum : a + a' = ∑ j, b j)
     (hz₀ : z₀ k = 0) (hz₀' : ∀ j, j ≠ k → 0 < (z₀ j).re) :
     Tendsto (regCarlsonR (-a) b) (𝓝[carlsonRVariableDomain] z₀)
@@ -234,7 +235,8 @@ private theorem joint_zero {p : ℂ × (ι → ℂ)} (hp : p ∈ smallVariableRe
       (𝓝 (smallVariableValue k z₀ p)) := by
   obtain ⟨h1, h2, h3⟩ := hp
   simp only [Nat.cast_zero, add_zero] at h1 h2
-  have H := tendsto_regCarlsonR_nhdsWithin_zero_of_pos_classical k (a := p.1) (a' := ∑ j, p.2 j - p.1)
+  have H := tendsto_regCarlsonR_nhdsWithin_zero_of_pos_classical k (a := p.1)
+      (a' := ∑ j, p.2 j - p.1)
     (b := p.2) h1 h2 h3 (by ring) hz₀ hz₀'
   rw [smallVariableValue]
   rw [div_eq_mul_inv, mul_assoc] at H

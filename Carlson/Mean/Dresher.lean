@@ -56,7 +56,7 @@ theorem carlsonRatioMeanReal_add_lt {s t : ℝ} (hs : 0 < s) (hs1 : s ≤ 1)
   have hB := carlsonRatioMeanReal_pos s t b y
   have hS := add_pos hA hB
   have h := (strictConvexOn_carlsonRReal_sub hs hs1 ht hst hb).map_normalized_add_lt
-    hx hy hne hA hB
+    hx hy (inv_mul_ne_inv_mul_of_not_proportional hne hA hB) hA hB
   rw [carlsonRReal_ratio_normalize hst.ne hb hx, carlsonRReal_ratio_normalize hst.ne hb hy,
     sub_self, sub_self, mul_zero, mul_zero, add_zero, sub_neg] at h
   have hz i := mul_pos (inv_pos.mpr hS) (add_pos (hx i) (hy i))

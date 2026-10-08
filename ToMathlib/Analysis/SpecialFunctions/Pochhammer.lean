@@ -45,7 +45,7 @@ theorem ascPochhammer_ratio_pos {c w : ℝ} (hc : 0 < c) (hw : 0 < w) (n : ℕ) 
 /-- Each noninitial factor in a concentration ratio is strictly decreasing. -/
 private theorem strictAntiOn_concentration_factor {w k : ℝ}
     (hw : w < 1) (hk : 0 < k) :
-    StrictAntiOn (fun c : ℝ => (c * w + k) / (c + k)) (Ioi 0) := by
+    StrictAntiOn (fun c : ℝ ↦ (c * w + k) / (c + k)) (Ioi 0) := by
   intro c hc d hd hcd
   have hc : 0 < c := hc
   have hd : 0 < d := hd
@@ -58,9 +58,9 @@ private theorem strictAntiOn_concentration_factor {w k : ℝ}
 /-- Each noninitial factor in a concentration ratio is strictly log-convex. -/
 private theorem strictConvexOn_log_concentration_factor {w k : ℝ}
     (hw0 : 0 ≤ w) (hw1 : w < 1) (hk : 0 < k) :
-    StrictConvexOn ℝ (Ioi 0) (fun c : ℝ => log ((c * w + k) / (c + k))) := by
+    StrictConvexOn ℝ (Ioi 0) (fun c : ℝ ↦ log ((c * w + k) / (c + k))) := by
   apply ((strictConvexOn_log_add_div hw0 (mul_pos hk (sub_pos.mpr hw1))).subset
-    (fun c hc => by change -k < c; linarith [show 0 < c from hc]) (convex_Ioi 0)).congr
+    (fun c hc ↦ by change -k < c; linarith [show 0 < c from hc]) (convex_Ioi 0)).congr
   intro c hc
   have hc : 0 < c := hc
   dsimp only
@@ -68,7 +68,7 @@ private theorem strictConvexOn_log_concentration_factor {w k : ℝ}
 
 /-- Pochhammer concentration ratios are decreasing at every natural order. -/
 theorem antitoneOn_ascPochhammer_ratio {w : ℝ} (hw0 : 0 < w) (hw1 : w < 1) (n : ℕ) :
-    AntitoneOn (fun c : ℝ => (ascPochhammer ℝ n).eval (c * w) /
+    AntitoneOn (fun c : ℝ ↦ (ascPochhammer ℝ n).eval (c * w) /
       (ascPochhammer ℝ n).eval c) (Ioi 0) := by
   induction n with
   | zero => simp [antitoneOn_const]
@@ -87,12 +87,13 @@ theorem antitoneOn_ascPochhammer_ratio {w : ℝ} (hw0 : 0 < w) (hw1 : w < 1) (n 
       rw [ascPochhammer_ratio_succ d w (n + 1), ascPochhammer_ratio_succ c w (n + 1)]
       simp only [Nat.cast_add, Nat.cast_one]
       exact mul_le_mul (ih hc hd hcd)
-        ((strictAntiOn_concentration_factor hw1 (by positivity : (0 : ℝ) < n + 1)).antitoneOn hc hd hcd)
+        ((strictAntiOn_concentration_factor hw1 (by positivity : (0 : ℝ) < n + 1)).antitoneOn
+          hc hd hcd)
         (by positivity) (ascPochhammer_ratio_pos hc hw0 _).le
 
 /-- Pochhammer concentration ratios are log-convex at every natural order. -/
 theorem convexOn_log_ascPochhammer_ratio {w : ℝ} (hw0 : 0 < w) (hw1 : w < 1) (n : ℕ) :
-    ConvexOn ℝ (Ioi 0) (fun c : ℝ => log ((ascPochhammer ℝ n).eval (c * w) /
+    ConvexOn ℝ (Ioi 0) (fun c : ℝ ↦ log ((ascPochhammer ℝ n).eval (c * w) /
       (ascPochhammer ℝ n).eval c)) := by
   induction n with
   | zero => simpa using convexOn_const (c := (0 : ℝ)) (convex_Ioi (0 : ℝ))
@@ -117,7 +118,7 @@ theorem convexOn_log_ascPochhammer_ratio {w : ℝ} (hw0 : 0 < w) (hw1 : w < 1) (
 /-- Pochhammer concentration ratios decrease strictly at orders at least two. -/
 theorem strictAntiOn_ascPochhammer_ratio {w : ℝ} (hw0 : 0 < w) (hw1 : w < 1)
     {n : ℕ} (hn : 2 ≤ n) :
-    StrictAntiOn (fun c : ℝ => (ascPochhammer ℝ n).eval (c * w) /
+    StrictAntiOn (fun c : ℝ ↦ (ascPochhammer ℝ n).eval (c * w) /
       (ascPochhammer ℝ n).eval c) (Ioi 0) := by
   obtain ⟨n, rfl⟩ := Nat.exists_eq_add_of_le hn
   intro c hc d hd hcd
@@ -134,7 +135,7 @@ theorem strictAntiOn_ascPochhammer_ratio {w : ℝ} (hw0 : 0 < w) (hw1 : w < 1)
 /-- Pochhammer concentration ratios are strictly log-convex at orders at least two. -/
 theorem strictConvexOn_log_ascPochhammer_ratio {w : ℝ} (hw0 : 0 < w) (hw1 : w < 1)
     {n : ℕ} (hn : 2 ≤ n) :
-    StrictConvexOn ℝ (Ioi 0) (fun c : ℝ => log ((ascPochhammer ℝ n).eval (c * w) /
+    StrictConvexOn ℝ (Ioi 0) (fun c : ℝ ↦ log ((ascPochhammer ℝ n).eval (c * w) /
       (ascPochhammer ℝ n).eval c)) := by
   obtain ⟨n, rfl⟩ := Nat.exists_eq_add_of_le hn
   apply ((convexOn_log_ascPochhammer_ratio hw0 hw1 (n + 1)).add_strictConvexOn

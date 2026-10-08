@@ -28,9 +28,8 @@ open Filter
 open scoped Topology
 @[expose] public noncomputable section
 namespace Function
-variable (𝕜 : Type*) [NontriviallyNormedField 𝕜] {ι : Type*} [Fintype ι]
+variable (𝕜 : Type*) [NontriviallyNormedField 𝕜] {ι : Type*} [Fintype ι] [DecidableEq ι]
 
-open scoped Classical in
 /-- The weight of a coordinate is its derivative at the all-one vector. -/
 def meanWeight (f : (ι → 𝕜) → 𝕜) (i : ι) : 𝕜 :=
   fderiv 𝕜 f 1 (Pi.single i 1)
@@ -38,7 +37,6 @@ def meanWeight (f : (ι → 𝕜) → 𝕜) (i : ι) : 𝕜 :=
 /-- The sum of the coordinate weights is the derivative in the diagonal direction. -/
 theorem sum_meanWeight (f : (ι → 𝕜) → 𝕜) :
     ∑ i, meanWeight 𝕜 f i = fderiv 𝕜 f 1 1 := by
-  classical
   unfold meanWeight
   rw [← map_sum]
   congr 1
@@ -48,20 +46,20 @@ theorem sum_meanWeight (f : (ι → 𝕜) → 𝕜) :
 /-- The weights give the entire first derivative at the all-one vector. -/
 theorem fderiv_one_eq_sum_meanWeight (f : (ι → 𝕜) → 𝕜) (v : ι → 𝕜) :
     fderiv 𝕜 f 1 v = ∑ i, v i * meanWeight 𝕜 f i := by
-  classical
   simp only [meanWeight, ← smul_eq_mul, ← map_smul, ← map_sum]
   congr 1
   ext j
   simp [Pi.single_apply]
 
-/-- Local normalization on the diagonal makes the derivative-defined weights sum to one.
-No positivity or global homogeneity assumption is needed. -/
+/-- If the restriction of `f` to the diagonal has derivative one at the all-one vector, then the
+derivative-defined weights sum to one. No positivity or homogeneity assumption is needed; in
+particular it suffices that `f (fun _ ↦ r) = r` near `r = 1`. -/
 theorem sum_meanWeight_eq_one {f : (ι → 𝕜) → 𝕜} (hf : DifferentiableAt 𝕜 f 1)
-    (hdiag : (fun r : 𝕜 => f (fun _ => r)) =ᶠ[𝓝 1] id) :
+    (hdiag : HasDerivAt (fun r : 𝕜 ↦ f (fun _ ↦ r)) 1 1) :
     ∑ i, meanWeight 𝕜 f i = 1 := by
   rw [sum_meanWeight]
-  have h : HasDerivAt (fun r : 𝕜 => f (fun _ => r)) (fderiv 𝕜 f 1 1) 1 :=
-    hf.hasFDerivAt.comp_hasDerivAt 1 (hasDerivAt_pi.mpr fun _ => hasDerivAt_id 1)
-  exact (h.congr_of_eventuallyEq hdiag.symm).unique (hasDerivAt_id 1)
+  have h : HasDerivAt (fun r : 𝕜 ↦ f (fun _ ↦ r)) (fderiv 𝕜 f 1 1) 1 :=
+    hf.hasFDerivAt.comp_hasDerivAt 1 (hasDerivAt_pi.mpr fun _ ↦ hasDerivAt_id 1)
+  exact h.unique hdiag
 
 end Function

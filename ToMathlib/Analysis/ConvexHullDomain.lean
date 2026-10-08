@@ -21,11 +21,6 @@ The index type may be empty or infinite, and the ambient space need not be finit
 * `IsPathConnected.convexHull_range_subset`: If a set is path connected, so is the space of
   configurations whose entire convex hull lies in it. No convexity of the original set is
   required.
-
-## References
-
-* `Mathlib.Analysis.Convex.PathConnected`: formal background used by this module.
-* `Mathlib.Analysis.Convex.Hull`: formal background used by this module.
 -/
 
 public section
@@ -39,27 +34,27 @@ theorem IsPathConnected.convexHull_range_subset
     IsPathConnected {z : ι → E | convexHull ℝ (range z) ⊆ D} := by
   classical
   have hdiag (x : E) (hx : x ∈ D) :
-      (fun _ : ι => x) ∈ {z : ι → E | convexHull ℝ (range z) ⊆ D} := by
+      (fun _ : ι ↦ x) ∈ {z : ι → E | convexHull ℝ (range z) ⊆ D} := by
     apply (convexHull_min (t := {x}) (by rintro _ ⟨i, rfl⟩; rfl) (convex_singleton x)).trans
     exact singleton_subset_iff.mpr hx
   obtain ⟨c, hc⟩ := hD.nonempty
-  refine ⟨fun _ => c, hdiag c hc, ?_⟩
+  refine ⟨fun _ ↦ c, hdiag c hc, ?_⟩
   intro z hz
   rcases isEmpty_or_nonempty ι with hι | hι
-  · have he : z = fun _ => c := funext fun i => isEmptyElim i
+  · have he : z = fun _ ↦ c := funext fun i ↦ isEmptyElim i
     rw [he]
     exact JoinedIn.refl (hdiag c hc)
   · obtain ⟨i⟩ := hι
-    let C : Set (ι → E) := Set.pi univ (fun _ => convexHull ℝ (range z))
-    have hzC : z ∈ C := fun j _ => subset_convexHull ℝ _ ⟨j, rfl⟩
-    have hiC : (fun _ : ι => z i) ∈ C := fun _ _ => subset_convexHull ℝ _ ⟨i, rfl⟩
+    let C : Set (ι → E) := Set.pi univ (fun _ ↦ convexHull ℝ (range z))
+    have hzC : z ∈ C := fun j _ ↦ subset_convexHull ℝ _ ⟨j, rfl⟩
+    have hiC : (fun _ : ι ↦ z i) ∈ C := fun _ _ ↦ subset_convexHull ℝ _ ⟨i, rfl⟩
     have hC : IsPathConnected C :=
-      (convex_pi (fun _ _ => convex_convexHull ℝ (range z))).isPathConnected ⟨z, hzC⟩
+      (convex_pi (fun _ _ ↦ convex_convexHull ℝ (range z))).isPathConnected ⟨z, hzC⟩
     have hsub : C ⊆ {w : ι → E | convexHull ℝ (range w) ⊆ D} := by
       intro w hw
       exact (convexHull_min (by rintro _ ⟨j, rfl⟩; exact hw j (mem_univ j))
         (convex_convexHull ℝ (range z))).trans hz
-    have hd := hD.image (f := fun x : E => fun _ : ι => x) (by fun_prop)
+    have hd := hD.image (f := fun x : E ↦ fun _ : ι ↦ x) (by fun_prop)
     refine ((hd.joinedIn _ ⟨c, hc, rfl⟩ _
       ⟨z i, hz (subset_convexHull ℝ _ ⟨i, rfl⟩), rfl⟩).mono ?_).trans
         ((hC.joinedIn _ hiC _ hzC).mono hsub)

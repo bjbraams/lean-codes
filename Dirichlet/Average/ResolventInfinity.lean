@@ -66,7 +66,8 @@ theorem analyticAt_continuedRegCarlsonResolvent_infinity (n : ℕ) (b z : ι →
   have hm : AnalyticAt ℂ (fun w : ℂ => (b, (1 : ℂ), fun i => w * z i)) 0 :=
     analyticAt_const.prod (analyticAt_const.prod (analyticAt_pi_iff.mpr fun _ =>
       analyticAt_id.mul analyticAt_const))
-  exact (analyticOnNhd_continuedRegCarlsonResolvent n (b, 1, fun _ => 0) ⟨mem_univ _, hd⟩).comp_of_eq hm
+  exact (analyticOnNhd_continuedRegCarlsonResolvent n
+      (b, 1, fun _ => 0) ⟨mem_univ _, hd⟩).comp_of_eq hm
     (by simp)
 
 /-- Normalizing the resolvent by the leading power identifies it with its

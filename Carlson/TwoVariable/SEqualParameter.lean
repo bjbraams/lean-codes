@@ -177,7 +177,8 @@ theorem hasSum_carlsonS_pair_self {β : ℂ} (hβ : ∀ m : ℕ, 2 * β ≠ -m) 
   unfold carlsonS
   rw [sum_pair, ← two_mul]
   refine ((hasSum_regCarlsonS_pair_self β x y).mul_left (Gamma (2 * β))).congr_fun fun n => ?_
-  have hpoch : Gamma (β + 1 / 2 + n) = (ascPochhammer ℂ n).eval (β + 1 / 2) * Gamma (β + 1 / 2) := by
+  have hpoch : Gamma (β + 1 / 2 + n) = (ascPochhammer ℂ n).eval (β + 1 / 2) *
+      Gamma (β + 1 / 2) := by
     induction n with
     | zero => simp
     | succ n ih =>

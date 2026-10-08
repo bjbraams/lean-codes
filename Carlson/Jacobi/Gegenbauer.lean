@@ -126,7 +126,8 @@ theorem gegenbauer_eq_jacobi (ρ : K) (n : ℕ)
 theorem gegenbauer_half_param (n : ℕ) :
     gegenbauer (1 / 2 : K) n = jacobi (0 : K) 0 n := by
   have hf : (n.factorial : K) ≠ 0 := by exact_mod_cast n.factorial_ne_zero
-  rw [gegenbauer_eq_jacobi (1 / 2 : K) n (by norm_num only [show (1 / 2 : K) + 1 / 2 = 1 by ring, ascPochhammer_eval_one]; exact hf)]
+  rw [gegenbauer_eq_jacobi (1 / 2 : K) n
+      (by norm_num only [show (1 / 2 : K) + 1 / 2 = 1 by ring, ascPochhammer_eval_one]; exact hf)]
   norm_num [hf]
 
 /-- The Legendre specialization uses Mathlib's existing shifted Legendre polynomial. -/

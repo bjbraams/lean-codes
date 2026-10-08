@@ -40,12 +40,6 @@ the reciprocal radius suffices when the speed grows at most linearly in the radi
 * `tendsto_curveIntegral_zero_of_rpow_bounds`: Forms decaying faster than the reciprocal radius
   have vanishing integrals along families of paths whose speeds grow at most linearly with that
   radius.
-
-## References
-
-* `Mathlib.MeasureTheory.Integral.CurveIntegral.Basic`: formal background used by this module.
-* `Mathlib.Analysis.Normed.Group.Continuity`: formal background used by this module.
-* `Mathlib.Analysis.SpecialFunctions.Pow.Asymptotics`: formal background used by this module.
 -/
 
 public section
@@ -61,7 +55,7 @@ variable {𝕜 E F : Type*} [RCLike 𝕜]
 of the speed. Only integrability of the speed is needed for this norm estimate. -/
 theorem norm_curveIntegral_le_mul_integral_norm_derivWithin
     (hω : ∀ t, ‖ω (γ t)‖ ≤ C)
-    (hγ : IntervalIntegrable (fun t => ‖derivWithin γ.extend I t‖) volume 0 1) :
+    (hγ : IntervalIntegrable (fun t ↦ ‖derivWithin γ.extend I t‖) volume 0 1) :
     ‖curveIntegral ω γ‖ ≤ C * ∫ t in (0 : ℝ)..1, ‖derivWithin γ.extend I t‖ := by
   let : NormedSpace ℝ F := .restrictScalars ℝ 𝕜 F
   rw [curveIntegral_def, ← intervalIntegral.integral_const_mul]
@@ -81,7 +75,7 @@ theorem norm_curveIntegral_le_mul_of_derivWithin_le
   rw [curveIntegral_def]
   simpa only [sub_zero, abs_one, mul_one] using
     (intervalIntegral.norm_integral_le_of_norm_le_const (a := (0 : ℝ)) (b := 1)
-      (f := curveIntegralFun ω γ) (C := C * L) (fun t ht => by
+      (f := curveIntegralFun ω γ) (C := C * L) (fun t ht ↦ by
         rw [uIoc_of_le zero_le_one] at ht
         have htI : t ∈ I := ⟨ht.1.le, ht.2⟩
         rw [curveIntegralFun_def, γ.extend_apply htI]
@@ -94,10 +88,10 @@ theorem tendsto_curveIntegral_zero_of_bounds
     {ω : α → E → E →L[𝕜] F} {C L : α → ℝ}
     (hω : ∀ i t, ‖ω i (η i t)‖ ≤ C i)
     (hη : ∀ i t, t ∈ I → ‖derivWithin (η i).extend I t‖ ≤ L i)
-    (hlim : Tendsto (fun i => C i * L i) ℱ (𝓝 0)) :
-    Tendsto (fun i => curveIntegral (ω i) (η i)) ℱ (𝓝 0) :=
+    (hlim : Tendsto (fun i ↦ C i * L i) ℱ (𝓝 0)) :
+    Tendsto (fun i ↦ curveIntegral (ω i) (η i)) ℱ (𝓝 0) :=
   squeeze_zero_norm
-    (fun i => norm_curveIntegral_le_mul_of_derivWithin_le (hω i) (hη i)) hlim
+    (fun i ↦ norm_curveIntegral_le_mul_of_derivWithin_le (hω i) (hη i)) hlim
 
 /-- A power bound on the form and a linear bound on speed give an explicit decay rate
 for the curve integral. -/
@@ -117,7 +111,7 @@ theorem tendsto_curveIntegral_zero_of_rpow_bounds
     (hR : ∀ i, 0 < R i) (hRlim : Tendsto R ℱ atTop)
     (hω : ∀ i t, ‖ω i (η i t)‖ ≤ C * (R i) ^ (-p))
     (hη : ∀ i t, t ∈ I → ‖derivWithin (η i).extend I t‖ ≤ K * R i) :
-    Tendsto (fun i => curveIntegral (ω i) (η i)) ℱ (𝓝 0) := by
-  apply squeeze_zero_norm (fun i => norm_curveIntegral_le_rpow (hR i) (hω i) (hη i))
+    Tendsto (fun i ↦ curveIntegral (ω i) (η i)) ℱ (𝓝 0) := by
+  apply squeeze_zero_norm (fun i ↦ norm_curveIntegral_le_rpow (hR i) (hω i) (hη i))
   simpa only [neg_sub, mul_zero, Function.comp_apply] using
     ((tendsto_rpow_neg_atTop (sub_pos.mpr hp)).comp hRlim).const_mul (C * K)

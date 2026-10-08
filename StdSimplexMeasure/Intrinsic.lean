@@ -36,7 +36,8 @@ topology induced by the weights.
 
 ## References
 
-* `Mathlib.Geometry.Convex.ConvexSpace.CompactSpaceStdSimplex`: formal background used by this module.
+* `Mathlib.Geometry.Convex.ConvexSpace.CompactSpaceStdSimplex`: formal background used by this
+  module.
 * `Mathlib.Topology.Algebra.Module.FiniteDimension`: formal background used by this module.
 * `Mathlib.MeasureTheory.Constructions.BorelSpace.Basic`: formal background used by this module.
 -/

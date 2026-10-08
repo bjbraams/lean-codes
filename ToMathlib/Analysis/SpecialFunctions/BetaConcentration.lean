@@ -26,7 +26,7 @@ namespace ProbabilityTheory
 private theorem volume_unitInterval_ne_zero :
     volume.restrict (Ioo (0 : ℝ) 1) ≠ 0 := by
   intro h
-  have h := congrArg (fun μ : Measure ℝ => μ univ) h
+  have h := congrArg (fun μ : Measure ℝ ↦ μ univ) h
   simp [Real.volume_Ioo] at h
 
 /-- The density ratio for two different concentrations exceeds one at its mode. -/
@@ -40,7 +40,7 @@ private theorem beta_concentration_ratio_max {a b c d : ℝ}
   let B := (d - c) * b
   let K := beta (c * a) (c * b) / beta (d * a) (d * b)
   let m := A / (A + B)
-  let F := fun u : ℝ => K * u ^ A * (1 - u) ^ B
+  let F := fun u : ℝ ↦ K * u ^ A * (1 - u) ^ B
   change 1 < F m
   have hd := hc.trans hcd
   have hA : 0 < A := mul_pos (sub_pos.mpr hcd) ha
@@ -71,7 +71,7 @@ private theorem beta_concentration_ratio_max {a b c d : ℝ}
     (integrable_betaPDFReal (mul_pos hc ha) (mul_pos hc hb)).restrict hcmp
   have he (p q : ℝ) : (∫ u in Ioo (0 : ℝ) 1, betaPDFReal p q u) =
       ∫ u, betaPDFReal p q u := by
-    simpa using integral_betaPDFReal_mul_Ioo p q (fun _ => 1)
+    simpa using integral_betaPDFReal_mul_Ioo p q (fun _ ↦ 1)
   rw [he, he, integral_betaPDFReal (mul_pos hd ha) (mul_pos hd hb),
     integral_betaPDFReal (mul_pos hc ha) (mul_pos hc hb)] at h
   exact (lt_irrefl _ h)
@@ -90,13 +90,13 @@ theorem integral_betaMeasure_lt_of_concentration {a b c d : ℝ}
   have hdb := mul_pos hd hb
   let pc := betaPDFReal (c * a) (c * b)
   let pd := betaPDFReal (d * a) (d * b)
-  let g := fun u => pd u - pc u
+  let g := fun u ↦ pd u - pc u
   let μ := volume.restrict (Ioo (0 : ℝ) 1)
   let : NeZero μ := ⟨volume_unitInterval_ne_zero⟩
   have hpc : Integrable pc := integrable_betaPDFReal hca hcb
   have hpd : Integrable pd := integrable_betaPDFReal hda hdb
   have hip (h : ℝ → ℝ) (hh : ContinuousOn h (Icc 0 1)) :
-      Integrable (fun u => h u * g u) := by
+      Integrable (fun u ↦ h u * g u) := by
     have h1 := integrable_betaPDFReal_mul_of_continuousOn hda hdb hh
     have h2 := integrable_betaPDFReal_mul_of_continuousOn hca hcb hh
     convert h1.sub h2 using 1
@@ -107,17 +107,17 @@ theorem integral_betaMeasure_lt_of_concentration {a b c d : ℝ}
       (∫ u, h u * g u ∂μ) = (∫ u, pd u * h u) - ∫ u, pc u * h u := by
     have h1 := integrable_betaPDFReal_mul_of_continuousOn hda hdb hh
     have h2 := integrable_betaPDFReal_mul_of_continuousOn hca hcb hh
-    have heq : (fun u => h u * g u) =
-        (fun u => pd u * h u - pc u * h u) := by funext u; dsimp [g]; ring
+    have heq : (fun u ↦ h u * g u) =
+        (fun u ↦ pd u * h u - pc u * h u) := by funext u; dsimp [g]; ring
     rw [heq, integral_sub h1.restrict h2.restrict]
     exact congrArg₂ (· - ·) (integral_betaPDFReal_mul_Ioo _ _ h)
       (integral_betaPDFReal_mul_Ioo _ _ h)
   have h0 : (∫ u, g u ∂μ) = 0 := by
-    have h := he (fun _ => 1) continuousOn_const
+    have h := he (fun _ ↦ 1) continuousOn_const
     simpa only [one_mul, mul_one, pd, pc, integral_betaPDFReal hda hdb,
       integral_betaPDFReal hca hcb, sub_self] using h
   have h1 : (∫ u, u * g u ∂μ) = 0 := by
-    rw [he (fun u => u) continuousOn_id]
+    rw [he (fun u ↦ u) continuousOn_id]
     have hed : (∫ u, pd u * u) = a / (a + b) := by
       simpa only [pd, mul_comm] using integral_mul_betaPDFReal_concentration ha hb hd
     have hec : (∫ u, pc u * u) = a / (a + b) := by
@@ -144,7 +144,7 @@ theorem integral_betaMeasure_lt_of_concentration {a b c d : ℝ}
     nlinarith
   have h := hf.integral_mul_neg_of_two_crossings
     ⟨hl.le, (hlr.trans hr).le⟩ ⟨(hl.trans hlr).le, hr.le⟩ hlr
-    (hs.mono fun _ hu => ⟨hu.1.le, hu.2.le⟩)
+    (hs.mono fun _ hu ↦ ⟨hu.1.le, hu.2.le⟩)
     (by filter_upwards [ae_restrict_of_ae (volume.ae_ne l), ae_restrict_of_ae (volume.ae_ne r)]
         with u hu hv; exact ⟨hu, hv⟩)
     hp hn (hpd.sub hpc).restrict (hip _ continuousOn_id).restrict

@@ -81,7 +81,8 @@ theorem strictConvexOn_log_carlsonRReal {b x : ι → ℝ}
     StrictConvexOn ℝ univ (fun t : ℝ => Real.log (carlsonRReal t b x)) := by
   refine ⟨convex_univ, ?_⟩
   intro s _ t _ hst a c ha hc hac
-  apply lt_of_le_of_ne ((convexOn_log_carlsonRReal hb hx).2 (mem_univ _) (mem_univ _) ha.le hc.le hac)
+  apply lt_of_le_of_ne
+      ((convexOn_log_carlsonRReal hb hx).2 (mem_univ _) (mem_univ _) ha.le hc.le hac)
   intro heq
   simp only [smul_eq_mul] at heq
   let F (v : ℝ) (u : ι → ℝ) := v * Real.log (∑ i, u i * x i) - Real.log (carlsonRReal v b x)
@@ -106,7 +107,8 @@ theorem strictConvexOn_log_carlsonRReal {b x : ι → ℝ}
     simp_rw [hform]
     rw [integral_exp_log_affine _ _ hx, ← heq,
       Real.exp_log (carlsonRReal_pos _ hb hx), div_self (carlsonRReal_pos _ hb hx).ne']
-  have heae := (integral_eq_iff_of_ae_le hk (((hi s).const_mul a).add ((hi t).const_mul c)) hle).mp heint
+  have heae :=
+      (integral_eq_iff_of_ae_le hk (((hi s).const_mul a).add ((hi t).const_mul c)) hle).mp heint
   apply not_ae_dirichlet_affine_comp_eq_const hb (convex_Ioi 0) hx hne
     (f := fun y => (s - t) * Real.log y)
     (fun y hy z hz he => Real.log_injOn_pos hy hz (mul_left_cancel₀ (sub_ne_zero.mpr hst) he))

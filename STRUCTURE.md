@@ -75,7 +75,7 @@ that matches the underlying API.
 | `ToMathlib.Analysis.SpecialFunctions.LaplaceOneSubCos` | Partial fractions of `1/∏(y + j)` and the Laplace integral of `(1 - cos t)ⁿ` over `(2mπ, ∞)` (Carlson's Exercise 6.6-17) |
 | `ToMathlib.Analysis.SpecialFunctions.Pow` | A power between two others is bounded by their sum; positive real bases to complex powers as exponentials; positivity of `re (1 - v)` for `‖v‖ < 1` |
 | `ToMathlib.Analysis.Integral.ProdAbsRPow` | Integrability on `ℝ` of `∏ |σ - xᵢ|^{-bᵢ}` for distinct nodes, `bᵢ < 1` and `∑ bᵢ > 1`, allowing nonsingular positive powers |
-| `ToMathlib.Analysis.UpperHalfPlaneMaximum` | Minimum principle for `im f` on the upper half-plane, for `f` holomorphic, continuous up to the axis, with a limit at infinity |
+| `ToMathlib.Analysis.UpperHalfPlaneMaximum` | Minimum principle for `im f` on the upper half-plane, for `f` holomorphic, continuous up to the axis, with `im f` eventually above every negative number at infinity (in particular, with a limit there) |
 | `ToMathlib.Analysis.Connected` | Connected shells and complements of balls in real normed spaces |
 | `ToMathlib.Analysis.ConvexHullDomain` | Path connectedness of configurations whose convex hull stays in a path-connected set; arbitrary index types and real topological vector spaces |
 | `ToMathlib.Analysis.OpenMapping` | Open mapping for complete metrizable vector spaces over any nontrivially normed field |

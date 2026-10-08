@@ -143,7 +143,8 @@ theorem image_jacobiJoukowski_exterior (r s : ℂ) {ρ : ℝ} (hρ : ‖r - s‖
   constructor
   · rintro ⟨w, hw, rfl⟩
     have hw0 : w ≠ 0 := norm_pos_iff.mp (hρ0.trans hw)
-    simpa only [mem_ofPred_eq, jacobiEllipseRadius_jacobiJoukowski r s w hw0 (hρ.trans hw).le] using hw
+    simpa only [mem_ofPred_eq, jacobiEllipseRadius_jacobiJoukowski r s w hw0 (hρ.trans hw).le]
+        using hw
   · intro hz
     obtain ⟨w, hw, he⟩ := exists_jacobiJoukowski_preimage r s z (hρ0.trans hz)
     exact ⟨w, by simpa only [mem_ofPred_eq, hw] using hz, he⟩

@@ -223,7 +223,8 @@ theorem mul_eulerDensity {a : ℂ} (ha : 0 < a.re) {s : ℝ} (hs : 0 < s) :
 /-- The total variation of the Euler measure: `∫ ‖dλ_a‖ = Γ(re a) / ‖Γ(a)‖`. -/
 theorem integral_norm_eulerDensity {a : ℂ} (ha : 0 < a.re) :
     ∫ s in Ioi (0 : ℝ), ‖eulerDensity a s‖ = Real.Gamma a.re / ‖Gamma a‖ := by
-  have hfun : ∀ s ∈ Ioi (0 : ℝ), ‖eulerDensity a s‖ = ‖Gamma a‖⁻¹ * (Real.exp (-s) * s ^ (a.re - 1)) := by
+  have hfun : ∀ s ∈ Ioi (0 : ℝ),
+      ‖eulerDensity a s‖ = ‖Gamma a‖⁻¹ * (Real.exp (-s) * s ^ (a.re - 1)) := by
     intro s hs
     simp only [eulerDensity, norm_mul, norm_inv]
     rw [Complex.norm_cpow_eq_rpow_re_of_pos hs, show -(s : ℂ) = ((-s : ℝ) : ℂ) by push_cast; ring,
@@ -266,7 +267,8 @@ theorem ae_quadrantMeasure : ∀ᵐ p ∂quadrantMeasure, 0 < p.1 ∧ 0 < p.2 :=
 theorem integrable_eulerDensity_mul_kernel {a b : ℂ} (ha : 0 < a.re) (hb : 0 < b.re)
     {K : ℝ × ℝ → ℂ} (hK : Continuous K) {C : ℝ}
     (hC : ∀ p : ℝ × ℝ, 0 < p.1 → 0 < p.2 → ‖K p‖ ≤ C) :
-    Integrable (fun p : ℝ × ℝ => eulerDensity a p.1 * eulerDensity b p.2 * K p) quadrantMeasure := by
+    Integrable
+        (fun p : ℝ × ℝ => eulerDensity a p.1 * eulerDensity b p.2 * K p) quadrantMeasure := by
   have h := Integrable.mul_prod (integrableOn_eulerDensity ha) (integrableOn_eulerDensity hb)
   refine h.mul_bdd (c := C) hK.aestronglyMeasurable ?_
   filter_upwards [ae_quadrantMeasure] with p hp using hC p hp.1 hp.2
@@ -431,7 +433,8 @@ theorem norm_twoF0Double_le (n : ℕ) {α β x : ℂ} (hα : 0 < (α + n).re) (h
       (Real.Gamma (β + n).re / ‖Gamma (β + n)‖) := by
   unfold twoF0Double
   have hdom : ∀ᵐ p ∂quadrantMeasure, ‖eulerDensity (α + n) p.1 * eulerDensity (β + n) p.2 *
-      expRemainder n (p.1 * p.2 * x)‖ ≤ ‖eulerDensity (α + n) p.1‖ * ‖eulerDensity (β + n) p.2‖ := by
+      expRemainder n (p.1 * p.2 * x)‖ ≤ ‖eulerDensity (α + n) p.1‖ *
+          ‖eulerDensity (β + n) p.2‖ := by
     filter_upwards [ae_quadrantMeasure] with p hp
     rw [norm_mul, norm_mul]
     have := norm_expRemainder_mul_le n hx hp.1 hp.2
@@ -463,8 +466,12 @@ theorem exists_norm_carlson2F0_sub_sum_le (α β : ℂ) (n : ℕ) :
       ‖carlson2F0 α β x - ∑ m ∈ Finset.range n, twoF0Term m α β x‖ ≤ C * ‖x‖ ^ n := by
   set N := n + twoF0Depth α β
   obtain ⟨hα0, hβ0⟩ := re_add_twoF0Depth_pos α β
-  have hαN : 0 < (α + N).re := by simp only [N, add_re, natCast_re, Nat.cast_add] at hα0 ⊢; linarith [(Nat.cast_nonneg n : (0 : ℝ) ≤ n)]
-  have hβN : 0 < (β + N).re := by simp only [N, add_re, natCast_re, Nat.cast_add] at hβ0 ⊢; linarith [(Nat.cast_nonneg n : (0 : ℝ) ≤ n)]
+  have hαN : 0 < (α + N).re := by
+    simp only [N, add_re, natCast_re, Nat.cast_add] at hα0 ⊢
+    linarith [(Nat.cast_nonneg n : (0 : ℝ) ≤ n)]
+  have hβN : 0 < (β + N).re := by
+    simp only [N, add_re, natCast_re, Nat.cast_add] at hβ0 ⊢
+    linarith [(Nat.cast_nonneg n : (0 : ℝ) ≤ n)]
   set c : ℕ → ℝ := fun m => ‖(ascPochhammer ℂ m).eval α * (ascPochhammer ℂ m).eval β‖ / m.factorial
   set K := Real.Gamma (α + N).re / ‖Gamma (α + N)‖ * (Real.Gamma (β + N).re / ‖Gamma (β + N)‖)
   refine ⟨∑ m ∈ Finset.Ico n N, c m + c N * K, fun x hx hx1 => ?_⟩
@@ -604,7 +611,8 @@ theorem carlson2F0_sub_sum_eq_mul_of_real (n : ℕ) {α β x : ℝ} (hα : 0 < �
       exact_mod_cast h
     rw [← hone]
     refine integral_mono_ae hIg ?_ ?_
-    · have := (Integrable.mul_prod (integrableOn_eulerDensity hα') (integrableOn_eulerDensity hβ')).re
+    · have :=
+          (Integrable.mul_prod (integrableOn_eulerDensity hα') (integrableOn_eulerDensity hβ')).re
       refine this.congr ?_
       filter_upwards [ae_quadrantMeasure] with p hp
       simp only [hac, hbc]

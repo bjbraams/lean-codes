@@ -466,7 +466,8 @@ theorem scMap_mem_scPolygon (h : SchwarzChristoffelParams a b x) (ha1 : a ≤ 1)
     intro c d hc hb hL
     refine lt_im_of_isOpen hopen hc ?_ hmem
     rintro _ ⟨w, hw, rfl⟩
-    refine Complex.im_nonneg_of_boundary_upperHalfPlane (f := fun w => c * (scMap a b x w - d))
+    refine Complex.im_nonneg_of_boundary_upperHalfPlane_of_tendsto
+      (f := fun w => c * (scMap a b x w - d))
       (L := c * (0 - d)) ?_ ?_ ?_ hL hb hw
     · exact (differentiableOn_const c).mul
         ((differentiableOn_scMap h).sub (differentiableOn_const d))

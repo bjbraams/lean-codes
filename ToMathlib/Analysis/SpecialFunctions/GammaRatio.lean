@@ -42,8 +42,8 @@ theorem norm_GammaSeq_mul_le {u x y : ℝ} (hu : 0 < u) (hx : u ≤ x) {n : ℕ}
   rw [norm_GammaSeq _ hn, norm_GammaSeq _ hn, norm_GammaSeq _ hn, norm_GammaSeq _ hn]
   have hre1 : ((x : ℂ)).re + (u + y * I : ℂ).re = (u : ℂ).re + ((x : ℂ) + y * I).re := by
     simp; ring
-  have hpos : ∀ s : ℂ, 0 < s.re → 0 < ∏ j ∈ Finset.range (n + 1), ‖s + j‖ := fun s hs =>
-    Finset.prod_pos fun j _ => norm_pos_iff.mpr fun h => by
+  have hpos : ∀ s : ℂ, 0 < s.re → 0 < ∏ j ∈ Finset.range (n + 1), ‖s + j‖ := fun s hs ↦
+    Finset.prod_pos fun j _ ↦ norm_pos_iff.mpr fun h ↦ by
       have := congrArg re h; simp at this; linarith [(Nat.cast_nonneg j : (0 : ℝ) ≤ j)]
   have h1 := hpos x (by simp; linarith)
   have h2 := hpos ((u : ℂ) + y * I) (by simpa using hu)
@@ -60,7 +60,7 @@ theorem norm_GammaSeq_mul_le {u x y : ℝ} (hu : 0 < u) (hx : u ≤ x) {n : ℕ}
   rw [hpow]
   refine mul_le_mul_of_nonneg_left ?_ (by positivity)
   rw [← Finset.prod_mul_distrib, ← Finset.prod_mul_distrib]
-  refine Finset.prod_le_prod₀ (fun j _ => by positivity) fun j _ => ?_
+  refine Finset.prod_le_prod₀ (fun j _ ↦ by positivity) fun j _ ↦ ?_
   -- `(1/2 + j) |x + j + iy| ≤ (x + j) |1/2 + j + iy|`
   have ha : ‖(u : ℂ) + j‖ = u + j := by
     rw [show (u : ℂ) + j = ((u + j : ℝ) : ℂ) by push_cast; ring, norm_real,
@@ -92,11 +92,11 @@ theorem norm_Gamma_mul_le {u x : ℝ} (hu : 0 < u) (hx : u ≤ x) (y : ℝ) :
   refine le_of_tendsto_of_tendsto (((GammaSeq_tendsto_Gamma _).norm).mul
     ((GammaSeq_tendsto_Gamma _).norm)) (((GammaSeq_tendsto_Gamma _).norm).mul
     ((GammaSeq_tendsto_Gamma _).norm)) ?_
-  exact Filter.eventually_atTop.mpr ⟨1, fun n hn => norm_GammaSeq_mul_le hu hx (by omega)⟩
+  exact Filter.eventually_atTop.mpr ⟨1, fun n hn ↦ norm_GammaSeq_mul_le hu hx (by omega)⟩
 
 /-- For fixed imaginary part, the Gamma ratio decreases on the positive real axis. -/
 theorem antitoneOn_Gamma_div_norm_Gamma (y : ℝ) :
-    AntitoneOn (fun x : ℝ => Real.Gamma x / ‖Gamma ((x : ℂ) + y * I)‖) (Set.Ioi 0) := by
+    AntitoneOn (fun x : ℝ ↦ Real.Gamma x / ‖Gamma ((x : ℂ) + y * I)‖) (Set.Ioi 0) := by
   intro u hu x hx hux
   have hG (r : ℝ) (hr : 0 < r) : ‖Gamma (r : ℂ)‖ = Real.Gamma r := by
     rw [Gamma_ofReal, norm_real, Real.norm_of_nonneg (Real.Gamma_pos_of_pos hr).le]

@@ -46,7 +46,8 @@ theorem analyticAt_eval_iterate_derivative_shiftedGegenbauer_parameter
   intro ij hij
   apply AnalyticAt.mul _ analyticAt_const
   apply AnalyticAt.mul
-  · exact analyticAt_const.mul ((AnalyticOnNhd.eval_polynomial (ascPochhammer ℂ ij.2)) ρ (mem_univ _))
+  · exact analyticAt_const.mul
+        ((AnalyticOnNhd.eval_polynomial (ascPochhammer ℂ ij.2)) ρ (mem_univ _))
   · simpa only [Function.comp_def] using
       ((AnalyticOnNhd.eval_polynomial (ascPochhammer ℂ ij.1))
         (2 * ρ + 2 * (ij.2 : ℂ)) (mem_univ _)).comp
@@ -89,7 +90,8 @@ private theorem derivative_shiftedGegenbauer_succ_of_ne_zero {ρ : ℂ} (n : ℕ
     show ρ - 1 / 2 + (ρ - 1 / 2) + n + 2 = 2 * ρ + n + 1 by ring]
   calc
     _ = C (-((ascPochhammer ℂ (n + 1)).eval (2 * ρ) * (2 * ρ + n + 1))) *
-        shiftedJacobi (ρ + 1 - 1 / 2) (ρ + 1 - 1 / 2) n := by rw [← mul_assoc, ← C_mul]; congr 1; congr 1; ring
+        shiftedJacobi (ρ + 1 - 1 / 2) (ρ + 1 - 1 / 2) n := by
+          rw [← mul_assoc, ← C_mul]; congr 1; congr 1; ring
     _ = _ := by
       rw [hB, show -(2 * ρ * (2 * ρ + 1) * (ascPochhammer ℂ n).eval (2 * (ρ + 1))) =
         ((ρ + 1 / 2) * (-4 * ρ)) * (ascPochhammer ℂ n).eval (2 * (ρ + 1)) by ring,
@@ -103,7 +105,8 @@ theorem derivative_shiftedGegenbauer_succ (ρ : ℂ) (n : ℕ) :
   apply Polynomial.funext
   intro x
   have hf : AnalyticOnNhd ℂ (fun v => (derivative (shiftedGegenbauer v (n + 1))).eval x) univ :=
-    fun v _ => by simpa using analyticAt_eval_iterate_derivative_shiftedGegenbauer_parameter (n + 1) 1 x v
+    fun v _ => by
+      simpa using analyticAt_eval_iterate_derivative_shiftedGegenbauer_parameter (n + 1) 1 x v
   have hg : AnalyticOnNhd ℂ (fun v => -4 * v * (shiftedGegenbauer (v + 1) n).eval x) univ := by
     intro v hv
     apply (analyticAt_const.mul analyticAt_id).mul

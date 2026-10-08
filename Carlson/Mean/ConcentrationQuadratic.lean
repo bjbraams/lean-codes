@@ -45,7 +45,8 @@ private theorem node_variance_pos {w x : ι → ℝ} (hw : ∀ i, 0 < w i)
     (hw1 : ∑ i, w i = 1) (hne : ∃ i j, x i ≠ x j) :
     0 < (∑ i, w i * x i ^ 2) - (∑ i, w i * x i) ^ 2 := by
   obtain ⟨i, j, hij⟩ := hne
-  have h := (Even.strictConvexOn_pow (by decide : Even (2 : ℕ)) (by decide : (2 : ℕ) ≠ 0)).map_sum_lt
+  have h :=
+      (Even.strictConvexOn_pow (by decide : Even (2 : ℕ)) (by decide : (2 : ℕ) ≠ 0)).map_sum_lt
     (fun i _ => hw i) hw1 (fun i _ => mem_univ (x i))
     ⟨i, Finset.mem_univ i, j, Finset.mem_univ j, hij⟩
   simpa only [smul_eq_mul, sub_pos] using h

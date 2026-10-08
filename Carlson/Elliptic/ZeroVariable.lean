@@ -413,7 +413,8 @@ private theorem analyticOnNhd_dupZeroDefect_left {y : ℂ} (hy : y ∈ slitPlane
     hs.mul analyticAt_const
   unfold dupZeroDefect
   refine (analyticAt_const.mul (analyticAt_carlsonRK_comp analyticAt_id analyticAt_const hx hy)).sub
-    (analyticAt_const.mul (analyticAt_carlsonRF_comp (analyticAt_id.add hL) (analyticAt_const.add hL)
+    (analyticAt_const.mul
+        (analyticAt_carlsonRF_comp (analyticAt_id.add hL) (analyticAt_const.add hL)
       hL (mem_slit_add_sqrt hx hy) ?_ ?_))
   · rw [mul_comm]; exact mem_slit_add_sqrt hy hx
   · exact mul_mem_slitPlane_of_re_pos (re_cpow_half_pos hx) (re_cpow_half_pos hy)
@@ -426,7 +427,8 @@ private theorem analyticOnNhd_dupZeroDefect_right {x : ℂ} (hx : x ∈ slitPlan
     analyticAt_const.mul hs
   unfold dupZeroDefect
   refine (analyticAt_const.mul (analyticAt_carlsonRK_comp analyticAt_const analyticAt_id hx hy)).sub
-    (analyticAt_const.mul (analyticAt_carlsonRF_comp (analyticAt_const.add hL) (analyticAt_id.add hL)
+    (analyticAt_const.mul
+        (analyticAt_carlsonRF_comp (analyticAt_const.add hL) (analyticAt_id.add hL)
       hL (mem_slit_add_sqrt hx hy) ?_ ?_))
   · rw [mul_comm]; exact mem_slit_add_sqrt hy hx
   · exact mul_mem_slitPlane_of_re_pos (re_cpow_half_pos hx) (re_cpow_half_pos hy)

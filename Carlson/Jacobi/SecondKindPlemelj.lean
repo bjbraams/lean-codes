@@ -58,7 +58,9 @@ theorem differentiableAt_jacobiCauchyDensity (α β : ℂ) (n : ℕ) {x : ℝ}
     simpa only [sub_add_cancel] using
       (hasDerivAt_complexJacobiWeight_succ (α - 1) (β - 1)
         (ofReal_mem_slitPlane.mpr hx.1)
-        (by apply Or.inl; simp only [sub_re, one_re, ofReal_re]; linarith [hx.2])).comp_ofReal.differentiableAt
+        (by
+          apply Or.inl; simp only [sub_re, one_re, ofReal_re]; linarith [hx.2])).comp_ofReal
+      |>.differentiableAt
   exact hw.mul ((shiftedJacobi α β n).hasDerivAt (x : ℂ)).comp_ofReal.differentiableAt
 
 /-- The regularized Jacobi density is integrable at every interior pole. -/

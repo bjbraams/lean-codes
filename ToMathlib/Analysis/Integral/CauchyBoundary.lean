@@ -9,7 +9,6 @@ public import Mathlib.MeasureTheory.Integral.PeakFunction
 public import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
 public import Mathlib.Analysis.Complex.Basic
 public import Mathlib.Analysis.SpecialFunctions.Integrals.Basic
-public import Mathlib.Tactic
 
 /-!
 # Cauchy boundary values and segment principal values
@@ -17,7 +16,8 @@ public import Mathlib.Tactic
 For an integrable complex density continuous at a real point, the difference
 between the Cauchy integrals evaluated directly above and below that point tends
 to `-2πi` times the density. This follows from the approximate-identity theorem
-for the real Poisson kernel. No regularity away from the point is required.
+for the real Poisson kernel (`Mathlib.MeasureTheory.Integral.PeakFunction`).
+No regularity away from the point is required.
 For a finite interval and an interior point, integrability of the regularized
 difference quotient gives separate upper and lower vertical limits. They equal
 the Cauchy principal value minus or plus `πi` times the density. The principal
@@ -44,7 +44,6 @@ so its limit can be composed with arbitrary filters. These are vertical limits.
 
 * B. C. Carlson, *Special Functions of Applied Mathematics*, Academic Press,
   1977, Chapter 7 (boundary values of associated functions).
-* `Mathlib.MeasureTheory.Integral.PeakFunction`.
 -/
 
 public noncomputable section
@@ -54,7 +53,7 @@ open scoped Topology
 
 /-- An integrable density times a Cauchy kernel is integrable off the real line. -/
 theorem integrable_mul_cauchyKernel {ρ : ℝ → ℂ} (hρ : Integrable ρ) {z : ℂ}
-    (hz : z.im ≠ 0) : Integrable (fun t : ℝ => ρ t * (z - t)⁻¹) := by
+    (hz : z.im ≠ 0) : Integrable (fun t : ℝ ↦ ρ t * (z - t)⁻¹) := by
   have hn (t : ℝ) : z - t ≠ 0 := by
     intro h
     apply hz
@@ -68,11 +67,11 @@ theorem integrable_mul_cauchyKernel {ρ : ℝ → ℂ} (hρ : Integrable ρ) {z 
 
 /-- The real Poisson profile has the decay required by the approximate-identity theorem. -/
 private theorem tendsto_norm_mul_poissonProfile :
-    Tendsto (fun t : ℝ => ‖t‖ * ((Real.pi)⁻¹ * (1 + t ^ 2)⁻¹))
+    Tendsto (fun t : ℝ ↦ ‖t‖ * ((Real.pi)⁻¹ * (1 + t ^ 2)⁻¹))
       (cobounded ℝ) (𝓝 0) := by
-  have hu : Tendsto (fun t : ℝ => (Real.pi)⁻¹ * ‖t⁻¹‖) (cobounded ℝ) (𝓝 0) := by
+  have hu : Tendsto (fun t : ℝ ↦ (Real.pi)⁻¹ * ‖t⁻¹‖) (cobounded ℝ) (𝓝 0) := by
     simpa using (tendsto_inv₀_cobounded (α := ℝ)).norm.const_mul ((Real.pi)⁻¹)
-  apply squeeze_zero' (Eventually.of_forall (fun t => by positivity)) ?_ hu
+  apply squeeze_zero' (Eventually.of_forall (fun t ↦ by positivity)) ?_ hu
   have hn : ∀ᶠ t : ℝ in cobounded ℝ, t ≠ 0 := isBounded_singleton
   filter_upwards [hn] with t ht
   rw [norm_inv, mul_left_comm]
@@ -88,14 +87,14 @@ every continuity point of an integrable density. The heights are `±1/c`, with
 `c → +∞`; existence of separate boundary values is not needed. -/
 theorem tendsto_cauchyIntegral_sub {ρ : ℝ → ℂ} (hρ : Integrable ρ) {x : ℝ}
     (hc : ContinuousAt ρ x) :
-    Tendsto (fun c : ℝ =>
+    Tendsto (fun c : ℝ ↦
       (∫ t : ℝ, ρ t * ((x : ℂ) + (c⁻¹ : ℝ) * I - t)⁻¹) -
       (∫ t : ℝ, ρ t * ((x : ℂ) - (c⁻¹ : ℝ) * I - t)⁻¹)) atTop
       (𝓝 (-2 * (Real.pi : ℂ) * I * ρ x)) := by
   have hm : (∫ t : ℝ, (Real.pi)⁻¹ * (1 + t ^ 2)⁻¹) = 1 := by
     rw [integral_const_mul, integral_univ_inv_one_add_sq, inv_mul_cancel₀ Real.pi_ne_zero]
   have hp := tendsto_integral_comp_smul_smul_of_integrable'
-    (fun t : ℝ => show 0 ≤ (Real.pi)⁻¹ * (1 + t ^ 2)⁻¹ by positivity) hm
+    (fun t : ℝ ↦ show 0 ≤ (Real.pi)⁻¹ * (1 + t ^ 2)⁻¹ by positivity) hm
     (by simpa using tendsto_norm_mul_poissonProfile) hρ hc
   have h := hp.const_mul (-2 * (Real.pi : ℂ) * I)
   apply h.congr'
@@ -138,7 +137,7 @@ continuity point. Endpoint singularities are allowed whenever the density is int
 theorem tendsto_intervalIntegral_cauchy_sub {ρ : ℝ → ℂ} {a b x : ℝ}
     (hρ : IntervalIntegrable ρ volume a b) (hx : x ∈ Ioo a b)
     (hc : ContinuousAt ρ x) :
-    Tendsto (fun c : ℝ =>
+    Tendsto (fun c : ℝ ↦
       (∫ t in a..b, ρ t * ((x : ℂ) + (c⁻¹ : ℝ) * I - t)⁻¹) -
       (∫ t in a..b, ρ t * ((x : ℂ) - (c⁻¹ : ℝ) * I - t)⁻¹)) atTop
       (𝓝 (-2 * (Real.pi : ℂ) * I * ρ x)) := by
@@ -179,7 +178,7 @@ theorem intervalIntegral_cauchyKernel_add {a b x y : ℝ} (hy : y ≠ 0) :
     linear_combination 2 * ((x : ℂ) - t) * (y : ℂ) ^ 2 * I_sq
   simp_rw [he]
   rw [intervalIntegral.integral_const_mul, intervalIntegral.integral_ofReal,
-    intervalIntegral.integral_comp_sub_left (fun t : ℝ => t / (y ^ 2 + t ^ 2)),
+    intervalIntegral.integral_comp_sub_left (fun t : ℝ ↦ t / (y ^ 2 + t ^ 2)),
     integral_id_div_sq_add_sq hy]
   push_cast
   ring
@@ -187,13 +186,14 @@ theorem intervalIntegral_cauchyKernel_add {a b x y : ℝ} (hy : y ≠ 0) :
 /-- The sum of the upper and lower constant-density Cauchy integrals tends to
 twice the real logarithmic term at an interior point. -/
 theorem tendsto_intervalIntegral_cauchyKernel_add {a b x : ℝ} (hx : x ∈ Ioo a b) :
-    Tendsto (fun c : ℝ =>
+    Tendsto (fun c : ℝ ↦
       (∫ t in a..b, ((x : ℂ) + (c⁻¹ : ℝ) * I - t)⁻¹) +
       (∫ t in a..b, ((x : ℂ) - (c⁻¹ : ℝ) * I - t)⁻¹)) atTop
       (𝓝 (2 * (Real.log ((x - a) / (b - x)) : ℂ))) := by
-  have ht : Tendsto (fun c : ℝ => (c⁻¹) ^ 2) atTop (𝓝 0) := by
-    simpa using ((tendsto_inv_atTop_zero : Tendsto (fun c : ℝ => c⁻¹) atTop (𝓝 0)).pow 2)
-  have ha := (ht.add_const ((x - a) ^ 2)).log (by have := sub_pos.mpr hx.1; positivity : (0 : ℝ) + (x - a)^2 ≠ 0)
+  have ht : Tendsto (fun c : ℝ ↦ (c⁻¹) ^ 2) atTop (𝓝 0) := by
+    simpa using ((tendsto_inv_atTop_zero : Tendsto (fun c : ℝ ↦ c⁻¹) atTop (𝓝 0)).pow 2)
+  have ha := (ht.add_const ((x - a) ^ 2)).log
+    (by have := sub_pos.mpr hx.1; positivity : (0 : ℝ) + (x - a)^2 ≠ 0)
   have hb := (ht.add_const ((x - b) ^ 2)).log (by
     have : x - b ≠ 0 := sub_ne_zero.mpr hx.2.ne
     positivity : (0 : ℝ) + (x - b)^2 ≠ 0)
@@ -206,12 +206,12 @@ theorem tendsto_intervalIntegral_cauchyKernel_add {a b x : ℝ} (hx : x ∈ Ioo 
   simp only [zero_add, he, ofReal_mul, ofReal_ofNat] at h
   apply h.congr'
   filter_upwards [eventually_gt_atTop (0 : ℝ)] with c hc
-  have hp : Continuous (fun t : ℝ => ((x : ℂ) + (c⁻¹ : ℝ) * I - t)⁻¹) := by
+  have hp : Continuous (fun t : ℝ ↦ ((x : ℂ) + (c⁻¹ : ℝ) * I - t)⁻¹) := by
     apply Continuous.inv₀ (by fun_prop)
     intro t hz
     have := congrArg im hz
     simp [hc.ne'] at this
-  have hm : Continuous (fun t : ℝ => ((x : ℂ) - (c⁻¹ : ℝ) * I - t)⁻¹) := by
+  have hm : Continuous (fun t : ℝ ↦ ((x : ℂ) - (c⁻¹ : ℝ) * I - t)⁻¹) := by
     apply Continuous.inv₀ (by fun_prop)
     intro t hz
     have := congrArg im hz
@@ -224,10 +224,10 @@ theorem tendsto_intervalIntegral_cauchyKernel_add {a b x : ℝ} (hx : x ∈ Ioo 
 The quotient hypothesis permits integrable singularities at the endpoints.
 The regularized integral is continuous even at height zero. -/
 theorem continuousAt_intervalIntegral_regularized_cauchy {ρ : ℝ → ℂ} {a b x : ℝ}
-    (hq : IntervalIntegrable (fun t : ℝ => (ρ t - ρ x) / ((x : ℂ) - t)) volume a b) :
-    ContinuousAt (fun y : ℝ => ∫ t in a..b,
+    (hq : IntervalIntegrable (fun t : ℝ ↦ (ρ t - ρ x) / ((x : ℂ) - t)) volume a b) :
+    ContinuousAt (fun y : ℝ ↦ ∫ t in a..b,
       (ρ t - ρ x) * ((x : ℂ) + (y : ℂ) * I - t)⁻¹) 0 := by
-  let q : ℝ → ℂ := fun t => (ρ t - ρ x) / ((x : ℂ) - t)
+  let q : ℝ → ℂ := fun t ↦ (ρ t - ρ x) / ((x : ℂ) - t)
   have he {y : ℝ} {t : ℝ} (ht : t ≠ x) :
       (ρ t - ρ x) * ((x : ℂ) + (y : ℂ) * I - t)⁻¹ =
       q t * (((x : ℂ) - t) / ((x : ℂ) + (y : ℂ) * I - t)) := by
@@ -235,11 +235,11 @@ theorem continuousAt_intervalIntegral_regularized_cauchy {ρ : ℝ → ℂ} {a b
     dsimp [q]
     field_simp
   simp only [ContinuousAt, ofReal_zero, zero_mul, add_zero]
-  apply intervalIntegral.tendsto_integral_filter_of_dominated_convergence (fun t => ‖q t‖)
+  apply intervalIntegral.tendsto_integral_filter_of_dominated_convergence (fun t ↦ ‖q t‖)
   · filter_upwards with c
     by_cases hc : c = 0
     · simpa [hc, div_eq_mul_inv] using hq.aestronglyMeasurable_restrict_uIoc
-    have hk : Continuous (fun t : ℝ => ((x : ℂ) - t) /
+    have hk : Continuous (fun t : ℝ ↦ ((x : ℂ) - t) /
         ((x : ℂ) + (c : ℂ) * I - t)) := by
       apply Continuous.div (by fun_prop) (by fun_prop)
       intro t hz
@@ -266,9 +266,9 @@ theorem continuousAt_intervalIntegral_regularized_cauchy {ρ : ℝ → ℂ} {a b
 /-- The regularized Cauchy integral converges along every filter of heights tending to zero.
 The heights are allowed to vanish; no countability assumption on the filter is needed. -/
 theorem tendsto_intervalIntegral_regularized_cauchy {ρ : ℝ → ℂ} {a b x : ℝ}
-    (hq : IntervalIntegrable (fun t : ℝ => (ρ t - ρ x) / ((x : ℂ) - t)) volume a b)
+    (hq : IntervalIntegrable (fun t : ℝ ↦ (ρ t - ρ x) / ((x : ℂ) - t)) volume a b)
     {α : Type*} {l : Filter α} {v : α → ℝ} (hv : Tendsto v l (𝓝 0)) :
-    Tendsto (fun c => ∫ t in a..b,
+    Tendsto (fun c ↦ ∫ t in a..b,
       (ρ t - ρ x) * ((x : ℂ) + (v c : ℂ) * I - t)⁻¹) l
       (𝓝 (∫ t in a..b, (ρ t - ρ x) / ((x : ℂ) - t))) := by
   simpa only [Function.comp_def, ofReal_zero, zero_mul, add_zero, div_eq_mul_inv] using
@@ -277,7 +277,7 @@ theorem tendsto_intervalIntegral_regularized_cauchy {ρ : ℝ → ℂ} {a b x : 
 /-- Interval integrability of a Cauchy integral off the real line. -/
 theorem intervalIntegrable_mul_cauchyKernel {ρ : ℝ → ℂ} {a b : ℝ}
     (hρ : IntervalIntegrable ρ volume a b) {z : ℂ} (hz : z.im ≠ 0) :
-    IntervalIntegrable (fun t : ℝ => ρ t * (z - t)⁻¹) volume a b := by
+    IntervalIntegrable (fun t : ℝ ↦ ρ t * (z - t)⁻¹) volume a b := by
   apply hρ.mul_continuousOn
   apply Continuous.continuousOn
   apply Continuous.inv₀ (by fun_prop)
@@ -287,12 +287,12 @@ theorem intervalIntegrable_mul_cauchyKernel {ρ : ℝ → ℂ} {a b : ℝ}
 
 /-- The upper boundary value of the constant-density segment kernel. -/
 theorem tendsto_intervalIntegral_cauchyKernel_upper {a b x : ℝ} (hx : x ∈ Ioo a b) :
-    Tendsto (fun c : ℝ => ∫ t in a..b,
+    Tendsto (fun c : ℝ ↦ ∫ t in a..b,
       ((x : ℂ) + (c⁻¹ : ℝ) * I - t)⁻¹) atTop
       (𝓝 ((Real.log ((x - a)/(b - x)) : ℂ) - (Real.pi : ℂ) * I)) := by
   have hs := tendsto_intervalIntegral_cauchyKernel_add hx
   have hd := tendsto_intervalIntegral_cauchy_sub
-    (ρ := fun _ => (1 : ℂ)) intervalIntegrable_const hx continuousAt_const
+    (ρ := fun _ ↦ (1 : ℂ)) intervalIntegrable_const hx continuousAt_const
   simp only [one_mul, mul_one] at hd
   convert (hs.add hd).div_const 2 using 1
   · funext c; ring
@@ -300,12 +300,12 @@ theorem tendsto_intervalIntegral_cauchyKernel_upper {a b x : ℝ} (hx : x ∈ Io
 
 /-- The lower boundary value of the constant-density segment kernel. -/
 theorem tendsto_intervalIntegral_cauchyKernel_lower {a b x : ℝ} (hx : x ∈ Ioo a b) :
-    Tendsto (fun c : ℝ => ∫ t in a..b,
+    Tendsto (fun c : ℝ ↦ ∫ t in a..b,
       ((x : ℂ) - (c⁻¹ : ℝ) * I - t)⁻¹) atTop
       (𝓝 ((Real.log ((x - a)/(b - x)) : ℂ) + (Real.pi : ℂ) * I)) := by
   have hs := tendsto_intervalIntegral_cauchyKernel_add hx
   have hd := tendsto_intervalIntegral_cauchy_sub
-    (ρ := fun _ => (1 : ℂ)) intervalIntegrable_const hx continuousAt_const
+    (ρ := fun _ ↦ (1 : ℂ)) intervalIntegrable_const hx continuousAt_const
   simp only [one_mul, mul_one] at hd
   convert (hs.sub hd).div_const 2 using 1
   · funext c; ring
@@ -336,8 +336,8 @@ private theorem intervalIntegral_cauchy_decompose {ρ : ℝ → ℂ} {a b x : �
 singularities are allowed; the regularized difference quotient must be integrable. -/
 theorem tendsto_intervalIntegral_cauchy_upper {ρ : ℝ → ℂ} {a b x : ℝ}
     (hρ : IntervalIntegrable ρ volume a b) (hx : x ∈ Ioo a b)
-    (hq : IntervalIntegrable (fun t : ℝ => (ρ t - ρ x) / ((x : ℂ) - t)) volume a b) :
-    Tendsto (fun c : ℝ => ∫ t in a..b,
+    (hq : IntervalIntegrable (fun t : ℝ ↦ (ρ t - ρ x) / ((x : ℂ) - t)) volume a b) :
+    Tendsto (fun c : ℝ ↦ ∫ t in a..b,
       ρ t * ((x : ℂ) + (c⁻¹ : ℝ) * I - t)⁻¹) atTop
       (𝓝 (cauchyPrincipalValue ρ a b x - (Real.pi : ℂ) * I * ρ x)) := by
   have hr := tendsto_intervalIntegral_regularized_cauchy hq tendsto_inv_atTop_zero
@@ -355,13 +355,13 @@ theorem tendsto_intervalIntegral_cauchy_upper {ρ : ℝ → ℂ} {a b x : ℝ}
 principal value as in the upper boundary formula. -/
 theorem tendsto_intervalIntegral_cauchy_lower {ρ : ℝ → ℂ} {a b x : ℝ}
     (hρ : IntervalIntegrable ρ volume a b) (hx : x ∈ Ioo a b)
-    (hq : IntervalIntegrable (fun t : ℝ => (ρ t - ρ x) / ((x : ℂ) - t)) volume a b) :
-    Tendsto (fun c : ℝ => ∫ t in a..b,
+    (hq : IntervalIntegrable (fun t : ℝ ↦ (ρ t - ρ x) / ((x : ℂ) - t)) volume a b) :
+    Tendsto (fun c : ℝ ↦ ∫ t in a..b,
       ρ t * ((x : ℂ) - (c⁻¹ : ℝ) * I - t)⁻¹) atTop
       (𝓝 (cauchyPrincipalValue ρ a b x + (Real.pi : ℂ) * I * ρ x)) := by
   have hr := tendsto_intervalIntegral_regularized_cauchy hq
-    (show Tendsto (fun c : ℝ => -(c⁻¹)) atTop (𝓝 0) by
-      simpa using (tendsto_inv_atTop_zero : Tendsto (fun c : ℝ => c⁻¹) atTop (𝓝 0)).neg)
+    (show Tendsto (fun c : ℝ ↦ -(c⁻¹)) atTop (𝓝 0) by
+      simpa using (tendsto_inv_atTop_zero : Tendsto (fun c : ℝ ↦ c⁻¹) atTop (𝓝 0)).neg)
   simp only [ofReal_neg, neg_mul, ← sub_eq_add_neg] at hr
   have h := hr.add ((tendsto_intervalIntegral_cauchyKernel_lower hx).const_mul (ρ x))
   have he : (∫ t in a..b, (ρ t - ρ x) / ((x : ℂ) - t)) +
@@ -376,7 +376,7 @@ theorem tendsto_intervalIntegral_cauchy_lower {ρ : ℝ → ℂ} {a b x : ℝ}
 /-- The Plemelj jump as the positive vertical height tends to zero. -/
 theorem tendsto_cauchyIntegral_sub_nhdsGT {ρ : ℝ → ℂ} (hρ : Integrable ρ) {x : ℝ}
     (hc : ContinuousAt ρ x) :
-    Tendsto (fun y : ℝ =>
+    Tendsto (fun y : ℝ ↦
       (∫ t : ℝ, ρ t * ((x : ℂ) + (y : ℂ) * I - t)⁻¹) -
       (∫ t : ℝ, ρ t * ((x : ℂ) - (y : ℂ) * I - t)⁻¹)) (𝓝[>] 0)
       (𝓝 (-2 * (Real.pi : ℂ) * I * ρ x)) := by
@@ -386,8 +386,8 @@ theorem tendsto_cauchyIntegral_sub_nhdsGT {ρ : ℝ → ℂ} (hρ : Integrable �
 /-- The upper vertical boundary value, parameterized by height tending to zero. -/
 theorem tendsto_intervalIntegral_cauchy_upper_nhdsGT {ρ : ℝ → ℂ} {a b x : ℝ}
     (hρ : IntervalIntegrable ρ volume a b) (hx : x ∈ Ioo a b)
-    (hq : IntervalIntegrable (fun t : ℝ => (ρ t - ρ x) / ((x : ℂ) - t)) volume a b) :
-    Tendsto (fun y : ℝ => ∫ t in a..b,
+    (hq : IntervalIntegrable (fun t : ℝ ↦ (ρ t - ρ x) / ((x : ℂ) - t)) volume a b) :
+    Tendsto (fun y : ℝ ↦ ∫ t in a..b,
       ρ t * ((x : ℂ) + (y : ℂ) * I - t)⁻¹) (𝓝[>] 0)
       (𝓝 (cauchyPrincipalValue ρ a b x - (Real.pi : ℂ) * I * ρ x)) := by
   simpa only [Function.comp_def, inv_inv] using
@@ -396,8 +396,8 @@ theorem tendsto_intervalIntegral_cauchy_upper_nhdsGT {ρ : ℝ → ℂ} {a b x :
 /-- The lower vertical boundary value, parameterized by positive height tending to zero. -/
 theorem tendsto_intervalIntegral_cauchy_lower_nhdsGT {ρ : ℝ → ℂ} {a b x : ℝ}
     (hρ : IntervalIntegrable ρ volume a b) (hx : x ∈ Ioo a b)
-    (hq : IntervalIntegrable (fun t : ℝ => (ρ t - ρ x) / ((x : ℂ) - t)) volume a b) :
-    Tendsto (fun y : ℝ => ∫ t in a..b,
+    (hq : IntervalIntegrable (fun t : ℝ ↦ (ρ t - ρ x) / ((x : ℂ) - t)) volume a b) :
+    Tendsto (fun y : ℝ ↦ ∫ t in a..b,
       ρ t * ((x : ℂ) - (y : ℂ) * I - t)⁻¹) (𝓝[>] 0)
       (𝓝 (cauchyPrincipalValue ρ a b x + (Real.pi : ℂ) * I * ρ x)) := by
   simpa only [Function.comp_def, inv_inv] using
@@ -411,16 +411,16 @@ theorem intervalIntegral_cauchyKernel_real {a b x : ℝ} (hx : x ∉ uIcc a b) :
     simpa [mem_uIcc, sub_nonneg, sub_nonpos, and_comm, or_comm] using hx
   simp_rw [← ofReal_sub, ← ofReal_inv]
   rw [intervalIntegral.integral_ofReal,
-    intervalIntegral.integral_comp_sub_left (fun t : ℝ => t⁻¹), integral_inv hzero]
+    intervalIntegral.integral_comp_sub_left (fun t : ℝ ↦ t⁻¹), integral_inv hzero]
 
 /-- Regularization on a closed interval which avoids the pole. -/
 private theorem intervalIntegral_cauchy_real_decompose {ρ : ℝ → ℂ} {a b x : ℝ}
-    (hq : IntervalIntegrable (fun t : ℝ => (ρ t - ρ x) / ((x : ℂ) - t)) volume a b)
+    (hq : IntervalIntegrable (fun t : ℝ ↦ (ρ t - ρ x) / ((x : ℂ) - t)) volume a b)
     (hx : x ∉ uIcc a b) :
     (∫ t in a..b, ρ t * ((x : ℂ) - t)⁻¹) =
       (∫ t in a..b, (ρ t - ρ x) / ((x : ℂ) - t)) +
         ρ x * (Real.log ((x - a)/(x - b)) : ℂ) := by
-  have hk : ContinuousOn (fun t : ℝ => ((x : ℂ) - t)⁻¹) (uIcc a b) := by
+  have hk : ContinuousOn (fun t : ℝ ↦ ((x : ℂ) - t)⁻¹) (uIcc a b) := by
     apply ContinuousOn.inv₀ (by fun_prop)
     intro t ht hz
     have : x = t := ofReal_injective (sub_eq_zero.mp hz)
@@ -436,22 +436,26 @@ private theorem intervalIntegral_cauchy_real_decompose {ρ : ℝ → ℂ} {a b x
 truncations at the pole. Only the difference quotient needs to be integrable. -/
 theorem tendsto_intervalIntegral_cauchy_principalValue {ρ : ℝ → ℂ} {a b x : ℝ}
     (hx : x ∈ Ioo a b)
-    (hq : IntervalIntegrable (fun t : ℝ => (ρ t - ρ x) / ((x : ℂ) - t)) volume a b) :
-    Tendsto (fun c : ℝ =>
+    (hq : IntervalIntegrable (fun t : ℝ ↦ (ρ t - ρ x) / ((x : ℂ) - t)) volume a b) :
+    Tendsto (fun c : ℝ ↦
       (∫ t in a..x - c⁻¹, ρ t * ((x : ℂ) - t)⁻¹) +
       (∫ t in x + c⁻¹..b, ρ t * ((x : ℂ) - t)⁻¹)) atTop
       (𝓝 (cauchyPrincipalValue ρ a b x)) := by
-  let q : ℝ → ℂ := fun t => (ρ t - ρ x) / ((x : ℂ) - t)
+  let q : ℝ → ℂ := fun t ↦ (ρ t - ρ x) / ((x : ℂ) - t)
   have hab : a ≤ b := hx.1.le.trans hx.2.le
   have hxn : uIcc a b ∈ 𝓝 x := by
     rw [uIcc_of_le hab]
     exact Icc_mem_nhds hx.1 hx.2
   have hxc : x ∈ uIcc a b := by simpa [uIcc_of_le hab] using ⟨hx.1.le, hx.2.le⟩
-  have hl := ((intervalIntegral.continuousOn_primitive_interval' hq left_mem_uIcc) x hxc).continuousAt hxn
-  have hr := ((intervalIntegral.continuousOn_primitive_interval' hq right_mem_uIcc) x hxc).continuousAt hxn
-  have hv : Tendsto (fun c : ℝ => c⁻¹) atTop (𝓝 0) := tendsto_inv_atTop_zero
-  have hleft := hl.tendsto.comp (show Tendsto (fun c : ℝ => x - c⁻¹) atTop (𝓝 x) by simpa using hv.const_sub x)
-  have hright := (hr.tendsto.comp (show Tendsto (fun c : ℝ => x + c⁻¹) atTop (𝓝 x) by simpa using hv.const_add x)).neg
+  have hl := ((intervalIntegral.continuousOn_primitive_interval' hq left_mem_uIcc) x
+    hxc).continuousAt hxn
+  have hr := ((intervalIntegral.continuousOn_primitive_interval' hq right_mem_uIcc) x
+    hxc).continuousAt hxn
+  have hv : Tendsto (fun c : ℝ ↦ c⁻¹) atTop (𝓝 0) := tendsto_inv_atTop_zero
+  have hleft := hl.tendsto.comp
+    (show Tendsto (fun c : ℝ ↦ x - c⁻¹) atTop (𝓝 x) by simpa using hv.const_sub x)
+  have hright := (hr.tendsto.comp
+    (show Tendsto (fun c : ℝ ↦ x + c⁻¹) atTop (𝓝 x) by simpa using hv.const_add x)).neg
   simp only [Function.comp_def, ← intervalIntegral.integral_symm] at hleft hright
   have hi : (∫ t in a..x, q t) + (∫ t in x..b, q t) = ∫ t in a..b, q t := by
     apply intervalIntegral.integral_add_adjacent_intervals
@@ -495,8 +499,8 @@ Cauchy quotient integrable; no endpoint continuity is required. -/
 theorem intervalIntegrable_cauchyDifferenceQuotient_of_bound {ρ : ℝ → ℂ} {a b x δ L : ℝ}
     (hρ : IntervalIntegrable ρ volume a b) (hδ : 0 < δ) (hL : 0 ≤ L)
     (hlocal : ∀ t ∈ uIcc a b, |t - x| < δ → ‖ρ t - ρ x‖ ≤ L * |t - x|) :
-    IntervalIntegrable (fun t : ℝ => (ρ t - ρ x) / ((x : ℂ) - t)) volume a b := by
-  have hi : IntervalIntegrable (fun t => L + (‖ρ t‖ + ‖ρ x‖) / δ) volume a b :=
+    IntervalIntegrable (fun t : ℝ ↦ (ρ t - ρ x) / ((x : ℂ) - t)) volume a b := by
+  have hi : IntervalIntegrable (fun t ↦ L + (‖ρ t‖ + ‖ρ x‖) / δ) volume a b :=
     intervalIntegrable_const.add ((hρ.norm.add intervalIntegrable_const).div_const δ)
   apply hi.mono_fun'
   · exact (hρ.aestronglyMeasurable_restrict_uIoc.sub aestronglyMeasurable_const).div₀
@@ -520,7 +524,7 @@ theorem intervalIntegrable_cauchyDifferenceQuotient_of_bound {ρ : ℝ → ℂ} 
 of the regularized Cauchy quotient of an integrable density. -/
 theorem intervalIntegrable_cauchyDifferenceQuotient {ρ : ℝ → ℂ} {a b x : ℝ}
     (hρ : IntervalIntegrable ρ volume a b) (hd : DifferentiableAt ℝ ρ x) :
-    IntervalIntegrable (fun t : ℝ => (ρ t - ρ x) / ((x : ℂ) - t)) volume a b := by
+    IntervalIntegrable (fun t : ℝ ↦ (ρ t - ρ x) / ((x : ℂ) - t)) volume a b := by
   obtain ⟨C, hC⟩ := hd.isBigO_sub.bound
   obtain ⟨δ, hδ, hball⟩ := Metric.mem_nhds_iff.mp hC
   apply intervalIntegrable_cauchyDifferenceQuotient_of_bound hρ hδ (abs_nonneg C)

@@ -99,7 +99,8 @@ theorem tendstoUniformlyOn_sum_jacobiSecondKind (α β r s : ℂ) {a : ℕ → �
     TendstoUniformlyOn
       (fun N z => ∑ n ∈ Finset.range N, a n * jacobiSecondKind α β r s n z)
       (fun z => ∑' n, a n * jacobiSecondKind α β r s n z) atTop K := by
-  obtain ⟨M, hM, hbound⟩ := exists_summable_norm_mul_jacobiSecondKind α β r s hC hR hd hRd ha hK hdist
+  obtain ⟨M, hM, hbound⟩ :=
+      exists_summable_norm_mul_jacobiSecondKind α β r s hC hR hd hRd ha hK hdist
   exact tendstoUniformlyOn_tsum_nat hM hbound
 
 /-- On the same convergence region, the second-kind series is absolutely summable. -/
@@ -125,7 +126,8 @@ theorem tendstoLocallyUniformlyOn_sum_jacobiSecondKind (α β r s : ℂ) {a : �
   rw [tendstoLocallyUniformlyOn_iff_forall_isCompact hU]
   intro K hKU hK
   by_cases hne : K.Nonempty
-  · obtain ⟨z, hz, hmin⟩ := hK.exists_isMinOn hne (continuous_infDist_pt (segment ℝ r s)).continuousOn
+  · obtain ⟨z, hz, hmin⟩ := hK.exists_isMinOn hne
+        (continuous_infDist_pt (segment ℝ r s)).continuousOn
     have hd : R < infDist z (segment ℝ r s) := hKU hz
     apply tendstoUniformlyOn_sum_jacobiSecondKind α β r s hC hR (hR.trans_lt hd) hd ha hK
     intro w hw v hv

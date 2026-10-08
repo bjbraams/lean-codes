@@ -37,7 +37,8 @@ theorem regCarlsonL_single_one [DecidableEq ι] (t : ℂ) (i : ι) {z : ι → �
     funext s
     simp [regCarlsonR_single s 1 i hz]
   rw [he] at h
-  simpa only [mul_one, id_eq] using h.unique ((hasDerivAt_id t).const_cpow (Or.inl (Complex.slitPlane_ne_zero (hz i))))
+  simpa only [mul_one, id_eq]
+      using h.unique ((hasDerivAt_id t).const_cpow (Or.inl (Complex.slitPlane_ne_zero (hz i))))
 
 omit [Fintype ι] in
 /-- A unit shift of the zero concentration vector is a single unit parameter. -/

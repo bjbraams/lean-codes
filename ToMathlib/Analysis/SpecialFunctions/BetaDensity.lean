@@ -9,7 +9,6 @@ public import Mathlib.Probability.Distributions.Beta
 public import Mathlib.MeasureTheory.Function.LocallyIntegrable
 public import Mathlib.MeasureTheory.Integral.Bochner.Set
 public import Mathlib.Analysis.SpecialFunctions.Pow.Deriv
-public import Mathlib.Tactic
 public import TauCeti.Analysis.SpecialFunctions.Beta
 public import TauCeti.Probability.Distributions.Beta.Basic
 
@@ -73,14 +72,14 @@ Uses `TauCeti.Probability.integral_betaMeasure_eq` and
 `TauCeti.Probability.integral_id_betaMeasure`. -/
 theorem integral_mul_betaPDFReal {a b : ℝ} (ha : 0 < a) (hb : 0 < b) :
     (∫ u, u * betaPDFReal a b u) = a / (a + b) := by
-  have h := TauCeti.Probability.integral_betaMeasure_eq ha hb (fun u : ℝ => u)
+  have h := TauCeti.Probability.integral_betaMeasure_eq ha hb (fun u : ℝ ↦ u)
   rw [TauCeti.Probability.integral_id_betaMeasure ha hb] at h
   simpa only [smul_eq_mul, mul_comm] using h.symm
 
 /-- Continuous kernels on the closed unit interval are integrable against the beta density. -/
 theorem integrable_betaPDFReal_mul_of_continuousOn {a b : ℝ} (ha : 0 < a) (hb : 0 < b)
     {f : ℝ → ℝ} (hf : ContinuousOn f (Icc 0 1)) :
-    Integrable (fun u => betaPDFReal a b u * f u) := by
+    Integrable (fun u ↦ betaPDFReal a b u * f u) := by
   have h := (integrable_betaPDFReal ha hb).integrableOn.mul_continuousOn hf isCompact_Icc
   have h := (integrable_indicator_iff measurableSet_Icc).mpr h
   convert h using 1
@@ -88,7 +87,7 @@ theorem integrable_betaPDFReal_mul_of_continuousOn {a b : ℝ} (ha : 0 < a) (hb 
   by_cases hu : u ∈ Icc (0 : ℝ) 1
   · rw [indicator_of_mem hu]
   · rw [indicator_of_notMem hu]
-    have hn : ¬ (0 < u ∧ u < 1) := fun h => hu ⟨h.1.le, h.2.le⟩
+    have hn : ¬ (0 < u ∧ u < 1) := fun h ↦ hu ⟨h.1.le, h.2.le⟩
     simp only [betaPDFReal, hn, ↓reduceIte, zero_mul]
 
 /-- Increasing concentration multiplies the beta density by a positive-power kernel. -/

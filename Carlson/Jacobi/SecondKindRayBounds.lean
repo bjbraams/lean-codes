@@ -151,7 +151,8 @@ theorem summable_norm_mul_jacobiSecondKind_ofReal (α β : ℂ) {r s z : ℝ}
     Summable (fun n => ‖a n * jacobiSecondKind α β (r : ℂ) s n z‖) := by
   have hμ : 0 < jacobiEllipseRadius (r : ℂ) s z := hR.trans_lt hRμ
   apply summable_norm_mul_jacobiSecondKind_of_kernel_bound α β (r : ℂ) s
-    hC hR (sub_pos.mpr (max_lt hr hs)) (by positivity : 0 ≤ 1 / (4 * jacobiEllipseRadius (r : ℂ) s z))
+    hC hR (sub_pos.mpr (max_lt hr hs))
+        (by positivity : 0 ≤ 1 / (4 * jacobiEllipseRadius (r : ℂ) s z))
     ?_ ha (fun w hw => sub_max_le_norm_sub_of_mem_segment z hw) ?_
   · rw [show 4 * (R * (1 / (4 * jacobiEllipseRadius (r : ℂ) s z))) =
         R / jacobiEllipseRadius (r : ℂ) s z by ring, div_lt_one hμ]

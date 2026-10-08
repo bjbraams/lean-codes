@@ -27,11 +27,6 @@ to holomorphic functions on disks and entire functions on the plane.
   inside a disk for functions holomorphic on the disk.
 * `Complex.exists_polynomial_tendstoLocallyUniformlyOn`: locally uniform polynomial
   approximation of an entire function.
-
-## References
-
-* `Mathlib.Analysis.Complex.CauchyIntegral`: the power-series expansion of an entire function.
-* `Mathlib.Analysis.Analytic.Basic`: local uniform convergence of power-series partial sums.
 -/
 
 public noncomputable section
@@ -43,24 +38,25 @@ open scoped Topology NNReal ENNReal
 of complex polynomials. -/
 theorem exists_polynomial_tendstoLocallyUniformlyOn {f : ℂ → ℂ}
     (hf : Differentiable ℂ f) :
-    ∃ p : ℕ → ℂ[X], TendstoLocallyUniformlyOn (fun N z => (p N).eval z) f atTop univ := by
+    ∃ p : ℕ → ℂ[X], TendstoLocallyUniformlyOn (fun N z ↦ (p N).eval z) f atTop univ := by
   simpa only [Metric.eball_top] using
     (hf.hasFPowerSeriesOnBall 0 (R := 1) zero_lt_one).exists_polynomial_tendstoLocallyUniformlyOn
 
 /-- A function holomorphic on an open complex disk is the locally uniform limit of polynomials. -/
 theorem exists_polynomial_tendstoLocallyUniformlyOn_on_ball {f : ℂ → ℂ}
-    {c : ℂ} {ρ : ℝ≥0} (hρ : 0 < ρ)
-    (hf : DifferentiableOn ℂ f (Metric.ball c ρ)) :
-    ∃ p : ℕ → ℂ[X], TendstoLocallyUniformlyOn (fun N z => (p N).eval z) f atTop
+    {c : ℂ} {ρ : ℝ≥0} (hf : DifferentiableOn ℂ f (Metric.ball c ρ)) :
+    ∃ p : ℕ → ℂ[X], TendstoLocallyUniformlyOn (fun N z ↦ (p N).eval z) f atTop
       (Metric.ball c ρ) := by
+  rcases eq_zero_or_pos ρ with rfl | hρ
+  · exact ⟨0, fun u _ x hx ↦ by simp at hx⟩
   have hsmall (r : ℝ≥0) (hr : 0 < r) (hrρ : r < ρ) :=
     (hf.mono (Metric.closedBall_subset_ball (show (r : ℝ) < ρ from hrρ))).hasFPowerSeriesOnBall hr
   have h := hsmall (ρ / 2) (by positivity) (by exact div_lt_self hρ (by norm_num))
   have H : HasFPowerSeriesOnBall f (cauchyPowerSeries f c (ρ / 2)) c ρ :=
-    { r_le := ENNReal.le_of_forall_pos_nnreal_lt fun r hr hrρ =>
+    { r_le := ENNReal.le_of_forall_pos_nnreal_lt fun r hr hrρ ↦
         (h.exchange_radius (hsmall r hr (ENNReal.coe_lt_coe.mp hrρ))).r_le
       r_pos := ENNReal.coe_pos.mpr hρ
-      hasSum := fun {y} hy => by
+      hasSum := fun {y} hy ↦ by
         have hyρ : ‖y‖₊ < ρ := ENNReal.coe_lt_coe.mp (mem_eball_zero_iff.mp hy)
         obtain ⟨r, hyr, hrρ⟩ := exists_between hyρ
         exact (h.exchange_radius (hsmall r (lt_of_le_of_lt bot_le hyr) hrρ)).hasSum

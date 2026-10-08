@@ -196,7 +196,8 @@ theorem gegenbauer_addition_jacobi_of_real {ν : ℂ} (hν : 0 < ν.re) (n : ℕ
       iterate_derivative_gegenbauer_of_lt ν hm, zero_comp, mul_zero, map_zero, zero_div]
   set K := max (p.natDegree + 1) (n + 1)
   have hsum : ∑ m ∈ Finset.range (n + 1),
-      carlsonJacobiCoefficient (ν - 1) (ν - 1) (-1) 1 m p • jacobiOn (ν - 1) (ν - 1) (-1) 1 m = p := by
+      carlsonJacobiCoefficient (ν - 1) (ν - 1) (-1) 1 m p • jacobiOn (ν - 1) (ν - 1) (-1) 1 m =
+          p := by
     set f := fun m => carlsonJacobiCoefficient (ν - 1) (ν - 1) (-1) 1 m p •
       jacobiOn (ν - 1) (ν - 1) (-1) 1 m
     calc ∑ m ∈ Finset.range (n + 1), f m = ∑ m ∈ Finset.range K, f m :=
@@ -258,7 +259,8 @@ theorem gegenbauer_addition_of_re_pos {ν : ℂ} (hν : 0 < ν.re) (n : ℕ)
   have hA : ∀ φ' : ℂ, AnalyticOnNhd ℂ
       (fun θ' : ℂ => (gegenbauer ν n).eval (cos θ' * cos φ' + x * (sin θ' * sin φ'))) univ :=
     fun φ' => (by fun_prop : Differentiable ℂ fun θ' : ℂ =>
-      (gegenbauer ν n).eval (cos θ' * cos φ' + x * (sin θ' * sin φ'))).differentiableOn.analyticOnNhd
+      (gegenbauer ν n).eval
+          (cos θ' * cos φ' + x * (sin θ' * sin φ'))).differentiableOn.analyticOnNhd
       isOpen_univ
   have hB : ∀ φ' : ℂ, AnalyticOnNhd ℂ (fun θ' : ℂ => gegenbauerAdditionSum ν n θ' φ' x) univ :=
     fun φ' => (by unfold gegenbauerAdditionSum; fun_prop : Differentiable ℂ fun θ' : ℂ =>
@@ -266,7 +268,8 @@ theorem gegenbauer_addition_of_re_pos {ν : ℂ} (hν : 0 < ν.re) (n : ℕ)
   have hA' : ∀ θ' : ℂ, AnalyticOnNhd ℂ
       (fun φ' : ℂ => (gegenbauer ν n).eval (cos θ' * cos φ' + x * (sin θ' * sin φ'))) univ :=
     fun θ' => (by fun_prop : Differentiable ℂ fun φ' : ℂ =>
-      (gegenbauer ν n).eval (cos θ' * cos φ' + x * (sin θ' * sin φ'))).differentiableOn.analyticOnNhd
+      (gegenbauer ν n).eval
+          (cos θ' * cos φ' + x * (sin θ' * sin φ'))).differentiableOn.analyticOnNhd
       isOpen_univ
   have hB' : ∀ θ' : ℂ, AnalyticOnNhd ℂ (fun φ' : ℂ => gegenbauerAdditionSum ν n θ' φ' x) univ :=
     fun θ' => (by unfold gegenbauerAdditionSum; fun_prop : Differentiable ℂ fun φ' : ℂ =>
@@ -321,7 +324,8 @@ theorem gegenbauer_addition (n : ℕ) {ν : ℂ}
               simp only [eval_comp, eval_finsetSum, eval_mul, eval_C, eval_pow, eval_X]
               fun_prop : Continuous fun ν : ℂ => (gegenbauer (ν + m) (n - m)).eval 1)
   have hconn : IsPreconnected Sᶜ :=
-    (hS.isPathConnected_compl_of_one_lt_rank (by rw [Complex.rank_real_complex]; norm_num)).isConnected.isPreconnected
+    (hS.isPathConnected_compl_of_one_lt_rank
+        (by rw [Complex.rank_real_complex]; norm_num)).isConnected.isPreconnected
   have hmem : ∀ μ ∈ Sᶜ, ∀ m ≤ n, (ascPochhammer ℂ m).eval (μ - 1 / 2) ≠ 0 ∧
       (gegenbauer (μ + m) (n - m)).eval 1 ≠ 0 := by
     intro μ hμ m hm
@@ -332,7 +336,8 @@ theorem gegenbauer_addition (n : ℕ) {ν : ℂ}
     (by unfold gegenbauer shiftedGegenbauer
         simp only [eval_comp, eval_finsetSum, eval_mul, eval_C, eval_pow, eval_X]
         fun_prop : Differentiable ℂ fun μ : ℂ =>
-          (gegenbauer μ n).eval (cos θ * cos φ + x * (sin θ * sin φ))).differentiableOn.analyticOnNhd
+          (gegenbauer μ n).eval
+              (cos θ * cos φ + x * (sin θ * sin φ))).differentiableOn.analyticOnNhd
       hU
   have hR : AnalyticOnNhd ℂ (fun μ : ℂ => gegenbauerAdditionSum μ n θ φ x) Sᶜ := by
     refine DifferentiableOn.analyticOnNhd ?_ hU
@@ -382,17 +387,21 @@ theorem gegenbauer_addition_jacobi {ν : ℂ} (hν : 0 < ν.re) (n : ℕ) (θ φ
   have hA : ∀ φ' : ℂ, AnalyticOnNhd ℂ
       (fun θ' : ℂ => (gegenbauer ν n).eval (cos θ' * cos φ' + x * (sin θ' * sin φ'))) univ :=
     fun φ' => (by fun_prop : Differentiable ℂ fun θ' : ℂ =>
-      (gegenbauer ν n).eval (cos θ' * cos φ' + x * (sin θ' * sin φ'))).differentiableOn.analyticOnNhd
+      (gegenbauer ν n).eval
+          (cos θ' * cos φ' + x * (sin θ' * sin φ'))).differentiableOn.analyticOnNhd
       isOpen_univ
-  have hB : ∀ φ' : ℂ, AnalyticOnNhd ℂ (fun θ' : ℂ => gegenbauerAdditionJacobiSum ν n θ' φ' x) univ :=
+  have hB : ∀ φ' : ℂ,
+      AnalyticOnNhd ℂ (fun θ' : ℂ => gegenbauerAdditionJacobiSum ν n θ' φ' x) univ :=
     fun φ' => (by unfold gegenbauerAdditionJacobiSum; fun_prop : Differentiable ℂ fun θ' : ℂ =>
       gegenbauerAdditionJacobiSum ν n θ' φ' x).differentiableOn.analyticOnNhd isOpen_univ
   have hA' : ∀ θ' : ℂ, AnalyticOnNhd ℂ
       (fun φ' : ℂ => (gegenbauer ν n).eval (cos θ' * cos φ' + x * (sin θ' * sin φ'))) univ :=
     fun θ' => (by fun_prop : Differentiable ℂ fun φ' : ℂ =>
-      (gegenbauer ν n).eval (cos θ' * cos φ' + x * (sin θ' * sin φ'))).differentiableOn.analyticOnNhd
+      (gegenbauer ν n).eval
+          (cos θ' * cos φ' + x * (sin θ' * sin φ'))).differentiableOn.analyticOnNhd
       isOpen_univ
-  have hB' : ∀ θ' : ℂ, AnalyticOnNhd ℂ (fun φ' : ℂ => gegenbauerAdditionJacobiSum ν n θ' φ' x) univ :=
+  have hB' : ∀ θ' : ℂ,
+      AnalyticOnNhd ℂ (fun φ' : ℂ => gegenbauerAdditionJacobiSum ν n θ' φ' x) univ :=
     fun θ' => (by unfold gegenbauerAdditionJacobiSum; fun_prop : Differentiable ℂ fun φ' : ℂ =>
       gegenbauerAdditionJacobiSum ν n θ' φ' x).differentiableOn.analyticOnNhd isOpen_univ
   have hθ : ∀ φr : ℝ, ∀ θ' : ℂ, (gegenbauer ν n).eval (cos θ' * cos (φr : ℂ) +
@@ -441,7 +450,8 @@ theorem legendre_addition (n : ℕ) (θ φ ψ : ℂ) :
   -- Chebyshev evaluation of the Jacobi polynomial at `α = β = -1/2`
   have hP : (ascPochhammer ℂ m).eval ((1 / 2 - 1 : ℂ) + (1 / 2 - 1) + m + 1) ≠ 0 := by
     rw [show (1 / 2 - 1 + (1 / 2 - 1) + m + 1 : ℂ) = m by ring]
-    exact Complex.ascPochhammer_eval_ne_zero_of_re_pos (by simp; exact_mod_cast Nat.pos_of_ne_zero hm0) m
+    exact Complex.ascPochhammer_eval_ne_zero_of_re_pos
+        (by simp; exact_mod_cast Nat.pos_of_ne_zero hm0) m
   have hJ := eval_jacobiOn_affine_monicJacobi (1 / 2 - 1 : ℂ) (1 / 2 - 1) 0 1 (cos ψ) m hP
   simp only [zero_sub, zero_add, one_mul, one_pow] at hJ
   rw [show (1 / 2 - 1 : ℂ) = -1 / 2 by norm_num] at hJ

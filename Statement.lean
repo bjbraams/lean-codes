@@ -114,14 +114,16 @@ theorem holomorphic_analytic {E F : Type*} [NormedAddCommGroup E] [NormedSpace �
     AnalyticOnNhd ℂ f U := by
   sorry
 
-/-- Joint continuity and separate holomorphy imply joint analyticity (not Hartogs without continuity). -/
+/-- Joint continuity and separate holomorphy imply joint analyticity (not Hartogs without
+continuity). -/
 theorem osgood {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
     {U : Set (ι → ℂ)} {f : (ι → ℂ) → F} (hU : IsOpen U) (hc : ContinuousOn f U)
     (hf : ∀ z ∈ U, ∀ i, AnalyticAt ℂ (fun w => f (Function.update z i w)) (z i)) :
     AnalyticOnNhd ℂ f U := by
   sorry
 
-/-- Cauchy's formula for every derivative at any interior point, requiring only boundary continuity. -/
+/-- Cauchy's formula for every derivative at any interior point, requiring only boundary
+continuity. -/
 theorem cauchy_derivatives {c : ℂ} {r : ℝ} {f : ℂ → ℂ} (hf : DiffContOnCl ℂ f (Metric.ball c r))
     (hr : 0 < r) (n : ℕ) {w : ℂ} (hw : w ∈ Metric.ball c r) :
     iteratedDeriv n f w = (n.factorial : ℂ) * (2 * (Real.pi : ℂ) * I)⁻¹ *
@@ -190,7 +192,8 @@ def regR {ι : Type*} [Fintype ι] (t : ℂ) (b z : ι → ℂ) : ℂ := by sorr
 /-- Gamma-regularized Carlson L is the exponent derivative of the same R-function. -/
 abbrev regL (t : ℂ) (b z : ι → ℂ) : ℂ := deriv (fun s => regR s b z) t
 
-/-- Carlson 6.8-2: joint holomorphy in all exponents, all Dirichlet parameters, and slit-plane nodes. -/
+/-- Carlson 6.8-2: joint holomorphy in all exponents, all Dirichlet parameters, and slit-plane
+nodes. -/
 theorem r_joint :
     AnalyticOnNhd ℂ (fun p : Option (ι ⊕ ι) → ℂ =>
       regR (p none) (fun i => p (some (.inl i))) (fun i => p (some (.inr i))))
@@ -214,21 +217,24 @@ theorem r_euler_poisson (t : ℂ) (b : ι → ℂ) {z : ι → ℂ} (hz : ∀ i,
       b i * coordDeriv j (regR t b) z - b j * coordDeriv i (regR t b) z = 0 := by
   sorry
 
-/-- First quadratic transformation (6.9): all t, beta, with positive-real-part unsquared variables. -/
+/-- First quadratic transformation (6.9): all t, beta, with positive-real-part unsquared
+variables. -/
 theorem r_first_quadratic (t β x y : ℂ) (hx : 0 < x.re) (hy : 0 < y.re) :
     regR (2 * t) ![β, β] ![x, y] =
       ((2 : ℂ) ^ (1 - 2 * β) * (Real.sqrt Real.pi : ℂ) * (Gamma β)⁻¹) *
         regR t ![β + t, 1 / 2 - t] ![((x + y) / 2) ^ 2, x * y] := by
   sorry
 
-/-- Second quadratic transformation (6.10): squared and transformed nodes need not have positive real parts. -/
+/-- Second quadratic transformation (6.10): squared and transformed nodes need not have positive
+real parts. -/
 theorem r_second_quadratic (t β x y : ℂ) (hx : 0 < x.re) (hy : 0 < y.re) :
     regR t ![β, β] ![x ^ 2, y ^ 2] =
       ((2 : ℂ) ^ (1 - 2 * β) * (Real.sqrt Real.pi : ℂ) * (Gamma β)⁻¹) *
         regR t ![2 * β + t, 1 / 2 - β - t] ![((x + y) / 2) ^ 2, x * y] := by
   sorry
 
-/-- Carlson 1987, (2.1): L is jointly holomorphic on the same full parameter and slit-node domain. -/
+/-- Carlson 1987, (2.1): L is jointly holomorphic on the same full parameter and slit-node
+domain. -/
 theorem l_joint :
     AnalyticOnNhd ℂ (fun p : Option (ι ⊕ ι) → ℂ =>
       regL (p none) (fun i => p (some (.inl i))) (fun i => p (some (.inr i))))

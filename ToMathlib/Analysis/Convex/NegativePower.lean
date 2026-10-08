@@ -20,7 +20,7 @@ namespace Real
 
 /-- Negative powers are strictly convex on the positive half-line. -/
 theorem strictConvexOn_rpow_of_neg {t : ℝ} (ht : t < 0) :
-    StrictConvexOn ℝ (Ioi 0) (fun x : ℝ => x ^ t) := by
+    StrictConvexOn ℝ (Ioi 0) (fun x : ℝ ↦ x ^ t) := by
   refine ⟨convex_Ioi 0, ?_⟩
   intro x hx y hy hxy a b ha hb hab
   have hp : 0 < a • x + b • y := (convex_Ioi (0 : ℝ)) hx hy ha.le hb.le hab
@@ -36,7 +36,7 @@ theorem strictConvexOn_rpow_of_neg {t : ℝ} (ht : t < 0) :
 
 /-- Nonpositive powers are convex on the positive half-line. -/
 theorem convexOn_rpow_of_nonpos {t : ℝ} (ht : t ≤ 0) :
-    ConvexOn ℝ (Ioi 0) (fun x : ℝ => x ^ t) := by
+    ConvexOn ℝ (Ioi 0) (fun x : ℝ ↦ x ^ t) := by
   rcases ht.eq_or_lt with h | h
   · subst t; simpa using convexOn_const (c := (1 : ℝ)) (convex_Ioi (0 : ℝ))
   · exact (strictConvexOn_rpow_of_neg h).convexOn

@@ -74,7 +74,8 @@ theorem tendsto_carlsonMeanReal_order_atTop {b x : ι → ℝ}
       Real.rpow_rpow_inv hr0.le ht.ne', ← carlsonMeanReal_eq_rpow ht.ne' hb hx] using h
   · intro a ha
     exact Eventually.of_forall fun t =>
-      ((carlsonMeanReal_bounds t hb (hx i) (fun j => hi.trans_le (Finite.ciInf_le x j)) (fun i => Finite.le_ciSup x i)).2).trans_lt ha
+      ((carlsonMeanReal_bounds t hb (hx i) (fun j => hi.trans_le (Finite.ciInf_le x j))
+          (fun i => Finite.le_ciSup x i)).2).trans_lt ha
 
 /-- The hypergeometric mean tends to the smallest node as its order tends to minus infinity. -/
 theorem tendsto_carlsonMeanReal_order_atBot {b x : ι → ℝ}

@@ -69,7 +69,8 @@ theorem integral_mul_shiftedJacobi_eq_zero_nat (a b n : ℕ) (p : ℝ[X])
     (∫ x in (0 : ℝ)..1,
       p.eval x * (shiftedJacobi (a : ℝ) b n).eval x * x ^ a * (1 - x) ^ b) = 0 := by
   simpa only [shiftedJacobiWeight, Real.rpow_natCast, mul_comm, mul_left_comm, mul_assoc] using
-    integral_mul_shiftedJacobi_eq_zero (lt_of_lt_of_le (by norm_num : (-1 : ℝ) < 0) (Nat.cast_nonneg a))
+    integral_mul_shiftedJacobi_eq_zero
+        (lt_of_lt_of_le (by norm_num : (-1 : ℝ) < 0) (Nat.cast_nonneg a))
       (lt_of_lt_of_le (by norm_num : (-1 : ℝ) < 0) (Nat.cast_nonneg b)) n p hp
 
 /-- Pairwise weighted orthogonality of shifted Jacobi polynomials at nonnegative

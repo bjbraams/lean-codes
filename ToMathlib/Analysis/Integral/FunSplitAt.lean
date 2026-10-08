@@ -25,18 +25,15 @@ measure on the remaining coordinates, through `Homeomorph.funSplitAt`.
 
 namespace MeasureTheory
 
-universe u
+variable {ι : Type*} [Fintype ι] [DecidableEq ι]
 
-variable {ι : Type u} [Fintype ι]
-
-open scoped Classical in
 /-- Splitting one coordinate from a finite real coordinate space preserves product Lebesgue
 measure. -/
 theorem volume_preserving_funSplitAt (i : ι) :
     MeasurePreserving (Homeomorph.funSplitAt ℝ i) volume (volume.prod volume) := by
   let eidx : Unit ⊕ {j : ι // j ≠ i} ≃ ι :=
-    { toFun := fun q => Sum.elim (fun _ => i) Subtype.val q
-      invFun := fun j => if h : j = i then Sum.inl () else Sum.inr ⟨j, h⟩
+    { toFun := fun q ↦ Sum.elim (fun _ ↦ i) Subtype.val q
+      invFun := fun j ↦ if h : j = i then Sum.inl () else Sum.inr ⟨j, h⟩
       left_inv := by
         rintro (_ | j)
         · simp
@@ -47,14 +44,14 @@ theorem volume_preserving_funSplitAt (i : ι) :
         split_ifs with h
         · exact h.symm
         · rfl }
-  let ec := MeasurableEquiv.piCongrLeft (fun _ : ι => ℝ) eidx
-  let es := MeasurableEquiv.sumPiEquivProdPi (fun _ : Unit ⊕ {j : ι // j ≠ i} => ℝ)
+  let ec := MeasurableEquiv.piCongrLeft (fun _ : ι ↦ ℝ) eidx
+  let es := MeasurableEquiv.sumPiEquivProdPi (fun _ : Unit ⊕ {j : ι // j ≠ i} ↦ ℝ)
   let eu := MeasurableEquiv.prodCongr
     (MeasurableEquiv.funUnique Unit ℝ)
     (MeasurableEquiv.refl ({j : ι // j ≠ i} → ℝ))
-  have hc := (volume_measurePreserving_piCongrLeft (fun _ : ι => ℝ) eidx).symm
+  have hc := (volume_measurePreserving_piCongrLeft (fun _ : ι ↦ ℝ) eidx).symm
   have hs := volume_measurePreserving_sumPiEquivProdPi
-    (fun _ : Unit ⊕ {j : ι // j ≠ i} => ℝ)
+    (fun _ : Unit ⊕ {j : ι // j ≠ i} ↦ ℝ)
   have hu : MeasurePreserving eu volume (volume.prod volume) := by
     rw [Measure.volume_eq_prod]
     exact (volume_preserving_funUnique Unit ℝ).prod (MeasurePreserving.id volume)

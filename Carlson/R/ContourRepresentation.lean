@@ -110,7 +110,8 @@ segment product with parameters `(a, c - a)` at the nodes `1, 0` (Carlson (6.8-2
 theorem regCarlsonR_neg_eq_regCarlsonDirichletAverage {a : ℂ} {b z : ι → ℂ}
     (ha : 0 < a.re) (hca : 0 < (∑ i, b i - a).re) (hz : z ∈ carlsonRSlitDomain) :
     regCarlsonR (-a) b z =
-      regCarlsonDirichletAverage (pair a (∑ i, b i - a)) (pair 1 0) (carlsonSegmentProduct b z) := by
+      regCarlsonDirichletAverage (pair a (∑ i, b i - a)) (pair 1 0)
+          (carlsonSegmentProduct b z) := by
   rw [regCarlsonR_eq_unitIntervalIntegral (by simpa using ha)
     (by rw [← sub_eq_add_neg]; exact hca) hz, regCarlsonDirichletAverage_pair_eq,
     regEulerIntegral, neg_neg, ← sub_eq_add_neg, carlsonRUnitIntervalIntegral]
@@ -168,7 +169,8 @@ theorem regCarlsonR_neg_eq_cycleIntegral [Nonempty ι] (a : ℂ) (b : ι → ℂ
   set W : Set (E × ℂ) := {q | (q.2, pair (1 : ℂ) 0) ∈ carlsonResolventDomain ∧
     q.2 ∈ carlsonSegmentDomain z}
   have hH : AnalyticOnNhd ℂ (fun q : E × ℂ => continuedRegCarlsonResolvent 0
-      (pair q.1.1 (∑ i, q.1.2 i - q.1.1)) (pair 1 0) q.2 * carlsonSegmentProduct q.1.2 z q.2) W := by
+      (pair q.1.1 (∑ i, q.1.2 i - q.1.1)) (pair 1 0) q.2 * carlsonSegmentProduct q.1.2 z q.2)
+          W := by
     intro q hq
     have ha : AnalyticAt ℂ (fun q : E × ℂ => q.1.1) q :=
       ((ContinuousLinearMap.fst ℂ ℂ (ι → ℂ)).comp (ContinuousLinearMap.fst ℂ E ℂ)).analyticAt q

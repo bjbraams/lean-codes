@@ -49,7 +49,8 @@ theorem integral_dirichletMeasure_concentration_abs_coordinate_le {c : ℝ} (hc 
       (dirichletMeasure (fun j => c * w j)))
   simpa only [norm_one, mul_one, Real.norm_eq_abs, Real.rpow_two, sq_abs,
     integral_const, probReal_univ, smul_eq_mul, one_mul, one_pow, Real.one_rpow,
-    integral_dirichletMeasure_concentration_coordinate_sq hc hw hw1 i, ← Real.sqrt_eq_rpow, Real.sqrt_one, mul_one] using h
+    integral_dirichletMeasure_concentration_coordinate_sq hc hw hw1 i, ← Real.sqrt_eq_rpow,
+        Real.sqrt_one, mul_one] using h
 
 /-- Each coordinate's mean absolute deviation tends to zero at large concentration. -/
 theorem tendsto_integral_dirichletMeasure_abs_coordinate {w : ι → ℝ}
@@ -60,7 +61,8 @@ theorem tendsto_integral_dirichletMeasure_abs_coordinate {w : ι → ℝ}
     tendsto_const_nhds.div_atTop (tendsto_atTop_add_const_right atTop 1 tendsto_id)
   have hs := Real.continuous_sqrt.continuousAt.tendsto.comp h
   rw [Real.sqrt_zero] at hs
-  apply squeeze_zero' (Filter.Eventually.of_forall (fun _ => integral_nonneg (fun _ => abs_nonneg _)))
+  apply squeeze_zero'
+      (Filter.Eventually.of_forall (fun _ => integral_nonneg (fun _ => abs_nonneg _)))
     _ hs
   filter_upwards [eventually_gt_atTop (0 : ℝ)] with c hc
   exact integral_dirichletMeasure_concentration_abs_coordinate_le hc hw hw1 i

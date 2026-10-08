@@ -84,12 +84,14 @@ theorem carlsonCapDelta_regCarlsonDirichletAverage {Ω : Set ℂ} (hΩopen : IsO
   set K := Convexity.StdSimplex.coordinateSet ℝ ι
   have hK : ∀ u ∈ K, carlsonAffineForm z u ∈ Ω := fun u hu =>
     convexHull_min hz hΩconv (carlsonAffineForm_mem_convexHull z hu)
-  have hcont : ∀ g : ℂ → ℂ, ContinuousOn g Ω → ContinuousOn (fun u => g (carlsonAffineForm z u)) K :=
+  have hcont : ∀ g : ℂ → ℂ,
+      ContinuousOn g Ω → ContinuousOn (fun u => g (carlsonAffineForm z u)) K :=
     fun g hg => hg.comp (continuous_carlsonAffineForm z).continuousOn hK
   have hfc : ContinuousOn f Ω := hf.continuousOn
   have hf'c : ContinuousOn (deriv f) Ω := (hf.deriv_of_isOpen hΩopen).continuousOn
   have hint : ∀ g : (ι → ℝ) → ℂ, ContinuousOn g K →
-      IntegrableOn (fun u => regDirichletDensity b u * g u) K MeasureTheory.Measure.stdSimplexMeasure :=
+      IntegrableOn
+          (fun u => regDirichletDensity b u * g u) K MeasureTheory.Measure.stdSimplexMeasure :=
     fun g hg => integrableOn_regDirichletDensity_mul b hb hg
   unfold carlsonCapDelta
   simp only [carlsonPartialDeriv,

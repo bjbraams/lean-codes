@@ -30,16 +30,16 @@ theorem norm_Gamma_le_Gamma_re {s : ℂ} (hs : 0 < s.re) : ‖Gamma s‖ ≤ Rea
   have hG : ‖Gamma (s.re : ℂ)‖ = Real.Gamma s.re := by
     rw [Gamma_ofReal, norm_real, Real.norm_of_nonneg (Real.Gamma_pos_of_pos hs).le]
   rw [← hG]
-  have hcast : ∀ j : ℕ, (s.re : ℂ) + j = ((s.re + j : ℝ) : ℂ) := fun j => by push_cast; ring
+  have hcast : ∀ j : ℕ, (s.re : ℂ) + j = ((s.re + j : ℝ) : ℂ) := fun j ↦ by push_cast; ring
   refine le_of_tendsto_of_tendsto (GammaSeq_tendsto_Gamma s).norm
-    (GammaSeq_tendsto_Gamma (s.re : ℂ)).norm ((eventually_ge_atTop 1).mono fun n hn => ?_)
+    (GammaSeq_tendsto_Gamma (s.re : ℂ)).norm ((eventually_ge_atTop 1).mono fun n hn ↦ ?_)
   simp only
   rw [norm_GammaSeq _ (by omega), norm_GammaSeq _ (by omega), ofReal_re]
-  have hpos : ∀ j ∈ range (n + 1), 0 < ‖(s.re : ℂ) + j‖ := fun j _ => by
+  have hpos : ∀ j ∈ range (n + 1), 0 < ‖(s.re : ℂ) + j‖ := fun j _ ↦ by
     rw [hcast, Complex.norm_real, Real.norm_eq_abs]
     exact abs_pos.mpr (by positivity)
   refine div_le_div_of_nonneg_left (by positivity) (prod_pos hpos)
-    (prod_le_prod₀ (fun j hj => (hpos j hj).le) fun j _ => ?_)
+    (prod_le_prod₀ (fun j hj ↦ (hpos j hj).le) fun j _ ↦ ?_)
   rw [hcast, Complex.norm_real, Real.norm_eq_abs, abs_of_pos (by positivity)]
   calc s.re + j = (s + j).re := by simp
     _ ≤ ‖s + j‖ := re_le_norm _
@@ -77,7 +77,7 @@ theorem Gamma_add_div_Gamma_le {x y r : ℝ} (hx : 0 < x) (hxy : x ≤ y) (hr : 
   · exact le_rfl
   set f := Real.log ∘ Gamma
   have hc := convexOn_log_Gamma
-  have hmem : ∀ {t : ℝ}, 0 < t → t ∈ Set.Ioi (0 : ℝ) := fun ht => ht
+  have hmem : ∀ {t : ℝ}, 0 < t → t ∈ Set.Ioi (0 : ℝ) := fun ht ↦ ht
   -- slope over `[x, x + r]` ≤ slope over `[x, y + r]` ≤ slope over `[y, y + r]`
   have s1 := hc.secant_mono (a := x) (x := x + r) (y := y + r) (hmem hx) (hmem (by linarith))
     (hmem (by linarith)) (by linarith) (by linarith) (by linarith)
@@ -93,7 +93,7 @@ theorem Gamma_add_div_Gamma_le {x y r : ℝ} (hx : 0 < x) (hxy : x ≤ y) (hr : 
     have := s1.trans (e1 ▸ s2)
     rwa [div_le_div_iff_of_pos_right hr] at this
   simp only [f, Function.comp_apply] at hkey
-  have hp : ∀ {t : ℝ}, 0 < t → 0 < Gamma t := fun ht => Gamma_pos_of_pos ht
+  have hp : ∀ {t : ℝ}, 0 < t → 0 < Gamma t := fun ht ↦ Gamma_pos_of_pos ht
   rw [div_le_div_iff₀ (hp hx) (hp hy), ← Real.log_le_log_iff (by
     exact mul_pos (hp (by linarith)) (hp hy)) (mul_pos (hp (by linarith)) (hp hx)),
     Real.log_mul (hp (by linarith)).ne' (hp hy).ne', Real.log_mul (hp (by linarith)).ne'

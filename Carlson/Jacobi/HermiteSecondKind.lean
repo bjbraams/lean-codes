@@ -227,7 +227,8 @@ theorem regCarlsonDirichletAverage_pair_mul_zpow (p q c y₁ y₂ : ℂ) (m : �
         (fun w => w ^ m) =
       c ^ m * regCarlsonDirichletAverage (TwoVariable.pair p q) (TwoVariable.pair y₁ y₂)
         (fun w => w ^ m) := by
-  rw [TwoVariable.regCarlsonDirichletAverage_pair_eq, TwoVariable.regCarlsonDirichletAverage_pair_eq,
+  rw [TwoVariable.regCarlsonDirichletAverage_pair_eq,
+      TwoVariable.regCarlsonDirichletAverage_pair_eq,
     Dirichlet.regEulerIntegral, Dirichlet.regEulerIntegral, ← MeasureTheory.integral_const_mul,
     ← MeasureTheory.integral_const_mul, ← MeasureTheory.integral_const_mul]
   congr 1; funext u

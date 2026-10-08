@@ -151,7 +151,8 @@ theorem factorial_mul_integral_cauchyKernel {U : Set ℂ} (hU : IsOpen U) (hΓ :
     have h2 := Γ.isOpen_compl_range.mem_nhds hζΓ
     have h3 := (Γ.isOpen_setOf_index_eq hΓ m).mem_nhds ⟨hζΓ, rfl⟩
     filter_upwards [h1, h2, h3] with ξ a b c using ⟨a, b, c.2⟩
-  have he : Γ.cauchyKernelIntegral f 0 =ᶠ[𝓝 ζ] fun ξ ↦ (2 * (Real.pi : ℂ) * Complex.I * m) * f ξ := by
+  have he : Γ.cauchyKernelIntegral f 0 =ᶠ[𝓝 ζ] fun ξ ↦ (2 * (Real.pi : ℂ) * Complex.I * m) *
+      f ξ := by
     filter_upwards [hW] with ξ ⟨hξU, hξΓ, hξm⟩
     have h := Γ.integral_sub_inv_smul_eq_index_smul hU hΓ hΓU hind hf hξU hξΓ
     rw [hξm, smul_eq_mul] at h

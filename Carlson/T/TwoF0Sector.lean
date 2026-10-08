@@ -301,7 +301,8 @@ theorem analyticOnNhd_twoF0DoubleRot (n : ℕ) :
         _ = _ := by ring
 
 /-- Along the unrotated rays the rotated integral is Carlson's remainder integral. -/
-theorem twoF0DoubleRot_one (n : ℕ) (α β x : ℂ) : twoF0DoubleRot n α β x 1 = twoF0Double n α β x := by
+theorem twoF0DoubleRot_one (n : ℕ) (α β x : ℂ) : twoF0DoubleRot n α β x 1 =
+    twoF0Double n α β x := by
   simp [twoF0DoubleRot, twoF0Double, twoF0RotIntegrand, twoF0Integrand, eulerDensity]
 
 /-- **Radial invariance**: scaling the direction by a positive factor does not change the rotated
@@ -358,7 +359,8 @@ theorem deriv_twoF0DoubleRot_dir (n : ℕ) {α β x w : ℂ}
     have hg1 : HasDerivAt g (deriv g w) (1 * w) := by rwa [one_mul]
     exact hg1.comp (1 : ℂ) (hasDerivAt_mul_const w)
   have hr : HasDerivAt (fun y : ℝ => g ((y : ℂ) * w)) (deriv g w * w) 1 :=
-    (by simpa using he : HasDerivAt (fun u : ℂ => g (u * w)) (deriv g w * w) ((1 : ℝ) : ℂ)).comp_ofReal
+    (by simpa using he : HasDerivAt (fun u : ℂ => g (u * w)) (deriv g w * w)
+        ((1 : ℝ) : ℂ)).comp_ofReal
   have hc : HasDerivAt (fun y : ℝ => g ((y : ℂ) * w)) 0 1 := by
     apply (hasDerivAt_const (1 : ℝ) (g w)).congr_of_eventuallyEq
     filter_upwards [lt_mem_nhds (show (0 : ℝ) < 1 by norm_num)] with y hy
@@ -400,7 +402,8 @@ theorem mem_twoF0RotDomain_of_mem_twoF0Angles (n : ℕ) {α β ζ : ℂ} (hα : 
 for all admissible directions. -/
 theorem twoF0DoubleRot_angle_eq (n : ℕ) {α β ζ : ℂ} (hα : 0 < (α + n).re)
     (hβ : 0 < (β + n).re) {θ₁ θ₂ : ℝ} (h₁ : θ₁ ∈ twoF0Angles ζ.im) (h₂ : θ₂ ∈ twoF0Angles ζ.im) :
-    twoF0DoubleRot n α β (-exp ζ) (exp (θ₁ * I)) = twoF0DoubleRot n α β (-exp ζ) (exp (θ₂ * I)) := by
+    twoF0DoubleRot n α β (-exp ζ) (exp (θ₁ * I)) =
+        twoF0DoubleRot n α β (-exp ζ) (exp (θ₂ * I)) := by
   set h : ℝ → ℂ := fun θ => twoF0DoubleRot n α β (-exp ζ) (exp (θ * I))
   have hopen : IsOpen (twoF0Angles ζ.im) := by
     rw [twoF0Angles_eq]; exact isOpen_Ioo.inter isOpen_Ioo
@@ -415,7 +418,8 @@ theorem twoF0DoubleRot_angle_eq (n : ℕ) {α β ζ : ℂ} (hα : 0 < (α + n).r
       simpa using ((hasDerivAt_id (θ : ℂ)).mul_const I).cexp
     have := (hg.comp (θ : ℂ) he).comp_ofReal
     simpa using this
-  exact hopen.is_const_of_deriv_eq_zero hconn (fun θ hθ => (hd θ hθ).differentiableAt.differentiableWithinAt)
+  exact hopen.is_const_of_deriv_eq_zero hconn
+      (fun θ hθ => (hd θ hθ).differentiableAt.differentiableWithinAt)
     (fun θ hθ => (hd θ hθ).deriv) h₁ h₂
 
 /-! ### The continuation to the sector `|ph(-x)| < 3π/2` -/
@@ -489,8 +493,10 @@ theorem isPreconnected_twoF0Strip (θ : ℝ) :
 theorem twoF0RepRot_eq_of_le {n k : ℕ} {α β ζ : ℂ} (hα : 0 < (α + n).re) (hβ : 0 < (β + n).re)
     {θ : ℝ} (hθ : θ ∈ twoF0Angles ζ.im) :
     twoF0RepRot n α β (-exp ζ) (exp (θ * I)) = twoF0RepRot (n + k) α β (-exp ζ) (exp (θ * I)) := by
-  have hαk : 0 < (α + ((n + k : ℕ) : ℂ)).re := by push_cast; simp only [add_re, natCast_re] at hα ⊢; linarith [(Nat.cast_nonneg k : (0 : ℝ) ≤ k)]
-  have hβk : 0 < (β + ((n + k : ℕ) : ℂ)).re := by push_cast; simp only [add_re, natCast_re] at hβ ⊢; linarith [(Nat.cast_nonneg k : (0 : ℝ) ≤ k)]
+  have hαk : 0 < (α + ((n + k : ℕ) : ℂ)).re := by
+    push_cast; simp only [add_re, natCast_re] at hα ⊢; linarith [(Nat.cast_nonneg k : (0 : ℝ) ≤ k)]
+  have hβk : 0 < (β + ((n + k : ℕ) : ℂ)).re := by
+    push_cast; simp only [add_re, natCast_re] at hβ ⊢; linarith [(Nat.cast_nonneg k : (0 : ℝ) ≤ k)]
   have hθ' : |θ| < π / 2 := hθ.1
   set S : Set ℂ := {ζ : ℂ | |2 * θ + ζ.im| < π / 2}
   have hSo : IsOpen S := isOpen_lt (by fun_prop) continuous_const
@@ -601,7 +607,8 @@ theorem analyticOnNhd_carlson2F0Sector :
   have c3 : Continuous fun q : ℂ × ℂ × ℂ => |q.2.2.im| := by fun_prop
   have c4 : Continuous fun q : ℂ × ℂ × ℂ => |2 * θ + q.2.2.im| := by fun_prop
   filter_upwards [c1.continuousAt.eventually_const_lt hα, c2.continuousAt.eventually_const_lt hβ,
-    c3.continuousAt.eventually_lt_const hp, c4.continuousAt.eventually_lt_const hθ.2] with q h1 h2 h3 h4
+    c3.continuousAt.eventually_lt_const hp, c4.continuousAt.eventually_lt_const hθ.2]
+        with q h1 h2 h3 h4
   exact (carlson2F0Sector_eq_twoF0RepRot h1 h2 h3 ⟨hθ.1, h4⟩).symm
 
 /-- The sector domain is preconnected. -/
@@ -629,9 +636,11 @@ theorem carlson2F0Sector_comm (α β ζ : ℂ) (hζ : |ζ.im| < 3 * π / 2) :
   have hg : AnalyticOnNhd ℂ (fun p : ℂ × ℂ × ℂ => carlson2F0Sector p.2.1 p.1 p.2.2)
       twoF0SectorDomain := fun p hp =>
     (hf (p.2.1, p.1, p.2.2) hp).comp_of_eq
-      ((((ContinuousLinearMap.fst ℂ ℂ ℂ).comp (ContinuousLinearMap.snd ℂ ℂ (ℂ × ℂ))).analyticAt p).prod
+      ((((ContinuousLinearMap.fst ℂ ℂ ℂ).comp
+          (ContinuousLinearMap.snd ℂ ℂ (ℂ × ℂ))).analyticAt p).prod
       (analyticAt_fst.prod
-        (((ContinuousLinearMap.snd ℂ ℂ ℂ).comp (ContinuousLinearMap.snd ℂ ℂ (ℂ × ℂ))).analyticAt p)))
+        (((ContinuousLinearMap.snd ℂ ℂ ℂ).comp
+          (ContinuousLinearMap.snd ℂ ℂ (ℂ × ℂ))).analyticAt p)))
       rfl
   have h0 : ((α, β, (0 : ℂ)) : ℂ × ℂ × ℂ) ∈ twoF0SectorDomain := by
     show |(0 : ℂ).im| < 3 * π / 2; simp; positivity
@@ -671,7 +680,8 @@ theorem norm_twoF0DoubleRot_le (n : ℕ) {α β x : ℂ} (hα : 0 < (α + n).re)
   have hf : ∀ a : ℂ, 0 < a.re → IntegrableOn (f a) (Ioi 0) := fun a ha => by
     have := integrableOn_rpow_mul_exp_neg_mul_rpow (p := 1) (s := a.re - 1) (b := Real.cos θ)
       (by linarith) one_pos hcos
-    exact IntegrableOn.congr_fun (Integrable.const_mul this (‖(Gamma a)⁻¹‖ * Real.exp (-(θ * a.im))))
+    exact IntegrableOn.congr_fun
+        (Integrable.const_mul this (‖(Gamma a)⁻¹‖ * Real.exp (-(θ * a.im))))
       (fun s _ => by simp only [f, Real.rpow_one, neg_mul]) measurableSet_Ioi
   have hfint : ∀ a : ℂ, 0 < a.re → ∫ s in Ioi (0 : ℝ), f a s = rotEulerVariation a θ := by
     intro a ha
@@ -694,7 +704,8 @@ theorem norm_twoF0DoubleRot_le (n : ℕ) {α β x : ℂ} (hα : 0 < (α + n).re)
       harg]
     simp only [Real.one_rpow, one_pow, sub_im, one_im, sub_zero, f]
     have hE0 := norm_nonneg (expRemainder n ((a.1 : ℂ) * w * ((a.2 : ℂ) * w) * x))
-    have key : ∀ (g : ℝ) (A : ℂ) (s : ℝ), ‖(Gamma A)⁻¹‖ * (s ^ (A - 1).re * (1 / Real.exp (θ * A.im)) *
+    have key : ∀ (g : ℝ) (A : ℂ) (s : ℝ),
+        ‖(Gamma A)⁻¹‖ * (s ^ (A - 1).re * (1 / Real.exp (θ * A.im)) *
         Real.exp (-(Real.cos θ * s))) = ‖(Gamma A)⁻¹‖ * Real.exp (-(θ * A.im)) *
           (s ^ (A.re - 1) * Real.exp (-(Real.cos θ * s))) := by
       intro _ A s; simp only [Real.exp_neg, sub_re, one_re]; ring
@@ -731,9 +742,11 @@ theorem norm_carlson2F0Sector_sub_sum_le (n : ℕ) {α β ζ : ℂ} (hα : 0 < (
 /-- A uniform bound for the rotated total variation on a closed subsector. -/
 theorem rotEulerVariation_le {a : ℂ} (ha : 0 < a.re) {c θ : ℝ} (hc : 0 < c)
     (hcθ : c ≤ Real.cos θ) (hθ : |θ| ≤ π / 2) :
-    rotEulerVariation a θ ≤ Real.Gamma a.re / ‖Gamma a‖ * (Real.exp (π / 2 * |a.im|) / c ^ a.re) := by
+    rotEulerVariation a θ ≤ Real.Gamma a.re / ‖Gamma a‖ *
+        (Real.exp (π / 2 * |a.im|) / c ^ a.re) := by
   unfold rotEulerVariation
-  have hG : 0 ≤ Real.Gamma a.re / ‖Gamma a‖ := div_nonneg (Real.Gamma_pos_of_pos ha).le (norm_nonneg _)
+  have hG : 0 ≤ Real.Gamma a.re / ‖Gamma a‖ :=
+      div_nonneg (Real.Gamma_pos_of_pos ha).le (norm_nonneg _)
   refine mul_le_mul_of_nonneg_left ?_ hG
   have h1 : Real.exp (-(θ * a.im)) ≤ Real.exp (π / 2 * |a.im|) := by
     apply Real.exp_le_exp.mpr
@@ -754,9 +767,11 @@ theorem exists_norm_carlson2F0Sector_sub_sum_le (α β : ℂ) (n : ℕ) {δ : �
   set N := n + twoF0Depth α β
   obtain ⟨hα0, hβ0⟩ := re_add_twoF0Depth_pos α β
   have hαN : 0 < (α + N).re := by
-    simp only [N, add_re, natCast_re, Nat.cast_add] at hα0 ⊢; linarith [(Nat.cast_nonneg n : (0 : ℝ) ≤ n)]
+    simp only [N, add_re, natCast_re, Nat.cast_add] at hα0 ⊢
+    linarith [(Nat.cast_nonneg n : (0 : ℝ) ≤ n)]
   have hβN : 0 < (β + N).re := by
-    simp only [N, add_re, natCast_re, Nat.cast_add] at hβ0 ⊢; linarith [(Nat.cast_nonneg n : (0 : ℝ) ≤ n)]
+    simp only [N, add_re, natCast_re, Nat.cast_add] at hβ0 ⊢
+    linarith [(Nat.cast_nonneg n : (0 : ℝ) ≤ n)]
   set c₀ := Real.cos (π / 2 - δ / 3)
   set c : ℕ → ℝ := fun m => ‖(ascPochhammer ℂ m).eval α * (ascPochhammer ℂ m).eval β‖ / m.factorial
   set K := Real.Gamma (α + N).re / ‖Gamma (α + N)‖ *
@@ -770,7 +785,8 @@ theorem exists_norm_carlson2F0Sector_sub_sum_le (α β : ℂ) (n : ℕ) {δ : �
   have hφ : |twoF0Angle ζ| ≤ π / 2 - δ / 3 := by
     rw [twoF0Angle, abs_div, abs_neg, abs_of_pos (by norm_num : (0 : ℝ) < 3)]
     linarith
-  have hc₀ : 0 < c₀ := Real.cos_pos_of_mem_Ioo ⟨by linarith [abs_nonneg (twoF0Angle ζ), Real.pi_pos],
+  have hc₀ : 0 < c₀ :=
+      Real.cos_pos_of_mem_Ioo ⟨by linarith [abs_nonneg (twoF0Angle ζ), Real.pi_pos],
     by linarith⟩
   have hcφ : c₀ ≤ Real.cos (twoF0Angle ζ) := by
     rw [← Real.cos_abs (twoF0Angle ζ)]

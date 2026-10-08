@@ -37,12 +37,6 @@ All declarations are independent of simplex measures and special-function applic
   half-plane.
 * `Complex.integral_cpow_mul_exp_neg_mul_Ioi_of_re_pos`: The Gamma/Laplace integral for a decay
   rate with positive real part, evaluated using the principal complex power.
-
-## References
-
-* `Mathlib.Analysis.Calculus.ParametricIntegral`: formal background used by this module.
-* `Mathlib.Analysis.Complex.Convex`: formal background used by this module.
-* `Mathlib.Analysis.Complex.HalfPlane`: formal background used by this module.
 -/
 
 public noncomputable section
@@ -64,7 +58,7 @@ theorem norm_cpow_mul_exp_neg_mul {a w : ℂ} {y : ℝ} (hy : 0 < y) :
 /-- The integrand of `integral_cpow_mul_exp_neg_mul_Ioi` is integrable. -/
 theorem integrableOn_cpow_mul_exp_neg_mul_Ioi_ofReal {a : ℂ} {r : ℝ}
     (ha : 0 < a.re) (hr : 0 < r) :
-    IntegrableOn (fun y : ℝ => (y : ℂ) ^ (a - 1) * exp (-(r * y))) (Set.Ioi 0) := by
+    IntegrableOn (fun y : ℝ ↦ (y : ℂ) ^ (a - 1) * exp (-(r * y))) (Set.Ioi 0) := by
   have hval := integral_cpow_mul_exp_neg_mul_Ioi (a := a) (r := r) ha hr
   by_contra h
   have hz : (∫ y : ℝ in Set.Ioi 0, (y : ℂ) ^ (a - 1) * exp (-(r * y))) = 0 :=
@@ -76,7 +70,7 @@ theorem integrableOn_cpow_mul_exp_neg_mul_Ioi_ofReal {a : ℂ} {r : ℝ}
 
 /-- Continuity of the complex-rate Gamma kernel on `(0, ∞)`. -/
 theorem continuousOn_cpow_mul_exp_neg_mul_Ioi (a w : ℂ) :
-    ContinuousOn (fun y : ℝ => (y : ℂ) ^ (a - 1) * exp (-(y : ℂ) * w))
+    ContinuousOn (fun y : ℝ ↦ (y : ℂ) ^ (a - 1) * exp (-(y : ℂ) * w))
       (Set.Ioi (0 : ℝ)) := by
   intro y hy
   refine ContinuousAt.continuousWithinAt (ContinuousAt.mul ?_ ?_)
@@ -88,11 +82,11 @@ theorem continuousOn_cpow_mul_exp_neg_mul_Ioi (a w : ℂ) :
 /-- Integrability of the complex-rate Gamma kernel on `(0, ∞)`. -/
 theorem integrableOn_cpow_mul_exp_neg_mul_Ioi {a w : ℂ}
     (ha : 0 < a.re) (hw : 0 < w.re) :
-    IntegrableOn (fun y : ℝ => (y : ℂ) ^ (a - 1) * exp (-(y : ℂ) * w))
+    IntegrableOn (fun y : ℝ ↦ (y : ℂ) ^ (a - 1) * exp (-(y : ℂ) * w))
       (Set.Ioi (0 : ℝ)) := by
   have hreal := integrableOn_cpow_mul_exp_neg_mul_Ioi_ofReal (a := a) (r := w.re) ha hw
   have hmeas : AEStronglyMeasurable
-      (fun y : ℝ => (y : ℂ) ^ (a - 1) * exp (-(y : ℂ) * w))
+      (fun y : ℝ ↦ (y : ℂ) ^ (a - 1) * exp (-(y : ℂ) * w))
       (volume.restrict (Set.Ioi (0 : ℝ))) :=
     (continuousOn_cpow_mul_exp_neg_mul_Ioi a w).aestronglyMeasurable measurableSet_Ioi
   refine Integrable.mono' (μ := volume.restrict (Set.Ioi (0 : ℝ))) hreal.norm hmeas ?_
@@ -109,7 +103,7 @@ theorem integrableOn_cpow_mul_exp_neg_mul_Ioi {a w : ℂ}
 theorem hasDerivAt_integral_cpow_mul_exp_neg_mul_Ioi {a w : ℂ}
     (ha : 0 < a.re) (hw : 0 < w.re) :
     HasDerivAt
-      (fun w' => ∫ y : ℝ in Set.Ioi (0 : ℝ),
+      (fun w' ↦ ∫ y : ℝ in Set.Ioi (0 : ℝ),
         (y : ℂ) ^ (a - 1) * exp (-(y : ℂ) * w'))
       (∫ y : ℝ in Set.Ioi (0 : ℝ),
         -((y : ℂ) * ((y : ℂ) ^ (a - 1) * exp (-(y : ℂ) * w)))) w := by
@@ -118,11 +112,11 @@ theorem hasDerivAt_integral_cpow_mul_exp_neg_mul_Ioi {a w : ℂ}
   have hδ : 0 < r := half_pos hw
   have hs : s ∈ 𝓝 w :=
     (isOpen_lt continuous_const Complex.continuous_re).mem_nhds (half_lt_self hw)
-  let F : ℂ → ℝ → ℂ := fun w' y =>
+  let F : ℂ → ℝ → ℂ := fun w' y ↦
     (y : ℂ) ^ (a - 1) * exp (-(y : ℂ) * w')
-  let F' : ℂ → ℝ → ℂ := fun w' y =>
+  let F' : ℂ → ℝ → ℂ := fun w' y ↦
     -((y : ℂ) * ((y : ℂ) ^ (a - 1) * exp (-(y : ℂ) * w')))
-  let bound : ℝ → ℝ := fun y =>
+  let bound : ℝ → ℝ := fun y ↦
     ‖(y : ℂ) ^ (((a.re : ℂ) + 1) - 1) * exp (-(r * y))‖
   have hF_meas : ∀ᶠ w' in 𝓝 w, AEStronglyMeasurable (F w')
       (volume.restrict (Set.Ioi (0 : ℝ))) := by
@@ -168,9 +162,9 @@ theorem hasDerivAt_integral_cpow_mul_exp_neg_mul_Ioi {a w : ℂ}
   have hdiff : ∀ᵐ y : ℝ ∂volume.restrict (Set.Ioi (0 : ℝ)), ∀ w' ∈ s,
       HasDerivAt (F · y) (F' w' y) w' := by
     filter_upwards [ae_restrict_mem (μ := volume) measurableSet_Ioi] with y hy w' hw'
-    have harg : HasDerivAt (fun w'' : ℂ => -(y : ℂ) * w'') (-(y : ℂ)) w' :=
+    have harg : HasDerivAt (fun w'' : ℂ ↦ -(y : ℂ) * w'') (-(y : ℂ)) w' :=
       hasDerivAt_const_mul (-(y : ℂ))
-    have hexp : HasDerivAt (fun w'' : ℂ => exp (-(y : ℂ) * w''))
+    have hexp : HasDerivAt (fun w'' : ℂ ↦ exp (-(y : ℂ) * w''))
         (exp (-(y : ℂ) * w') * (-(y : ℂ))) w' :=
       (Complex.hasDerivAt_exp _).comp w' harg
     refine (hexp.const_mul ((y : ℂ) ^ (a - 1))).congr_deriv ?_
@@ -185,7 +179,7 @@ theorem hasDerivAt_integral_cpow_mul_exp_neg_mul_Ioi {a w : ℂ}
 complex decay rate on the open right half-plane. -/
 theorem analyticOnNhd_integral_cpow_mul_exp_neg_mul_Ioi {a : ℂ} (ha : 0 < a.re) :
     AnalyticOnNhd ℂ
-      (fun w : ℂ => ∫ y : ℝ in Set.Ioi (0 : ℝ),
+      (fun w : ℂ ↦ ∫ y : ℝ in Set.Ioi (0 : ℝ),
         (y : ℂ) ^ (a - 1) * exp (-(y : ℂ) * w)) {w | 0 < w.re} := by
   apply DifferentiableOn.analyticOnNhd _ (isOpen_re_gt 0)
   intro w hw
@@ -199,9 +193,9 @@ theorem integral_cpow_mul_exp_neg_mul_Ioi_of_re_pos {a w : ℂ}
       w ^ (-a) * Gamma a := by
   let Ω : Set ℂ := {w | 0 < w.re}
   have hΩpre : IsPreconnected Ω := (convex_halfSpace_re_gt 0).isPreconnected
-  let F : ℂ → ℂ := fun w' =>
+  let F : ℂ → ℂ := fun w' ↦
     ∫ y : ℝ in Set.Ioi (0 : ℝ), (y : ℂ) ^ (a - 1) * exp (-(y : ℂ) * w')
-  let G : ℂ → ℂ := fun w' => w' ^ (-a) * Gamma a
+  let G : ℂ → ℂ := fun w' ↦ w' ^ (-a) * Gamma a
   have hF : AnalyticOnNhd ℂ F Ω := analyticOnNhd_integral_cpow_mul_exp_neg_mul_Ioi ha
   have hG : AnalyticOnNhd ℂ G Ω := by
     intro w' hw'
@@ -210,10 +204,10 @@ theorem integral_cpow_mul_exp_neg_mul_Ioi_of_re_pos {a w : ℂ}
     exact (AnalyticAt.cpow analyticAt_id analyticAt_const hwslit).mul analyticAt_const
   have hpos : (1 : ℂ) ∈ Ω := by simp [Ω]
   refine hF.eqOn_of_preconnected_of_frequently_eq hG hΩpre hpos ?_ hw
-  have hseq : Tendsto (fun n : ℕ => ((1 + (n + 1 : ℝ)⁻¹ : ℝ) : ℂ))
+  have hseq : Tendsto (fun n : ℕ ↦ ((1 + (n + 1 : ℝ)⁻¹ : ℝ) : ℂ))
       atTop (𝓝[≠] (1 : ℂ)) := by
     refine tendsto_nhdsWithin_iff.mpr ⟨?_, ?_⟩
-    · have hr : Tendsto (fun n : ℕ => (1 + (n + 1 : ℝ)⁻¹ : ℝ)) atTop (𝓝 1) := by
+    · have hr : Tendsto (fun n : ℕ ↦ (1 + (n + 1 : ℝ)⁻¹ : ℝ)) atTop (𝓝 1) := by
         simpa using tendsto_const_nhds.add
           (tendsto_one_div_add_atTop_nhds_zero_nat (𝕜 := ℝ))
       exact Complex.continuous_ofReal.continuousAt.tendsto.comp hr
@@ -221,7 +215,7 @@ theorem integral_cpow_mul_exp_neg_mul_Ioi_of_re_pos {a w : ℂ}
       have : (1 + (n + 1 : ℝ)⁻¹ : ℝ) = 1 := Complex.ofReal_injective hn
       have : (0 : ℝ) < (n + 1 : ℝ)⁻¹ := by positivity
       linarith
-  refine hseq.frequently (Frequently.of_forall fun n => ?_)
+  refine hseq.frequently (Frequently.of_forall fun n ↦ ?_)
   let r : ℝ := 1 + (n + 1 : ℝ)⁻¹
   have hr : 0 < r := by positivity
   have hreal := integral_cpow_mul_exp_neg_mul_Ioi (a := a) (r := r) ha hr

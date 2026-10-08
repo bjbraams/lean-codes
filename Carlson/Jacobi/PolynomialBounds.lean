@@ -64,7 +64,8 @@ theorem norm_eval_jacobiOn_le_of_large_degree (α β r s x : ℂ) (n : ℕ)
       · simpa [pair] using
           (norm_sub_le (-α) (n : ℂ)).trans (by simpa using (show ‖α‖ + n ≤ 2 * (n : ℝ) by linarith))
       · simpa [pair] using
-          (norm_sub_le (-β) (n : ℂ)).trans (by simpa using (show ‖β‖ + n ≤ 2 * (n : ℝ) by linarith)))
+          (norm_sub_le (-β) (n : ℂ)).trans
+              (by simpa using (show ‖β‖ + n ≤ 2 * (n : ℝ) by linarith)))
   rw [carlsonRPolynomialNumerator_pair] at hnum
   simp only [Fin.sum_univ_two, pair_zero, pair_one] at hnum
   calc

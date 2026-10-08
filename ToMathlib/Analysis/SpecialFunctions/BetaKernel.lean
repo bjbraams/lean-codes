@@ -8,7 +8,6 @@ module
 public import Mathlib.Analysis.SpecialFunctions.Pow.Deriv
 public import Mathlib.Analysis.Calculus.Deriv.MeanValue
 public import Mathlib.Topology.Order.IntermediateValue
-public import Mathlib.Tactic
 
 /-!
 # The positive-power beta kernel
@@ -24,7 +23,7 @@ namespace Real
 
 /-- The derivative of the positive-power beta kernel inside the unit interval. -/
 theorem hasDerivAt_betaKernel (K a b : ℝ) {u : ℝ} (hu : u ∈ Ioo (0 : ℝ) 1) :
-    HasDerivAt (fun v : ℝ => K * v ^ a * (1 - v) ^ b)
+    HasDerivAt (fun v : ℝ ↦ K * v ^ a * (1 - v) ^ b)
       (K * u ^ a * (1 - u) ^ b * (a / u - b / (1 - u))) u := by
   have h1 : 1 - u ≠ 0 := (sub_pos.mpr hu.2).ne'
   have h := ((hasDerivAt_rpow_const (p := a) (Or.inl hu.1.ne')).const_mul K).mul
@@ -37,7 +36,7 @@ theorem hasDerivAt_betaKernel (K a b : ℝ) {u : ℝ} (hu : u ∈ Ioo (0 : ℝ) 
 
 /-- The positive-power beta kernel is strictly increasing to its unique maximum. -/
 theorem strictMonoOn_betaKernel {K a b : ℝ} (hK : 0 < K) (ha : 0 < a) (hb : 0 < b) :
-    StrictMonoOn (fun u : ℝ => K * u ^ a * (1 - u) ^ b) (Icc 0 (a / (a + b))) := by
+    StrictMonoOn (fun u : ℝ ↦ K * u ^ a * (1 - u) ^ b) (Icc 0 (a / (a + b))) := by
   have hm0 : 0 < a / (a + b) := div_pos ha (add_pos ha hb)
   have hm1 : a / (a + b) < 1 := (div_lt_one (add_pos ha hb)).mpr (by linarith)
   apply strictMonoOn_of_deriv_pos (convex_Icc ..)
@@ -46,9 +45,10 @@ theorem strictMonoOn_betaKernel {K a b : ℝ} (hK : 0 < K) (ha : 0 < a) (hb : 0 
   rw [interior_Icc]
   intro u hu
   have hu' : u ∈ Ioo (0 : ℝ) 1 := ⟨hu.1, hu.2.trans hm1⟩
-  change 0 < deriv (fun v : ℝ => K * v ^ a * (1 - v) ^ b) u
+  change 0 < deriv (fun v : ℝ ↦ K * v ^ a * (1 - v) ^ b) u
   rw [(hasDerivAt_betaKernel K a b hu').deriv]
-  apply mul_pos (mul_pos (mul_pos hK (rpow_pos_of_pos hu.1 _)) (rpow_pos_of_pos (sub_pos.mpr hu'.2) _))
+  apply mul_pos (mul_pos (mul_pos hK (rpow_pos_of_pos hu.1 _))
+    (rpow_pos_of_pos (sub_pos.mpr hu'.2) _))
   apply sub_pos.mpr
   apply (div_lt_div_iff₀ (sub_pos.mpr hu'.2) hu.1).mpr
   have h := (lt_div_iff₀ (add_pos ha hb)).mp hu.2
@@ -56,7 +56,7 @@ theorem strictMonoOn_betaKernel {K a b : ℝ} (hK : 0 < K) (ha : 0 < a) (hb : 0 
 
 /-- The positive-power beta kernel is strictly decreasing after its unique maximum. -/
 theorem strictAntiOn_betaKernel {K a b : ℝ} (hK : 0 < K) (ha : 0 < a) (hb : 0 < b) :
-    StrictAntiOn (fun u : ℝ => K * u ^ a * (1 - u) ^ b) (Icc (a / (a + b)) 1) := by
+    StrictAntiOn (fun u : ℝ ↦ K * u ^ a * (1 - u) ^ b) (Icc (a / (a + b)) 1) := by
   have hm0 : 0 < a / (a + b) := div_pos ha (add_pos ha hb)
   apply strictAntiOn_of_deriv_neg (convex_Icc ..)
     ((continuous_const.mul (continuous_rpow_const ha.le)).mul
@@ -64,7 +64,7 @@ theorem strictAntiOn_betaKernel {K a b : ℝ} (hK : 0 < K) (ha : 0 < a) (hb : 0 
   rw [interior_Icc]
   intro u hu
   have hu' : u ∈ Ioo (0 : ℝ) 1 := ⟨hm0.trans hu.1, hu.2⟩
-  change deriv (fun v : ℝ => K * v ^ a * (1 - v) ^ b) u < 0
+  change deriv (fun v : ℝ ↦ K * v ^ a * (1 - v) ^ b) u < 0
   rw [(hasDerivAt_betaKernel K a b hu').deriv]
   apply mul_neg_of_pos_of_neg (mul_pos (mul_pos hK (rpow_pos_of_pos hu'.1 _))
     (rpow_pos_of_pos (sub_pos.mpr hu.2) _))
@@ -80,7 +80,7 @@ theorem exists_betaKernel_crossings {K a b : ℝ} (hK : 0 < K) (ha : 0 < a) (hb 
     ∃ l r : ℝ, 0 < l ∧ l < r ∧ r < 1 ∧
       (∀ u ∈ Ioo l r, 1 < K * u ^ a * (1 - u) ^ b) ∧
       (∀ u ∈ Ioo (0 : ℝ) 1, u < l ∨ r < u → K * u ^ a * (1 - u) ^ b < 1) := by
-  let f := fun u : ℝ => K * u ^ a * (1 - u) ^ b
+  let f := fun u : ℝ ↦ K * u ^ a * (1 - u) ^ b
   let m := a / (a + b)
   have hm0 : 0 < m := div_pos ha (add_pos ha hb)
   have hm1 : m < 1 := (div_lt_one (add_pos ha hb)).mpr (by linarith)

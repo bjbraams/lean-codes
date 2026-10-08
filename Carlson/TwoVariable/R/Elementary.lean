@@ -26,7 +26,8 @@ public import Carlson.TwoVariable.ParameterSymmetry
 
 * `Carlson.TwoVariable.regCarlsonR_pair_one_zero`, `Carlson.TwoVariable.regCarlsonR_pair_zero_one`.
 * `Carlson.TwoVariable.regCarlsonR_pair_raise_both`: Exercise 5.9-10.
-* `Carlson.TwoVariable.regCarlsonR_pair_one_one`, `Carlson.TwoVariable.regCarlsonR_pair_one_one_log`:
+* `Carlson.TwoVariable.regCarlsonR_pair_one_one`,
+  `Carlson.TwoVariable.regCarlsonR_pair_one_one_log`:
   Exercise 5.9-13.
 * `Carlson.TwoVariable.regCarlsonR_pair_neg_one_one_one`,
   `Carlson.TwoVariable.regCarlsonR_pair_neg_one_one_one_diag`: the logarithmic elementary function
@@ -90,7 +91,8 @@ theorem regCarlsonR_pair_zero_one (t : ℂ) {x y : ℂ} (hx : x ∈ slitPlane) (
   simpa [pair] using regCarlsonR_pair_one_zero t hs
 
 /-- **Carlson's Exercise 5.9-10**, regularized: with `c = u + v`,
-`R_t(u, v; x, y) = c(c + t + 1) R_t(u + 1, v + 1; x, y) - t(uy + vx) R_{t-1}(u + 1, v + 1; x, y)`. -/
+`R_t(u, v; x, y) = c(c + t + 1) R_t(u + 1, v + 1; x, y)`
+`- t(uy + vx) R_{t-1}(u + 1, v + 1; x, y)`. -/
 theorem regCarlsonR_pair_raise_both (t u v : ℂ) {x y : ℂ} (hz : pair x y ∈ carlsonRSlitDomain) :
     regCarlsonR t (pair u v) (pair x y) =
       (u + v) * (u + v + t + 1) * regCarlsonR t (pair (u + 1) (v + 1)) (pair x y) -

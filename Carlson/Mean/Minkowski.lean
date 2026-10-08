@@ -61,8 +61,9 @@ theorem carlsonMeanReal_add_lt {t : ℝ} (ht : 1 < t) {b x y : ι → ℝ}
     strictConvexOn_dirichlet_average hb
       ((strictConvexOn_rpow ht).subset (fun _ h => h.le) (convex_Ioi 0))
       (fun z hz => (Real.continuousAt_rpow_const z t (Or.inl hz.ne')).continuousWithinAt)
-  have h := hF.map_normalized_add_lt hx hy hne
-    (carlsonMeanReal_pos t b x) (carlsonMeanReal_pos t b y)
+  have h := hF.map_normalized_add_lt hx hy
+    (inv_mul_ne_inv_mul_of_not_proportional hne (carlsonMeanReal_pos t b x)
+      (carlsonMeanReal_pos t b y)) (carlsonMeanReal_pos t b x) (carlsonMeanReal_pos t b y)
   rw [carlsonRReal_normalize ht0.ne' hb hx, carlsonRReal_normalize ht0.ne' hb hy,
     mul_one, mul_one, ← add_div, div_self (add_pos (carlsonMeanReal_pos t b x)
       (carlsonMeanReal_pos t b y)).ne'] at h
@@ -93,7 +94,8 @@ theorem lt_carlsonMeanReal_add {t : ℝ} (ht : t < 1) {b x y : ι → ℝ}
   · have hF : StrictConvexOn ℝ {x : ι → ℝ | ∀ i, 0 < x i} (carlsonRReal t b) :=
       strictConvexOn_dirichlet_average hb (Real.strictConvexOn_rpow_of_neg hn)
         (fun z hz => (Real.continuousAt_rpow_const z t (Or.inl hz.ne')).continuousWithinAt)
-    have h := hF.map_normalized_add_lt hx hy hne hA hB
+    have h := hF.map_normalized_add_lt hx hy
+      (inv_mul_ne_inv_mul_of_not_proportional hne hA hB) hA hB
     rw [carlsonRReal_normalize hn.ne hb hx, carlsonRReal_normalize hn.ne hb hy,
       mul_one, mul_one, ← add_div, div_self hS.ne'] at h
     have hm := Real.rpow_lt_rpow_of_neg (carlsonRReal_pos t hb hz) h (inv_lt_zero.mpr hn)
@@ -103,7 +105,8 @@ theorem lt_carlsonMeanReal_add {t : ℝ} (ht : t < 1) {b x y : ι → ℝ}
       simpa only [carlsonLReal, Real.rpow_zero, one_mul, mem_Ioi] using
         strictConcaveOn_dirichlet_average hb strictConcaveOn_log_Ioi
           (Real.continuousOn_log.mono (fun _ hz => hz.ne'))
-    have h := hF.lt_map_normalized_add hx hy hne hA hB
+    have h := hF.lt_map_normalized_add hx hy
+      (inv_mul_ne_inv_mul_of_not_proportional hne hA hB) hA hB
     rw [carlsonLReal_zero_normalize hb hx, carlsonLReal_zero_normalize hb hy,
       mul_zero, mul_zero, add_zero] at h
     simpa only [carlsonMeanReal, ↓reduceIte, Real.exp_zero] using Real.exp_lt_exp.mpr h
@@ -111,7 +114,8 @@ theorem lt_carlsonMeanReal_add {t : ℝ} (ht : t < 1) {b x y : ι → ℝ}
       strictConcaveOn_dirichlet_average hb
         ((Real.strictConcaveOn_rpow hp ht).subset (fun _ h => h.le) (convex_Ioi 0))
         (fun z hz => (Real.continuousAt_rpow_const z t (Or.inl hz.ne')).continuousWithinAt)
-    have h := hF.lt_map_normalized_add hx hy hne hA hB
+    have h := hF.lt_map_normalized_add hx hy
+      (inv_mul_ne_inv_mul_of_not_proportional hne hA hB) hA hB
     rw [carlsonRReal_normalize hp.ne' hb hx, carlsonRReal_normalize hp.ne' hb hy,
       mul_one, mul_one, ← add_div, div_self hS.ne'] at h
     have hm := Real.rpow_lt_rpow (by norm_num : (0 : ℝ) ≤ 1) h (inv_pos.mpr hp)

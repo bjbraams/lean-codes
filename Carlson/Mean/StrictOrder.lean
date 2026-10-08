@@ -41,7 +41,9 @@ theorem mul_carlsonLReal_zero_lt_log_carlsonRReal {t : ℝ} (ht : t ≠ 0) {b x 
     filter_upwards [ae_mem_stdSimplex_dirichletMeasure b] with u hu
     rw [Real.rpow_def_of_pos (dirichlet_affine_mem (convex_Ioi 0) hx hu), mul_comm]
   have he := (integrable_carlsonRReal t hb hx).congr heq.symm
-  have h := strictConvexOn_exp.ae_eq_const_or_map_average_lt Real.continuous_exp.continuousOn isClosed_univ
+  have h :=
+      strictConvexOn_exp.ae_eq_const_or_map_average_lt Real.continuous_exp.continuousOn
+          isClosed_univ
     (Filter.Eventually.of_forall fun _ => mem_univ _) (hl.const_mul t) he
   have hn := not_ae_dirichlet_affine_comp_eq_const hb (convex_Ioi 0) hx hne
     (f := fun y => t * Real.log y)

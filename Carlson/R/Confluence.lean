@@ -280,7 +280,8 @@ theorem tendsto_regCarlsonRIntegral_confluent_cobounded (b : ι → ℂ) (hb : b
     simp only [add_re, one_re]
     have h2 := neg_re (carlsonAffineForm (ζ t) u / t)
     linarith
-  have hdom : ∀ᶠ t in cobounded ℂ, ∀ᵐ u ∂μ, ‖F t u‖ ≤ Real.exp (2 * M) * ‖regDirichletDensity b u‖ := by
+  have hdom : ∀ᶠ t in cobounded ℂ, ∀ᵐ u ∂μ,
+      ‖F t u‖ ≤ Real.exp (2 * M) * ‖regDirichletDensity b u‖ := by
     filter_upwards [hbig, hζM] with t ⟨ht, ht0⟩ hM
     filter_upwards [self_mem_ae_restrict (μ := stdSimplexMeasure)
       (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet] with u hu

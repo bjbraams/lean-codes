@@ -6,7 +6,6 @@ Authors: Bastiaan J Braams
 module
 
 public import Mathlib.Analysis.MeanInequalities
-public import Mathlib.Tactic
 
 /-!
 # Strict weighted geometric-mean inequality for sums
@@ -27,12 +26,12 @@ theorem sum_mul_rpow_mul_rpow_lt {a c : ℝ} (ha : 0 < a) (hc : 0 < c) (hac : a 
     (∑ i, w i * (x i ^ a * y i ^ c)) < (∑ i, w i * x i) ^ a * (∑ i, w i * y i) ^ c := by
   let A := ∑ i, w i * x i
   let B := ∑ i, w i * y i
-  have hA : 0 < A := Finset.sum_pos (fun i _ => mul_pos (hw i) (hx i)) Finset.univ_nonempty
-  have hB : 0 < B := Finset.sum_pos (fun i _ => mul_pos (hw i) (hy i)) Finset.univ_nonempty
+  have hA : 0 < A := Finset.sum_pos (fun i _ ↦ mul_pos (hw i) (hx i)) Finset.univ_nonempty
+  have hB : 0 < B := Finset.sum_pos (fun i _ ↦ mul_pos (hw i) (hy i)) Finset.univ_nonempty
   have hn : ∃ i, x i / A ≠ y i / B := by
     by_contra! he
     apply hne
-    refine ⟨B / A, div_pos hB hA, fun i => ?_⟩
+    refine ⟨B / A, div_pos hB hA, fun i ↦ ?_⟩
     have hi := (div_eq_div_iff hA.ne' hB.ne').mp (he i)
     calc
       y i = B * x i / A := (eq_div_iff hA.ne').mpr (by nlinarith)
@@ -42,7 +41,7 @@ theorem sum_mul_rpow_mul_rpow_lt {a c : ℝ} (ha : 0 < a) (hc : 0 < c) (hac : a 
   have hsum : (∑ i, w i * ((x i / A) ^ a * (y i / B) ^ c)) <
       ∑ i, w i * (a * (x i / A) + c * (y i / B)) := by
     obtain ⟨i, hi⟩ := hn
-    exact Finset.sum_lt_sum (fun j _ => mul_le_mul_of_nonneg_left (hle j) (hw j).le)
+    exact Finset.sum_lt_sum (fun j _ ↦ mul_le_mul_of_nonneg_left (hle j) (hw j).le)
       ⟨i, Finset.mem_univ i, mul_lt_mul_of_pos_left
         ((geom_mean_lt_arith_mean2_weighted_iff_of_pos ha hc
           (div_pos (hx i) hA).le (div_pos (hy i) hB).le hac).mpr hi) (hw i)⟩

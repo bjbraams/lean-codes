@@ -18,17 +18,14 @@ provided the two path integrals exist. If the two paths approach each endpoint s
 segment joining `γ₁ ε` and `γ₂ ε` stays in `U` and its length times a bound for `ω` on it tends to
 zero, then the two path integrals coincide.
 
-The proof uses a primitive of `ω` on `U`: on `[ε, 1 - ε]` each integral is a difference of values
-of the primitive, and the mean value inequality compares those values along the joining
-segments. No Cauchy theorem at the endpoints is needed.
+The proof uses a primitive of `ω` on `U` (`Convex.exists_forall_hasDerivWithinAt`): on
+`[ε, 1 - ε]` each integral is a difference of values of the primitive, and the mean value
+inequality compares those values along the joining segments. No Cauchy theorem at the
+endpoints is needed.
 
 ## Main results
 
 * `intervalIntegral_mul_comp_eq_of_endpoint`: equality of the two path integrals.
-
-## References
-
-* `Mathlib.MeasureTheory.Integral.CurveIntegral.Poincare`: primitives on convex sets.
 -/
 
 public section
@@ -42,12 +39,12 @@ namespace Complex
 private theorem integral_Icc_eq_sub_of_primitive {U : Set ℂ} {P ω : ℂ → ℂ}
     (hP : ∀ z ∈ U, HasDerivAt P (ω z) z) {γ γ' : ℝ → ℂ}
     (hγ : ∀ v ∈ Ioo (0 : ℝ) 1, HasDerivAt γ (γ' v) v) (hγU : ∀ v ∈ Ioo (0 : ℝ) 1, γ v ∈ U)
-    (hi : IntervalIntegrable (fun v => ω (γ v) * γ' v) volume 0 1) {a b : ℝ}
+    (hi : IntervalIntegrable (fun v ↦ ω (γ v) * γ' v) volume 0 1) {a b : ℝ}
     (ha : 0 < a) (hab : a ≤ b) (hb : b < 1) :
     ∫ v in a..b, ω (γ v) * γ' v = P (γ b) - P (γ a) := by
   have hsub : uIcc a b ⊆ Ioo (0 : ℝ) 1 := by
     rw [uIcc_of_le hab]
-    exact fun v hv => ⟨ha.trans_le hv.1, hv.2.trans_lt hb⟩
+    exact fun v hv ↦ ⟨ha.trans_le hv.1, hv.2.trans_lt hb⟩
   apply integral_eq_sub_of_hasDerivAt
   · intro v hv
     have h := ((hP _ (hγU v (hsub hv))).hasFDerivAt.restrictScalars ℝ).comp_hasDerivAt v
@@ -63,7 +60,7 @@ private theorem norm_sub_le_of_segment {U : Set ℂ} {P ω : ℂ → ℂ}
     (hM : ∀ w ∈ segment ℝ x y, ‖ω w‖ ≤ M) :
     ‖P y - P x‖ ≤ M * ‖y - x‖ :=
   (convex_segment x y).norm_image_sub_le_of_norm_hasDerivWithin_le
-    (fun w hw => (hP w (hseg hw)).hasDerivWithinAt) hM (left_mem_segment ℝ x y)
+    (fun w hw ↦ (hP w (hseg hw)).hasDerivWithinAt) hM (left_mem_segment ℝ x y)
     (right_mem_segment ℝ x y)
 
 /-- **Endpoint deformation of path integrals.** Two paths through a convex open domain of
@@ -77,39 +74,39 @@ theorem intervalIntegral_mul_comp_eq_of_endpoint {U : Set ℂ} (hUo : IsOpen U)
     (hγ₁ : ∀ v ∈ Ioo (0 : ℝ) 1, HasDerivAt γ₁ (γ₁' v) v)
     (hγ₂ : ∀ v ∈ Ioo (0 : ℝ) 1, HasDerivAt γ₂ (γ₂' v) v)
     (hU₁ : ∀ v ∈ Ioo (0 : ℝ) 1, γ₁ v ∈ U) (hU₂ : ∀ v ∈ Ioo (0 : ℝ) 1, γ₂ v ∈ U)
-    (hi₁ : IntervalIntegrable (fun v => ω (γ₁ v) * γ₁' v) volume 0 1)
-    (hi₂ : IntervalIntegrable (fun v => ω (γ₂ v) * γ₂' v) volume 0 1)
+    (hi₁ : IntervalIntegrable (fun v ↦ ω (γ₁ v) * γ₁' v) volume 0 1)
+    (hi₂ : IntervalIntegrable (fun v ↦ ω (γ₂ v) * γ₂' v) volume 0 1)
     {M M' : ℝ → ℝ}
     (h₀ : ∀ᶠ ε in 𝓝[>] (0 : ℝ), segment ℝ (γ₁ ε) (γ₂ ε) ⊆ U ∧
       ∀ w ∈ segment ℝ (γ₁ ε) (γ₂ ε), ‖ω w‖ ≤ M ε)
     (h₁ : ∀ᶠ ε in 𝓝[>] (0 : ℝ), segment ℝ (γ₁ (1 - ε)) (γ₂ (1 - ε)) ⊆ U ∧
       ∀ w ∈ segment ℝ (γ₁ (1 - ε)) (γ₂ (1 - ε)), ‖ω w‖ ≤ M' ε)
-    (ht₀ : Tendsto (fun ε => M ε * ‖γ₂ ε - γ₁ ε‖) (𝓝[>] 0) (𝓝 0))
-    (ht₁ : Tendsto (fun ε => M' ε * ‖γ₂ (1 - ε) - γ₁ (1 - ε)‖) (𝓝[>] 0) (𝓝 0)) :
+    (ht₀ : Tendsto (fun ε ↦ M ε * ‖γ₂ ε - γ₁ ε‖) (𝓝[>] 0) (𝓝 0))
+    (ht₁ : Tendsto (fun ε ↦ M' ε * ‖γ₂ (1 - ε) - γ₁ (1 - ε)‖) (𝓝[>] 0) (𝓝 0)) :
     ∫ v in (0 : ℝ)..1, ω (γ₁ v) * γ₁' v = ∫ v in (0 : ℝ)..1, ω (γ₂ v) * γ₂' v := by
   obtain ⟨P, hP⟩ := hUc.exists_forall_hasDerivWithinAt (E := ℂ) hω
-  have hP' : ∀ z ∈ U, HasDerivAt P (ω z) z := fun z hz =>
+  have hP' : ∀ z ∈ U, HasDerivAt P (ω z) z := fun z hz ↦
     (hP z hz).hasDerivAt (hUo.mem_nhds hz)
   -- Integrals over `[ε, 1 - ε]` converge to the full integrals.
   have hlim {f : ℝ → ℂ} (hf : IntervalIntegrable f volume 0 1) :
-      Tendsto (fun ε => ∫ v in ε..(1 - ε), f v) (𝓝[>] 0) (𝓝 (∫ v in (0 : ℝ)..1, f v)) := by
-    have hc : ContinuousOn (fun t => ∫ v in (0 : ℝ)..t, f v) (uIcc 0 1) :=
+      Tendsto (fun ε ↦ ∫ v in ε..(1 - ε), f v) (𝓝[>] 0) (𝓝 (∫ v in (0 : ℝ)..1, f v)) := by
+    have hc : ContinuousOn (fun t ↦ ∫ v in (0 : ℝ)..t, f v) (uIcc 0 1) :=
       continuousOn_primitive_interval' hf left_mem_uIcc
     have hmem : ∀ᶠ ε in 𝓝[>] (0 : ℝ), ε ∈ uIcc (0 : ℝ) 1 ∧ 1 - ε ∈ uIcc (0 : ℝ) 1 := by
       filter_upwards [Ioo_mem_nhdsGT (show (0 : ℝ) < 1 by norm_num)] with ε hε
       rw [uIcc_of_le zero_le_one]
       exact ⟨⟨hε.1.le, hε.2.le⟩, ⟨by linarith [hε.2], by linarith [hε.1]⟩⟩
-    have hA : Tendsto (fun ε => ∫ v in (0 : ℝ)..ε, f v) (𝓝[>] 0)
+    have hA : Tendsto (fun ε ↦ ∫ v in (0 : ℝ)..ε, f v) (𝓝[>] 0)
         (𝓝 (∫ v in (0 : ℝ)..0, f v)) := by
       have h := (hc 0 left_mem_uIcc).tendsto
       refine (h.comp (tendsto_nhdsWithin_iff.mpr ⟨?_, ?_⟩))
       · exact tendsto_nhdsWithin_of_tendsto_nhds tendsto_id
       · filter_upwards [hmem] with ε hε using hε.1
-    have hB : Tendsto (fun ε => ∫ v in (0 : ℝ)..(1 - ε), f v) (𝓝[>] 0)
+    have hB : Tendsto (fun ε ↦ ∫ v in (0 : ℝ)..(1 - ε), f v) (𝓝[>] 0)
         (𝓝 (∫ v in (0 : ℝ)..1, f v)) := by
       have h := (hc 1 right_mem_uIcc).tendsto
       refine (h.comp (tendsto_nhdsWithin_iff.mpr ⟨?_, ?_⟩))
-      · have : Tendsto (fun ε : ℝ => 1 - ε) (𝓝 0) (𝓝 (1 - 0)) :=
+      · have : Tendsto (fun ε : ℝ ↦ 1 - ε) (𝓝 0) (𝓝 (1 - 0)) :=
           tendsto_const_nhds.sub tendsto_id
         simpa using this.mono_left nhdsWithin_le_nhds
       · filter_upwards [hmem] with ε hε using hε.2
@@ -120,12 +117,12 @@ theorem intervalIntegral_mul_comp_eq_of_endpoint {U : Set ℂ} (hUo : IsOpen U)
         (hf.mono_set (uIcc_subset_uIcc left_mem_uIcc hε.1))]
     have := hB.sub hA
     simp only [integral_same, sub_zero] at this
-    exact this.congr' (hsplit.mono fun ε h => h.symm)
+    exact this.congr' (hsplit.mono fun ε h ↦ h.symm)
   -- The difference of the truncated integrals is a difference of primitive increments.
   have hsmall : ∀ᶠ ε in 𝓝[>] (0 : ℝ), 0 < ε ∧ ε ≤ 1 - ε ∧ 1 - ε < 1 := by
     filter_upwards [Ioo_mem_nhdsGT (show (0 : ℝ) < 1 / 2 by norm_num)] with ε hε
     exact ⟨hε.1, by linarith [hε.2], by linarith [hε.1]⟩
-  have hdiff : Tendsto (fun ε => (∫ v in ε..(1 - ε), ω (γ₂ v) * γ₂' v) -
+  have hdiff : Tendsto (fun ε ↦ (∫ v in ε..(1 - ε), ω (γ₂ v) * γ₂' v) -
       ∫ v in ε..(1 - ε), ω (γ₁ v) * γ₁' v) (𝓝[>] 0) (𝓝 0) := by
     have hbound : ∀ᶠ ε in 𝓝[>] (0 : ℝ),
         ‖(∫ v in ε..(1 - ε), ω (γ₂ v) * γ₂' v) - ∫ v in ε..(1 - ε), ω (γ₁ v) * γ₁' v‖ ≤

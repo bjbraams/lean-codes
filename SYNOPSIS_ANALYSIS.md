@@ -30,8 +30,9 @@ argument allows it.
 * Second-order Taylor bounds for $C^2$ maps between real normed spaces (possibly infinite
   dimensional): the Peano little-$o$ remainder and a uniform local bound.
 * **A minimum principle on the upper half-plane.** If $f$ is holomorphic on the upper
-  half-plane, continuous on its closure, has a limit $L$ at infinity, $\operatorname{Im} f \ge 0$
-  on the real axis and $\operatorname{Im} L \ge 0$, then $\operatorname{Im} f \ge 0$ throughout
+  half-plane, continuous on its closure, satisfies $\liminf \operatorname{Im} f \ge 0$ at infinity
+  in the closed half-plane (for instance, a limit $L$ with $\operatorname{Im} L \ge 0$), and
+  $\operatorname{Im} f \ge 0$ on the real axis, then $\operatorname{Im} f \ge 0$ throughout
   (maximum modulus applied to $e^{if}$ on large half-discs).
 
 ## Integration

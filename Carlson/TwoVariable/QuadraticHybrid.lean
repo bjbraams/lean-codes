@@ -656,12 +656,14 @@ theorem carlsonRC_eq_integral {x y : ℝ} (hx : 0 < x) (hy : 0 < y) :
     rw [show (1 - (u : ℂ) + u * x) = ((1 - u + u * x : ℝ) : ℂ) by push_cast; ring,
       show (1 - (u : ℂ) + u * y) = ((1 - u + u * y : ℝ) : ℂ) by push_cast; ring,
       show (-(1 / 2 : ℂ)) = ((-(1 / 2) : ℝ) : ℂ) by push_cast; ring,
-      ← ofReal_cpow hu.1.le, ← ofReal_cpow h1.le, show (-(1 : ℂ)) = ((-1 : ℝ) : ℂ) by push_cast; ring,
+      ← ofReal_cpow hu.1.le, ← ofReal_cpow h1.le, show (-(1 : ℂ)) = ((-1 : ℝ) : ℂ) by
+        push_cast; ring,
       ← ofReal_cpow h2.le, Real.rpow_neg_one]
     push_cast; ring
   rw [hint, show (3 / 2 : ℂ) = 1 / 2 + 1 by norm_num, Gamma_add_one _ (by norm_num)]
   have hG : Gamma (1 / 2 : ℂ) ≠ 0 := Gamma_ne_zero_of_re_pos (by norm_num)
-  rw [show (1 / 2 : ℂ) * Gamma (1 / 2) * ((Gamma (1 / 2))⁻¹ * ((∫ u in Ioo (0 : ℝ) 1, f u : ℝ) : ℂ)) =
+  rw [show (1 / 2 : ℂ) * Gamma (1 / 2) *
+      ((Gamma (1 / 2))⁻¹ * ((∫ u in Ioo (0 : ℝ) 1, f u : ℝ) : ℂ)) =
       (((1 / 2) * ∫ u in Ioo (0 : ℝ) 1, f u : ℝ) : ℂ) by field_simp; push_cast; ring]
   congr 1
   -- the substitution `u = v²`
@@ -802,8 +804,8 @@ theorem carlsonRC_of_lt {x y : ℝ} (hx : 0 < x) (hxy : x < y) :
 /-- **Formula (6.9-16)**: `R_C(x, y) = (x - y)^{-1/2} log ((x^{1/2} + (x - y)^{1/2}) / y^{1/2})`
 for `0 < y < x`. -/
 theorem carlsonRC_of_gt {x y : ℝ} (hy : 0 < y) (hyx : y < x) :
-    carlsonRC x y =
-      ((Real.log ((Real.sqrt x + Real.sqrt (x - y)) / Real.sqrt y) / Real.sqrt (x - y) : ℝ) : ℂ) := by
+    carlsonRC x y = ((Real.log ((Real.sqrt x + Real.sqrt (x - y)) / Real.sqrt y) /
+      Real.sqrt (x - y) : ℝ) : ℂ) := by
   rw [carlsonRC_eq_integral (hy.trans hyx) hy, integral_carlsonRC_of_gt hy hyx]
 
 /-- `arcsin x = x R_C(1 - x², 1)` for `0 < x < 1` (Carlson (6.9-15)). -/

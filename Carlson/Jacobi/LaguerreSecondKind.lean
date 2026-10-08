@@ -364,7 +364,8 @@ theorem integral_Ioo_eq_integral_laguerreKernel (b : ℂ) (κ : ℝ) (f : ℝ �
   have hu : 0 < s / (t + s) := by positivity
   have h1u : 0 < 1 - s / (t + s) := by rw [sub_pos, div_lt_one hts]; linarith
   have harg : (1 - s / (t + s)) * s = s * t / (t + s) := by field_simp; ring
-  have habs : |(-(s / (t + s) ^ 2))| = s / (t + s) ^ 2 := by rw [abs_neg, abs_of_pos (by positivity)]
+  have habs : |(-(s / (t + s) ^ 2))| = s / (t + s) ^ 2 := by
+    rw [abs_neg, abs_of_pos (by positivity)]
   simp only [φ, laguerreKernel, habs, Complex.real_smul, harg]
   -- express everything through logarithms
   have hl1 : Real.log (1 - s / (t + s)) = Real.log t - Real.log (t + s) := by
@@ -393,7 +394,8 @@ theorem inv_mem_slitPlane' {w : ℂ} (hw : w ∈ slitPlane) : w⁻¹ ∈ slitPla
   have hn : 0 < normSq w := normSq_pos.mpr hw0
   rcases mem_slitPlane_iff.mp hw with h | h
   · exact mem_slitPlane_iff.mpr (Or.inl (by rw [inv_re]; exact div_pos h hn))
-  · exact mem_slitPlane_iff.mpr (Or.inr (by rw [inv_im]; exact div_ne_zero (neg_ne_zero.mpr h) hn.ne'))
+  · exact mem_slitPlane_iff.mpr
+        (Or.inr (by rw [inv_im]; exact div_ne_zero (neg_ne_zero.mpr h) hn.ne'))
 
 /-- Points off `[0, ∞)` stay a positive distance from the nonnegative reals. -/
 theorem exists_pos_le_norm_sub_ofReal {x : ℂ} (hx : -x ∈ slitPlane) :

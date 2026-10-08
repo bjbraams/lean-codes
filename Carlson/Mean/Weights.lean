@@ -19,12 +19,11 @@ or restriction on the complex order is required at the all-one vector.
 -/
 
 open Complex Dirichlet Filter Set
-open scoped Topology
+open scoped Topology Classical
 @[expose] public noncomputable section
 namespace Carlson
 variable {ι : Type*} [Fintype ι]
 
-open scoped Classical in
 /-- The node derivative of ordinary R at the all-one vector, at every complex order. -/
 theorem hasDerivAt_carlsonR_update_one (t : ℂ) {b : ι → ℂ}
     (hb : ∀ n : ℕ, (∑ i, b i) ≠ -n) (i : ι) :
@@ -40,7 +39,6 @@ theorem hasDerivAt_carlsonR_update_one (t : ℂ) {b : ι → ℂ}
   · rfl
   · field_simp [Gamma_ne_zero hb]
 
-open scoped Classical in
 /-- The node derivative of ordinary L at the all-one vector is independent of its order. -/
 theorem hasDerivAt_carlsonL_update_one (t : ℂ) {b : ι → ℂ}
     (hb : ∀ n : ℕ, (∑ i, b i) ≠ -n) (i : ι) :
@@ -60,7 +58,6 @@ theorem hasDerivAt_carlsonL_update_one (t : ℂ) {b : ι → ℂ}
   · rfl
   · field_simp [Gamma_ne_zero hb]
 
-open scoped Classical in
 /-- The logarithm defining M has the same coordinate derivative at the diagonal for all
 orders, including zero. -/
 theorem hasDerivAt_carlsonMeanLog_update_one (t : ℂ) {b : ι → ℂ}
@@ -77,7 +74,6 @@ theorem hasDerivAt_carlsonMeanLog_update_one (t : ℂ) {b : ι → ℂ}
     convert h using 1
     field_simp [ht]
 
-open scoped Classical in
 /-- The complex hypergeometric mean has derivative `b i / c` in coordinate `i` at the
 all-one vector, including at order zero. -/
 theorem hasDerivAt_carlsonMean_update_one (t : ℂ) {b : ι → ℂ}
@@ -105,7 +101,6 @@ theorem sum_meanWeight_carlsonMean (t : ℂ) {b : ι → ℂ}
   simp_rw [meanWeight_carlsonMean t hb, ← Finset.sum_div]
   exact div_self (by simpa using hb 0)
 
-open scoped Classical in
 /-- The ratio mean has the same complex coordinate weights, including coincident orders. -/
 theorem hasDerivAt_carlsonRatioMean_update_one (s t : ℂ) {b : ι → ℂ}
     (hb : ∀ n : ℕ, (∑ i, b i) ≠ -n) (i : ι) :
@@ -137,7 +132,6 @@ theorem meanWeight_carlsonRatioMean (s t : ℂ) {b : ι → ℂ}
   exact (SeveralComplexVariables.hasDerivAt_update_of_differentiableAt
     ha.differentiableAt i).unique (hasDerivAt_carlsonRatioMean_update_one s t hb i)
 
-open scoped Classical in
 /-- The power-transformed mean has normalized parameter weights at all complex orders
 and powers, including either zero parameter. -/
 theorem hasDerivAt_carlsonPowerMean_update_one (s t : ℂ) {b : ι → ℂ}

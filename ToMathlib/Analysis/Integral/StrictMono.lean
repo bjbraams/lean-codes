@@ -23,7 +23,7 @@ measure, provided both real functions are integrable. -/
 theorem integral_lt_integral_of_ae_lt {f g : α → ℝ} (hf : Integrable f μ)
     (hg : Integrable g μ) (hfg : ∀ᵐ x ∂μ, f x < g x) :
     (∫ x, f x ∂μ) < ∫ x, g x ∂μ := by
-  have hle := hfg.mono fun _ h => h.le
+  have hle := hfg.mono fun _ h ↦ h.le
   apply lt_of_le_of_ne (integral_mono_ae hf hg hle)
   intro heq
   have he := (integral_eq_iff_of_ae_le hf hg hle).mp heq

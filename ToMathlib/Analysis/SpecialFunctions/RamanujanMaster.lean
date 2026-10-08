@@ -6,6 +6,8 @@ Authors: Bastiaan J Braams
 module
 
 public import ToMathlib.Analysis.MellinBarnes
+public import ToMathlib.Analysis.Complex.Carlson
+public import ToMathlib.Analysis.SpecialFunctions.Pow
 
 /-!
 # Ramanujan's master theorem
@@ -108,13 +110,6 @@ def ramanujanKernel (φ : ℂ → ℂ) (s : ℂ) : ℂ := π / sin (π * s) * φ
 /-- The Mellin–Barnes integrand `x^(-s) Ψ(s)`. -/
 def ramanujanIntegrand (φ : ℂ → ℂ) (x : ℝ) (s : ℂ) : ℂ := (x : ℂ) ^ (-s) * ramanujanKernel φ s
 
-/-- For `y > 0` and `a ≤ σ ≤ b`, `y^σ ≤ y^a + y^b`. -/
-theorem rpow_le_rpow_add_rpow {y a b σ : ℝ} (hy : 0 < y) (ha : a ≤ σ) (hb : σ ≤ b) :
-    y ^ σ ≤ y ^ a + y ^ b := by
-  rcases le_total 1 y with h | h
-  · exact (Real.rpow_le_rpow_of_exponent_le h hb).trans (le_add_of_nonneg_left (by positivity))
-  · exact (Real.rpow_le_rpow_of_exponent_ge hy h ha).trans (le_add_of_nonneg_right (by positivity))
-
 /-- **The integrand is uniformly small for large `|t|`.** For `x > 0` and `a ≤ σ ≤ b < δ`,
 `|t| ≥ 1`, `‖x^(-s) Ψ(s)‖ ≤ 4πC (x^(-a) + x^(-b)) (e^(-Pa) + e^(-Pb)) e^((A - π)|t|)`. -/
 theorem norm_ramanujanIntegrand_le {φ : ℂ → ℂ} {δ C P A : ℝ}
@@ -141,10 +136,10 @@ theorem norm_ramanujanIntegrand_le {φ : ℂ → ℂ} {δ C P A : ℝ}
     rw [norm_cpow_eq_rpow_re_of_pos hx]
     simp only [neg_re, add_re, ofReal_re, mul_re, I_re, mul_zero, ofReal_im, I_im, mul_one,
       sub_self, add_zero]
-    have := rpow_le_rpow_add_rpow hx (neg_le_neg hb) (neg_le_neg ha)
+    have := Real.rpow_le_rpow_add_rpow hx (neg_le_neg hb) (neg_le_neg ha)
     linarith
   have hexpP : Real.exp (P * -σ) ≤ Real.exp (-P * a) + Real.exp (-P * b) := by
-    have := rpow_le_rpow_add_rpow (Real.exp_pos (-P)) ha hb
+    have := Real.rpow_le_rpow_add_rpow (Real.exp_pos (-P)) ha hb
     simp only [← Real.exp_mul] at this
     rw [show P * -σ = -P * σ by ring]
     exact this
@@ -185,11 +180,11 @@ theorem differentiableAt_integrand (h : RamanujanClass φ δ C P A) {x : ℝ} (h
     (hs : s.re < δ) (hsin : sin (π * s) ≠ 0) :
     DifferentiableAt ℂ (ramanujanIntegrand φ x) s := by
   have hx0 : (x : ℂ) ≠ 0 := ofReal_ne_zero.mpr hx.ne'
-  have h1 : DifferentiableAt ℂ (fun s : ℂ => (x : ℂ) ^ (-s)) s :=
+  have h1 : DifferentiableAt ℂ (fun s : ℂ ↦ (x : ℂ) ^ (-s)) s :=
     (differentiableAt_id.neg).const_cpow (Or.inl hx0)
-  have h2 : DifferentiableAt ℂ (fun s : ℂ => φ (-s)) s :=
+  have h2 : DifferentiableAt ℂ (fun s : ℂ ↦ φ (-s)) s :=
     (h.differentiableAt (-s) (by simp; linarith)).comp s differentiableAt_id.neg
-  have h3 : DifferentiableAt ℂ (fun s : ℂ => (π : ℂ) / sin (π * s)) s :=
+  have h3 : DifferentiableAt ℂ (fun s : ℂ ↦ (π : ℂ) / sin (π * s)) s :=
     (differentiableAt_const _).div (by fun_prop) hsin
   exact h1.mul (h3.mul h2)
 
@@ -200,7 +195,7 @@ theorem exists_tail_bound (h : RamanujanClass φ δ C P A) {x : ℝ} (hx : 0 < x
       ‖ramanujanIntegrand φ x (σ + t * I)‖ ≤ K * (1 + |t|) ^ (-2 : ℝ) := by
   have hκ : 0 < π - A := by linarith [h.lt_pi]
   set K₀ := 4 * π * C * (x ^ (-a) + x ^ (-b)) * (Real.exp (-P * a) + Real.exp (-P * b))
-  refine ⟨|K₀| * (min 1 ((π - A) / 2))⁻¹ ^ 2, fun σ t h1 h2 ht => ?_⟩
+  refine ⟨|K₀| * (min 1 ((π - A) / 2))⁻¹ ^ 2, fun σ t h1 h2 ht ↦ ?_⟩
   refine (norm_ramanujanIntegrand_le h.bound hx h1 h2 hbδ ht).trans ?_
   have he := exp_neg_mul_abs_le hκ t
   rw [show (A - π) * |t| = -((π - A) * |t|) by ring]
@@ -219,28 +214,28 @@ theorem exists_pole (h : RamanujanClass φ δ C P A) {x : ℝ} (hx : 0 < x) (k :
   set s₀ : ℂ := -(k : ℂ)
   have hs₀ : s₀ = ((-(k : ℤ) : ℤ) : ℂ) := by simp [s₀]
   have hx0 : (x : ℂ) ≠ 0 := ofReal_ne_zero.mpr hx.ne'
-  set N : ℂ → ℂ := fun s => (x : ℂ) ^ (-s) * φ (-s)
-  set D : ℂ → ℂ := dslope (fun w : ℂ => sin (π * w)) s₀
+  set N : ℂ → ℂ := fun s ↦ (x : ℂ) ^ (-s) * φ (-s)
+  set D : ℂ → ℂ := dslope (fun w : ℂ ↦ sin (π * w)) s₀
   have hsin0 : sin (π * s₀) = 0 := sin_pi_mul_eq_zero_iff.mpr ⟨-(k : ℤ), hs₀⟩
   have hD0 : D s₀ ≠ 0 := by
     have := dslope_sin_pi_mul_intCast_ne_zero (-(k : ℤ))
     rwa [← hs₀] at this
-  have hDd : Differentiable ℂ D := fun z =>
+  have hDd : Differentiable ℂ D := fun z ↦
     ((differentiableOn_dslope (Filter.univ_mem)).mpr
-      (fun w _ => (by fun_prop : DifferentiableAt ℂ (fun w : ℂ => sin (π * w)) w)
+      (fun w _ ↦ (by fun_prop : DifferentiableAt ℂ (fun w : ℂ ↦ sin (π * w)) w)
         |>.differentiableWithinAt)).differentiableAt Filter.univ_mem
   -- A neighbourhood of `s₀` where `N` is holomorphic and `D` does not vanish.
   set U : Set ℂ := {s | s.re < δ} ∩ {s | D s ≠ 0}
   have hU : IsOpen U := (isOpen_lt continuous_re continuous_const).inter
     (isOpen_ne_fun hDd.continuous continuous_const)
   have hs₀U : s₀ ∈ U := ⟨by simp [s₀]; linarith [h.delta_pos], hD0⟩
-  have hNd : DifferentiableOn ℂ N U := fun s hs =>
+  have hNd : DifferentiableOn ℂ N U := fun s hs ↦
     (((differentiableAt_id.neg).const_cpow (Or.inl hx0)).mul
       ((h.differentiableAt (-s) (by simp; linarith [show s.re < δ from hs.1])).comp s
         differentiableAt_id.neg)
       ).differentiableWithinAt
-  set H : ℂ → ℂ := fun s => π * N s / D s
-  have hHd : DifferentiableOn ℂ H U := fun s hs =>
+  set H : ℂ → ℂ := fun s ↦ π * N s / D s
+  have hHd : DifferentiableOn ℂ H U := fun s hs ↦
     ((differentiableAt_const _).mul (hNd s hs |>.differentiableAt (hU.mem_nhds hs))
       |>.div (hDd s) hs.2).differentiableWithinAt
   refine ⟨dslope H s₀, ((differentiableOn_dslope (hU.mem_nhds hs₀U)).mpr hHd).differentiableAt
@@ -278,18 +273,6 @@ theorem exists_pole (h : RamanujanClass φ δ C P A) {x : ℝ} (hx : 0 < x) (k :
   rw [hfs, hH]
   field_simp
 
-/-- `sin (π s) ≠ 0` for `s ≠ -k` with `-k - 1 < Re s < -k + 1`. -/
-theorem sin_pi_mul_ne_zero_of_re {k : ℤ} {s : ℂ} (h1 : (k : ℝ) - 1 < s.re) (h2 : s.re < k + 1)
-    (hs : s ≠ k) : sin (π * s) ≠ 0 := by
-  intro h0
-  obtain ⟨m, rfl⟩ := sin_pi_mul_eq_zero_iff.mp h0
-  simp only [intCast_re] at h1 h2
-  have : m = k := by
-    have h1' : k - 1 < m := by exact_mod_cast h1
-    have h2' : m < k + 1 := by exact_mod_cast h2
-    omega
-  exact hs (by rw [this])
-
 /-- The inverse Mellin transform of the Ramanujan kernel as an integral of the integrand. -/
 theorem mellinInv_ramanujanKernel (σ x : ℝ) :
     mellinInv σ (ramanujanKernel φ) x =
@@ -307,10 +290,10 @@ theorem mellinInv_sub_mellinInv (h : RamanujanClass φ δ C P A) {x : ℝ} (hx :
   have hre : (-(k : ℂ)).re = -(k : ℝ) := by simp
   have hcross := integral_vertical_sub_eq_of_simplePole (f := ramanujanIntegrand φ x)
     (s₀ := -(k : ℂ)) (by rw [hre]; exact ha) (by rw [hre]; exact hb)
-    (fun s hs1 hs2 hne => h.differentiableAt_integrand hx (hs2.trans_lt hbδ)
+    (fun s hs1 hs2 hne ↦ h.differentiableAt_integrand hx (hs2.trans_lt hbδ)
       (sin_pi_mul_ne_zero_of_re (k := -(k : ℤ)) (by push_cast; linarith)
         (by push_cast; linarith) (by push_cast; exact hne)))
-    hg hpole (T₀ := 1) (fun σ t h1 h2 ht => hK σ t h1 h2 ht)
+    hg hpole (T₀ := 1) (fun σ t h1 h2 ht ↦ hK σ t h1 h2 ht)
   rw [mellinInv_ramanujanKernel, mellinInv_ramanujanKernel, ← smul_sub, hcross.2.2]
   rw [Complex.real_smul]
   push_cast
@@ -335,7 +318,7 @@ theorem mellinInv_eq_sum_add (h : RamanujanClass φ δ C P A) {x : ℝ} (hx : 0 
     have := h.mellinInv_sub_mellinInv hx (N + 1) (a := -((N : ℝ) + 1) - 1 / 2)
       (b := -(N : ℝ) - 1 / 2) (by push_cast; linarith) (by push_cast; linarith)
       (by push_cast; linarith) (by push_cast; linarith) (by linarith [h.delta_pos])
-    rw [ih, Finset.sum_range_succ (fun k => φ k * (-(x : ℂ)) ^ k) (N + 1)]
+    rw [ih, Finset.sum_range_succ (fun k ↦ φ k * (-(x : ℂ)) ^ k) (N + 1)]
     push_cast at this ⊢
     linear_combination this
 
@@ -351,8 +334,8 @@ theorem exists_norm_mellinInv_le (h : RamanujanClass φ δ C P A) {x : ℝ} (hx 
   have hκ : 0 < π - A := by linarith [h.lt_pi]
   set m := min 1 ((π - A) / 2)
   set I₀ : ℝ := ∫ t : ℝ, (1 + |t|) ^ (-2 : ℝ)
-  have hI₀ : 0 ≤ I₀ := integral_nonneg fun t => by positivity
-  refine ⟨|C| * m⁻¹ ^ 2 * I₀, fun N => ?_⟩
+  have hI₀ : 0 ≤ I₀ := integral_nonneg fun t ↦ by positivity
+  refine ⟨|C| * m⁻¹ ^ 2 * I₀, fun N ↦ ?_⟩
   set σ : ℝ := -(N : ℝ) - 1 / 2
   set q : ℝ := x * Real.exp P
   have hq : 0 < q := by positivity
@@ -396,7 +379,7 @@ theorem exists_norm_mellinInv_le (h : RamanujanClass φ δ C P A) {x : ℝ} (hx 
           gcongr
       _ = _ := by ring
   rw [mellinInv_ramanujanKernel, norm_smul, Real.norm_of_nonneg (by positivity)]
-  have hint : Integrable fun t : ℝ =>
+  have hint : Integrable fun t : ℝ ↦
       2 * π * (|C| * m⁻¹ ^ 2 * q ^ ((N : ℝ) + 1 / 2)) * (1 + |t|) ^ (-2 : ℝ) :=
     integrable_one_add_abs_rpow_neg_two.const_mul _
   calc 1 / (2 * π) * ‖∫ y : ℝ, ramanujanIntegrand φ x (σ + y * I)‖
@@ -413,7 +396,7 @@ theorem exists_norm_mellinInv_le (h : RamanujanClass φ δ C P A) {x : ℝ} (hx 
 `∑ φ(k) (-x)^k` converges absolutely to the Mellin–Barnes integral `ℳ⁻¹_c Ψ (x)`, `0 < c < δ`. -/
 theorem hasSum_mellinInv (h : RamanujanClass φ δ C P A) {x : ℝ} (hx : 0 < x)
     (hxP : x < Real.exp (-P)) {c : ℝ} (hc0 : 0 < c) (hcδ : c < δ) :
-    HasSum (fun k : ℕ => φ k * (-(x : ℂ)) ^ k) (mellinInv c (ramanujanKernel φ) x) := by
+    HasSum (fun k : ℕ ↦ φ k * (-(x : ℂ)) ^ k) (mellinInv c (ramanujanKernel φ) x) := by
   set q : ℝ := x * Real.exp P
   have hq0 : 0 < q := by positivity
   have hq1 : q < 1 := by
@@ -430,50 +413,44 @@ theorem hasSum_mellinInv (h : RamanujanClass φ δ C P A) {x : ℝ} (hx : 0 < x)
           exact hb.trans (mul_le_mul_of_nonneg_right (le_abs_self C) (Real.exp_pos _).le)
       _ = |C| * q ^ k := by
           rw [show P * (k : ℝ) = k * P by ring, Real.exp_nat_mul, mul_pow]; ring
-  have hsum : Summable fun k : ℕ => φ k * (-(x : ℂ)) ^ k :=
+  have hsum : Summable fun k : ℕ ↦ φ k * (-(x : ℂ)) ^ k :=
     Summable.of_norm_bounded ((summable_geometric_of_lt_one hq0.le hq1).mul_left |C|) hterm
   -- The partial sums converge to the Mellin–Barnes integral.
   obtain ⟨K, hK⟩ := h.exists_norm_mellinInv_le hx
-  have hrem : Tendsto (fun N : ℕ => mellinInv (-(N : ℝ) - 1 / 2) (ramanujanKernel φ) x)
+  have hrem : Tendsto (fun N : ℕ ↦ mellinInv (-(N : ℝ) - 1 / 2) (ramanujanKernel φ) x)
       atTop (𝓝 0) := by
     refine squeeze_zero_norm hK ?_
-    have h1 : Tendsto (fun N : ℕ => K * (q ^ (1 / 2 : ℝ) * q ^ N)) atTop
+    have h1 : Tendsto (fun N : ℕ ↦ K * (q ^ (1 / 2 : ℝ) * q ^ N)) atTop
         (𝓝 (K * (q ^ (1 / 2 : ℝ) * 0))) :=
       ((tendsto_pow_atTop_nhds_zero_of_lt_one hq0.le hq1).const_mul _).const_mul _
     simp only [mul_zero] at h1
-    refine h1.congr fun N => ?_
+    refine h1.congr fun N ↦ ?_
     rw [Real.rpow_add hq0, Real.rpow_natCast]
     ring
   refine (hsum.hasSum_iff_tendsto_nat).mpr ?_
   rw [← tendsto_add_atTop_iff_nat 1]
   have := (tendsto_const_nhds (x := mellinInv c (ramanujanKernel φ) x)).sub hrem
   rw [sub_zero] at this
-  refine this.congr fun N => ?_
+  refine this.congr fun N ↦ ?_
   rw [h.mellinInv_eq_sum_add hx hc0 hcδ N]
   ring
 
 /-- The kernel is holomorphic at non-integer points with `Re s < δ`. -/
 theorem differentiableAt_kernel (h : RamanujanClass φ δ C P A) {s : ℂ} (hs : s.re < δ)
     (hsin : sin (π * s) ≠ 0) : DifferentiableAt ℂ (ramanujanKernel φ) s := by
-  have h1 : DifferentiableAt ℂ (fun s : ℂ => (π : ℂ) / sin (π * s)) s :=
+  have h1 : DifferentiableAt ℂ (fun s : ℂ ↦ (π : ℂ) / sin (π * s)) s :=
     (differentiableAt_const _).div (by fun_prop) hsin
-  have h2 : DifferentiableAt ℂ (fun s : ℂ => φ (-s)) s :=
+  have h2 : DifferentiableAt ℂ (fun s : ℂ ↦ φ (-s)) s :=
     (h.differentiableAt (-s) (by simp; linarith)).comp s differentiableAt_id.neg
   exact h1.mul h2
 
-/-- `sin (π s) ≠ 0` for `0 < Re s < 1`. -/
-theorem sin_pi_mul_ne_zero_of_re_mem {s : ℂ} (h0 : 0 < s.re) (h1 : s.re < 1) :
-    sin (π * s) ≠ 0 :=
-  sin_pi_mul_ne_zero_of_re (k := 0) (by simp; linarith) (by simpa using h1)
-    (fun h => by rw [h] at h0; simp at h0)
-
 /-- On a line `Re s = σ ∈ (0, δ)` the kernel is continuous and bounded by `K (1 + |t|)^(-2)`. -/
 theorem kernel_line (h : RamanujanClass φ δ C P A) {σ : ℝ} (hσ0 : 0 < σ) (hσδ : σ < δ) :
-    Continuous (fun t : ℝ => ramanujanKernel φ (σ + t * I)) ∧
+    Continuous (fun t : ℝ ↦ ramanujanKernel φ (σ + t * I)) ∧
       ∃ K, ∀ t : ℝ, ‖ramanujanKernel φ (σ + t * I)‖ ≤ K * (1 + |t|) ^ (-2 : ℝ) := by
   have hσ1 : σ < 1 := hσδ.trans h.delta_lt_one
-  have hre : ∀ t : ℝ, ((σ : ℂ) + t * I).re = σ := fun t => by simp
-  refine ⟨continuous_iff_continuousAt.mpr fun t => ?_, ?_⟩
+  have hre : ∀ t : ℝ, ((σ : ℂ) + t * I).re = σ := fun t ↦ by simp
+  refine ⟨continuous_iff_continuousAt.mpr fun t ↦ ?_, ?_⟩
   · exact (h.differentiableAt_kernel (by rw [hre]; exact hσδ)
       (sin_pi_mul_ne_zero_of_re_mem (by rw [hre]; exact hσ0) (by rw [hre]; exact hσ1))
       ).continuousAt.comp (by fun_prop)
@@ -481,7 +458,7 @@ theorem kernel_line (h : RamanujanClass φ δ C P A) {σ : ℝ} (hσ0 : 0 < σ) 
   have hsinσ : 0 < |Real.sin (π * σ)| :=
     abs_pos.mpr (Real.sin_pos_of_pos_of_lt_pi (by positivity) (by nlinarith [Real.pi_pos])).ne'
   set m := min 1 ((π - A) / 2)
-  refine ⟨2 * π * |C| * Real.exp (-P * σ) / |Real.sin (π * σ)| * m⁻¹ ^ 2, fun t => ?_⟩
+  refine ⟨2 * π * |C| * Real.exp (-P * σ) / |Real.sin (π * σ)| * m⁻¹ ^ 2, fun t ↦ ?_⟩
   have hz : -δ < (-((σ : ℂ) + t * I)).re := by simp; linarith
   have hφ := h.bound _ hz
   simp only [neg_re, add_re, ofReal_re, mul_re, I_re, mul_zero, ofReal_im, I_im, mul_one,
@@ -511,7 +488,7 @@ theorem kernel_line (h : RamanujanClass φ δ C P A) {σ : ℝ} (hσ0 : 0 < σ) 
 
 /-- The kernel is integrable on lines `Re s = σ ∈ (0, δ)`. -/
 theorem integrable_kernel_line (h : RamanujanClass φ δ C P A) {σ : ℝ} (hσ0 : 0 < σ)
-    (hσδ : σ < δ) : Integrable fun t : ℝ => ramanujanKernel φ (σ + t * I) := by
+    (hσδ : σ < δ) : Integrable fun t : ℝ ↦ ramanujanKernel φ (σ + t * I) := by
   obtain ⟨hc, K, hK⟩ := h.kernel_line hσ0 hσδ
   exact (integrable_one_add_abs_rpow_neg_two.const_mul K).mono' hc.aestronglyMeasurable
     (Eventually.of_forall hK)
@@ -525,7 +502,7 @@ theorem mellinInv_eq_mellinInv (h : RamanujanClass φ δ C P A) {σ₁ σ₂ : �
     intro a b ha hab hbδ
     obtain ⟨K, hK⟩ := h.exists_tail_bound hx (a := a) hbδ
     rw [mellinInv_ramanujanKernel, mellinInv_ramanujanKernel,
-      integral_vertical_eq_of_tail_bound hab (fun s hs1 hs2 => h.differentiableAt_integrand hx
+      integral_vertical_eq_of_tail_bound hab (fun s hs1 hs2 ↦ h.differentiableAt_integrand hx
         (hs2.trans_lt hbδ) (sin_pi_mul_ne_zero_of_re_mem (ha.trans_le hs1)
           (hs2.trans_lt (hbδ.trans h.delta_lt_one)))) (T₀ := 1) hK]
   rcases le_total σ₁ σ₂ with h12 | h21
@@ -536,7 +513,7 @@ theorem mellinInv_eq_mellinInv (h : RamanujanClass φ δ C P A) {σ₁ σ₂ : �
 theorem exists_norm_mellinInv_le_rpow (φ : ℂ → ℂ) (σ : ℝ) :
     ∃ K, ∀ x : ℝ, 0 < x → ‖mellinInv σ (ramanujanKernel φ) x‖ ≤ K * x ^ (-σ) := by
   set I₁ := ∫ t : ℝ, ‖ramanujanKernel φ (σ + t * I)‖
-  refine ⟨1 / (2 * π) * I₁, fun x hx => ?_⟩
+  refine ⟨1 / (2 * π) * I₁, fun x hx ↦ ?_⟩
   have hnorm : ∀ t : ℝ, ‖ramanujanIntegrand φ x (σ + t * I)‖ =
       x ^ (-σ) * ‖ramanujanKernel φ (σ + t * I)‖ := by
     intro t
@@ -558,29 +535,29 @@ theorem continuousOn_mellinInv (h : RamanujanClass φ δ C P A) {σ : ℝ} (hσ0
   have hi := h.integrable_kernel_line hσ0 hσδ
   intro x₀ hx₀
   refine ContinuousAt.continuousWithinAt ?_
-  have heq : mellinInv σ (ramanujanKernel φ) = fun x : ℝ =>
+  have heq : mellinInv σ (ramanujanKernel φ) = fun x : ℝ ↦
       (1 / (2 * π) : ℝ) • ∫ y : ℝ, ramanujanIntegrand φ x (σ + y * I) :=
-    funext fun x => mellinInv_ramanujanKernel σ x
+    funext fun x ↦ mellinInv_ramanujanKernel σ x
   rw [heq]
-  suffices hI : ContinuousAt (fun x : ℝ => ∫ y : ℝ, ramanujanIntegrand φ x (σ + y * I)) x₀ from
+  suffices hI : ContinuousAt (fun x : ℝ ↦ ∫ y : ℝ, ramanujanIntegrand φ x (σ + y * I)) x₀ from
     hI.tendsto.const_smul _
-  refine continuousAt_of_dominated (bound := fun y => (x₀ / 2) ^ (-σ) *
+  refine continuousAt_of_dominated (bound := fun y ↦ (x₀ / 2) ^ (-σ) *
     ‖ramanujanKernel φ (σ + y * I)‖) ?_ ?_ (hi.norm.const_mul _) ?_
   · filter_upwards [lt_mem_nhds (show x₀ / 2 < x₀ by linarith [mem_Ioi.mp hx₀])] with x hx
     have hx0 : (x : ℂ) ≠ 0 := ofReal_ne_zero.mpr (by linarith [mem_Ioi.mp hx₀])
     refine (Continuous.aestronglyMeasurable ?_)
-    refine continuous_iff_continuousAt.mpr fun y => ?_
-    exact (((by fun_prop : Continuous fun y : ℝ => -((σ : ℂ) + y * I)).continuousAt.const_cpow
+    refine continuous_iff_continuousAt.mpr fun y ↦ ?_
+    exact (((by fun_prop : Continuous fun y : ℝ ↦ -((σ : ℂ) + y * I)).continuousAt.const_cpow
       (Or.inl hx0)).mul hc.continuousAt)
   · filter_upwards [lt_mem_nhds (show x₀ / 2 < x₀ by linarith [mem_Ioi.mp hx₀])] with x hx
-    refine Eventually.of_forall fun y => ?_
+    refine Eventually.of_forall fun y ↦ ?_
     have hxpos : 0 < x := by linarith [mem_Ioi.mp hx₀]
     rw [ramanujanIntegrand, norm_mul, norm_cpow_eq_rpow_re_of_pos hxpos]
     simp only [neg_re, add_re, ofReal_re, mul_re, I_re, mul_zero, ofReal_im, I_im, mul_one,
       sub_self, add_zero]
     exact mul_le_mul_of_nonneg_right (Real.rpow_le_rpow_of_nonpos
       (by linarith [mem_Ioi.mp hx₀]) hx.le (by linarith [hσ0])) (norm_nonneg _)
-  · refine Eventually.of_forall fun y => ?_
+  · refine Eventually.of_forall fun y ↦ ?_
     have hslit : (x₀ : ℂ) ∈ slitPlane := ofReal_mem_slitPlane.mpr hx₀
     exact ((continuous_ofReal.continuousAt).cpow continuousAt_const hslit).mul continuousAt_const
 
@@ -597,8 +574,8 @@ theorem mellinConvergent_mellinInv (h : RamanujanClass φ δ C P A) {σ₀ : ℝ
   obtain ⟨K₁, hK₁⟩ := exists_norm_mellinInv_le_rpow φ σ₁
   obtain ⟨K₂, hK₂⟩ := exists_norm_mellinInv_le_rpow φ σ₂
   have hcont := h.continuousOn_mellinInv hσ₀ hσ₀δ
-  have hmeas : ContinuousOn (fun t : ℝ => (t : ℂ) ^ (s - 1) • mellinInv σ₀ (ramanujanKernel φ) t)
-      (Ioi 0) := fun t ht =>
+  have hmeas : ContinuousOn (fun t : ℝ ↦ (t : ℂ) ^ (s - 1) • mellinInv σ₀ (ramanujanKernel φ) t)
+      (Ioi 0) := fun t ht ↦
     (((continuous_ofReal.continuousAt).cpow continuousAt_const
       (ofReal_mem_slitPlane.mpr ht)).continuousWithinAt).smul (hcont t ht)
   have hnorm : ∀ t ∈ Ioi (0 : ℝ), ∀ σ, 0 < σ → σ < δ →
@@ -609,7 +586,7 @@ theorem mellinConvergent_mellinInv (h : RamanujanClass φ δ C P A) {σ₀ : ℝ
     simp
   rw [MellinConvergent, ← Ioc_union_Ioi_eq_Ioi zero_le_one]
   refine IntegrableOn.union ?_ ?_
-  · have hb : IntegrableOn (fun t : ℝ => |K₁| * t ^ (s.re - 1 - σ₁)) (Ioc 0 1) := by
+  · have hb : IntegrableOn (fun t : ℝ ↦ |K₁| * t ^ (s.re - 1 - σ₁)) (Ioc 0 1) := by
       have := (intervalIntegral.intervalIntegrable_rpow' (r := s.re - 1 - σ₁)
         (by simp only [σ₁]; linarith) (a := 0) (b := 1))
       rw [intervalIntegrable_iff_integrableOn_Ioc_of_le zero_le_one] at this
@@ -624,9 +601,9 @@ theorem mellinConvergent_mellinInv (h : RamanujanClass φ δ C P A) {σ₀ : ℝ
           exact (hK₁ t htpos).trans (mul_le_mul_of_nonneg_right (le_abs_self _) (by positivity))
       _ = |K₁| * t ^ (s.re - 1 - σ₁) := by
           rw [sub_eq_add_neg (s.re - 1), Real.rpow_add htpos]; ring
-  · have hb : IntegrableOn (fun t : ℝ => |K₂| * t ^ (s.re - 1 - σ₂)) (Ioi 1) :=
+  · have hb : IntegrableOn (fun t : ℝ ↦ |K₂| * t ^ (s.re - 1 - σ₂)) (Ioi 1) :=
       (integrableOn_Ioi_rpow_of_lt (by simp only [σ₂]; linarith) one_pos).const_mul _
-    refine hb.mono' ((hmeas.mono fun t ht => lt_trans one_pos ht).aestronglyMeasurable
+    refine hb.mono' ((hmeas.mono fun t ht ↦ lt_trans one_pos ht).aestronglyMeasurable
       measurableSet_Ioi) ?_
     filter_upwards [ae_restrict_mem measurableSet_Ioi] with t ht
     have htpos : 0 < t := lt_trans one_pos ht
@@ -652,19 +629,19 @@ def ramanujanFunction (φ : ℂ → ℂ) (δ : ℝ) : ℝ → ℂ := mellinInv (
 * `∫₀^∞ x^(s-1) F(x) dx = π / sin (π s) · φ(-s)` for `0 < Re s < δ`, the integral converging. -/
 theorem ramanujan_master_theorem {φ : ℂ → ℂ} {δ C P A : ℝ} (h : RamanujanClass φ δ C P A) :
     (∀ x : ℝ, 0 < x → x < Real.exp (-P) →
-      HasSum (fun k : ℕ => φ k * (-(x : ℂ)) ^ k) (ramanujanFunction φ δ x)) ∧
+      HasSum (fun k : ℕ ↦ φ k * (-(x : ℂ)) ^ k) (ramanujanFunction φ δ x)) ∧
     ∀ s : ℂ, 0 < s.re → s.re < δ →
       MellinConvergent (ramanujanFunction φ δ) s ∧
         mellin (ramanujanFunction φ δ) s = π / sin (π * s) * φ (-s) := by
   have hc0 : 0 < δ / 2 := by linarith [h.delta_pos]
   have hcδ : δ / 2 < δ := by linarith [h.delta_pos]
-  refine ⟨fun x hx hxP => h.hasSum_mellinInv hx hxP hc0 hcδ, fun s hs0 hsδ => ?_⟩
+  refine ⟨fun x hx hxP ↦ h.hasSum_mellinInv hx hxP hc0 hcδ, fun s hs0 hsδ ↦ ?_⟩
   refine ⟨h.mellinConvergent_mellinInv hc0 hcδ hs0 hsδ, ?_⟩
   set σ := s.re
   -- Pass to the line through `s`.
   have hF : mellin (ramanujanFunction φ δ) s = mellin (mellinInv σ (ramanujanKernel φ)) s := by
     unfold mellin ramanujanFunction
-    refine setIntegral_congr_fun measurableSet_Ioi fun t ht => ?_
+    refine setIntegral_congr_fun measurableSet_Ioi fun t ht ↦ ?_
     rw [h.mellinInv_eq_mellinInv hc0 hcδ hs0 hsδ ht]
   obtain ⟨hcont, -⟩ := h.kernel_line hs0 hsδ
   have hconv : MellinConvergent (mellinInv σ (ramanujanKernel φ)) (σ : ℂ) :=

@@ -32,7 +32,8 @@ induction through slicing, and the integral of an `MvPolynomial` monomial.
 
 * `Mathlib.MeasureTheory.Integral.Bochner.Set`: formal background used by this module.
 * `Mathlib.Analysis.SpecialFunctions.Gamma.Beta`: formal background used by this module.
-* `Mathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap`: formal background used by this module.
+* `Mathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap`: formal background used by this
+  module.
 -/
 
 open Fintype (card)

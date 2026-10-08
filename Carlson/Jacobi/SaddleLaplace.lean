@@ -66,7 +66,8 @@ theorem norm_jacobiSaddleShape_lt_one {c : ℂ} (hc : 0 < c.re) :
     nlinarith [norm_nonneg (c - 1), norm_nonneg (c + 1)]
   have hp : 0 < ‖c + 1‖ := (norm_nonneg _).trans_lt hn
   have hdiv : ‖(c - 1) / (c + 1)‖ < 1 := by rwa [norm_div, div_lt_one hp]
-  simpa only [jacobiSaddleShape, norm_pow] using pow_lt_one₀ (norm_nonneg _) hdiv (by decide : 2 ≠ 0)
+  simpa only [jacobiSaddleShape, norm_pow]
+      using pow_lt_one₀ (norm_nonneg _) hdiv (by decide : 2 ≠ 0)
 
 /-- The normalized centered kernel on the Jacobi saddle curve. -/
 def jacobiSaddleKernel (w : ℂ) (u : ℝ) : ℂ :=
@@ -92,7 +93,8 @@ theorem measurable_jacobiSaddlePhase (w : ℂ) : Measurable (jacobiSaddlePhase w
 /-- A convenient quadratic remainder estimate for the complex logarithm. -/
 private theorem norm_log_one_sub_add_le {z : ℂ} (hz : ‖z‖ ≤ 1 / 2) :
     ‖log (1 - z) + z‖ ≤ ‖z‖ ^ 2 := by
-  have h := norm_log_one_add_sub_self_le (z := -z) (by simpa using hz.trans_lt (by norm_num : (1:ℝ)/2 < 1))
+  have h := norm_log_one_add_sub_self_le (z := -z)
+      (by simpa using hz.trans_lt (by norm_num : (1:ℝ)/2 < 1))
   simp only [norm_neg, sub_neg_eq_add, ← sub_eq_add_neg] at h
   apply h.trans
   have hinv : (1 - ‖z‖)⁻¹ ≤ 2 := (inv_le_comm₀ (by linarith) (by norm_num)).mpr (by linarith)
@@ -151,7 +153,8 @@ theorem exp_neg_mul_jacobiSaddlePhase {w : ℂ} (hw : ‖w‖ < 1) {u : ℝ}
     intro he; rw [← he, norm_one] at hnorm; exact lt_irrefl _ hnorm)
   have h2 : 1 - w * (u : ℂ) ^ 2 ≠ 0 := sub_ne_zero.mpr (by
     intro he
-    have hn : ‖w * (u : ℂ) ^ 2‖ < 1 := by rw [norm_mul]; nlinarith [norm_nonneg w, norm_nonneg ((u : ℂ)^2)]
+    have hn : ‖w * (u : ℂ) ^ 2‖ < 1 := by
+      rw [norm_mul]; nlinarith [norm_nonneg w, norm_nonneg ((u : ℂ)^2)]
     rw [← he, norm_one] at hn; exact lt_irrefl _ hn)
   rw [show -(n : ℂ) * (u : ℂ) ^ 2 * jacobiSaddlePhase w u =
       (n : ℂ) * (log (1 - (u : ℂ) ^ 2) - log (1 - w * (u : ℂ) ^ 2)) by
@@ -207,7 +210,8 @@ theorem jacobiMobiusKernel_eq_saddleKernel {A B c : ℂ} (hA : A ≠ 0)
   have hD : 1 - (((u + 1) / 2 : ℝ) : ℂ) + c * (((u + 1) / 2 : ℝ) : ℂ) ≠ 0 := by
     intro he
     have hh := congrArg re he
-    simp only [add_re, sub_re, one_re, ofReal_re, mul_re, ofReal_im, mul_zero, sub_zero, zero_re] at hh
+    simp only [add_re, sub_re, one_re, ofReal_re, mul_re, ofReal_im, mul_zero, sub_zero,
+      zero_re] at hh
     rcases eq_or_lt_of_le ht.2 with h | h
     · rw [h] at hh; linarith
     · nlinarith [ht.1]
@@ -222,7 +226,7 @@ a central interval. The only amplitude hypotheses are measurability and a local
 linear variation bound. -/
 theorem norm_sqrt_mul_integral_jacobiSaddleKernel_sub_le {A : ℝ → ℂ} {w : ℂ}
     (hw : ‖w‖ < 1) {δ L M : ℝ} (hδ : 0 < δ) (hδhalf : δ ≤ 1 / 2)
-    (hsmall : 4 * δ ^ 2 ≤ (1 - w).re) (hL : 0 ≤ L) (hM : 0 ≤ M)
+    (hsmall : 4 * δ ^ 2 ≤ (1 - w).re)
     (hAc : Measurable A) (hA0 : ‖A 0‖ ≤ M)
     (hA : ∀ u ∈ Icc (-δ) δ, ‖A u - A 0‖ ≤ L * |u|) {n : ℕ} (hn : 0 < n) :
     ‖(Real.sqrt n : ℂ) * (∫ u in Icc (-δ) δ, A u * jacobiSaddleKernel w u ^ n) -
@@ -238,7 +242,7 @@ theorem norm_sqrt_mul_integral_jacobiSaddleKernel_sub_le {A : ℝ → ℂ} {w : 
     have hh := (hu u h).trans hδhalf
     nlinarith [sq_abs u, abs_nonneg u]
   have H := norm_sqrt_mul_integral_laplace_Icc_sub_le
-    (half_pos (Complex.re_one_sub_pos hw)) hL hM hδ
+    (half_pos (Complex.re_one_sub_pos hw)) hδ
     (Nat.cast_pos.mpr hn) hAc (measurable_jacobiSaddlePhase w) hq hA0 hA hqt
   simp only [jacobiSaddlePhase_zero, mul_one, ofReal_natCast] at H
   convert H using 2
@@ -282,7 +286,9 @@ theorem norm_integral_jacobiSaddleKernel_tail_le {A : ℝ → ℂ} {w : ℂ}
     exact (norm_jacobiSaddleKernel_le hw (abs_le.mpr hu.1)).trans (by nlinarith)
   calc
     _ ≤ ∫ u in Icc (-1 : ℝ) 1 \ Icc (-δ) δ, ‖A u‖ * (1 - (1 - ‖w‖) * δ ^ 2) ^ n :=
-      norm_integral_le_of_norm_le (((show IntegrableOn (fun u => ‖A u‖) (Icc (-1 : ℝ) 1) volume from hAi.norm).mono_set sdiff_subset).mul_const _)
+      norm_integral_le_of_norm_le
+          (((show IntegrableOn (fun u => ‖A u‖) (Icc (-1 : ℝ) 1) volume from hAi.norm).mono_set
+              sdiff_subset).mul_const _)
         (ae_restrict_of_forall_mem (measurableSet_Icc.diff measurableSet_Icc) hb)
     _ = (∫ u in Icc (-1 : ℝ) 1 \ Icc (-δ) δ, ‖A u‖) * (1 - (1 - ‖w‖) * δ ^ 2) ^ n := by
       rw [integral_mul_const]
@@ -316,7 +322,7 @@ theorem exists_jacobiSaddle_local_bounds {A : ℝ → ℂ} {w : ℂ}
 /-- The central part of a Jacobi saddle integral has the predicted Gaussian limit. -/
 theorem tendsto_sqrt_mul_integral_jacobiSaddleKernel_central {A : ℝ → ℂ} {w : ℂ}
     (hw : ‖w‖ < 1) {δ L : ℝ} (hδ : 0 < δ) (hδhalf : δ ≤ 1 / 2)
-    (hsmall : 4 * δ ^ 2 ≤ (1 - w).re) (hL : 0 ≤ L) (hAc : Measurable A)
+    (hsmall : 4 * δ ^ 2 ≤ (1 - w).re) (hAc : Measurable A)
     (hA : ∀ u ∈ Icc (-δ) δ, ‖A u - A 0‖ ≤ L * |u|) :
     Tendsto (fun n : ℕ => (Real.sqrt n : ℂ) *
       ∫ u in Icc (-δ) δ, A u * jacobiSaddleKernel w u ^ n) atTop
@@ -324,8 +330,8 @@ theorem tendsto_sqrt_mul_integral_jacobiSaddleKernel_central {A : ℝ → ℂ} {
   apply tendsto_iff_norm_sub_tendsto_zero.mpr
   apply squeeze_zero' (Eventually.of_forall (fun _ => norm_nonneg _))
     ((eventually_gt_atTop 0).mono (fun n hn =>
-      norm_sqrt_mul_integral_jacobiSaddleKernel_sub_le hw hδ hδhalf hsmall hL
-        (norm_nonneg (A 0)) hAc le_rfl hA hn))
+      norm_sqrt_mul_integral_jacobiSaddleKernel_sub_le hw hδ hδhalf hsmall
+        hAc le_rfl hA hn))
   exact tendsto_const_nhds.div_atTop (Real.tendsto_sqrt_atTop.comp tendsto_natCast_atTop_atTop)
 
 /-- Laplace asymptotics for the full centered Jacobi saddle kernel. Integrability
@@ -337,8 +343,8 @@ theorem tendsto_sqrt_mul_integral_jacobiSaddleKernel {A : ℝ → ℂ} {w : ℂ}
     Tendsto (fun n : ℕ => (Real.sqrt n : ℂ) *
       ∫ u in Icc (-1 : ℝ) 1, A u * jacobiSaddleKernel w u ^ n) atTop
       (𝓝 (A 0 * (Real.pi / (1 - w)) ^ (1 / 2 : ℂ))) := by
-  obtain ⟨δ, L, hδ, hδhalf, hsmall, hL, hA⟩ := exists_jacobiSaddle_local_bounds hw hAd
-  have hcentral := tendsto_sqrt_mul_integral_jacobiSaddleKernel_central hw hδ hδhalf hsmall hL hAc hA
+  obtain ⟨δ, L, hδ, hδhalf, hsmall, -, hA⟩ := exists_jacobiSaddle_local_bounds hw hAd
+  have hcentral := tendsto_sqrt_mul_integral_jacobiSaddleKernel_central hw hδ hδhalf hsmall hAc hA
   let R : ℝ := 1 - (1 - ‖w‖) * δ ^ 2
   let M : ℝ := ∫ u in Icc (-1 : ℝ) 1, ‖A u‖
   have hM : 0 ≤ M := integral_nonneg (fun _ => norm_nonneg _)
@@ -469,7 +475,8 @@ theorem jacobiSaddleAmplitude_zero_ne_zero (a b : ℂ) (m : ℕ) {r s z : ℂ}
   have hL := mobius_resolvent_ne_zero (sub_ne_zero.mpr hzr) hc
     (jacobiSaddleRatio_sq_mul hzr) (by rw [div_self hc0]; simp)
     (show (0 + 1) / 2 ∈ Icc (0 : ℝ) 1 by norm_num)
-  have hD : 1 - (((0 + 1) / 2 : ℝ) : ℂ) + jacobiSaddleRatio r s z * (((0 + 1) / 2 : ℝ) : ℂ) ≠ 0 := by
+  have hD : 1 - (((0 + 1) / 2 : ℝ) : ℂ) + jacobiSaddleRatio r s z *
+      (((0 + 1) / 2 : ℝ) : ℂ) ≠ 0 := by
     intro he
     have h := congrArg re he
     norm_num at h
@@ -644,8 +651,10 @@ theorem jacobiSecondKind_eq_saddle_integral_div_reference (α β r s : ℂ) (N k
   simp only [jacobiMobiusIntegrand_reference]
   have he : (∫ t in (0 : ℝ)..1, Polynomial.complexJacobiWeight (α + N + k) (β + N + k) t) =
       betaIntegral (α + (N + k : ℕ) + 1) (β + (N + k : ℕ) + 1) := by
-    simp only [betaIntegral, Polynomial.complexJacobiWeight, Nat.cast_add, ← add_assoc, add_sub_cancel_right]
-  rw [he, betaIntegral_eq_Gamma_mul_div _ _ (by simpa using (by linarith : 0 < (α + (N + k : ℕ)).re + 1))
+    simp only [betaIntegral, Polynomial.complexJacobiWeight, Nat.cast_add, ← add_assoc,
+      add_sub_cancel_right]
+  rw [he, betaIntegral_eq_Gamma_mul_div _ _
+    (by simpa using (by linarith : 0 < (α + (N + k : ℕ)).re + 1))
     (by simpa using (by linarith : 0 < (β + (N + k : ℕ)).re + 1))]
   simp only [Nat.cast_add, ← add_assoc, show N + k + 1 = N + 1 + k by omega]
   field
@@ -677,9 +686,11 @@ theorem isEquivalent_jacobiSecondKind_saddle_shift (α β r s : ℂ) (N : ℕ)
   apply (h.congr_left (Eventually.of_forall (fun k =>
     (jacobiSecondKind_eq_saddle_integral_div_reference α β r s N k hα hβ hz).symm))).congr_right
   filter_upwards [eventually_gt_atTop (0 : ℕ)] with k hk
-  have hs : (Real.sqrt k : ℂ) ≠ 0 := ofReal_ne_zero.mpr (Real.sqrt_pos.mpr (Nat.cast_pos.mpr hk)).ne'
+  have hs : (Real.sqrt k : ℂ) ≠ 0 :=
+      ofReal_ne_zero.mpr (Real.sqrt_pos.mpr (Nat.cast_pos.mpr hk)).ne'
   have hscale := jacobiSaddleScale_ne_zero hz
-  have hC := jacobiSaddleLeading_ne_zero (α + N) (β + N) (N + 1) (r := 0) (s := 0) (z := 1) (by simp)
+  have hC := jacobiSaddleLeading_ne_zero (α + N) (β + N) (N + 1) (r := 0) (s := 0) (z := 1)
+      (by simp)
   simp only [Pi.div_apply, jacobiSaddleScale_reference, jacobiSecondKindSaddleCoefficient, div_pow]
   field_simp
 

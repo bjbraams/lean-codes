@@ -68,7 +68,8 @@ theorem analyticAt_jacobiSaddleAmplitudeComplex (a b : ℂ) (m : ℕ) {r s z : �
   have htz : AnalyticAt ℂ (fun p : ℂ × ℂ => (p.2 + 1) / 2) (z, u) :=
     (analyticAt_snd.add analyticAt_const).div analyticAt_const (by norm_num)
   have ht0 : (t : ℂ) ∈ slitPlane := ofReal_mem_slitPlane.mpr ht.1
-  have ht1 : 1 - (t : ℂ) ∈ slitPlane := by left; simp only [sub_re, one_re, ofReal_re]; linarith [ht.2]
+  have ht1 : 1 - (t : ℂ) ∈ slitPlane := by
+    left; simp only [sub_re, one_re, ofReal_re]; linarith [ht.2]
   have hD : 1 - (t : ℂ) + c * t ∈ slitPlane := by
     left
     simp only [add_re, sub_re, one_re, ofReal_re, mul_re, ofReal_im, mul_zero, sub_zero]
@@ -90,7 +91,9 @@ theorem hasDerivAt_jacobiSaddleAmplitude (a b : ℂ) (m : ℕ) {r s z : ℂ}
     (hz : z ∉ segment ℝ r s) {u : ℝ} (hu : u ∈ Ioo (-1 : ℝ) 1) :
     HasDerivAt (jacobiSaddleAmplitude a b m r s z)
       (fderiv ℂ (jacobiSaddleAmplitudeComplex a b m r s) (z, u) (0, 1)) u := by
-  have h := ((analyticAt_jacobiSaddleAmplitudeComplex a b m hz hu).differentiableAt.hasFDerivAt.comp_hasDerivAt (u : ℂ) ((hasDerivAt_const (u : ℂ) z).prodMk (hasDerivAt_id (u : ℂ)))).comp_ofReal
+  have h := (analyticAt_jacobiSaddleAmplitudeComplex a b m hz hu).differentiableAt
+    |>.hasFDerivAt.comp_hasDerivAt (u : ℂ)
+      ((hasDerivAt_const (u : ℂ) z).prodMk (hasDerivAt_id (u : ℂ))) |>.comp_ofReal
   simpa only [Function.comp_apply, jacobiSaddleAmplitudeComplex_ofReal] using h
 
 /-- On a compact set off the focal segment, the amplitudes share a Lipschitz
@@ -150,7 +153,7 @@ theorem tendstoUniformlyOn_sqrt_mul_integral_jacobiSaddleKernel {P : Type*} {S :
     intro p hp
     rw [dist_comm, dist_eq_norm]
     apply (norm_sqrt_mul_integral_jacobiSaddleKernel_sub_le ((hw p hp).trans_lt hρ)
-      hδ hδhalf (hsmall.trans (hq0 p hp)) hL hM (hAc p hp) (hA0 p hp) (hA p hp) hn).trans_lt
+      hδ hδhalf (hsmall.trans (hq0 p hp)) (hAc p hp) (hA0 p hp) (hA p hp) hn).trans_lt
     apply lt_of_le_of_lt _ hεn
     have hcle : c ≤ (1 - w p).re / 2 := div_le_div_of_nonneg_right (hq0 p hp) (by norm_num)
     gcongr
@@ -215,7 +218,8 @@ theorem tendstoUniformlyOn_sqrt_mul_integral_jacobiSaddleAmplitude {a b : ℂ}
         (Real.pi / (1 - jacobiSaddleShape (jacobiSaddleRatio r s z))) ^ (1 / 2 : ℂ)) atTop K := by
   let w := fun z => jacobiSaddleShape (jacobiSaddleRatio r s z)
   have hwc : ContinuousOn (fun z => 1 - ‖w z‖) K :=
-    continuousOn_const.sub (fun z hz => (continuousAt_jacobiSaddleShape_ratio (hKs z hz)).norm.continuousWithinAt)
+    continuousOn_const.sub
+        (fun z hz => (continuousAt_jacobiSaddleShape_ratio (hKs z hz)).norm.continuousWithinAt)
   obtain ⟨η, hη, hηw⟩ := hK.exists_forall_le' hwc
     (fun z hz => sub_pos.mpr (norm_jacobiSaddleShape_lt_one (re_jacobiSaddleRatio_pos (hKs z hz))))
   let ρ := max 0 (1 - η)
@@ -302,7 +306,8 @@ theorem tendstoUniformlyOn_jacobiSecondKind_saddle_shift (α β r s : ℂ) (N : 
     TendstoUniformlyOn (fun k : ℕ => fun z => jacobiSecondKind α β r s (N + k) z *
       (jacobiSaddleScale r s z / 4) ^ k)
       (jacobiSecondKindSaddleCoefficient α β N r s) atTop K := by
-  have hnum := (tendstoUniformlyOn_sqrt_mul_pow_mul_integral_jacobiMobius hα hβ (N + 1) hK hKs).tendstoLocallyUniformlyOn
+  have hnum := tendstoUniformlyOn_sqrt_mul_pow_mul_integral_jacobiMobius hα hβ (N + 1) hK hKs
+    |>.tendstoLocallyUniformlyOn
   have href := (tendsto_sqrt_mul_pow_mul_integral_jacobiMobius hα hβ (N + 1)
     (r := 0) (s := 0) (z := 1) (by simp)).tendstoUniformlyOn_const K |>.tendstoLocallyUniformlyOn
   have hdiv := hnum.div₀ href
@@ -312,7 +317,8 @@ theorem tendstoUniformlyOn_jacobiSecondKind_saddle_shift (α β r s : ℂ) (N : 
   apply h.congr
   filter_upwards [eventually_gt_atTop (0 : ℕ)] with k hk
   intro z hz
-  have hs : (Real.sqrt k : ℂ) ≠ 0 := ofReal_ne_zero.mpr (Real.sqrt_pos.mpr (Nat.cast_pos.mpr hk)).ne'
+  have hs : (Real.sqrt k : ℂ) ≠ 0 :=
+      ofReal_ne_zero.mpr (Real.sqrt_pos.mpr (Nat.cast_pos.mpr hk)).ne'
   dsimp only [Pi.div_apply]
   rw [jacobiSecondKind_eq_saddle_integral_div_reference α β r s N k hα hβ (hKs z hz)]
   simp only [jacobiSaddleScale_reference, div_pow]
@@ -329,7 +335,8 @@ theorem tendstoUniformlyOn_jacobiSecondKind_div_saddle_shift (α β r s : ℂ) (
   have hc : ContinuousOn (jacobiSecondKindSaddleCoefficient α β N r s) K := by
     intro z hz
     exact (continuousAt_jacobiSaddleLeading _ _ _ (hKs z hz)).continuousWithinAt.div_const _
-  have h := (tendstoUniformlyOn_jacobiSecondKind_saddle_shift α β r s N hα hβ hK hKs).tendstoLocallyUniformlyOn
+  have h := tendstoUniformlyOn_jacobiSecondKind_saddle_shift α β r s N hα hβ hK hKs
+    |>.tendstoLocallyUniformlyOn
   have hconst : TendstoLocallyUniformlyOn
       (fun _ : ℕ => jacobiSecondKindSaddleCoefficient α β N r s)
       (jacobiSecondKindSaddleCoefficient α β N r s) atTop K :=
@@ -365,7 +372,8 @@ theorem exists_tendstoUniformlyOn_jacobiSecondKind_div_geometric (α β r s : �
   refine ⟨fun z => jacobiSecondKindSaddleCoefficient α β N r s z / G z ^ N,
     fun z hz => div_ne_zero (jacobiSecondKindSaddleCoefficient_ne_zero _ _ _ hz)
       (pow_ne_zero _ (hG z hz)), fun K hK hKs => ?_⟩
-  have h := (tendstoUniformlyOn_jacobiSecondKind_div_saddle_shift α β r s N hα hβ hK hKs).seq_tendstoUniformlyOn (fun n => n - N) (tendsto_sub_atTop_nat N)
+  have h := tendstoUniformlyOn_jacobiSecondKind_div_saddle_shift α β r s N hα hβ hK hKs
+    |>.seq_tendstoUniformlyOn (fun n => n - N) (tendsto_sub_atTop_nat N)
   apply h.congr
   filter_upwards [eventually_ge_atTop N] with n hn
   intro z hz

@@ -82,7 +82,8 @@ theorem one_add_mul_exp_mem_slitPlane {t : ℝ} (ht : 0 ≤ t) {ζ : ℂ} (hζ :
   · left
     have h0 : ζ.im = 0 := by
       obtain ⟨k, hk⟩ := Real.sin_eq_zero_iff.mp hs
-      have hk' : |(k : ℝ)| * π < π := by rw [← hk] at hζ; rwa [abs_mul, abs_of_pos Real.pi_pos] at hζ
+      have hk' : |(k : ℝ)| * π < π := by
+        rw [← hk] at hζ; rwa [abs_mul, abs_of_pos Real.pi_pos] at hζ
       have : |(k : ℝ)| < 1 := by nlinarith [Real.pi_pos]
       have : k = 0 := by
         have := abs_lt.mp this
@@ -223,7 +224,8 @@ theorem carlson2F0Sector_eq_integral {a b : ℂ} (ha : 0 < a.re) (hb : 0 < b.re)
           · subst hs'; simp only [zero_mul, zero_add] at hsr ⊢; subst hsr; simpa using hw
   have hf : AnalyticOnNhd ℂ (fun ζ => carlson2F0Sector a b ζ) {ζ : ℂ | |ζ.im| < π} :=
     fun ζ hζ => (analyticOnNhd_carlson2F0Sector (a, b, ζ)
-      (show |ζ.im| < 3 * π / 2 by simp only [mem_ofPred_eq] at hζ; linarith [Real.pi_pos])).comp_of_eq
+      (show |ζ.im| < 3 * π / 2 by
+        simp only [mem_ofPred_eq] at hζ; linarith [Real.pi_pos])).comp_of_eq
       (analyticAt_const.prod (analyticAt_const.prod analyticAt_id)) rfl
   have heq := hf.eqOn_of_preconnected_of_eventuallyEq (analyticOnNhd_twoF0SingleIntegral ha hb) hS
     (show (0 : ℂ) ∈ {ζ : ℂ | |ζ.im| < π} by simp [Real.pi_pos]) (by
@@ -283,7 +285,8 @@ theorem isOpen_eulerContourDomain : IsOpen eulerContourDomain :=
 theorem analyticOnNhd_eulerContourKernel (β β' d : ℂ) :
     AnalyticOnNhd ℂ (eulerContourKernel β β' d) eulerContourDomain := fun u hu => by
   unfold eulerContourKernel
-  exact ((analyticAt_id.mul analyticAt_const).cexp.mul (analyticAt_id.cpow analyticAt_const hu.1)).mul
+  exact ((analyticAt_id.mul analyticAt_const).cexp.mul
+      (analyticAt_id.cpow analyticAt_const hu.1)).mul
     ((analyticAt_const.sub analyticAt_id).cpow analyticAt_const hu.2)
 
 /-- A pointwise bound for the Euler kernel. -/
@@ -690,7 +693,8 @@ theorem regCarlsonS_pair_eq_twoF0_base {β β' : ℂ} (hβ0 : 0 < β.re) (hβ1 :
   -- the ray from `0`
   have hray1 : ∫ μ in Ioi (0 : ℝ), eulerContourKernel β β' d (μ * v) =
       Gamma β * v ^ (β - 1) * carlson2F0Sector (1 - β') β (-ξ) := by
-    rw [carlson2F0Sector_eq_integral (by simp; linarith) hβ0 hζ₂, ← MeasureTheory.integral_const_mul]
+    rw [carlson2F0Sector_eq_integral (by simp; linarith) hβ0 hζ₂,
+        ← MeasureTheory.integral_const_mul]
     refine setIntegral_congr_fun measurableSet_Ioi fun μ hμ => ?_
     simp only [eulerContourKernel, eulerDensity]
     rw [TauCeti.ofReal_mul_cpow hμ.le _,
@@ -743,17 +747,20 @@ theorem convex_im_slab (a b : ℝ) : Convex ℝ {p : ℂ × ℂ × ℂ | a < p.2
 def twoF0ConnectionRhs (ε : ℝ) (p : ℂ × ℂ × ℂ) : ℂ :=
   exp (exp p.2.2) * exp (-(p.2.1 * p.2.2)) * (Gamma p.1)⁻¹ *
       carlson2F0Sector (1 - p.1) p.2.1 (-p.2.2 + (ε * π : ℝ) * I) +
-    exp (-(p.1 * (p.2.2 - (ε * π : ℝ) * I))) * (Gamma p.2.1)⁻¹ * carlson2F0Sector (1 - p.2.1) p.1 (-p.2.2)
+    exp (-(p.1 * (p.2.2 - (ε * π : ℝ) * I))) * (Gamma p.2.1)⁻¹ *
+        carlson2F0Sector (1 - p.2.1) p.1 (-p.2.2)
 
 /-- **Theorem 5.12-8** at `y = 0`: for all complex `β, β'`, and `x = e^ξ` with
 `|ph(x)| = |im ξ| < 3π/2` and `|ph(-x)| = |im ξ - επ| < 3π/2`. -/
 theorem regCarlsonS_pair_exp_eq {ε : ℝ} (hε : ε = 1 ∨ ε = -1) (β β' ξ : ℂ)
     (h1 : |ξ.im| < 3 * π / 2) (h2 : |ξ.im - ε * π| < 3 * π / 2) :
-    regCarlsonS (TwoVariable.pair β β') (TwoVariable.pair (exp ξ) 0) = twoF0ConnectionRhs ε (β, β', ξ) := by
+    regCarlsonS (TwoVariable.pair β β') (TwoVariable.pair (exp ξ) 0) =
+        twoF0ConnectionRhs ε (β, β', ξ) := by
   set T : Set (ℂ × ℂ × ℂ) := {p | -(3 * π / 2) < p.2.2.im ∧ p.2.2.im < 3 * π / 2} ∩
     {p | ε * π - 3 * π / 2 < p.2.2.im ∧ p.2.2.im < ε * π + 3 * π / 2}
   have hTc : IsPreconnected T := ((convex_im_slab _ _).inter (convex_im_slab _ _)).isPreconnected
-  have hmemT : ∀ p : ℂ × ℂ × ℂ, p ∈ T ↔ |p.2.2.im| < 3 * π / 2 ∧ |p.2.2.im - ε * π| < 3 * π / 2 := by
+  have hmemT : ∀ p : ℂ × ℂ × ℂ,
+      p ∈ T ↔ |p.2.2.im| < 3 * π / 2 ∧ |p.2.2.im - ε * π| < 3 * π / 2 := by
     intro p
     simp only [T, mem_inter_iff, mem_ofPred_eq, abs_lt]
     constructor
@@ -901,7 +908,8 @@ theorem sin_mul_carlson2F0Sector (α β η : ℂ) (hη : |η.im| < 3 * π / 2) :
   have e1' : exp (α * η) * exp (-((1 - β) * η)) - exp (β * η) * exp (-((1 - α) * η)) = 0 :=
     sub_eq_zero.mpr e1
   calc sin (π * (β - α)) * F
-      = F * (exp ((ε * π : ℝ) * I * α) * sin (π * β) - exp ((ε * π : ℝ) * I * β) * sin (π * α)) := by
+      = F * (exp ((ε * π : ℝ) * I * α) * sin (π * β) - exp ((ε * π : ℝ) * I * β) *
+          sin (π * α)) := by
         rw [hs]; ring
     _ = π * (exp (exp η) * Fc * (Gamma α)⁻¹ * (Gamma β)⁻¹ * 0 +
           F * (exp ((ε * π : ℝ) * I * α) * (sin (π * β) / π) -

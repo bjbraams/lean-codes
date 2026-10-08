@@ -7,7 +7,6 @@ module
 
 public import Mathlib.Analysis.Convex.Slope
 public import ToMathlib.Analysis.Integral.StrictMono
-public import Mathlib.Tactic
 
 /-!
 # Strict integral comparison for a kernel with two sign changes
@@ -30,16 +29,16 @@ theorem StrictConvexOn.integral_mul_neg_of_two_crossings
     (hs : ∀ᵐ u ∂μ, u ∈ s) (hne : ∀ᵐ u ∂μ, u ≠ a ∧ u ≠ b)
     (hpos : ∀ᵐ u ∂μ, u ∈ Ioo a b → 0 < g u)
     (hneg : ∀ᵐ u ∂μ, u < a ∨ b < u → g u < 0)
-    (hg : Integrable g μ) (hug : Integrable (fun u => u * g u) μ)
-    (hfg : Integrable (fun u => f u * g u) μ)
+    (hg : Integrable g μ) (hug : Integrable (fun u ↦ u * g u) μ)
+    (hfg : Integrable (fun u ↦ f u * g u) μ)
     (h0 : ∫ u, g u ∂μ = 0) (h1 : ∫ u, u * g u ∂μ = 0) :
     (∫ u, f u * g u ∂μ) < 0 := by
-  let L := fun u => ((b - u) * f a + (u - a) * f b) * g u
+  let L := fun u ↦ ((b - u) * f a + (u - a) * f b) * g u
   have he (u : ℝ) : L u = (b * f a - a * f b) * g u + (f b - f a) * (u * g u) := by
     dsimp [L]
     ring
   have hL : Integrable L μ := by
-    change Integrable (fun u => L u) μ
+    change Integrable (fun u ↦ L u) μ
     simp_rw [he]
     exact (hg.const_mul _).add (hug.const_mul _)
   have hL0 : (∫ u, L u ∂μ) = 0 := by
@@ -70,8 +69,8 @@ theorem StrictConcaveOn.integral_mul_pos_of_two_crossings
     (hs : ∀ᵐ u ∂μ, u ∈ s) (hne : ∀ᵐ u ∂μ, u ≠ a ∧ u ≠ b)
     (hpos : ∀ᵐ u ∂μ, u ∈ Ioo a b → 0 < g u)
     (hneg : ∀ᵐ u ∂μ, u < a ∨ b < u → g u < 0)
-    (hg : Integrable g μ) (hug : Integrable (fun u => u * g u) μ)
-    (hfg : Integrable (fun u => f u * g u) μ)
+    (hg : Integrable g μ) (hug : Integrable (fun u ↦ u * g u) μ)
+    (hfg : Integrable (fun u ↦ f u * g u) μ)
     (h0 : ∫ u, g u ∂μ = 0) (h1 : ∫ u, u * g u ∂μ = 0) :
     0 < ∫ u, f u * g u ∂μ := by
   have h := hf.neg.integral_mul_neg_of_two_crossings ha hb hab hs hne hpos hneg hg hug

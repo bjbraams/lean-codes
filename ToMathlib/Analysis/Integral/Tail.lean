@@ -8,6 +8,7 @@ module
 public import Mathlib.MeasureTheory.Integral.IntegralEqImproper
 public import Mathlib.Topology.MetricSpace.Pseudo.Basic
 public import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
+public import Mathlib.Analysis.SpecialFunctions.JapaneseBracket
 
 /-!
 # Uniform control of integral tails
@@ -28,12 +29,8 @@ the explicit tail bound `C * R^(1-p) / (p-1)` when `p > 1`.
   common integrable majorant.
 * `MeasureTheory.norm_integral_Ioi_le_rpow`: A power-decay majorant gives an explicit bound on a
   half-line integral. The exponent must be strictly greater than one.
-
-## References
-
-* `Mathlib.MeasureTheory.Integral.IntegralEqImproper`: formal background used by this module.
-* `Mathlib.Topology.MetricSpace.Pseudo.Basic`: formal background used by this module.
-* `Mathlib.Analysis.SpecialFunctions.ImproperIntegrals`: formal background used by this module.
+* `integrable_one_add_abs_rpow_neg_two`: the standard majorant `(1 + |x|)^(-2)` is integrable on
+  `ℝ`, a special case of Mathlib's `integrable_one_add_norm`.
 -/
 
 public section
@@ -48,10 +45,10 @@ variable {ι F : Type*} [NormedAddCommGroup F] [NormedSpace ℝ F]
 theorem tendstoUniformly_integral_Ioi_zero_of_ae_norm_le
     (hg : IntegrableOn g (Ioi a) μ)
     (hbound : ∀ i, ∀ᵐ t ∂μ.restrict (Ioi a), ‖f i t‖ ≤ g t) :
-    TendstoUniformly (fun R i => ∫ t in Ioi R, f i t ∂μ) (fun _ => 0) atTop := by
+    TendstoUniformly (fun R i ↦ ∫ t in Ioi R, f i t ∂μ) (fun _ ↦ 0) atTop := by
   rw [Metric.tendstoUniformly_iff]
   intro ε hε
-  have htail : Tendsto (fun R => ∫ t in Ioi R, g t ∂μ) atTop (𝓝 0) :=
+  have htail : Tendsto (fun R ↦ ∫ t in Ioi R, g t ∂μ) atTop (𝓝 0) :=
     tendsto_integral_Ioi_zero tendsto_id
   filter_upwards [htail.eventually (gt_mem_nhds hε), eventually_ge_atTop a] with R hR haR
   intro i
@@ -65,8 +62,8 @@ is integrable and has a common integrable majorant. -/
 theorem tendstoUniformly_intervalIntegral_integral_Ioi_of_ae_norm_le
     (hf : ∀ i, IntegrableOn (f i) (Ioi a) μ) (hg : IntegrableOn g (Ioi a) μ)
     (hbound : ∀ i, ∀ᵐ t ∂μ.restrict (Ioi a), ‖f i t‖ ≤ g t) :
-    TendstoUniformly (fun R i => ∫ t in a..R, f i t ∂μ)
-      (fun i => ∫ t in Ioi a, f i t ∂μ) atTop := by
+    TendstoUniformly (fun R i ↦ ∫ t in a..R, f i t ∂μ)
+      (fun i ↦ ∫ t in Ioi a, f i t ∂μ) atTop := by
   rw [Metric.tendstoUniformly_iff]
   intro ε hε
   have htail := Metric.tendstoUniformly_iff.mp
@@ -81,18 +78,18 @@ theorem tendstoUniformly_intervalIntegral_integral_Ioi_of_ae_norm_le
 theorem tendstoUniformly_integral_Ioi_zero_of_norm_le
     (hg : IntegrableOn g (Ioi a) μ)
     (hbound : ∀ i, ∀ t ∈ Ioi a, ‖f i t‖ ≤ g t) :
-    TendstoUniformly (fun R i => ∫ t in Ioi R, f i t ∂μ) (fun _ => 0) atTop :=
+    TendstoUniformly (fun R i ↦ ∫ t in Ioi R, f i t ∂μ) (fun _ ↦ 0) atTop :=
   tendstoUniformly_integral_Ioi_zero_of_ae_norm_le hg
-    (fun i => ae_restrict_of_forall_mem measurableSet_Ioi (hbound i))
+    (fun i ↦ ae_restrict_of_forall_mem measurableSet_Ioi (hbound i))
 
 /-- Pointwise domination gives uniform approximation by finite-interval integrals. -/
 theorem tendstoUniformly_intervalIntegral_integral_Ioi_of_norm_le
     (hf : ∀ i, IntegrableOn (f i) (Ioi a) μ) (hg : IntegrableOn g (Ioi a) μ)
     (hbound : ∀ i, ∀ t ∈ Ioi a, ‖f i t‖ ≤ g t) :
-    TendstoUniformly (fun R i => ∫ t in a..R, f i t ∂μ)
-      (fun i => ∫ t in Ioi a, f i t ∂μ) atTop :=
+    TendstoUniformly (fun R i ↦ ∫ t in a..R, f i t ∂μ)
+      (fun i ↦ ∫ t in Ioi a, f i t ∂μ) atTop :=
   tendstoUniformly_intervalIntegral_integral_Ioi_of_ae_norm_le hf hg
-    (fun i => ae_restrict_of_forall_mem measurableSet_Ioi (hbound i))
+    (fun i ↦ ae_restrict_of_forall_mem measurableSet_Ioi (hbound i))
 
 /-- A power-decay majorant gives an explicit bound on a half-line integral.
 The exponent must be strictly greater than one. -/
@@ -108,3 +105,9 @@ theorem norm_integral_Ioi_le_rpow {f : ℝ → F} {R p C : ℝ}
   rw [show -p + 1 = -(p - 1) by ring, neg_div_neg_eq, neg_sub]
 
 end MeasureTheory
+
+/-- `(1 + |x|)^(-2)` is integrable on `ℝ`. -/
+theorem integrable_one_add_abs_rpow_neg_two :
+    Integrable fun x : ℝ ↦ (1 + |x|) ^ (-2 : ℝ) := by
+  have h := integrable_one_add_norm (E := ℝ) (μ := volume) (r := 2) (by simp)
+  simpa [Real.norm_eq_abs, Real.rpow_neg (by positivity : (0 : ℝ) ≤ 1 + |_|)] using h
