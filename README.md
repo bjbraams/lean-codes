@@ -198,9 +198,20 @@ several-variable theories are documented in their own projects.
 
 ## Dependencies and upstream reuse
 
-The project uses Lean `v4.35.0-rc3`, Mathlib revision
-`5e0c4e5239cb0a2d86d68a884bf52cfd963fce22`, and TauCeti revision
-`a780c7ad6beb23f60a17351a492d177878020ad5`, matching the companion CA and SCV projects.
+The project uses Lean `v4.36.0-rc1`, Mathlib revision
+`911003dd6dea5df215dff57f2717be762e11a6ca`, and TauCeti revision
+`5cdecf40e99d5a5ad0833afff31f5b007d68a149`, matching the companion CA and SCV projects.
+
+The 18 October 2026 upgrade uses Mathlib's development head. TauCeti's own
+Mathlib pin is 65 commits earlier; [TauCeti-4.36.patch](TauCeti-4.36.patch)
+updates one renamed coercion lemma for this snapshot. The shared checkout
+already has this patch. After a fresh dependency checkout, apply it before
+building:
+
+```sh
+git -C .lake/packages/TauCeti apply "$PWD/TauCeti-4.36.patch"
+```
+
 Prefer existing results in **Mathlib, then TauCeti, then local code**, preserving hypotheses
 and conclusions. Import the particular module, for example
 `public import TauCeti.Analysis.Complex.SlitPlane`; `import TauCeti` is not an umbrella.

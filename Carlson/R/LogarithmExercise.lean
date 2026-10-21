@@ -5,6 +5,10 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Mathlib.Analysis.SpecialFunctions.Complex.LogDeriv
+
+public import Mathlib.Analysis.SpecialFunctions.Sqrt
+
 public import Carlson.R.SingleIntegral.PositiveRay
 public import Carlson.R.Explicit
 

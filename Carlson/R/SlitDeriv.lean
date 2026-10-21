@@ -5,6 +5,8 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Mathlib.Analysis.Calculus.Deriv.Prod
+
 public import Carlson.R.Explicit
 public import Carlson.R.SlitRelations
 public import Carlson.R.Deriv

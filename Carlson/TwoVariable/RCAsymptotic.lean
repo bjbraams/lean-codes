@@ -5,6 +5,8 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
+
 public import Carlson.TwoVariable.Borchardt
 public import Carlson.TwoVariable.GaussHypergeometric
 public import Carlson.TwoVariable.ParameterSymmetry

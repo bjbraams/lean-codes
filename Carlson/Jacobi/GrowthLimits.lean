@@ -596,7 +596,9 @@ theorem not_summable_jacobiOn (α β r s : ℂ) (hc : IsGammaRegular (α + β + 
       (1 / σ - ε) ^ n * (m - ε) ^ n = (1 / c * (1 / σ - ε) ^ n) * (c * (m - ε) ^ n) := by
         field_simp
       _ ≤ ‖a n‖ * ‖(jacobiOn α β r s n).eval x‖ :=
-        mul_le_mul hn1 (hN n hnN) (by positivity) (norm_nonneg _)
+        mul_le_mul hn1 (hN n hnN)
+          (mul_nonneg hc0.le (pow_nonneg (by simp only [id_eq] at hε2; linarith) _))
+          (norm_nonneg _)
   linarith
 
 /-- If the terms of a Jacobi series are bounded at one point off the segment, its coefficients

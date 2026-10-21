@@ -5,6 +5,8 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Mathlib.Analysis.SpecialFunctions.Complex.Analytic
+
 public import Carlson.Jacobi.EndpointBridge
 
 /-!

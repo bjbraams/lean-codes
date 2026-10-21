@@ -5,6 +5,8 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Mathlib.Analysis.SpecialFunctions.Complex.LogDeriv
+
 public import Carlson.R.SlitIntegral
 public import Dirichlet.Average.CauchyCycle
 

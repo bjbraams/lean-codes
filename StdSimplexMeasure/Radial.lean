@@ -201,7 +201,7 @@ theorem map_polarMap [Nonempty ι] :
     ← lintegral_indicator_one (hs.inter measurableSet_nonnegOrthant),
     lintegral_eq_radial_stdSimplex ((s ∩ nonnegOrthant).indicator 1) (measurable_one.indicator
       (hs.inter measurableSet_nonnegOrthant))
-      (fun x hx => indicator_of_notMem (fun h => hx h.2) _)]
+      (fun x hx => indicator_of_notMem (fun (h : x ∈ s ∩ nonnegOrthant) => hx h.2) _)]
   refine setLIntegral_congr_fun measurableSet_Ioi fun t ht => ?_
   simp only [Pi.mul_apply]
   congr 1

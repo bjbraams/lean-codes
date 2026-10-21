@@ -96,7 +96,7 @@ theorem hasDerivAt_cauchyKernelIntegral (hΓ : Γ.IsC1) {f : ℂ → ℂ}
     hp.1 (by rw [← sub_eq_zero.mp h]; exact hp.2)
   have hK : ∀ m : ℤ, ContinuousOn (fun p : ℂ × ℂ ↦ f p.2 * (p.2 - p.1) ^ m)
       (Γ.rangeᶜ ×ˢ Γ.range) := fun m ↦
-    (hf.comp continuous_snd.continuousOn fun p hp ↦ hp.2).mul
+    (hf.comp continuous_snd.continuousOn fun p (hp : p ∈ Γ.rangeᶜ ×ˢ Γ.range) ↦ hp.2).mul
       ((continuous_snd.sub continuous_fst).continuousOn.zpow₀ m fun p hp ↦ Or.inl (hne p hp))
   have h := Γ.hasDerivAt_integral_kernel hΓ Γ.isOpen_compl_range subset_rfl
     (K := fun z s ↦ f s * (s - z) ^ (-((k : ℤ) + 1)))
@@ -251,8 +251,8 @@ theorem regCarlsonDirichletAverage_iteratedDeriv_eq_cycleIntegral (n : ℕ) {b :
       m * regCarlsonDirichletAverage b z (iteratedDeriv n f) := by
   have hF : ContinuousOn (fun p : ℂ × (ι → ℝ) => carlsonCauchyKernel n z p.2 p.1 * f p.1)
       (Γ.range ×ˢ Convexity.StdSimplex.coordinateSet ℝ ι) :=
-    ((continuousOn_carlsonCauchyKernel n z).mono (fun _ hp => ⟨havoid hp.1, hp.2⟩)).mul
-      ((hf.continuousOn.mono hΓU).comp continuous_fst.continuousOn (fun _ hp => hp.1))
+    ((continuousOn_carlsonCauchyKernel n z).mono (fun p (hp : p ∈ Γ.range ×ˢ Convexity.StdSimplex.coordinateSet ℝ ι) => ⟨havoid hp.1, hp.2⟩)).mul
+      ((hf.continuousOn.mono hΓU).comp continuous_fst.continuousOn (fun p (hp : p ∈ Γ.range ×ˢ Convexity.StdSimplex.coordinateSet ℝ ι) => hp.1))
   have hres : ∀ s, regCarlsonResolvent n b z s * f s =
       regDirichletIntegral b (fun u => carlsonCauchyKernel n z u s * f s) := by
     intro s

@@ -35,7 +35,7 @@ repeated Schwarz reflection is not formalized here.
 * `Carlson.bijOn_carlsonRF_sub`, `Carlson.scPolygon_weierstrass`: Example 8.2-2.
 * `Carlson.hasDerivAt_weierstrassInv`, `Carlson.sq_deriv_weierstrassInv`: (8.2-11), (8.2-12).
 * `Carlson.bijOn_snV`, `Carlson.snV_ofReal`: Example 8.2-3.
-* `Carlson.hasDerivAt_jacobiSn`, `Carlson.sq_deriv_jacobiSn`: the differential equation of `sn`.
+* `Carlson.hasDerivAt_jacobiSnk`, `Carlson.sq_deriv_jacobiSnk`: the differential equation of `sn`.
 
 ## References
 
@@ -529,28 +529,30 @@ theorem bijOn_snV : BijOn (snV k) {z | 0 < z.im} (snRect k) := by
     ring
 
 omit hk0 hk1 in
-/-- **Jacobi's elliptic sine** on Carlson's rectangle: the inverse of `v`. -/
-def jacobiSn (k : ℝ) (v : ℂ) : ℂ := scMapInv 1 (fun _ => 1 / 2) (snNodes k) (snW₀ k + k * v)
+/-- **Jacobi's elliptic sine** `sn(v, k)` of modulus `k` on Carlson's rectangle: the inverse of
+`v`. The argument order is DLMF's (22.2.4); outside `snRect k` the value is unspecified. -/
+def jacobiSnk (v : ℂ) (k : ℝ) : ℂ := scMapInv 1 (fun _ => 1 / 2) (snNodes k) (snW₀ k + k * v)
 
-theorem jacobiSn_mem {v : ℂ} (hv : v ∈ snRect k) : 0 < (jacobiSn k v).im :=
+theorem jacobiSnk_mem {v : ℂ} (hv : v ∈ snRect k) : 0 < (jacobiSnk v k).im :=
   scMapInv_mem (snParams hk0 hk1) le_rfl ((add_mul_mem_scPolygon_sn_iff hk0 hk1 v).mpr hv)
 
-theorem snV_jacobiSn {v : ℂ} (hv : v ∈ snRect k) : snV k (jacobiSn k v) = v := by
+theorem snV_jacobiSnk {v : ℂ} (hv : v ∈ snRect k) : snV k (jacobiSnk v k) = v := by
   have hk : (k : ℂ) ≠ 0 := by exact_mod_cast hk0.ne'
-  rw [snV, jacobiSn, scMap_scMapInv (snParams hk0 hk1) le_rfl
+  rw [snV, jacobiSnk, scMap_scMapInv (snParams hk0 hk1) le_rfl
     ((add_mul_mem_scPolygon_sn_iff hk0 hk1 v).mpr hv)]
   field_simp
   ring
 
-theorem jacobiSn_snV {z : ℂ} (hz : 0 < z.im) : jacobiSn k (snV k z) = z := by
+theorem jacobiSnk_snV {z : ℂ} (hz : 0 < z.im) : jacobiSnk (snV k z) k = z := by
   have hk : (k : ℂ) ≠ 0 := by exact_mod_cast hk0.ne'
-  rw [jacobiSn, show snW₀ k + k * snV k z = scMap 1 (fun _ => 1 / 2) (snNodes k) z by
+  rw [jacobiSnk, show snW₀ k + k * snV k z = scMap 1 (fun _ => 1 / 2) (snNodes k) z by
     rw [snV]; field_simp; ring]
   exact scMapInv_scMap (snParams hk0 hk1) le_rfl hz
 
 /-- The derivative of `sn`: `sn' = -k ∏ (sn - xᵢ)^{1/2}`. -/
-theorem hasDerivAt_jacobiSn {v : ℂ} (hv : v ∈ snRect k) :
-    HasDerivAt (jacobiSn k) (-k * ∏ i, (jacobiSn k v - snNodes k i) ^ (1 / 2 : ℂ)) v := by
+theorem hasDerivAt_jacobiSnk {v : ℂ} (hv : v ∈ snRect k) :
+    HasDerivAt (fun v => jacobiSnk v k)
+      (-k * ∏ i, (jacobiSnk v k - snNodes k i) ^ (1 / 2 : ℂ)) v := by
   have hp := snParams hk0 hk1
   have hmem := (add_mul_mem_scPolygon_sn_iff hk0 hk1 v).mpr hv
   have hz := scMapInv_mem hp le_rfl hmem
@@ -559,7 +561,7 @@ theorem hasDerivAt_jacobiSn {v : ℂ} (hv : v ∈ snRect k) :
   have hlin : HasDerivAt (fun v : ℂ => snW₀ k + k * v) k v := by
     simpa using ((hasDerivAt_id v).const_mul (k : ℂ)).const_add (snW₀ k)
   have := h.comp v hlin
-  unfold jacobiSn
+  unfold jacobiSnk
   convert this using 1
   · rfl
   rw [scIntegrand]
@@ -570,10 +572,11 @@ theorem hasDerivAt_jacobiSn {v : ℂ} (hv : v ∈ snRect k) :
   ring
 
 /-- **The differential equation of `sn`**: `(sn')² = (1 - sn²)(1 - k² sn²)`. -/
-theorem sq_deriv_jacobiSn {v : ℂ} (hv : v ∈ snRect k) :
-    deriv (jacobiSn k) v ^ 2 = (1 - jacobiSn k v ^ 2) * (1 - k ^ 2 * jacobiSn k v ^ 2) := by
+theorem sq_deriv_jacobiSnk {v : ℂ} (hv : v ∈ snRect k) :
+    deriv (fun v => jacobiSnk v k) v ^ 2 =
+      (1 - jacobiSnk v k ^ 2) * (1 - k ^ 2 * jacobiSnk v k ^ 2) := by
   have hk : (k : ℂ) ≠ 0 := by exact_mod_cast hk0.ne'
-  rw [(hasDerivAt_jacobiSn hk0 hk1 hv).deriv, mul_pow, sq_prod_cpow_half, Fin.prod_univ_four]
+  rw [(hasDerivAt_jacobiSnk hk0 hk1 hv).deriv, mul_pow, sq_prod_cpow_half, Fin.prod_univ_four]
   simp only [snNodes, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.cons_val_two,
     Matrix.cons_val_three, Matrix.head_cons, Matrix.tail_cons]
   push_cast

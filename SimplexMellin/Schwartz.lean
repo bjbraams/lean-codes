@@ -53,9 +53,9 @@ theorem contDiff_simplexAngle [Nonempty ι] {g : (ι → ℝ) → ℂ} (hg : Con
     ContDiff ℝ ∞ (simplexAngle g) := by
   have hof : ContDiff ℝ ∞ fun y : EuclideanSpace ℝ ι => (y.ofLp : ι → ℝ) := PiLp.contDiff_ofLp
   have hpe : ContDiff ℝ ∞ fun y : EuclideanSpace ℝ ι => piExp y.ofLp :=
-    contDiff_pi.mpr fun i => Real.contDiff_exp.comp ((contDiff_apply ℝ ℝ i).comp hof)
+    contDiff_pi.mpr fun i => Real.contDiff_exp.comp ((contDiff_apply ℝ (fun _ => ℝ) i).comp hof)
   have hsc : ContDiff ℝ ∞ fun y : EuclideanSpace ℝ ι => ∑ i, piExp y.ofLp i :=
-    ContDiff.sum fun i _ => (contDiff_apply ℝ ℝ i).comp hpe
+    ContDiff.sum fun i _ => (contDiff_apply ℝ (fun _ => ℝ) i).comp hpe
   have hpos : ∀ y : EuclideanSpace ℝ ι, ∑ i, piExp y.ofLp i ≠ 0 := fun y =>
     (Finset.sum_pos (fun i _ => Real.exp_pos _) Finset.univ_nonempty).ne'
   exact hg.comp ((hsc.inv hpos).smul hpe)

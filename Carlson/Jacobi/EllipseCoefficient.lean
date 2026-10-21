@@ -229,7 +229,7 @@ theorem isRegCarlsonContinuation_jacobiEllipseCycle (n : ℕ) {r s : ℂ} {τ : 
     isOpen_lt (continuous_jacobiEllipseRadius r s) continuous_const
   have hloc0 : TendstoLocallyUniformlyOn (fun N x => (P N).eval x) f atTop
       (jacobiEllipseDisk r s ρ) :=
-    (hunifP.mono (fun x (hx : jacobiEllipseRadius r s x < ρ) => hx.le)).tendstoLocallyUniformlyOn
+    (hunifP.mono (s' := jacobiEllipseDisk r s ρ) (fun x (hx : jacobiEllipseRadius r s x < ρ) => hx.le)).tendstoLocallyUniformlyOn
   have hlock : ∀ k, TendstoLocallyUniformlyOn (fun N x => (derivative^[k] (P N)).eval x)
       (iteratedDeriv k f) atTop (jacobiEllipseDisk r s ρ) := by
     intro k

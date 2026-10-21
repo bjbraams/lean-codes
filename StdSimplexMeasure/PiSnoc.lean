@@ -5,6 +5,8 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Mathlib.Algebra.BigOperators.Fin
+
 public import Mathlib.MeasureTheory.Constructions.Pi
 
 /-!

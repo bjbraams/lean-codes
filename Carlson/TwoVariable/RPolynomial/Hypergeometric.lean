@@ -5,6 +5,8 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Mathlib.Data.Nat.Choose.Cast
+
 public import Carlson.TwoVariable.RPolynomial
 public import Carlson.TwoVariable.PolynomialDifferential
 public import Carlson.RPolynomial.NumeratorBinomial

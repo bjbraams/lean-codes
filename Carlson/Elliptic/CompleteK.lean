@@ -11,15 +11,16 @@ public import Carlson.Elliptic.SchwarzChristoffel
 /-!
 # Transformations of the complete elliptic integral `K` (Exercise 6.10-5)
 
-With `K(k) = (π/2) R_K(k'², 1)` (`legendreK_eq`), the imaginary-modulus transformation follows
-from the homogeneity of `R_K` and Landen's transformation from Gauss's invariance
+With `K(k) = (π/2) R_K(k'², 1)` (`Real.compEllIntKk_eq`), the imaginary-modulus transformation
+follows from the homogeneity of `R_K` and Landen's transformation from Gauss's invariance
 `R_K(x², y²) = R_K(((x+y)/2)², xy)` (`TwoVariable.carlsonRK_sq_eq`).
 
 ## Main results
 
-* `Carlson.legendreK_imaginary_modulus`: `K(k) = (1/k') K(ik/k')`, where `K` at the imaginary
-  modulus `ik/k'` is `(π/2) R_K(1 + (k/k')², 1)`.
-* `Carlson.legendreK_landen`: Landen's transformation `K(k) = 2/(1 + k') K((1 - k')/(1 + k'))`.
+* `Carlson.Real.compEllIntKk_imaginary_modulus`: `K(k) = (1/k') K(ik/k')`, where `K` at the
+  imaginary modulus `ik/k'` is `(π/2) R_K(1 + (k/k')², 1)`.
+* `Carlson.Real.compEllIntKk_landen`: Landen's transformation
+  `K(k) = 2/(1 + k') K((1 - k')/(1 + k'))`.
 
 ## References
 
@@ -43,8 +44,8 @@ theorem ofReal_cpow_neg_half {l : ℝ} (hl : 0 < l) :
 /-- **Exercise 6.10-5, first relation**: for `k² < 1` and `k' = √(1 - k²)`,
 `K(k) = (1/k') K(ik/k')`, where
 `K(ik/k') = (π/2) R_K(1 - (ik/k')², 1) = (π/2) R_K(1 + (k/k')², 1)`. -/
-theorem legendreK_imaginary_modulus {k : ℝ} (hk : k ^ 2 < 1) :
-    (legendreK k : ℂ) = (1 / Real.sqrt (1 - k ^ 2) : ℝ) *
+theorem Real.compEllIntKk_imaginary_modulus {k : ℝ} (hk : k ^ 2 < 1) :
+    (Real.compEllIntKk k : ℂ) = (1 / Real.sqrt (1 - k ^ 2) : ℝ) *
       (π / 2 * carlsonRK (1 + (k / Real.sqrt (1 - k ^ 2)) ^ 2 : ℝ) 1) := by
   set k' := Real.sqrt (1 - k ^ 2)
   have hk' : 0 < k' := Real.sqrt_pos.mpr (by linarith)
@@ -52,7 +53,7 @@ theorem legendreK_imaginary_modulus {k : ℝ} (hk : k ^ 2 < 1) :
   have hne : 1 - k ^ 2 ≠ 0 := by linarith
   have hval : 1 + (k / k') ^ 2 = 1 / k' ^ 2 := by
     rw [div_pow, hk'2]; field_simp; ring
-  rw [hval, legendreK_eq hk]
+  rw [hval, Real.compEllIntKk_eq hk]
   have hl : 0 < 1 / k' ^ 2 := by positivity
   have h := carlsonRK_mul_of_pos hl (x := 1) (y := ((k' ^ 2 : ℝ) : ℂ)) one_mem_slitPlane
     (by rw [mem_slitPlane_iff]; left; simp only [ofReal_re]; exact pow_pos hk' 2)
@@ -68,9 +69,9 @@ theorem legendreK_imaginary_modulus {k : ℝ} (hk : k ^ 2 < 1) :
 
 /-- **Exercise 6.10-5, Landen's transformation**: for `0 ≤ k < 1` and `k' = √(1 - k²)`,
 `K(k) = 2/(1 + k') K((1 - k')/(1 + k'))`. -/
-theorem legendreK_landen {k : ℝ} (hk : k ^ 2 < 1) :
-    legendreK k = 2 / (1 + Real.sqrt (1 - k ^ 2)) *
-      legendreK ((1 - Real.sqrt (1 - k ^ 2)) / (1 + Real.sqrt (1 - k ^ 2))) := by
+theorem Real.compEllIntKk_landen {k : ℝ} (hk : k ^ 2 < 1) :
+    Real.compEllIntKk k = 2 / (1 + Real.sqrt (1 - k ^ 2)) *
+      Real.compEllIntKk ((1 - Real.sqrt (1 - k ^ 2)) / (1 + Real.sqrt (1 - k ^ 2))) := by
   set k' := Real.sqrt (1 - k ^ 2)
   have hk' : 0 < k' := Real.sqrt_pos.mpr (by linarith)
   have hk'2 : k' ^ 2 = 1 - k ^ 2 := Real.sq_sqrt (by linarith)
@@ -83,7 +84,7 @@ theorem legendreK_landen {k : ℝ} (hk : k ^ 2 < 1) :
     simp only [k₁]; field_simp; ring
   apply Complex.ofReal_injective
   push_cast
-  rw [legendreK_eq hk, legendreK_eq hk₁, h1k₁, ← hk'2]
+  rw [Real.compEllIntKk_eq hk, Real.compEllIntKk_eq hk₁, h1k₁, ← hk'2]
   -- Gauss: `R_K(k'², 1²) = R_K(m², k')` with `m = (1 + k')/2`
   have hg := carlsonRK_sq_eq (k' : ℂ) 1 (by simpa using hk') (by simp)
   rw [one_pow, mul_one] at hg

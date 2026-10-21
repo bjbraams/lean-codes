@@ -398,7 +398,7 @@ theorem smoothNearStdSimplex_logRatioKernel (i₀ : ι) (s : ℂ) {ψ : ({j : ι
       have hcoords : ContDiffAt ℝ ∞ (logRatioCoords i₀) u := by
         refine contDiffAt_pi.mpr fun j => ?_
         exact (ContDiffAt.div (f := fun x : ι → ℝ => x j) (g := fun x : ι → ℝ => x i₀)
-          (contDiff_apply ℝ ℝ (j : ι)).contDiffAt (contDiff_apply ℝ ℝ i₀).contDiffAt
+          (contDiff_apply ℝ (fun _ => ℝ) (j : ι)).contDiffAt (contDiff_apply ℝ (fun _ => ℝ) i₀).contDiffAt
           (hpos i₀).ne').log (div_pos (hpos j) (hpos i₀)).ne'
       have hZ : ContDiffAt ℝ ∞ (fun x => logRatioZ i₀ (logRatioCoords i₀ x)) u := by
         simp only [logRatioZ, piExp]
@@ -406,7 +406,7 @@ theorem smoothNearStdSimplex_logRatioKernel (i₀ : ι) (s : ℂ) {ψ : ({j : ι
         by_cases hi : i = i₀
         · subst hi; simp only [logRatioExt, dite_true]; exact contDiffAt_const
         · simp only [logRatioExt, hi, dite_false]
-          exact (contDiff_apply ℝ ℝ _).contDiffAt.comp _ hcoords
+          exact (contDiff_apply ℝ (fun _ => ℝ) _).contDiffAt.comp _ hcoords
       have hZpos : 0 < logRatioZ i₀ (logRatioCoords i₀ u) := logRatioZ_pos i₀ _
       have hcpow : ContDiffAt ℝ ∞ (fun x => (logRatioZ i₀ (logRatioCoords i₀ x) : ℂ) ^ s) u := by
         have hlog : ContDiffAt ℝ ∞ (fun x => Real.log (logRatioZ i₀ (logRatioCoords i₀ x))) u :=
@@ -562,11 +562,11 @@ theorem contDiff_piExp_logRatioExt (i₀ : ι) :
   refine contDiff_pi.mpr fun i => Real.contDiff_exp.comp ?_
   by_cases hi : i = i₀
   · subst hi; simp only [logRatioExt, dite_true]; exact contDiff_const
-  · simp only [logRatioExt, hi, dite_false]; exact contDiff_apply ℝ ℝ _
+  · simp only [logRatioExt, hi, dite_false]; exact contDiff_apply ℝ (fun _ => ℝ) _
 
 /-- The normalizing sum depends smoothly on the log-ratio coordinates. -/
 theorem contDiff_logRatioZ (i₀ : ι) : ContDiff ℝ ∞ (logRatioZ i₀) :=
-  ContDiff.sum fun i _ => (contDiff_apply ℝ ℝ i).comp (contDiff_piExp_logRatioExt i₀)
+  ContDiff.sum fun i _ => (contDiff_apply ℝ (fun _ => ℝ) i).comp (contDiff_piExp_logRatioExt i₀)
 
 /-- The log-ratio point depends smoothly on its coordinates. -/
 theorem contDiff_logRatioPoint (i₀ : ι) : ContDiff ℝ ∞ (logRatioPoint i₀) :=

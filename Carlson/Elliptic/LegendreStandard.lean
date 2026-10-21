@@ -19,16 +19,17 @@ proves the relations of §9.2 and Example 9.3-1 for real arguments.
 
 ## Main results
 
-* `Carlson.legendreEc_eq`: (9.2-14), `E(k) = (π/2) R_E(1 - k², 1)`.
-* `Carlson.sin_mul_legendreE_eq`: Example 9.3-1, equation (3), `E(φ, k)` in the symmetric
+* `Carlson.Real.compEllIntEk_eq`: (9.2-14), `E(k) = (π/2) R_E(1 - k², 1)`.
+* `Carlson.Real.sin_mul_incEllIntEk_eq`: Example 9.3-1, equation (3), `E(φ, k)` in the symmetric
   standard functions.
-* `Carlson.legendreF_arccos_eq`, `Carlson.carlsonRG_eq_legendre`: (9.2-12) and (9.2-13).
-* `Carlson.carlsonRK_eq_legendreK`, `Carlson.carlsonRE_eq_legendreEc`: (9.2-15).
-* `Carlson.carlsonRH_eq_legendrePi`: Exercise 9.3-1.
+* `Carlson.Real.incEllIntFk_arccos_eq`, `Carlson.carlsonRG_eq_legendre`: (9.2-12) and (9.2-13).
+* `Carlson.carlsonRK_eq_compEllIntKk`, `Carlson.carlsonRE_eq_compEllIntEk`: (9.2-15).
+* `Carlson.carlsonRH_eq_incEllIntPik`: Exercise 9.3-1.
 * `Carlson.carlsonR_smul_of_pos`, `Carlson.carlsonRG_mul_of_pos`: homogeneity.
-* `Carlson.legendreF_inv`, `Carlson.legendreE_inv`: Exercise 9.2-2, the reciprocal-modulus
-  transformation, using `Carlson.legendreF_eq_of_mul_lt` and `Carlson.legendreE_eq_of_mul_lt`
-  (Legendre's integrals as `R` functions whenever `k² sin² φ < 1`).
+* `Carlson.Real.incEllIntFk_inv`, `Carlson.Real.incEllIntEk_inv`: Exercise 9.2-2, the
+  reciprocal-modulus transformation, using `Carlson.Real.incEllIntFk_eq_of_mul_lt` and
+  `Carlson.Real.incEllIntEk_eq_of_mul_lt` (Legendre's integrals as `R` functions whenever
+  `k² sin² φ < 1`).
 
 ## References
 
@@ -104,8 +105,8 @@ private theorem integral_Ioo_sn_second_complete {k : ℝ} (hk : k ^ 2 < 1) :
 
 /-- **Carlson's (9.2-14), second kind**: for `k² < 1`, the complete integral
 `E(k) = (π/2) R_E(1 - k², 1)`. -/
-theorem legendreEc_eq {k : ℝ} (hk : k ^ 2 < 1) :
-    (legendreEc k : ℂ) = π / 2 * carlsonRE ((1 - k ^ 2 : ℝ) : ℂ) 1 := by
+theorem Real.compEllIntEk_eq {k : ℝ} (hk : k ^ 2 < 1) :
+    (Real.compEllIntEk k : ℂ) = π / 2 * carlsonRE ((1 - k ^ 2 : ℝ) : ℂ) 1 := by
   have h := integral_legendre_eq (by positivity : (0 : ℝ) < π / 2) le_rfl
     (fun t => (1 - k ^ 2 * t ^ 2) ^ (1 / 2 : ℝ))
   rw [Real.sin_pi_div_two] at h
@@ -113,7 +114,7 @@ theorem legendreEc_eq {k : ℝ} (hk : k ^ 2 < 1) :
     (ofReal_mem_slitPlane.mpr (by linarith)) one_mem_slitPlane
   unfold carlsonR at hrow
   rw [show (∑ i, (![-1 / 2, 3 / 2] : Fin 2 → ℂ) i) = 1 by simp; norm_num, Gamma_one] at hrow
-  unfold legendreEc legendreE
+  unfold Real.compEllIntEk Real.incEllIntEk
   rw [h, integral_Ioo_sn_second_complete hk]
   linear_combination (π / 2 : ℂ) * hrow
 
@@ -148,8 +149,8 @@ private theorem ofReal_mul_cpow_neg_half {r : ℝ} (hr : 0 < r) :
 /-- **Carlson's Example 9.3-1**, equation (3): for `0 < φ < π/2` and `k² < 1`,
 `sin φ E(φ, k) = 2 R_G(1 - k² sin² φ, cos² φ, 1) - cos² φ R_F(1 - k² sin² φ, cos² φ, 1)
 - cos φ (1 - k² sin² φ)^{1/2}`. -/
-theorem sin_mul_legendreE_eq {φ k : ℝ} (h0 : 0 < φ) (h1 : φ < π / 2) (hk : k ^ 2 < 1) :
-    (Real.sin φ : ℂ) * legendreE φ k =
+theorem Real.sin_mul_incEllIntEk_eq {φ k : ℝ} (h0 : 0 < φ) (h1 : φ < π / 2) (hk : k ^ 2 < 1) :
+    (Real.sin φ : ℂ) * Real.incEllIntEk φ k =
       2 * carlsonRG ((1 - k ^ 2 * Real.sin φ ^ 2 : ℝ) : ℂ) ((Real.cos φ ^ 2 : ℝ) : ℂ) 1 -
         ((Real.cos φ ^ 2 : ℝ) : ℂ) *
           carlsonRF ((1 - k ^ 2 * Real.sin φ ^ 2 : ℝ) : ℂ) ((Real.cos φ ^ 2 : ℝ) : ℂ) 1 -
@@ -162,7 +163,7 @@ theorem sin_mul_legendreE_eq {φ k : ℝ} (h0 : 0 < φ) (h1 : φ < π / 2) (hk :
   have hY : 0 < Real.cos φ ^ 2 := by positivity
   have hrow := carlsonR_table_9_3_1_row1 (ofReal_mem_slitPlane.mpr hX)
     (ofReal_mem_slitPlane.mpr hY) one_mem_slitPlane
-  rw [legendreE_eq h0 h1 hk]
+  rw [Real.incEllIntEk_eq h0 h1 hk]
   have hQX := ofReal_mul_cpow_neg_half hX
   have hQY := ofReal_mul_cpow_neg_half hY
   rw [Real.sqrt_sq hc.le] at hQY
@@ -232,12 +233,12 @@ private theorem carlsonRG_div {x y z : ℝ} (hx : 0 < x) (hy : 0 < y) (hz : 0 < 
 
 /-- **Carlson's (9.2-12)**: for real `0 < x < y < z`,
 `F(arccos √(x/z), √((z - y)/(z - x))) = (z - x)^{1/2} R_F(x, y, z)`. -/
-theorem legendreF_arccos_eq {x y z : ℝ} (hx : 0 < x) (hxy : x < y) (hyz : y < z) :
-    (legendreF (Real.arccos (Real.sqrt (x / z))) (Real.sqrt ((z - y) / (z - x))) : ℂ) =
+theorem Real.incEllIntFk_arccos_eq {x y z : ℝ} (hx : 0 < x) (hxy : x < y) (hyz : y < z) :
+    (Real.incEllIntFk (Real.arccos (Real.sqrt (x / z))) (Real.sqrt ((z - y) / (z - x))) : ℂ) =
       Real.sqrt (z - x) * carlsonRF x y z := by
   obtain ⟨h0, h1, hk, hc2, -, hs, hX⟩ := arccos_facts hx hxy hyz
   have hz : 0 < z := by linarith
-  rw [legendreF_eq h0 h1 hk, hc2, hX, carlsonRF_div hx (by linarith) hz, hs]
+  rw [Real.incEllIntFk_eq h0 h1 hk, hc2, hX, carlsonRF_div hx (by linarith) hz, hs]
   have : (Real.sqrt z : ℂ) ≠ 0 := ofReal_ne_zero.mpr (Real.sqrt_pos.mpr hz).ne'
   push_cast
   field_simp
@@ -248,19 +249,19 @@ theorem legendreF_arccos_eq {x y z : ℝ} (hx : 0 < x) (hxy : x < y) (hyz : y < 
 theorem carlsonRG_eq_legendre {x y z : ℝ} (hx : 0 < x) (hxy : x < y) (hyz : y < z) :
     carlsonRG x y z =
       1 / 2 * Real.sqrt (z - x) *
-          legendreE (Real.arccos (Real.sqrt (x / z))) (Real.sqrt ((z - y) / (z - x))) +
+          Real.incEllIntEk (Real.arccos (Real.sqrt (x / z))) (Real.sqrt ((z - y) / (z - x))) +
         1 / 2 * x / Real.sqrt (z - x) *
-          legendreF (Real.arccos (Real.sqrt (x / z))) (Real.sqrt ((z - y) / (z - x))) +
+          Real.incEllIntFk (Real.arccos (Real.sqrt (x / z))) (Real.sqrt ((z - y) / (z - x))) +
         1 / 2 * Real.sqrt (x * y / z) := by
   obtain ⟨h0, h1, hk, hc2, hc, hs, hX⟩ := arccos_facts hx hxy hyz
   have hz : 0 < z := by linarith
   have hy : 0 < y := by linarith
-  have hE := sin_mul_legendreE_eq h0 h1 hk
+  have hE := Real.sin_mul_incEllIntEk_eq h0 h1 hk
   rw [hX, hc2, hc, carlsonRG_div hx hy hz, carlsonRF_comm_left
     (ofReal_mem_slitPlane.mpr (div_pos hx hz))
     (ofReal_mem_slitPlane.mpr (div_pos hy hz)) one_mem_slitPlane,
     carlsonRF_div hx hy hz, hs] at hE
-  rw [legendreF_arccos_eq hx hxy hyz]
+  rw [Real.incEllIntFk_arccos_eq hx hxy hyz]
   have hsz : 0 < Real.sqrt z := Real.sqrt_pos.mpr hz
   have hszx : 0 < Real.sqrt (z - x) := Real.sqrt_pos.mpr (by linarith)
   have e1 : Real.sqrt (x / z) * Real.sqrt (y / z) = Real.sqrt (x * y / z) / Real.sqrt z := by
@@ -282,13 +283,13 @@ theorem carlsonRG_eq_legendre {x y z : ℝ} (hx : 0 < x) (hxy : x < y) (hyz : y 
 
 /-- **Carlson's (9.2-15)**, first kind: for real `0 < x ≤ y`,
 `R_K(x, y) = (2/π) y^{-1/2} K((1 - x/y)^{1/2})`. -/
-theorem carlsonRK_eq_legendreK {x y : ℝ} (hx : 0 < x) (hxy : x ≤ y) :
-    carlsonRK x y = 2 / π * (Real.sqrt y : ℂ)⁻¹ * legendreK (Real.sqrt (1 - x / y)) := by
+theorem carlsonRK_eq_compEllIntKk {x y : ℝ} (hx : 0 < x) (hxy : x ≤ y) :
+    carlsonRK x y = 2 / π * (Real.sqrt y : ℂ)⁻¹ * Real.compEllIntKk (Real.sqrt (1 - x / y)) := by
   have hy : 0 < y := hx.trans_le hxy
   have h1 : 0 ≤ 1 - x / y := by rw [sub_nonneg, div_le_one hy]; exact hxy
   have hk : Real.sqrt (1 - x / y) ^ 2 < 1 := by
     rw [Real.sq_sqrt h1]; have := div_pos hx hy; linarith
-  rw [legendreK_eq hk, Real.sq_sqrt h1, show 1 - (1 - x / y) = x / y by ring]
+  rw [Real.compEllIntKk_eq hk, Real.sq_sqrt h1, show 1 - (1 - x / y) = x / y by ring]
   have h := carlsonRK_mul_of_pos (inv_pos.mpr hy) (ofReal_mem_slitPlane.mpr hx)
     (ofReal_mem_slitPlane.mpr hy)
   rw [ofReal_cpow_neg_half (inv_pos.mpr hy), Real.sqrt_inv, inv_inv] at h
@@ -302,13 +303,13 @@ theorem carlsonRK_eq_legendreK {x y : ℝ} (hx : 0 < x) (hxy : x ≤ y) :
 
 /-- **Carlson's (9.2-15)**, second kind: for real `0 < x ≤ y`,
 `R_E(x, y) = (2/π) y^{1/2} E((1 - x/y)^{1/2})`. -/
-theorem carlsonRE_eq_legendreEc {x y : ℝ} (hx : 0 < x) (hxy : x ≤ y) :
-    carlsonRE x y = 2 / π * (Real.sqrt y : ℂ) * legendreEc (Real.sqrt (1 - x / y)) := by
+theorem carlsonRE_eq_compEllIntEk {x y : ℝ} (hx : 0 < x) (hxy : x ≤ y) :
+    carlsonRE x y = 2 / π * (Real.sqrt y : ℂ) * Real.compEllIntEk (Real.sqrt (1 - x / y)) := by
   have hy : 0 < y := hx.trans_le hxy
   have h1 : 0 ≤ 1 - x / y := by rw [sub_nonneg, div_le_one hy]; exact hxy
   have hk : Real.sqrt (1 - x / y) ^ 2 < 1 := by
     rw [Real.sq_sqrt h1]; have := div_pos hx hy; linarith
-  rw [legendreEc_eq hk, Real.sq_sqrt h1, show 1 - (1 - x / y) = x / y by ring]
+  rw [Real.compEllIntEk_eq hk, Real.sq_sqrt h1, show 1 - (1 - x / y) = x / y by ring]
   have hs : pair (x : ℂ) y ∈ carlsonRSlitDomain := by
     intro i; fin_cases i
     · exact ofReal_mem_slitPlane.mpr hx
@@ -331,14 +332,15 @@ theorem carlsonRE_eq_legendreEc {x y : ℝ} (hx : 0 < x) (hxy : x ≤ y) :
 
 /-- **Exercise 9.3-1**: for real `0 < x < y < z` and `ρ > 0` with `ρ ≠ z`, with
 `φ = arccos √(x/z)`, `k = √((z - y)/(z - x))` and `α² = (z - ρ)/(z - x)`,
-`R_H(x, y, z, ρ) = (3/2) (z - x)^{-1/2} (ρ - z)⁻¹ [ρ Π(φ, k, α²) - z F(φ, k)]`. -/
-theorem carlsonRH_eq_legendrePi {x y z ρ : ℝ} (hx : 0 < x) (hxy : x < y) (hyz : y < z)
+`R_H(x, y, z, ρ) = (3/2) (z - x)^{-1/2} (ρ - z)⁻¹ [ρ Π(φ, α², k) - z F(φ, k)]`. -/
+theorem carlsonRH_eq_incEllIntPik {x y z ρ : ℝ} (hx : 0 < x) (hxy : x < y) (hyz : y < z)
     (hρ : 0 < ρ) (hρz : ρ ≠ z) :
     carlsonRH x y z ρ =
       3 / 2 * (Real.sqrt (z - x) : ℂ)⁻¹ * ((ρ : ℂ) - z)⁻¹ *
-        (ρ * legendrePi (Real.arccos (Real.sqrt (x / z))) (Real.sqrt ((z - y) / (z - x)))
-            ((z - ρ) / (z - x)) -
-          z * legendreF (Real.arccos (Real.sqrt (x / z))) (Real.sqrt ((z - y) / (z - x)))) := by
+        (ρ * Real.incEllIntPik (Real.arccos (Real.sqrt (x / z))) ((z - ρ) / (z - x))
+            (Real.sqrt ((z - y) / (z - x))) -
+          z * Real.incEllIntFk (Real.arccos (Real.sqrt (x / z)))
+            (Real.sqrt ((z - y) / (z - x)))) := by
   obtain ⟨h0, h1, hk, hc2, -, hs, hX⟩ := arccos_facts hx hxy hyz
   have hz : 0 < z := by linarith
   have hy : 0 < y := by linarith
@@ -348,7 +350,7 @@ theorem carlsonRH_eq_legendrePi {x y z ρ : ℝ} (hx : 0 < x) (hxy : x < y) (hyz
     rw [hsin2, show (z - ρ) / (z - x) * ((z - x) / z) = (z - ρ) / z by
       field_simp [show z - x ≠ 0 by linarith]]
     rw [div_lt_one hz]; linarith
-  have hP := legendrePi_eq h0 h1 hk hn
+  have hP := Real.incEllIntPik_eq h0 h1 hk hn
   have hR : 1 - (z - ρ) / (z - x) * Real.sin (Real.arccos (Real.sqrt (x / z))) ^ 2 = ρ / z := by
     rw [hsin2]; field_simp [show z - x ≠ 0 by linarith]; ring
   rw [hX, hc2, hR, hs] at hP
@@ -373,7 +375,7 @@ theorem carlsonRH_eq_legendrePi {x y z ρ : ℝ} (hx : 0 < x) (hxy : x < y) (hyz
       (ofReal_mem_slitPlane.mpr hz) (ofReal_mem_slitPlane.mpr hρ),
     carlsonRF_comm_left (ofReal_mem_slitPlane.mpr hx) (ofReal_mem_slitPlane.mpr hy)
       (ofReal_mem_slitPlane.mpr hz)] at h3
-  rw [legendreF_arccos_eq hx hxy hyz, hP]
+  rw [Real.incEllIntFk_arccos_eq hx hxy hyz, hP]
   have hszx : (Real.sqrt (z - x) : ℂ) ≠ 0 :=
     ofReal_ne_zero.mpr (Real.sqrt_pos.mpr (by linarith)).ne'
   have hsz : (Real.sqrt z : ℂ) ≠ 0 := ofReal_ne_zero.mpr (Real.sqrt_pos.mpr hz).ne'
@@ -387,9 +389,9 @@ theorem carlsonRH_eq_legendrePi {x y z ρ : ℝ} (hx : 0 < x) (hxy : x < y) (hyz
 
 /-- **Exercise 9.2-2**, first kind: if `0 < φ, φ₁ < π/2`, `k > 0` and `sin φ₁ = k sin φ`, then
 `F(φ₁, 1/k) = k F(φ, k)`. -/
-theorem legendreF_inv {φ φ₁ k : ℝ} (h0 : 0 < φ) (h1 : φ < π / 2) (h0' : 0 < φ₁)
+theorem Real.incEllIntFk_inv {φ φ₁ k : ℝ} (h0 : 0 < φ) (h1 : φ < π / 2) (h0' : 0 < φ₁)
     (h1' : φ₁ < π / 2) (hk : 0 < k) (hs : Real.sin φ₁ = k * Real.sin φ) :
-    legendreF φ₁ k⁻¹ = k * legendreF φ k := by
+    Real.incEllIntFk φ₁ k⁻¹ = k * Real.incEllIntFk φ k := by
   have hs1 : Real.sin φ₁ < 1 := by
     rw [← Real.sin_pi_div_two]
     exact Real.sin_lt_sin_of_lt_of_le_pi_div_two (by linarith [Real.pi_pos]) le_rfl h1'
@@ -403,8 +405,8 @@ theorem legendreF_inv {φ φ₁ k : ℝ} (h0 : 0 < φ) (h1 : φ < π / 2) (h0' :
       rw [← Real.sin_pi_div_two]
       exact Real.sin_lt_sin_of_lt_of_le_pi_div_two (by linarith [Real.pi_pos]) le_rfl h1
     nlinarith
-  have F1 := legendreF_eq_of_mul_lt h0' h1' hkφ₁
-  have F0 := legendreF_eq_of_mul_lt h0 h1 hkφ
+  have F1 := Real.incEllIntFk_eq_of_mul_lt h0' h1' hkφ₁
+  have F0 := Real.incEllIntFk_eq_of_mul_lt h0 h1 hkφ
   have ec : Real.cos φ₁ ^ 2 = 1 - k ^ 2 * Real.sin φ ^ 2 := by
     rw [Real.cos_sq', hs]; ring
   have eΔ : 1 - k⁻¹ ^ 2 * Real.sin φ₁ ^ 2 = Real.cos φ ^ 2 := by
@@ -419,9 +421,9 @@ theorem legendreF_inv {φ φ₁ k : ℝ} (h0 : 0 < φ) (h1 : φ < π / 2) (h0' :
 
 /-- **Exercise 9.2-2**, second kind: if `0 < φ, φ₁ < π/2`, `k > 0` and `sin φ₁ = k sin φ`, then
 `k E(φ₁, 1/k) = E(φ, k) + (k² - 1) F(φ, k)`. -/
-theorem legendreE_inv {φ φ₁ k : ℝ} (h0 : 0 < φ) (h1 : φ < π / 2) (h0' : 0 < φ₁)
+theorem Real.incEllIntEk_inv {φ φ₁ k : ℝ} (h0 : 0 < φ) (h1 : φ < π / 2) (h0' : 0 < φ₁)
     (h1' : φ₁ < π / 2) (hk : 0 < k) (hs : Real.sin φ₁ = k * Real.sin φ) :
-    k * legendreE φ₁ k⁻¹ = legendreE φ k + (k ^ 2 - 1) * legendreF φ k := by
+    k * Real.incEllIntEk φ₁ k⁻¹ = Real.incEllIntEk φ k + (k ^ 2 - 1) * Real.incEllIntFk φ k := by
   have hs1 : Real.sin φ₁ < 1 := by
     rw [← Real.sin_pi_div_two]
     exact Real.sin_lt_sin_of_lt_of_le_pi_div_two (by linarith [Real.pi_pos]) le_rfl h1'
@@ -434,9 +436,9 @@ theorem legendreE_inv {φ φ₁ k : ℝ} (h0 : 0 < φ) (h1 : φ < π / 2) (h0' :
     rw [← mul_pow, ← hs]; nlinarith
   have hkφ₁ : k⁻¹ ^ 2 * Real.sin φ₁ ^ 2 < 1 := by
     rw [hs, ← mul_pow, ← mul_assoc, inv_mul_cancel₀ hk.ne', one_mul]; nlinarith
-  have E1 := legendreE_eq_of_mul_lt h0' h1' hkφ₁
-  have E0 := legendreE_eq_of_mul_lt h0 h1 hkφ
-  have F0 := legendreF_eq_of_mul_lt h0 h1 hkφ
+  have E1 := Real.incEllIntEk_eq_of_mul_lt h0' h1' hkφ₁
+  have E0 := Real.incEllIntEk_eq_of_mul_lt h0 h1 hkφ
+  have F0 := Real.incEllIntFk_eq_of_mul_lt h0 h1 hkφ
   set c := Real.cos φ ^ 2
   set Δ := 1 - k ^ 2 * Real.sin φ ^ 2
   have hc : 0 < c := by

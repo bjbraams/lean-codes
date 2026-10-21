@@ -33,7 +33,7 @@ theorem strictAntiOn_carlsonRReal_fin_two_concentration_of_one_lt {t a b x y : �
     StrictAntiOn (fun c : ℝ => carlsonRReal t (![c * a, c * b]) (![x, y])) (Ioi 0) := by
   intro c hc d _ hcd
   exact integral_dirichletMeasure_fin_two_lt_of_concentration ha hb hc hcd
-    ((strictConvexOn_rpow ht).subset (fun _ hu => hu.le) (convex_Ioi 0))
+    ((strictConvexOn_rpow ht).subset (s := Ioi (0 : ℝ)) (fun _ hu => hu.le) (convex_Ioi 0))
     (by fun_prop) hx hy hxy
 
 /-- At negative orders, the two-node R-average strictly decreases in concentration. -/
@@ -51,7 +51,7 @@ theorem strictMonoOn_carlsonRReal_fin_two_concentration {t a b x y : ℝ}
     StrictMonoOn (fun c : ℝ => carlsonRReal t (![c * a, c * b]) (![x, y])) (Ioi 0) := by
   intro c hc d _ hcd
   exact integral_dirichletMeasure_fin_two_lt_of_concentration_concave ha hb hc hcd
-    ((Real.strictConcaveOn_rpow ht ht1).subset (fun _ hu => hu.le) (convex_Ioi 0))
+    ((Real.strictConcaveOn_rpow ht ht1).subset (s := Ioi (0 : ℝ)) (fun _ hu => hu.le) (convex_Ioi 0))
     (by fun_prop) hx hy hxy
 
 /-- The logarithmic two-node average strictly increases in concentration. -/

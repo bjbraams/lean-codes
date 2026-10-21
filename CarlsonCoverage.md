@@ -126,7 +126,7 @@ Notation: `pₙ = jacobiOn α β r s n` (monic, foci `r, s`), `qₙ = jacobiSeco
 | Angles; convexity | Proved, convexity for `a ≤ 1` | `scAngle_sub_scAngle`, `im_mul_scMap_sub_nonneg_and` (`Carlson.Elliptic.Polygon`) |
 | Theorem 8.2-1 and the holomorphic inverse | Proved for distinct real `xᵢ`, `0 < bᵢ < 1`, `0 < a ≤ 1` | `bijOn_scMap`, `hasDerivAt_scMap`, `differentiableOn_scMapInv` (`Carlson.Elliptic.Mapping`) |
 | 8.2-8 to 8.2-10, Example 8.2-2, (8.2-11), (8.2-12) | Proved | `half_integral_Ioi_rsqrt_cubic`, `bijOn_carlsonRF_sub`, `sq_deriv_weierstrassInv`, `carlsonRK_lemniscatic` (`Carlson.Elliptic.Inversion`) |
-| 8.2-14, 8.2-16, 8.2-18, 8.2-20, 8.2-21, Example 8.2-3 | Proved; (8.2-18) for `k² y² < 1` | `carlsonRF_sub_one_self_self`, `integral_Ioo_rsqrt_sn_incomplete_of_mul_lt`, `integral_Ioo_rsqrt_sn_complete`, `snK'_eq`, `bijOn_snV`, `sq_deriv_jacobiSn` |
+| 8.2-14, 8.2-16, 8.2-18, 8.2-20, 8.2-21, Example 8.2-3 | Proved; (8.2-18) for `k² y² < 1` | `carlsonRF_sub_one_self_self`, `integral_Ioo_rsqrt_sn_incomplete_of_mul_lt`, `integral_Ioo_rsqrt_sn_complete`, `snK'_eq`, `bijOn_snV`, `sq_deriv_jacobiSnk` |
 | Doubly periodic continuation of the inverses | Not located | — |
 | Theorems 8.3-1, 8.3-2 | 8.3-2 for all complex `a, b` with `re(a' - bₖ) > 0`, approach through the right half-plane, also jointly in the nodes | `Carlson.R.SmallVariable`, `tendsto_regCarlsonR_update_zero`, `tendsto_regCarlsonR_nhdsWithin_zero` |
 | (8.3-7), Corollary 8.3-3, Theorem 8.3-4 | Proved; 8.3-3 approaching `1` inside the unit disk; 8.3-4 for `re(γ - α - β) > 0` | `regCarlsonR_pair_one_sub_eq_regularizedGaussHGFun`, `tendsto_regularizedGaussHGFun_one`, `hasSum_gaussCoeff`, `ordinaryHypergeometric_one` |
@@ -168,11 +168,11 @@ Notation: `pₙ = jacobiOn α β r s n` (monic, foci `r, s`), `qₙ = jacobiSeco
 | Theorem 9.2-1 | The `R_H` part (independence over coefficients polynomial in `ρ`) | `coeff_carlsonRH_eq_zero` (`Carlson.Elliptic.Independence`) |
 | 9.2-5 to 9.2-9 | Not located | — |
 | 9.2-10 | Leading equivalent for fixed positive `x, y`, `z → ∞` | `isEquivalent_carlsonRF_atTop` |
-| 9.2-11, 9.3-2: `F`, `E` | `0 < φ < π/2`, `k² sin² φ < 1` | `legendreF_eq_of_mul_lt`, `legendreE_eq_of_mul_lt` |
-| 9.2-11, 9.2-14: `Π`, `Π₁` | R representations and reductions to `R_F, R_H` and `R_K, R_L`, for `k² < 1`, `n sin² φ < 1` (resp. `n < 1`) | `legendrePi_eq_standard`, `legendrePi_complete_eq_standard` (`Carlson.Elliptic.LegendreThird`) |
-| 9.2-12 – 9.2-15 | Real `0 < x < y < z` (9.2-12, 9.2-13), `k² < 1` (9.2-14), `0 < x ≤ y` (9.2-15) | `legendreF_arccos_eq`, `carlsonRG_eq_legendre`, `legendreK_eq`, `legendreEc_eq`, `carlsonRK_eq_legendreK`, `carlsonRE_eq_legendreEc` |
+| 9.2-11, 9.3-2: `F`, `E` | `0 < φ < π/2`, `k² sin² φ < 1` | `Real.incEllIntFk_eq_of_mul_lt`, `Real.incEllIntEk_eq_of_mul_lt` |
+| 9.2-11, 9.2-14: `Π`, `Π₁` | R representations and reductions to `R_F, R_H` and `R_K, R_L`, for `k² < 1`, `n sin² φ < 1` (resp. `n < 1`) | `Real.incEllIntPik_eq_standard`, `Real.incEllIntPik_complete_eq_standard` (`Carlson.Elliptic.LegendreThird`) |
+| 9.2-12 – 9.2-15 | Real `0 < x < y < z` (9.2-12, 9.2-13), `k² < 1` (9.2-14), `0 < x ≤ y` (9.2-15) | `Real.incEllIntFk_arccos_eq`, `carlsonRG_eq_legendre`, `Real.compEllIntKk_eq`, `Real.compEllIntEk_eq`, `carlsonRK_eq_compEllIntKk`, `carlsonRE_eq_compEllIntEk` |
 | Tables 9.3-1 – 9.3-4 | All rows, on slit-plane nodes; the printed row `2b = (1, 3, 3)` of 9.3-1 has a sign error (see the errata) | `carlsonR_table_9_3_1_row1` … (`Carlson.Elliptic.ReductionTables`, `LegendreThird`) |
-| Example 9.3-1 | `0 < φ < π/2`, `k² < 1` | `sin_mul_legendreE_eq` |
+| Example 9.3-1 | `0 < φ < π/2`, `k² < 1` | `Real.sin_mul_incEllIntEk_eq` |
 | 9.4 applications | Pendulum (9.4-21), (9.4-25), (9.4-26) ((9.4-22) is (8.2-20)); oscillator (9.4-17), (9.4-18); ellipse perimeter (9.4-5); ellipsoid potential (9.4-9), (9.4-10) ((9.4-12) is (8.2-13), (9.4-13) is (9.2-2)) | `Carlson.Elliptic.Applications` |
 | 9.4 not located | ellipse arc (9.4-3), (9.4-4); ellipsoid surface area (9.4-6), (9.4-7); (9.4-14); (9.4-23), (9.4-24) beyond Exercise 9.2-1 | — |
 | Theorem 9.5-1 | All complex `t`, regularized, all positive `x, y, z` (positive `v, w`, or conjugate `v², w²` when `z` lies between `x` and `y`) | `regCarlsonR_landen`, `regCarlsonR_landen_conj` (`Carlson.Elliptic.Landen`) |
@@ -191,9 +191,9 @@ Notation: `pₙ = jacobiOn α β r s n` (monic, foci `r, s`), `qₙ = jacobiSeco
 | Exercise | Status | Lean / remark |
 | --- | --- | --- |
 | 9.2-1 | `y > 0` | `isEquivalent_carlsonRK_sq_zero` (`Carlson.Elliptic.ChapterNineExercises`) |
-| 9.2-2 | `k > 0`, `0 < φ, φ₁ < π/2`, `sin φ₁ = k sin φ` | `legendreF_inv`, `legendreE_inv` |
+| 9.2-2 | `k > 0`, `0 < φ, φ₁ < π/2`, `sin φ₁ = k sin φ` | `Real.incEllIntFk_inv`, `Real.incEllIntEk_inv` |
 | 9.2-3 | Slit-plane nodes, `λ ≥ 0` | `carlsonRF_add_eq_integral_of_slit`, `carlsonRH_add_eq_integral` |
-| 9.3-1 | Real `0 < x < y < z`, `ρ > 0`, `ρ ≠ z` | `carlsonRH_eq_legendrePi` |
+| 9.3-1 | Real `0 < x < y < z`, `ρ > 0`, `ρ ≠ z` | `carlsonRH_eq_incEllIntPik` |
 | 9.3-2 | The identity; the asymptotic `M ~ (4πa/c²)[log(8a/r₋) - 2]` is not located (it needs the `o(1)` remainder of `R_K`) | `integral_mutual_inductance` |
 | 9.3-3 | Slit-plane nodes | `carlsonRH_self_right_eq` |
 | 9.3-4 | Real `x, y, ρ > 0` | `carlsonRL_add_carlsonRL_div` |

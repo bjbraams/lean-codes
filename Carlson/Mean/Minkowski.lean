@@ -59,7 +59,7 @@ theorem carlsonMeanReal_add_lt {t : ℝ} (ht : 1 < t) {b x y : ι → ℝ}
   have ht0 := zero_lt_one.trans ht
   have hF : StrictConvexOn ℝ {x : ι → ℝ | ∀ i, 0 < x i} (carlsonRReal t b) :=
     strictConvexOn_dirichlet_average hb
-      ((strictConvexOn_rpow ht).subset (fun _ h => h.le) (convex_Ioi 0))
+      ((strictConvexOn_rpow ht).subset (s := Ioi (0 : ℝ)) (fun _ h => h.le) (convex_Ioi 0))
       (fun z hz => (Real.continuousAt_rpow_const z t (Or.inl hz.ne')).continuousWithinAt)
   have h := hF.map_normalized_add_lt hx hy
     (inv_mul_ne_inv_mul_of_not_proportional hne (carlsonMeanReal_pos t b x)
@@ -112,7 +112,7 @@ theorem lt_carlsonMeanReal_add {t : ℝ} (ht : t < 1) {b x y : ι → ℝ}
     simpa only [carlsonMeanReal, ↓reduceIte, Real.exp_zero] using Real.exp_lt_exp.mpr h
   · have hF : StrictConcaveOn ℝ {x : ι → ℝ | ∀ i, 0 < x i} (carlsonRReal t b) :=
       strictConcaveOn_dirichlet_average hb
-        ((Real.strictConcaveOn_rpow hp ht).subset (fun _ h => h.le) (convex_Ioi 0))
+        ((Real.strictConcaveOn_rpow hp ht).subset (s := Ioi (0 : ℝ)) (fun _ h => h.le) (convex_Ioi 0))
         (fun z hz => (Real.continuousAt_rpow_const z t (Or.inl hz.ne')).continuousWithinAt)
     have h := hF.lt_map_normalized_add hx hy
       (inv_mul_ne_inv_mul_of_not_proportional hne hA hB) hA hB

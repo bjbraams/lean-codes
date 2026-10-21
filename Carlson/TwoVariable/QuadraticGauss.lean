@@ -57,7 +57,8 @@ theorem regCarlsonR_quadratic_gauss_of_neg (α β : ℂ) (hαβ : ∀ m : ℕ, �
   have hx : 0 < x.re := by simp only [x, ofReal_re]; linarith
   have hy : 0 < y.re := by simp only [y, ofReal_re]; linarith
   have hx2 : 0 < (x ^ 2).re := by
-    rw [show x ^ 2 = (((s + r) ^ 2 : ℝ) : ℂ) by push_cast [x]; ring, ofReal_re]; positivity
+    rw [show x ^ 2 = (((s + r) ^ 2 : ℝ) : ℂ) by push_cast [x]; ring, ofReal_re]
+    exact pow_pos (by simpa only [x, ofReal_re] using hx) 2
   have hy2 : 0 < (y ^ 2).re := by
     rw [show y ^ 2 = (((s - r) ^ 2 : ℝ) : ℂ) by push_cast [y]; ring, ofReal_re]
     exact pow_pos (by linarith) 2

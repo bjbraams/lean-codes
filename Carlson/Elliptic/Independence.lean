@@ -54,7 +54,7 @@ private theorem integrableOn_hBound : IntegrableOn hBound (Ioi 0) := by
       (intervalIntegral.integrableOn_Ioo_rpow_iff one_pos).mpr (by norm_num)
     have hr : IntegrableOn (fun s : ℝ => s ^ (-(1 / 2) : ℝ)) (Ioc 0 1) :=
       (integrableOn_Ioc_iff_integrableOn_Ioo).mpr hr0
-    refine hr.mono' ((continuousOn_hBound.mono fun s hs => hs.1).aestronglyMeasurable
+    refine hr.mono' ((continuousOn_hBound.mono (t := Ioc (0 : ℝ) 1) fun s hs => hs.1).aestronglyMeasurable
       measurableSet_Ioc) ((ae_restrict_mem measurableSet_Ioc).mono fun s hs => ?_)
     have hs0 : 0 < s := hs.1
     rw [Real.norm_of_nonneg (by unfold hBound; positivity), Real.rpow_neg hs0.le,
@@ -64,7 +64,7 @@ private theorem integrableOn_hBound : IntegrableOn hBound (Ioi 0) := by
     exact mul_le_of_le_one_right (by positivity) (inv_le_one_of_one_le₀ (by linarith))
   have h2 : IntegrableOn hBound (Ioi 1) := by
     refine (integrableOn_Ioi_rpow_of_lt (by norm_num : (-(3 / 2) : ℝ) < -1) one_pos).mono'
-      ((continuousOn_hBound.mono fun s (hs : 1 < s) => (by
+      ((continuousOn_hBound.mono (t := Ioi (1 : ℝ)) fun s (hs : 1 < s) => (by
         show (0 : ℝ) < s; linarith)).aestronglyMeasurable measurableSet_Ioi)
       ((ae_restrict_mem measurableSet_Ioi).mono fun s (hs : 1 < s) => ?_)
     have hs0 : 0 < s := by linarith

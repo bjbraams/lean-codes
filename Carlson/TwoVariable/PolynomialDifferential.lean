@@ -5,6 +5,8 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Mathlib.Analysis.Calculus.Deriv.Prod
+
 public import Carlson.TwoVariable.RPolynomial
 public import Pochhammer.Identities
 
@@ -113,15 +115,15 @@ theorem hasDerivAt_carlsonRPolynomialNumerator₂_translate (n : ℕ) (p q x y w
   have hleft : L (1, 0) = (n + 1 : ℂ) * p *
       carlsonRPolynomialNumerator₂ n (p + 1) q (x + w) (y + w) := by
     exact ((hF _).hasFDerivAt.comp_hasDerivAt (x + w)
-      ((hasDerivAt_id _).prodMk (hasDerivAt_const _ (y + w)))).unique
+      (HasDerivAt.prodMk (hasDerivAt_id (x + w)) (hasDerivAt_const (x + w) (y + w)))).unique
         (hasDerivAt_carlsonRPolynomialNumerator₂_left n p q (x + w) (y + w))
   have hright : L (0, 1) = (n + 1 : ℂ) * q *
       carlsonRPolynomialNumerator₂ n p (q + 1) (x + w) (y + w) := by
     exact ((hF _).hasFDerivAt.comp_hasDerivAt (y + w)
-      ((hasDerivAt_const _ (x + w)).prodMk (hasDerivAt_id _))).unique
+      (HasDerivAt.prodMk (hasDerivAt_const (y + w) (x + w)) (hasDerivAt_id (y + w)))).unique
         (hasDerivAt_carlsonRPolynomialNumerator₂_right n p q (x + w) (y + w))
   have H := (hF _).hasFDerivAt.comp_hasDerivAt w
-    (((hasDerivAt_id w).const_add x).prodMk ((hasDerivAt_id w).const_add y))
+    (HasDerivAt.prodMk ((hasDerivAt_id w).const_add x) ((hasDerivAt_id w).const_add y))
   change HasDerivAt _ (L (1, 1)) w at H
   rw [show ((1, 1) : ℂ × ℂ) = (1, 0) + (0, 1) by ext <;> simp,
     map_add, hleft, hright, mul_assoc, mul_assoc, ← mul_add,

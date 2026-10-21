@@ -248,13 +248,13 @@ theorem contDiff_radialLog [Nonempty ι] (c : ι → ℝ) {g : (ι → ℝ) → 
     {φ : ℝ → ℂ} (hφ : ContDiff ℝ ∞ φ) : ContDiff ℝ ∞ (radialLog c φ g) := by
   have hof : ContDiff ℝ ∞ fun y : EuclideanSpace ℝ ι => (y.ofLp : ι → ℝ) := PiLp.contDiff_ofLp
   have hpe : ContDiff ℝ ∞ fun y : EuclideanSpace ℝ ι => piExp y.ofLp :=
-    contDiff_pi.mpr fun i => Real.contDiff_exp.comp ((contDiff_apply ℝ ℝ i).comp hof)
+    contDiff_pi.mpr fun i => Real.contDiff_exp.comp ((contDiff_apply ℝ (fun _ : ι => ℝ) i).comp hof)
   have hsc : ContDiff ℝ ∞ fun y : EuclideanSpace ℝ ι => ∑ i, piExp y.ofLp i :=
-    ContDiff.sum fun i _ => (contDiff_apply ℝ ℝ i).comp hpe
+    ContDiff.sum fun i _ => (contDiff_apply ℝ (fun _ : ι => ℝ) i).comp hpe
   have hpos : ∀ y : EuclideanSpace ℝ ι, ∑ i, piExp y.ofLp i ≠ 0 := fun y =>
     (Finset.sum_pos (fun i _ => Real.exp_pos _) Finset.univ_nonempty).ne'
   refine (Real.contDiff_exp.comp (ContDiff.sum fun i _ =>
-    contDiff_const.mul ((contDiff_apply ℝ ℝ i).comp hof))).smul ?_
+    contDiff_const.mul ((contDiff_apply ℝ (fun _ : ι => ℝ) i).comp hof))).smul ?_
   exact (hφ.comp hsc).mul (hg.comp ((hsc.inv hpos).smul hpe))
 
 /-- **Compact support in logarithmic coordinates.** If `φ` vanishes outside `[r₀, r₁]` with

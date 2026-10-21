@@ -5,6 +5,8 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Mathlib.Analysis.SpecialFunctions.Complex.Analytic
+
 public import Carlson.Jacobi.SecondKindBounds
 public import Carlson.Jacobi.SaddleGeometry
 public import SeveralComplexVariables.ContourIntegral
@@ -212,6 +214,7 @@ theorem integral_jacobiMobiusIntegrand_eq {a b : ℂ} (ha : 0 < a.re) (hb : 0 < 
     intro t ht
     simpa using mobius_resolvent_ne_zero hA hc hcAB (hreal 1 one_pos).2 ht
   have hconv : Convex ℝ U := by
+    change Convex ℝ ({ρ : ℂ | 0 < ρ.re} ∩ {ρ : ℂ | 0 < (ρ / c).re})
     refine (convex_halfSpace_re_gt 0).inter ?_
     intro x hx y hy p q hp hq hpq
     change 0 < (x / c).re at hx

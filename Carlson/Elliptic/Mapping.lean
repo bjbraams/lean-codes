@@ -63,7 +63,7 @@ include h ha1
 
 theorem continuous_scMapRestrict : Continuous (scMapRestrict h ha1) := by
   refine Continuous.subtype_mk ?_ _
-  exact ((continuousOn_scMap h).mono fun z (hz : 0 < z.im) =>
+  exact ((continuousOn_scMap h).mono (t := {z : ℂ | 0 < z.im}) fun z (hz : 0 < z.im) =>
     (le_of_lt hz : 0 ≤ z.im)).comp_continuous
     continuous_subtype_val fun z => z.2
 

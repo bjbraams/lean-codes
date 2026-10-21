@@ -53,7 +53,7 @@ theorem locallyBounded_regCarlsonDirichletAverage_parameters_nodes
       ‖regCarlsonDirichletAverage q.1 q.2 f‖ ≤ M := by
   apply locallyBounded_regDirichletIntegral_kernel (isOpen_carlsonNodeDomain hΩopen) (F :=
     fun z u => f (carlsonAffineForm z u)) ?_ hb hz
-  apply hf.comp _ (fun q hq =>
+  apply hf.comp _ (fun q (hq : q ∈ {z : ι → ℂ | Set.range z ⊆ Ω} ×ˢ Convexity.StdSimplex.coordinateSet ℝ ι) =>
     convexHull_min hq.1 hΩconv (carlsonAffineForm_mem_convexHull q.1 hq.2))
   exact (by unfold carlsonAffineForm; fun_prop :
     Continuous (fun q : (ι → ℂ) × (ι → ℝ) => carlsonAffineForm q.1 q.2)).continuousOn

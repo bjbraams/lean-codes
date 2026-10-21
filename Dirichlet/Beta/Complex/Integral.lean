@@ -59,6 +59,7 @@ def mvBetaSimplex (n : ℕ) : Set (Fin n → ℝ) :=
 /-- The solid standard simplex is a measurable set. -/
 theorem measurableSet_mvBetaSimplex (n : ℕ) : MeasurableSet (mvBetaSimplex n) := by
   apply IsClosed.measurableSet
+  change IsClosed ({x : Fin n → ℝ | ∀ i, 0 ≤ x i} ∩ {x | ∑ i, x i ≤ 1})
   apply IsClosed.inter
   · change IsClosed ({x : Fin n → ℝ | ∀ i, 0 ≤ x i} : Set (Fin n → ℝ))
     rw [show {x : Fin n → ℝ | ∀ i, 0 ≤ x i} = ⋂ i, {x | 0 ≤ x i} by ext x; simp]

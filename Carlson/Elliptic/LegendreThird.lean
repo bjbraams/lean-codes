@@ -11,7 +11,7 @@ public import Carlson.R.SlitRelations
 /-!
 # Legendre's third-kind integral
 
-The incomplete integral `Π(φ, k, n)` is represented by Carlson's continued `R`
+The incomplete integral `Π(φ, n, k)` is represented by Carlson's continued `R`
 function as in (9.2-11), for real arguments with `0 < φ < π/2`, `k² < 1`, and
 `n sin² φ < 1`. The complete case (9.2-14) is proved separately for `k² < 1`,
 `n < 1`. These conditions keep the pole outside the integration interval.
@@ -22,8 +22,8 @@ incomplete `Π` to `R_F` and `R_H`, and complete `Π` to `R_K` and `R_L`.
 
 ## Main results
 
-* `legendrePi_eq`, `legendrePi_complete_eq`: the `R` representations.
-* `legendrePi_eq_standard`, `legendrePi_complete_eq_standard`: reductions to
+* `Real.incEllIntPik_eq`, `Real.incEllIntPik_complete_eq`: the `R` representations.
+* `Real.incEllIntPik_eq_standard`, `Real.incEllIntPik_complete_eq_standard`: reductions to
   symmetric standard functions, with polynomial coefficients.
 * `carlsonR_third_neg_half`, `carlsonR_third_three_halves`: Table 9.3-3, rows 2 and 4.
 * `carlsonR_complete_third_neg_half`, `carlsonR_complete_third_three_halves`:
@@ -135,11 +135,11 @@ theorem integral_Ioo_sn_third {k y n : ℝ} (hk : k ^ 2 < 1) (hy0 : 0 < y) (hy1 
 
 
 /-- The sine substitution in Legendre's third-kind integral, including the complete endpoint. -/
-private theorem legendrePi_sin {φ k n : ℝ} (h0 : 0 < φ) (h1 : φ ≤ π / 2) :
-    legendrePi φ k n = ∫ t in Ioo (0 : ℝ) (Real.sin φ),
+private theorem Real.incEllIntPik_sin {φ k n : ℝ} (h0 : 0 < φ) (h1 : φ ≤ π / 2) :
+    Real.incEllIntPik φ n k = ∫ t in Ioo (0 : ℝ) (Real.sin φ),
     (1 - t ^ 2) ^ (-1 / 2 : ℝ) * (1 - k ^ 2 * t ^ 2) ^ (-1 / 2 : ℝ) *
       (1 - n * t ^ 2)⁻¹ := by
-  rw [integral_Ioo_comp_sin h0 h1, legendrePi,
+  rw [integral_Ioo_comp_sin h0 h1, Real.incEllIntPik,
     intervalIntegral.integral_of_le h0.le, integral_Ioc_eq_integral_Ioo]
   refine setIntegral_congr_fun measurableSet_Ioo fun θ hθ => ?_
   have hc : 0 < Real.cos θ := Real.cos_pos_of_mem_Ioo
@@ -157,9 +157,9 @@ private theorem legendrePi_sin {φ k n : ℝ} (h0 : 0 < φ) (h1 : φ ≤ π / 2)
 
 /-- **Carlson's (9.2-11), third kind**: Legendre's incomplete `Π` as an `R` function.
 The characteristic `n` satisfies `n sin² φ < 1`, so the integral has no pole. -/
-theorem legendrePi_eq {φ k n : ℝ} (h0 : 0 < φ) (h1 : φ < π / 2) (hk : k ^ 2 < 1)
+theorem Real.incEllIntPik_eq {φ k n : ℝ} (h0 : 0 < φ) (h1 : φ < π / 2) (hk : k ^ 2 < 1)
     (hn : n * Real.sin φ ^ 2 < 1) :
-    (legendrePi φ k n : ℂ) = Real.sin φ *
+    (Real.incEllIntPik φ n k : ℂ) = Real.sin φ *
       carlsonR (-1 / 2) ![1 / 2, 1 / 2, -1 / 2, 1]
         ![((1 - k ^ 2 * Real.sin φ ^ 2 : ℝ) : ℂ), ((Real.cos φ ^ 2 : ℝ) : ℂ), 1,
           ((1 - n * Real.sin φ ^ 2 : ℝ) : ℂ)] := by
@@ -167,7 +167,7 @@ theorem legendrePi_eq {φ k n : ℝ} (h0 : 0 < φ) (h1 : φ < π / 2) (hk : k ^ 
   have hs1 : Real.sin φ < 1 := by
     rw [← Real.sin_pi_div_two]
     exact Real.sin_lt_sin_of_lt_of_le_pi_div_two (by linarith [Real.pi_pos]) le_rfl h1
-  rw [legendrePi_sin h0 h1.le, integral_Ioo_sn_third hk hs0 hs1 hn, Real.cos_sq']
+  rw [Real.incEllIntPik_sin h0 h1.le, integral_Ioo_sn_third hk hs0 hs1 hn, Real.cos_sq']
 
 /-- A zero fourth parameter can be deleted from the first-kind integral, including slit-plane
 nodes whose real parts are not positive. -/
@@ -221,9 +221,9 @@ theorem carlsonR_third_neg_half {x y z ρ : ℂ}
 
 /-- Legendre's incomplete third-kind integral reduced to the symmetric standard functions
 `R_F` and `R_H`. This form avoids division by the characteristic. -/
-theorem legendrePi_eq_standard {φ k n : ℝ} (h0 : 0 < φ) (h1 : φ < π / 2)
+theorem Real.incEllIntPik_eq_standard {φ k n : ℝ} (h0 : 0 < φ) (h1 : φ < π / 2)
     (hk : k ^ 2 < 1) (hn : n * Real.sin φ ^ 2 < 1) :
-    3 * ((1 - n * Real.sin φ ^ 2 : ℝ) : ℂ) * (legendrePi φ k n : ℂ) =
+    3 * ((1 - n * Real.sin φ ^ 2 : ℝ) : ℂ) * (Real.incEllIntPik φ n k : ℂ) =
       (Real.sin φ : ℂ) *
         (2 * (((1 - n * Real.sin φ ^ 2 : ℝ) : ℂ) - 1) *
             carlsonRH ((1 - k ^ 2 * Real.sin φ ^ 2 : ℝ) : ℂ)
@@ -239,7 +239,7 @@ theorem legendrePi_eq_standard {φ k n : ℝ} (h0 : 0 < φ) (h1 : φ < π / 2)
   have hp : ((1 - n * Real.sin φ ^ 2 : ℝ) : ℂ) ∈ slitPlane :=
     ofReal_mem_slitPlane.mpr (by linarith)
   have H := carlsonR_third_neg_half hx hy (z := 1) (by simp) hp
-  rw [legendrePi_eq h0 h1 hk hn]
+  rw [Real.incEllIntPik_eq h0 h1 hk hn]
   linear_combination (Real.sin φ : ℂ) * H
 
 /-- The complete third-kind integral in the sine variable as a three-variable `R` function. -/
@@ -305,10 +305,10 @@ theorem integral_Ioo_sn_third_complete {k n : ℝ} (hk : k ^ 2 < 1) (hn : n < 1)
 
 /-- **Carlson's (9.2-14), third kind**: the complete Legendre integral as an `R` function,
 for `k² < 1` and characteristic `n < 1`. -/
-theorem legendrePi_complete_eq {k n : ℝ} (hk : k ^ 2 < 1) (hn : n < 1) :
-    (legendrePi (π / 2) k n : ℂ) = (π / 2 : ℂ) *
+theorem Real.incEllIntPik_complete_eq {k n : ℝ} (hk : k ^ 2 < 1) (hn : n < 1) :
+    (Real.incEllIntPik (π / 2) n k : ℂ) = (π / 2 : ℂ) *
       carlsonR (-1 / 2) ![1 / 2, -1 / 2, 1] ![((1 - k ^ 2 : ℝ) : ℂ), 1, ((1 - n : ℝ) : ℂ)] := by
-  rw [legendrePi_sin (by positivity) le_rfl, Real.sin_pi_div_two,
+  rw [Real.incEllIntPik_sin (by positivity) le_rfl, Real.sin_pi_div_two,
     integral_Ioo_sn_third_complete hk hn]
 
 /-- The last row of Carlson's Table 9.3-3, equivalently (9.3-4), on slit-plane nodes. -/
@@ -392,15 +392,15 @@ theorem carlsonR_complete_third_three_halves {x y ρ : ℂ}
 
 /-- The complete Legendre third-kind integral reduced to `R_K` and `R_L`, for `k² < 1`
 and `n < 1`, including zero and negative characteristics. -/
-theorem legendrePi_complete_eq_standard {k n : ℝ} (hk : k ^ 2 < 1) (hn : n < 1) :
-    2 * ((1 - n : ℝ) : ℂ) * (legendrePi (π / 2) k n : ℂ) =
+theorem Real.incEllIntPik_complete_eq_standard {k n : ℝ} (hk : k ^ 2 < 1) (hn : n < 1) :
+    2 * ((1 - n : ℝ) : ℂ) * (Real.incEllIntPik (π / 2) n k : ℂ) =
       (π / 2 : ℂ) *
         (-(n : ℂ) * carlsonRL ((1 - k ^ 2 : ℝ) : ℂ) 1 ((1 - n : ℝ) : ℂ) +
           2 * TwoVariable.carlsonRK ((1 - k ^ 2 : ℝ) : ℂ) 1) := by
   have hx : ((1 - k ^ 2 : ℝ) : ℂ) ∈ slitPlane := ofReal_mem_slitPlane.mpr (sub_pos.mpr hk)
   have hp : ((1 - n : ℝ) : ℂ) ∈ slitPlane := ofReal_mem_slitPlane.mpr (sub_pos.mpr hn)
   have H := carlsonR_complete_third_neg_half hx (y := 1) (by simp) hp
-  rw [legendrePi_complete_eq hk hn]
+  rw [Real.incEllIntPik_complete_eq hk hn]
   push_cast at H ⊢
   linear_combination (π / 2 : ℂ) * H
 

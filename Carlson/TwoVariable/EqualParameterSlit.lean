@@ -298,6 +298,7 @@ theorem analyticOnNhd_regEqualL_joint :
     AnalyticOnNhd ℂ (fun p : Fin 4 → ℂ => regEqualL (p 0) (p 1) (p 2) (p 3))
       {p | p 2 ∈ slitPlane ∧ p 3 ∈ slitPlane} := by
   have hU : IsOpen {p : Fin 4 → ℂ | p 2 ∈ slitPlane ∧ p 3 ∈ slitPlane} := by
+    change IsOpen ({p : Fin 4 → ℂ | p 2 ∈ slitPlane} ∩ {p | p 3 ∈ slitPlane})
     apply IsOpen.inter
     · exact isOpen_slitPlane.preimage (continuous_apply 2 : Continuous fun p : Fin 4 → ℂ => p 2)
     · exact isOpen_slitPlane.preimage (continuous_apply 3 : Continuous fun p : Fin 4 → ℂ => p 3)

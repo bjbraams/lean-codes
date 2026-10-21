@@ -335,6 +335,9 @@ theorem twoF0DoubleRot_ofReal_mul (n : ℕ) (α β x w : ℂ) {ρ : ℝ} (hρ : 
     rw [twoF0DoubleRot, hQ, integral_indicator hmQ]
   have h2 : twoF0DoubleRot n α β x w = ∫ a, Q.indicator H a := by
     rw [twoF0DoubleRot, hQ, integral_indicator hmQ]
+  haveI : Measure.IsAddHaarMeasure (volume : Measure (ℝ × ℝ)) := by
+    rw [Measure.volume_eq_prod]
+    infer_instance
   rw [h1, h2, integral_congr_ae (Eventually.of_forall key), MeasureTheory.integral_const_mul,
     Measure.integral_comp_smul (volume : Measure (ℝ × ℝ)) (Q.indicator H) ρ]
   have hfin : Module.finrank ℝ (ℝ × ℝ) = 2 := by simp

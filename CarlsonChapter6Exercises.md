@@ -100,7 +100,7 @@ Legend:
 | 6.9-21 | Proved | (6.9-24) as Mathlib's `regularizedHGFun_zero_singleton_neg_nat_add_one` and `Complex.regularizedHGFun_zero_singleton_one_sub_int` (`n ∈ ℤ`, `x ≠ 0`); (6.9-25) as Mathlib's `besselJ_neg_int` and `Complex.besselI_neg_int` |
 | 6.10-1 | Proved | `TwoVariable.ordinaryHypergeometric_quadratic` (for `‖z‖, ‖4z(1 - z)‖ < 1`), `regularizedGaussHGFun_quadratic`, and the R-function form `regCarlsonR_quadratic_gauss` on all of `re z < 1/2` |
 | 6.10-2 – 6.10-4 | Applied | numerical values, pendulum |
-| 6.10-5 | Proved | `legendreK_imaginary_modulus`, `legendreK_landen` |
+| 6.10-5 | Proved | `Real.compEllIntKk_imaginary_modulus`, `Real.compEllIntKk_landen` |
 | 6.10-6 | Proved | `TwoVariable.eventually_hasSum_quadratic_generating_second` (for `(1 - 2ν - 2n)ₙ ≠ 0`) |
 | 6.10-7 | Proved | `TwoVariable.ascPochhammer_mul_eval_gegenbauer_reflect` (division-free, for any `S` with `S² = x² - 1`, `S ≠ 0`) |
 | 6.10-8 | Proved | `TwoVariable.carlsonRPolynomialNumerator₂_neg_sub_sq` (division-free) |

@@ -5,6 +5,8 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Mathlib.Analysis.SpecialFunctions.Complex.LogDeriv
+
 public import Carlson.L.Basic
 public import Dirichlet.Average.Deriv
 public import Mathlib.Analysis.SpecialFunctions.Complex.Analytic

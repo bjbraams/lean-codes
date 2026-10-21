@@ -83,6 +83,8 @@ this report to the task; documentation-only work does not require a theorem inve
 ## Documentation and maintenance
 
 - Put new Markdown documentation at the project root, not in subdirectories.
+- Do not use Tables in Markdown files. If a tabular presentation is a candidate, use a
+  list or an itemized list instead.
 - `README.md` is the public entry point. Follow the local file roles for detailed
   reviews, structure and mathematical summaries. `REMINDERS.md`, where used, is private
   documentation for the owner and editors.

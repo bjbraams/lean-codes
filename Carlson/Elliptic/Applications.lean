@@ -373,9 +373,9 @@ private theorem integral_ellipse_quarter_of_le {α β : ℝ} (hα : 0 < α) (hα
   have hβ : 0 < β := hα.trans_le hαβ
   have h1 : 0 ≤ 1 - α ^ 2 / β ^ 2 := by
     rw [sub_nonneg, div_le_one (by positivity)]; exact pow_le_pow_left₀ hα.le hαβ 2
-  rw [carlsonRE_eq_legendreEc (by positivity) (pow_le_pow_left₀ hα.le hαβ 2),
+  rw [carlsonRE_eq_compEllIntEk (by positivity) (pow_le_pow_left₀ hα.le hαβ 2),
     Real.sqrt_sq hβ.le]
-  unfold legendreEc legendreE
+  unfold Real.compEllIntEk Real.incEllIntEk
   rw [Real.sq_sqrt h1]
   have e : (∫ θ in (0 : ℝ)..π / 2,
       (α ^ 2 * Real.sin θ ^ 2 + β ^ 2 * Real.cos θ ^ 2) ^ (1 / 2 : ℝ)) =

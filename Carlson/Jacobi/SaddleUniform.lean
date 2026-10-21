@@ -5,6 +5,8 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Mathlib.Analysis.Calculus.Deriv.Prod
+
 public import Carlson.Jacobi.SaddleLaplace
 public import Mathlib.Analysis.SpecialFunctions.Complex.Analytic
 
@@ -93,7 +95,7 @@ theorem hasDerivAt_jacobiSaddleAmplitude (a b : ℂ) (m : ℕ) {r s z : ℂ}
       (fderiv ℂ (jacobiSaddleAmplitudeComplex a b m r s) (z, u) (0, 1)) u := by
   have h := (analyticAt_jacobiSaddleAmplitudeComplex a b m hz hu).differentiableAt
     |>.hasFDerivAt.comp_hasDerivAt (u : ℂ)
-      ((hasDerivAt_const (u : ℂ) z).prodMk (hasDerivAt_id (u : ℂ))) |>.comp_ofReal
+      (HasDerivAt.prodMk (hasDerivAt_const (u : ℂ) z) (hasDerivAt_id (u : ℂ))) |>.comp_ofReal
   simpa only [Function.comp_apply, jacobiSaddleAmplitudeComplex_ofReal] using h
 
 /-- On a compact set off the focal segment, the amplitudes share a Lipschitz

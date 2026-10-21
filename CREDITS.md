@@ -214,3 +214,15 @@ No external Lean code was incorporated as part of the related-work survey.
 [tau-codes-sc-primitive]: https://github.com/TauCetiProject/TauCeti/blob/a780c7ad6beb23f60a17351a492d177878020ad5/TauCeti/Analysis/Complex/Conformal/SchwarzChristoffel/Primitive.lean
 [tau-codes-sc-image]: https://github.com/TauCetiProject/TauCeti/blob/a780c7ad6beb23f60a17351a492d177878020ad5/TauCeti/Analysis/Complex/Conformal/SchwarzChristoffel/Image.lean
 [tau-codes-riemann]: https://github.com/TauCetiProject/TauCeti/blob/a780c7ad6beb23f60a17351a492d177878020ad5/TauCeti/Analysis/Complex/Conformal/RiemannMapping/Existence.lean
+
+
+## Shared Mathlib upgrade (2026-10-18)
+
+The contour normalization wrapper now reuses the Tau Ceti contributors'
+`AbsolutelyContinuousOnInterval.windingNumber_eq_two_pi_I_inv_mul_curveIntegral`
+in `TauCeti.Analysis.Contour.Winding.AbsolutelyContinuous.Path`, reached from
+the existing piecewise C¹ assumption via
+`TauCeti.Contour.IsPiecewiseC1On.absolutelyContinuousOnInterval`.
+Its original hypotheses and conclusion are preserved. The one-line compatibility
+edit to TauCeti's finite-measure extension proof is saved in `TauCeti-4.36.patch`;
+it uses Mathlib's renamed `ContinuousMap.coe_ofClass` without changing the proof.

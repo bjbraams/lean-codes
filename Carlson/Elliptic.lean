@@ -55,11 +55,11 @@ Umbrella module for the elliptic material of Carlson's Chapters 8 and 9. It cove
 * `Carlson.bijOn_scMap`, `Carlson.differentiableOn_scMapInv`: Theorem 8.2-1 and the holomorphic
   inverse.
 * `Carlson.bijOn_carlsonRF_sub`, `Carlson.sq_deriv_weierstrassInv`: Example 8.2-2.
-* `Carlson.bijOn_snV`, `Carlson.sq_deriv_jacobiSn`: Example 8.2-3.
-* `Carlson.carlsonRG`, `Carlson.carlsonRH`, `Carlson.legendreF_eq`: the standard functions of
+* `Carlson.bijOn_snV`, `Carlson.sq_deriv_jacobiSnk`: Example 8.2-3.
+* `Carlson.carlsonRG`, `Carlson.carlsonRH`, `Carlson.Real.incEllIntFk_eq`: the standard functions of
   §9.2.
-* `Carlson.legendrePi_eq_standard`, `Carlson.legendrePi_complete_eq_standard`: Legendre's
-  third-kind integral reduced to `R_F`, `R_H` and to `R_K`, `R_L`, respectively.
+* `Carlson.Real.incEllIntPik_eq_standard`, `Carlson.Real.incEllIntPik_complete_eq_standard`:
+  Legendre's third-kind integral reduced to `R_F`, `R_H` and to `R_K`, `R_L`, respectively.
 * `Carlson.regCarlsonR_landen`, `Carlson.tendsto_ascLanden`, `Carlson.tendsto_descGauss`: §9.5.
 * `Carlson.carlsonRF_duplication`, `Carlson.tendsto_dupSeq`: §9.6.
 * `Carlson.carlsonRF_add_carlsonRF`: §9.7.
@@ -78,7 +78,7 @@ Umbrella module for the elliptic material of Carlson's Chapters 8 and 9. It cove
   exercises (`Carlson.Elliptic.ChapterNineExercises`).
 * `Carlson.carlsonR_table_9_3_1_row1` (and the other rows): Carlson's reduction Tables 9.3-1 to
   9.3-4 (`Carlson.Elliptic.ReductionTables`).
-* `Carlson.legendreEc_eq`, `Carlson.carlsonRG_eq_legendre`: Legendre's integrals and the
+* `Carlson.Real.compEllIntEk_eq`, `Carlson.carlsonRG_eq_legendre`: Legendre's integrals and the
   symmetric standard functions, (9.2-12)–(9.2-15) and Example 9.3-1.
 * `Carlson.carlsonRE_sq_eq`, `Carlson.carlsonRG_landen`, `Carlson.carlsonRE_eq_agm_div`: Landen
   transformations of `R_E`, `R_G` and `R_E` along the AGM (Exercises 9.5-2 to 9.5-5).

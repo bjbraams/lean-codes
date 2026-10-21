@@ -360,6 +360,8 @@ def scPolygon (a : ℝ) (b x : ι → ℝ) : Set ℂ :=
     ∀ i, 0 < (exp (-(scAngle b x (x i) : ℂ) * I) * (ζ - scMap a b x (x i))).im}
 
 theorem isOpen_scPolygon : IsOpen (scPolygon a b x) := by
+  change IsOpen ({ζ : ℂ | 0 < (exp ((π * a : ℝ) * I) * ζ).im} ∩
+    {ζ | ∀ i, 0 < (exp (-(scAngle b x (x i) : ℂ) * I) * (ζ - scMap a b x (x i))).im})
   refine (isOpen_lt continuous_const
     (continuous_im.comp (continuous_const.mul continuous_id))).inter ?_
   have hi : ∀ i : ι, IsOpen {ζ : ℂ |
@@ -369,7 +371,6 @@ theorem isOpen_scPolygon : IsOpen (scPolygon a b x) := by
   refine (congrArg IsOpen ?_).mp (isOpen_iInter_of_finite hi)
   ext ζ
   simp only [mem_iInter, mem_ofPred_eq]
-  rfl
 
 theorem convex_scPolygon : Convex ℝ (scPolygon a b x) := by
   intro u hu v hv s t hs ht hst

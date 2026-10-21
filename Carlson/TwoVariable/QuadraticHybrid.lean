@@ -5,6 +5,8 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Mathlib.Analysis.SpecialFunctions.Sqrt
+
 public import Carlson.R.SmallVariableContinuation
 public import Carlson.TwoVariable.QuadraticSlit
 public import Carlson.TwoVariable.ParameterSymmetry
