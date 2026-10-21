@@ -5,7 +5,7 @@ The foundational developments are intended as potential Mathlib contributions.
 
 ## Organization
 
-There are seven main directories.
+There are eight main directories.
 
 - `ToMathlib/`.
 General support that uses Mathlib and the pinned TauCeti, in the namespaces of the Mathlib APIs it
@@ -46,8 +46,21 @@ interface.
 The regularized Dirichlet transform as a transform in its own right, beyond what Carlson's
 averages need: face formulas at nonpositive integer parameters, uniqueness, the identification
 with the multivariable Mellin transform in simplicial polar coordinates (with its continued
-form), inversion on vertical planes, and Plancherel. It builds on `Dirichlet`, which it shares
-with `Carlson`; the programme is [DirichletTransformProgram.md](DirichletTransformProgram.md).
+form), inversion on vertical planes, and Plancherel. Plancherel holds for every continuous
+kernel on the closed simplex, including nonsmooth kernels and nonzero boundary values.
+For the exponential profile, the transform extends to the complete weighted simplex `L²`
+space as an isometry onto a closed image with an inverse. It agrees with native Mellin
+integrals for continuous kernels.
+Inversion also holds for `C^N` boundary kernels with `2N > card ι - 1`,
+using either the exponential profile or a smooth compact positive radial profile.
+This intrinsic sufficient bound applies both to the full vertical plane and to inversion
+from one positive fixed-sum vertical hyperplane, including for kernels nonzero on the faces.
+Coordinate pole residues are expressed through boundary jets. With at least two coordinates,
+removability of zero-parameter poles for all positive complementary parameters is equivalent
+to vanishing of the corresponding face trace.
+The Paley–Wiener image theorem still assumes vanishing near the faces.
+It builds on `Dirichlet`, which it shares with `Carlson`; the programme is
+[DirichletTransformProgram.md](DirichletTransformProgram.md).
 
 - `Carlson/`.
 R-polynomials, R/L/S/T functions, and two-variable specializations.

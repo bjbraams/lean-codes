@@ -357,20 +357,105 @@ at `ℕ`), `ToMathlib.Analysis.MellinBarnes` and `ToMathlib.Analysis.SpecialFunc
 (simplicial polar coordinates). The research
 programme is [DirichletTransformProgram.md](DirichletTransformProgram.md).
 
-| Module | Content |
-| --- | --- |
-| `SimplexMellin.Face` | Face formulas at nonpositive integer parameters: restriction to a face at `bᵢ = 0`, iterated integration by parts, and the binomial face formula at `bᵢ = -m` |
-| `SimplexMellin.Uniqueness` | Monomial moments as transform values; a continuous kernel is determined on the simplex by its transform at positive integer parameters |
-| `SimplexMellin.Bridge` | The Mellin bridge: in simplicial polar coordinates `mvMellin (φ(∑x) g(x/∑x)) b = mellin φ (∑ bᵢ) · ∏ Γ(bᵢ) · T_b[g]`, without integrability assumptions; for `φ = e^(−t)` the radial factor is `Γ(∑ bᵢ)` |
-| `SimplexMellin.Inversion` | Inversion on a vertical plane `b = c − 2πiξ` by Fourier inversion in logarithmic coordinates, for any radial profile `φ`: `g u = φ(1)⁻¹ ∫ (∏ uᵢ^(−bᵢ)) ℳ[φ](∑ b) ∏ Γ(bᵢ) T_b[g] dξ` (for `φ = e^(−t)`: factor `e` and `Γ(∑ b)`), under integrability on the plane; unconditional for smooth kernels vanishing near the faces with a smooth profile compactly supported in `(0, ∞)` (TauCeti) |
-| `SimplexMellin.Schwartz` | The exponential-profile inversion is unconditional for smooth kernels vanishing near the faces: the function in logarithmic coordinates is `G · A` with `A = exp(∑ (cᵢyᵢ − e^{yᵢ}))` Schwartz (`ToMathlib.Analysis.SchwartzExpExp`) and `G(y) = g(e^y/∑e^y)` of temperate growth |
-| `SimplexMellin.PaleyWiener` | Necessity half of Paley–Wiener: for `g` continuous on the simplex and vanishing where some `uᵢ < δ`, the native integral `T_b[g]` is entire (Pochhammer shift identity), `S_g(b) = ∫_Δ u^{b−1} g` satisfies `|S_g(b)| ≤ ‖g‖₁ ∏ max(1, δ^{Re bᵢ−1})`, and `ℳ[φ](∑ b) S_g(b)` is a Schwartz function on vertical planes |
-| `SimplexMellin.LogRatio` | Log-ratio coordinates `u(w) = e^{w̃}/∑e^{w̃}` relative to an index `i₀` and the change of variables `∫_Δ f = ∫ (∏ u(w)) f(u(w)) dw`, proved from the Mellin bridge at `b = 𝟙` and a shear of exponential coordinates |
-| `SimplexMellin.Hyperplane` | On `∑ bᵢ = s`, `S_g(b) = ∫ e^{⟨b′,w⟩} Z(w)^{−s} g(u(w)) dw`; Laplace transforms of compactly supported functions are entire; **sufficiency**: every function of `b′` with Paley–Wiener bounds is the hyperplane restriction of `S_g` for a kernel continuous on and smooth near the simplex, vanishing near the faces (`exists_kernel_of_paleyWiener`); **necessity**: for smooth `g` vanishing near the faces the restriction has Paley–Wiener bounds for the box `|wⱼ| ≤ |log δ|` (`norm_integral_hyperplane_le`); **injectivity** on one hyperplane (`eqOn_of_integral_hyperplane_eq`) |
-| `SimplexMellin.Image` | **Paley–Wiener description of the image** (`exists_kernel_iff`): `S` is `S_g` for a kernel smooth near the simplex and vanishing near its faces iff `S` is entire, satisfies the sum-shift equation `S(b) = ∑ᵢ S(b + eᵢ)`, the bound `‖S b‖ ≤ C ∏ max(1, δ^{Re bᵢ−1})`, and Paley–Wiener bounds on one hyperplane. Sufficiency uses Carlson's theorem on lines transversal to the hyperplanes `∑ b = s₀ − n`; `S_g` is entire (`differentiable_simplexMoment`) |
-| `SimplexMellin.Lattice` | The transform `S_g(b) = ∫_Δ u^{b−1} g` of a continuous kernel is holomorphic on `Re b > 0`, bounded by `‖g‖₁` on `Re b ≥ 1`, and determined there by its values on `ℕ^ι + 𝟙` (the monomial moments), by Carlson's theorem in several variables (`simplexMoment_eqOn_of_moments_eq`). Nonnegative lattice data with the sum-shift equation, shifted by `𝟙`, have a unique continuation holomorphic on `Re b > −1` and bounded on `Re b ≥ 0`, given by the measure of the moment problem (`exists_continuation_of_satisfiesSumShift`, `eqOn_of_natCast_eq_of_bounded`) |
-| `SimplexMellin.Estimate` | Quantitative continuation estimate: on compact parameter sets `‖T_b[g]‖ ≤ C·A` when the derivatives of `g` up to a fixed order are bounded by `A` on the simplex (`exists_norm_regDirichletContinuation_le`, `exists_norm_regDirichletTransform_le`), by bounding the explicit formula `regDirichletShiftFormula` |
-| `SimplexMellin.Master` | A master theorem with simplex structure: for `Φ` the function of Ramanujan's master theorem (`ToMathlib.Analysis.SpecialFunctions.RamanujanMaster`), `Φ(∑x) g(x/∑x) = ∑ φ(k)(−∑x)^k g(x/∑x)` near the origin, and its several-variable Mellin transform is `π/sin(π∑b) · φ(−∑b) · ∏Γ(bᵢ) · T_b[g]` |
+- `SimplexMellin.Face`: Face formulas at nonpositive integer parameters: restriction to a face at
+  `bᵢ = 0`, iterated integration by parts, and the binomial face formula at `bᵢ = -m`
+- `SimplexMellin.Uniqueness`: Monomial moments as transform values; a continuous kernel is
+  determined on the simplex by its transform at positive integer parameters
+- `SimplexMellin.Bridge`: The Mellin bridge: in simplicial polar coordinates `mvMellin (φ(∑x)
+  g(x/∑x)) b = mellin φ (∑ bᵢ) · ∏ Γ(bᵢ) · T_b[g]`, without integrability assumptions; for `φ =
+  e^(−t)` the radial factor is `Γ(∑ bᵢ)`
+- `SimplexMellin.Inversion`: Inversion on a vertical plane `b = c − 2πiξ` by Fourier inversion in
+  logarithmic coordinates, for any radial profile `φ`: `g u = φ(1)⁻¹ ∫ (∏ uᵢ^(−bᵢ)) ℳ[φ](∑ b) ∏
+  Γ(bᵢ) T_b[g] dξ` (for `φ = e^(−t)`: factor `e` and `Γ(∑ b)`), under integrability on the plane;
+  unconditional for smooth kernels vanishing near the faces with a smooth profile compactly
+  supported in `(0, ∞)` (TauCeti)
+- `SimplexMellin.L2`: Plancherel for all continuous boundary kernels under first and second
+  radial convergence, including exponential and continuous compact positive profiles; a radial
+  transform in logarithmic `L²`, inversion, distance preservation and native-integral agreement.
+- `SimplexMellin.WeightedL2`: the exponential-profile transform on the complete weighted
+  simplex `L²` space, with the exact Dirichlet and monomial-density normalization; a linear
+  isometry onto a closed image, inverse, Schwartz approximation, and native-integral
+  compatibility for all continuous boundary kernels.
+- `SimplexMellin.Schwartz`: Exponential-profile inversion and Plancherel for every kernel smooth
+  near the closed simplex, including nonzero face values
+  (`regDirichletIntegral_inversion_exp_of_smoothNear`,
+  `integral_norm_sq_simplexMellin_of_smoothNear`). The derivatives of the angular factor are
+  uniformly bounded (`exists_bound_iteratedFDeriv_simplexAngle`), so the logarithmic kernel is a
+  Schwartz function.
+- `SimplexMellin.FiniteRegularity`: exponential-profile inversion for `C^N` kernels near
+  the closed simplex, with `2N > card ι`; square-integrable derivatives give the sufficient
+  Sobolev bound, and the older `N > card ι` statements remain wrappers. No face vanishing
+  is required.
+- `SimplexMellin.RadialProfile`: compactly supported smooth radial profiles, vertical-plane
+  integrability and inversion for finite-regularity boundary kernels, and general-profile
+  Plancherel for smooth boundary kernels.
+- `SimplexMellin.IntrinsicInversion`: full-plane absolute integrability and interior inversion
+  with `2N > card ι - 1` derivatives near the closed simplex, for exponential and compact
+  positive smooth radial profiles. Diagonal invariance of the angular factor means that one
+  additional Sobolev-controlled radial derivative requires no additional kernel derivative.
+- `SimplexMellin.LogRatioSchwartz`: positive complex Mellin weights are Schwartz in intrinsic
+  log-ratio coordinates; native Fourier identification on positive fixed-sum vertical
+  hyperplanes for continuous boundary kernels, Schwartz restrictions for smooth kernels,
+  and absolute interior inversion with `2N > card ι - 1` derivatives near the closed simplex.
+- `SimplexMellin.BoundaryDecay`: order-`N` decay of the exponential-profile transform for
+  `C^N` kernels; on every fixed-total-frequency hyperplane this gives order-`N` decay of
+  `simplexMoment`, and rapid decay for smooth boundary kernels.
+- `SimplexMellin.Poles`: the continued unnormalized transform, simple coordinate pole
+  numerators including intersections, boundary-jet residues, the native positive-parameter
+  face limit, and equivalence between zero-hyperplane removability and vanishing face trace.
+- `SimplexMellin.PaleyWiener`: Necessity half of Paley–Wiener: for `g` continuous on the simplex and
+  vanishing where some `uᵢ < δ`, the native integral `T_b[g]` is entire (Pochhammer shift identity),
+  `S_g(b) = ∫_Δ u^{b−1} g` satisfies `|S_g(b)| ≤ ‖g‖₁ ∏ max(1, δ^{Re bᵢ−1})`, and `ℳ[φ](∑ b) S_g(b)`
+  is a Schwartz function on vertical planes
+- `SimplexMellin.LogRatio`: Log-ratio coordinates `u(w) = e^{w̃}/∑e^{w̃}` relative to an index `i₀`
+  and the positive-parameter Mellin change of variables for continuous boundary kernels,
+  allowing singular monomial densities; the continuous formula
+  `∫_Δ f = ∫ (∏ u(w)) f(u(w)) dw` follows at `b = 𝟙`.
+- `SimplexMellin.Hyperplane`: On `∑ bᵢ = s`, `S_g(b) = ∫ e^{⟨b′,w⟩} Z(w)^{−s} g(u(w)) dw`; Laplace
+  transforms of compactly supported functions are entire; **sufficiency**: every function of `b′`
+  with Paley–Wiener bounds is the hyperplane restriction of `S_g` for a kernel continuous on and
+  smooth near the simplex, vanishing near the faces (`exists_kernel_of_paleyWiener`); **necessity**:
+  for smooth `g` vanishing near the faces the restriction has Paley–Wiener bounds for the box `|wⱼ|
+  ≤ |log δ|` (`norm_integral_hyperplane_le`); **injectivity** on one hyperplane
+  (`eqOn_of_integral_hyperplane_eq`)
+- `SimplexMellin.Image`: **Paley–Wiener description of the image** (`exists_kernel_iff`): `S` is
+  `S_g` for a kernel smooth near the simplex and vanishing near its faces iff `S` is entire,
+  satisfies the sum-shift equation `S(b) = ∑ᵢ S(b + eᵢ)`, the bound `‖S b‖ ≤ C ∏ max(1, δ^{Re
+  bᵢ−1})`, and Paley–Wiener bounds on one hyperplane. Sufficiency uses Carlson's theorem on lines
+  transversal to the hyperplanes `∑ b = s₀ − n`; `S_g` is entire (`differentiable_simplexMoment`)
+- `SimplexMellin.Lattice`: The transform `S_g(b) = ∫_Δ u^{b−1} g` of a continuous kernel is
+  holomorphic on `Re b > 0`, bounded by `‖g‖₁` on `Re b ≥ 1`, and determined there by its values on
+  `ℕ^ι + 𝟙` (the monomial moments), by Carlson's theorem in several variables
+  (`simplexMoment_eqOn_of_moments_eq`). Nonnegative lattice data with the sum-shift equation,
+  shifted by `𝟙`, have a unique continuation holomorphic on `Re b > −1` and bounded on `Re b ≥ 0`,
+  given by the measure of the moment problem (`exists_continuation_of_satisfiesSumShift`,
+  `eqOn_of_natCast_eq_of_bounded`)
+- `SimplexMellin.Estimate`: Quantitative continuation estimate: on compact parameter sets `‖T_b[g]‖
+  ≤ C·A` when the derivatives of `g` up to a fixed order are bounded by `A` on the simplex
+  (`exists_norm_regDirichletContinuation_le`, `exists_norm_regDirichletTransform_le`), by bounding
+  the explicit formula `regDirichletShiftFormula`
+- `SimplexMellin.Master`: A master theorem with simplex structure: for `Φ` the function of
+  Ramanujan's master theorem (`ToMathlib.Analysis.SpecialFunctions.RamanujanMaster`), `Φ(∑x) g(x/∑x)
+  = ∑ φ(k)(−∑x)^k g(x/∑x)` near the origin, and its several-variable Mellin transform is `π/sin(π∑b)
+  · φ(−∑b) · ∏Γ(bᵢ) · T_b[g]`
+
+The additional support modules are `ToMathlib.Analysis.Fourier.FiniteRegularity`
+(integrable derivatives imply polynomial Fourier decay and, above the dimension,
+Fourier integrability; finite smooth multipliers of Schwartz functions) and
+`ToMathlib.Analysis.SchwartzSumExp` (Schwartz functions composed with sums of
+coordinate exponentials have bounded derivatives).
+`ToMathlib.Analysis.Fourier.Plancherel` identifies the classical Fourier integral on
+`L¹ ∩ L²` with Mathlib's `L²` Fourier transform and proves classical Plancherel, using
+Tau Ceti's uniqueness theorem for locally integrable representatives of tempered distributions.
+`ToMathlib.Analysis.Fourier.Sobolev` turns square-integrable classical derivatives into
+Bessel-potential regularity and applies the `2s > dim V` Fourier integrability criterion;
+for `C^N` functions this improves the sufficient derivative count to `2N > dim V`. It also
+proves square integrability of derivatives of finite smooth multipliers of Schwartz functions.
+`ToMathlib.Analysis.Fourier.DiagonalSobolev` proves Fourier integrability with a Sobolev
+order above half the transverse dimension when an additional diagonal derivative has the
+same Sobolev regularity. Its dual weight is square integrable by a measure-preserving
+coordinate-sum shear. It also treats finite smooth multipliers of Hilbert-valued Schwartz
+functions whose diagonal derivative vanishes.
 
 ## Carlson functions modules
 

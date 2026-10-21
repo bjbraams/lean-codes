@@ -6,6 +6,7 @@ Authors: Bastiaan J Braams
 module
 
 public import SimplexMellin.Bridge
+public import ToMathlib.Analysis.Fourier.Plancherel
 public import Mathlib.Analysis.Fourier.Inversion
 public import TauCeti.Analysis.Fourier.Integrable
 public import Mathlib.Analysis.Calculus.ContDiff.WithLp
@@ -27,12 +28,13 @@ of `x ↦ e^(-∑ x) g(x / ∑ x)`; in exponential coordinates it is a Fourier t
 `e^(-∑ u) = e^(-1)` on the simplex.
 
 The same argument works with any radial profile `φ` in place of `e^(-t)`; the factor `e` becomes
-`φ(1)⁻¹`. The integrability hypothesis is a smoothness condition on `g` in logarithmic
-coordinates near the faces of the simplex. For the profile `e^(-t)` it is kept as a hypothesis.
-For a smooth profile with compact support in `(0, ∞)` and a smooth kernel vanishing near the
-faces, the function being inverted is smooth with compact support in logarithmic coordinates,
-so the hypothesis holds by the integrability of Fourier transforms of test functions
+`φ(1)⁻¹`. The integrability hypothesis is a regularity condition on `g` in logarithmic coordinates
+near the faces of the simplex. Sufficient conditions for kernels with arbitrary boundary
+values are developed in `SimplexMellin.Schwartz` and `SimplexMellin.FiniteRegularity`.
+Here the original compact-support argument uses Tau Ceti
 (`TauCeti.integrable_fourier_of_contDiff_of_hasCompactSupport`, by the Tau Ceti contributors).
+Plancherel is factored through the classical `L¹ ∩ L²` theorem; `SimplexMellin.L2` supplies
+radial convergence criteria and the continuous-kernel consequences.
 
 ## Main results
 
@@ -87,11 +89,31 @@ multivariable Mellin transform of `x ↦ φ(∑ x) g(x / ∑ x)`. -/
 def simplexMellinRadial (φ : ℝ → ℂ) (b : ι → ℂ) (g : (ι → ℝ) → ℂ) : ℂ :=
   mellin φ (∑ i, b i) * ((∏ i, Gamma (b i)) * regDirichletIntegral b g)
 
+/-- `simplexMellinRadial` with the exponential profile is `simplexMellin`. -/
+theorem simplexMellinRadial_exp_eq {b : ι → ℂ} (hb : 0 < (∑ i, b i).re) (g : (ι → ℝ) → ℂ) :
+    simplexMellinRadial (fun t => ((Real.exp (-t) : ℝ) : ℂ)) b g = simplexMellin b g := by
+  rw [simplexMellinRadial, simplexMellin, Gamma_eq_integral hb, GammaIntegral_eq_mellin]
+
 /-- The function inverted by Fourier inversion: `x ↦ φ(∑ x) g(x / ∑ x)` in exponential
 coordinates, weighted by `e^(⟨c, y⟩)`. -/
 def radialLog (c : ι → ℝ) (φ : ℝ → ℂ) (g : (ι → ℝ) → ℂ) (y : EuclideanSpace ℝ ι) : ℂ :=
   Real.exp (∑ i, c i * y i) •
     (φ (∑ i, piExp y.ofLp i) * g ((∑ i, piExp y.ofLp i)⁻¹ • piExp y.ofLp))
+
+/-- Taking the squared norm of the logarithmic kernel doubles the abscissae and
+replaces both the radial and angular factors by their squared norms. -/
+theorem ofReal_norm_sq_radialLog (c : ι → ℝ) (φ : ℝ → ℂ) (g : (ι → ℝ) → ℂ)
+    (y : EuclideanSpace ℝ ι) :
+    ((‖radialLog c φ g y‖ ^ 2 : ℝ) : ℂ) =
+      radialLog (fun i => 2 * c i) (fun t => ((‖φ t‖ ^ 2 : ℝ) : ℂ))
+        (fun u => ((‖g u‖ ^ 2 : ℝ) : ℂ)) y := by
+  simp only [radialLog, real_smul, norm_mul, mul_pow, Complex.norm_real,
+    Real.norm_eq_abs, abs_of_pos (Real.exp_pos _)]
+  rw [← Real.exp_nat_mul]
+  push_cast
+  congr 2
+  rw [Finset.mul_sum]
+  exact Finset.sum_congr rfl fun i _ => by ring
 
 /-- The Fourier transform of `radialLog c φ g` is the full Mellin transform on the vertical
 plane `b = c - 2πiξ`. -/
@@ -352,6 +374,74 @@ theorem regDirichletIntegral_inversion_of_contDiff [Nonempty ι] {c : ι → ℝ
 
 /-! ### Plancherel -/
 
+/-- The squared logarithmic norm is the radial Mellin transform at doubled abscissae
+of the squared radial and angular factors. This is a change-of-variables identity. -/
+theorem ofReal_integral_norm_sq_radialLog [Nonempty ι] {c : ι → ℝ}
+    (hc : ∀ i, 0 < c i) {g : (ι → ℝ) → ℂ}
+    (hg : ContinuousOn g (Convexity.StdSimplex.coordinateSet ℝ ι))
+    {φ : ℝ → ℂ} (hφ : ContinuousOn φ (Ioi 0)) :
+    ((∫ y : EuclideanSpace ℝ ι, ‖radialLog c φ g y‖ ^ 2 : ℝ) : ℂ) =
+      simplexMellinRadial (fun t => ((‖φ t‖ ^ 2 : ℝ) : ℂ)) (fun i => ((2 * c i : ℝ) : ℂ))
+        (fun u => ((‖g u‖ ^ 2 : ℝ) : ℂ)) := by
+  rw [← (PiLp.volume_preserving_toLp ι).integral_comp
+    (MeasurableEquiv.toLp 2 _).measurableEmbedding, ← integral_complex_ofReal]
+  have hb : (fun i => ((2 * c i : ℝ) : ℂ)) ∈ mvBetaConvergent := fun i => by
+    simpa using hc i
+  have hbr := mvMellin_radial_mul_eq hb
+    (g := fun u => ((‖g u‖ ^ 2 : ℝ) : ℂ))
+    (continuous_ofReal.comp_continuousOn (hg.norm.pow 2))
+    (φ := fun t => ((‖φ t‖ ^ 2 : ℝ) : ℂ))
+    (continuous_ofReal.comp_continuousOn (hφ.norm.pow 2))
+  rw [simplexMellinRadial, ← hbr, mvMellin_eq_integral_exp]
+  refine integral_congr_ae (Filter.Eventually.of_forall fun y => ?_)
+  simp only [radialLog, norm_smul, norm_mul, mul_pow, Real.norm_eq_abs,
+    abs_of_pos (Real.exp_pos _), smul_eq_mul]
+  rw [← Real.exp_nat_mul]
+  push_cast
+  congr 2
+  rw [Finset.mul_sum]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  ring
+
+/-- Plancherel whenever the logarithmic kernel belongs to `L¹ ∩ L²`. No differentiability
+or integrability of its Fourier transform is assumed. -/
+theorem integral_norm_sq_simplexMellinRadial_of_memLp [Nonempty ι] {c : ι → ℝ}
+    (hc : ∀ i, 0 < c i) {g : (ι → ℝ) → ℂ}
+    (hg : ContinuousOn g (Convexity.StdSimplex.coordinateSet ℝ ι))
+    {φ : ℝ → ℂ} (hφ : ContinuousOn φ (Ioi 0))
+    (h₁ : Integrable (radialLog c φ g)) (h₂ : MemLp (radialLog c φ g) 2) :
+    ((∫ ξ : ι → ℝ, ‖simplexMellinRadial φ (mellinPlane c ξ) g‖ ^ 2 : ℝ) : ℂ) =
+      simplexMellinRadial (fun t => ((‖φ t‖ ^ 2 : ℝ) : ℂ)) (fun i => ((2 * c i : ℝ) : ℂ))
+        (fun u => ((‖g u‖ ^ 2 : ℝ) : ℂ)) := by
+  set h := radialLog c φ g
+  have hP := Real.integral_norm_sq_fourier_of_integrable_memLp h₁ h₂
+  have hLHS : ∫ ξ : ι → ℝ, ‖simplexMellinRadial φ (mellinPlane c ξ) g‖ ^ 2 =
+      ∫ ξ : EuclideanSpace ℝ ι, ‖𝓕 h ξ‖ ^ 2 := by
+    rw [← (PiLp.volume_preserving_toLp ι).integral_comp
+      (MeasurableEquiv.toLp 2 _).measurableEmbedding]
+    refine integral_congr_ae (Filter.Eventually.of_forall fun ξ => ?_)
+    simp only
+    rw [fourier_radialLog hc hg hφ]
+  rw [hLHS, hP]
+  exact ofReal_integral_norm_sq_radialLog hc hg hφ
+
+/-- Plancherel for any radial profile whose logarithmic kernel is Schwartz. This separates
+the Fourier argument from the sufficient regularity and boundary assumptions. -/
+theorem integral_norm_sq_simplexMellinRadial_of_schwartz [Nonempty ι] {c : ι → ℝ}
+    (hc : ∀ i, 0 < c i) {g : (ι → ℝ) → ℂ}
+    (hg : ContinuousOn g (Convexity.StdSimplex.coordinateSet ℝ ι))
+    {φ : ℝ → ℂ} (hφ : ContinuousOn φ (Ioi 0))
+    (hS : ∃ S : SchwartzMap (EuclideanSpace ℝ ι) ℂ, ⇑S = radialLog c φ g) :
+    ((∫ ξ : ι → ℝ, ‖simplexMellinRadial φ (mellinPlane c ξ) g‖ ^ 2 : ℝ) : ℂ) =
+      simplexMellinRadial (fun t => ((‖φ t‖ ^ 2 : ℝ) : ℂ)) (fun i => ((2 * c i : ℝ) : ℂ))
+        (fun u => ((‖g u‖ ^ 2 : ℝ) : ℂ)) := by
+  obtain ⟨S, hcoe⟩ := hS
+  apply integral_norm_sq_simplexMellinRadial_of_memLp hc hg hφ
+  · rw [← hcoe]
+    exact S.integrable
+  · rw [← hcoe]
+    exact S.memLp 2
+
 /-- **Plancherel for the simplex Mellin transform.** For a smooth radial profile `φ` vanishing
 outside `[r₀, r₁] ⊂ (0, ∞)` and a smooth kernel `g` vanishing near the faces of the simplex, the
 `L²` norm of `ξ ↦ ℳ[φ](∑ b) ∏ Γ(b i) T_b[g]` on the vertical plane `b = c - 2πiξ` is the same
@@ -360,8 +450,8 @@ transform at `2c` of `|φ|²` and `|g|²`:
 `∫ |ℳ[φ](∑ b) ∏ Γ(b i) T_b[g]|² dξ = ℳ[|φ|²](2 ∑ c) ∏ Γ(2 c i) T_(2c)[|g|²]`.
 
 Equivalently (by the definition of `T_(2c)`) it is
-`(∫₀^∞ t^(2∑c - 1) |φ t|² dt) · ∫_Δ ∏ u i ^ (2 c i - 1) |g u|² du`. The proof is Plancherel's
-theorem for Schwartz functions in logarithmic coordinates, followed by the Mellin bridge at `2c`.
+`(∫₀^∞ t^(2∑c - 1) |φ t|² dt) · ∫_Δ ∏ u i ^ (2 c i - 1) |g u|² du`. The proof uses classical
+Plancherel in logarithmic coordinates, followed by the Mellin bridge at `2c`.
 -/
 theorem integral_norm_sq_simplexMellinRadial [Nonempty ι] {c : ι → ℝ} (hc : ∀ i, 0 < c i)
     {g : (ι → ℝ) → ℂ} (hgs : ContDiff ℝ ∞ g) {δ : ℝ} (hδ : 0 < δ)
@@ -371,41 +461,12 @@ theorem integral_norm_sq_simplexMellinRadial [Nonempty ι] {c : ι → ℝ} (hc 
     ((∫ ξ : ι → ℝ, ‖simplexMellinRadial φ (mellinPlane c ξ) g‖ ^ 2 : ℝ) : ℂ) =
       simplexMellinRadial (fun t => ((‖φ t‖ ^ 2 : ℝ) : ℂ)) (fun i => ((2 * c i : ℝ) : ℂ))
         (fun u => ((‖g u‖ ^ 2 : ℝ) : ℂ)) := by
-  set h := radialLog c φ g
   have hsupp := hasCompactSupport_radialLog c hδ hgsupp hr₀ hφsupp
   have hsm := contDiff_radialLog c hgs hφs
-  have hcoe : ⇑(hsupp.toSchwartzMap hsm) = h := by
-    ext x
-    simp
-    rfl
-  have hP := SchwartzMap.integral_norm_sq_fourier (hsupp.toSchwartzMap hsm)
-  simp only [SchwartzMap.fourier_coe, hcoe] at hP
-  have hLHS : ∫ ξ : ι → ℝ, ‖simplexMellinRadial φ (mellinPlane c ξ) g‖ ^ 2 =
-      ∫ ξ : EuclideanSpace ℝ ι, ‖𝓕 h ξ‖ ^ 2 := by
-    rw [← (PiLp.volume_preserving_toLp ι).integral_comp
-      (MeasurableEquiv.toLp 2 _).measurableEmbedding]
-    refine integral_congr_ae (Filter.Eventually.of_forall fun ξ => ?_)
-    simp only
-    rw [fourier_radialLog hc hgs.continuous.continuousOn hφs.continuous.continuousOn]
-  rw [hLHS, hP, ← (PiLp.volume_preserving_toLp ι).integral_comp
-    (MeasurableEquiv.toLp 2 _).measurableEmbedding, ← integral_complex_ofReal]
-  have hb : (fun i => ((2 * c i : ℝ) : ℂ)) ∈ mvBetaConvergent := fun i => by
-    simpa using hc i
-  have hbr := mvMellin_radial_mul_eq hb
-    (g := fun u => ((‖g u‖ ^ 2 : ℝ) : ℂ))
-    (continuous_ofReal.comp (hgs.continuous.norm.pow 2)).continuousOn
-    (φ := fun t => ((‖φ t‖ ^ 2 : ℝ) : ℂ))
-    (continuous_ofReal.comp (hφs.continuous.norm.pow 2)).continuousOn
-  rw [simplexMellinRadial, ← hbr, mvMellin_eq_integral_exp]
-  refine integral_congr_ae (Filter.Eventually.of_forall fun y => ?_)
-  simp only [h, radialLog, norm_smul, norm_mul, mul_pow, Real.norm_eq_abs,
-    abs_of_pos (Real.exp_pos _), smul_eq_mul]
-  rw [← Real.exp_nat_mul]
-  push_cast
-  congr 2
-  rw [Finset.mul_sum]
-  refine Finset.sum_congr rfl fun i _ => ?_
-  ring
+  refine integral_norm_sq_simplexMellinRadial_of_schwartz hc hgs.continuous.continuousOn
+    hφs.continuous.continuousOn ⟨hsupp.toSchwartzMap hsm, ?_⟩
+  ext y
+  rfl
 
 end Dirichlet
 

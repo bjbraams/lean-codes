@@ -23,6 +23,8 @@ variables reads
 `∫_Δ f(u) du = ∫ (∏ i, u(w) i) f(u(w)) dw`,
 
 for `f` continuous on the simplex, with `∏ i, u(w) i = e^(∑ w) Z(w)^(-card ι)`.
+More generally, positive complex Mellin parameters allow singular monomial densities
+and arbitrary continuous boundary kernels in the corresponding weighted identity.
 
 The proof avoids computing the Jacobian of `w ↦ u(w)` directly. It evaluates the multivariable
 Mellin transform of `e^(-∑ x) f(x / ∑ x)` at `b = 𝟙` in two ways: by the Mellin bridge it is
@@ -36,7 +38,8 @@ off `y i₀ = τ`) the integral over `τ` is `Γ(card ι) Z(w)^(-card ι)`.
 ## Main results
 
 * `Dirichlet.integral_exp_mul_exp_neg_mul_exp`: `∫ e^(k τ) e^(-Z e^τ) dτ = Z^(-k) Γ(k)`.
-* `Dirichlet.integral_stdSimplex_eq_integral_logRatio`: the change of variables.
+* `Dirichlet.prodGamma_regDirichletIntegral_eq_integral_logRatio`: the positive-parameter identity.
+* `Dirichlet.integral_stdSimplex_eq_integral_logRatio`: its continuous-integrand specialization.
 -/
 
 open Complex MeasureTheory Set
@@ -123,45 +126,33 @@ theorem measurePreserving_logRatioShear :
     (Filter.Eventually.of_forall fun τ => map_add_right_eq_self volume _)
   exact h
 
-/-- **Change of variables to log-ratio coordinates.** For `f` continuous on the simplex,
-`∫_Δ f(u) du = ∫ (∏ i, u(w) i) f(u(w)) dw` over `w : {j // j ≠ i₀} → ℝ`. -/
-theorem integral_stdSimplex_eq_integral_logRatio {f : (ι → ℝ) → ℂ}
-    (hf : ContinuousOn f (Convexity.StdSimplex.coordinateSet ℝ ι)) :
-    ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι, f u ∂Measure.stdSimplexMeasure =
+/-- Positive Mellin parameters give the log-ratio change of variables for every continuous
+boundary kernel. The monomial density may be singular on the boundary. -/
+theorem prodGamma_regDirichletIntegral_eq_integral_logRatio {b : ι → ℂ}
+    (hb : b ∈ mvBetaConvergent) {g : (ι → ℝ) → ℂ}
+    (hg : ContinuousOn g (Convexity.StdSimplex.coordinateSet ℝ ι)) :
+    (∏ i, Gamma (b i)) * regDirichletIntegral b g =
       ∫ w : {j : ι // j ≠ i₀} → ℝ,
-        ((∏ i, logRatioPoint i₀ w i : ℝ) : ℂ) * f (logRatioPoint i₀ w) := by
+        Complex.exp (∑ i, b i * (logRatioExt i₀ w i - Real.log (logRatioZ i₀ w))) *
+          g (logRatioPoint i₀ w) := by
   have : Nonempty ι := ⟨i₀⟩
-  set k := Fintype.card ι
-  set one : ι → ℂ := fun _ => 1
-  have hone : one ∈ mvBetaConvergent := fun i => by simp [one]
+  have ha : 0 < (∑ i, b i).re := by
+    rw [re_sum]
+    exact Finset.sum_pos (fun i _ => hb i) Finset.univ_nonempty
   set φ : ℝ → ℂ := fun t => ((Real.exp (-t) : ℝ) : ℂ)
-  set K : (ι → ℝ) → ℂ := fun x => φ (∑ i, x i) * f ((∑ i, x i)⁻¹ • x)
-  -- The Mellin bridge at `b = 𝟙`.
-  have hsum1 : ∑ i, one i = (k : ℂ) := by simp [one, k]
-  have hB : mvMellin K one = Gamma k * ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι, f u
-      ∂Measure.stdSimplexMeasure := by
-    have h := mvMellin_exp_neg_mul_eq hone hf
-    rw [regDirichletIntegral_eq_prod_inv_Gamma_mul] at h
-    simp only [one, Gamma_one, Finset.prod_const_one, inv_one, one_mul, sub_self, cpow_zero,
-      Finset.sum_const, Finset.card_univ, nsmul_eq_mul, mul_one] at h
-    exact h
-  -- Exponential coordinates.
-  set Φ : (ι → ℝ) → ℂ := fun y => Complex.exp (∑ i, (y i : ℂ)) * K (piExp y)
-  have hE : mvMellin K one = ∫ y, Φ y := by
+  set K : (ι → ℝ) → ℂ := fun x => φ (∑ i, x i) * g ((∑ i, x i)⁻¹ • x)
+  set Φ : (ι → ℝ) → ℂ := fun y => Complex.exp (∑ i, b i * y i) * K (piExp y)
+  have hB : mvMellin K b = Gamma (∑ i, b i) *
+      ((∏ i, Gamma (b i)) * regDirichletIntegral b g) := mvMellin_exp_neg_mul_eq hb hg
+  have hE : mvMellin K b = ∫ y, Φ y := by
     rw [mvMellin_eq_integral_exp]
-    refine integral_congr_ae (Filter.Eventually.of_forall fun y => ?_)
-    simp [Φ, one, smul_eq_mul]
-  have hφm : MellinConvergent φ (∑ i, one i) := by
-    rw [hsum1]
-    have hk : 0 < ((k : ℂ)).re := by simp only [natCast_re]; exact_mod_cast Fintype.card_pos
-    simpa [MellinConvergent, smul_eq_mul, mul_comm, φ] using Complex.GammaIntegral_convergent hk
+    rfl
+  have hφm : MellinConvergent φ (∑ i, b i) := by
+    simpa [MellinConvergent, smul_eq_mul, mul_comm, φ] using Complex.GammaIntegral_convergent ha
   have hΦi : Integrable Φ := by
-    have h := (mvMellinConvergent_iff_integrable_exp K one).mp
-      (mvMellinConvergent_radial_mul hone hf (by fun_prop) hφm)
-    refine h.congr (Filter.Eventually.of_forall fun y => ?_)
-    simp [Φ, one, smul_eq_mul]
-  -- Split off `y i₀` and shear.
-  set T : ℝ × ({j : ι // j ≠ i₀} → ℝ) ≃ᵐ (ι → ℝ) :=
+    exact (mvMellinConvergent_iff_integrable_exp K b).mp
+      (mvMellinConvergent_radial_mul hb hg (by fun_prop) hφm)
+  let T : ℝ × ({j : ι // j ≠ i₀} → ℝ) ≃ᵐ (ι → ℝ) :=
     (logRatioShear i₀).trans (Homeomorph.funSplitAt ℝ i₀).symm.toMeasurableEquiv
   have hT : MeasurePreserving T ((volume : Measure ℝ).prod volume) volume :=
     (MeasurePreserving.symm (Homeomorph.funSplitAt ℝ i₀).toMeasurableEquiv
@@ -172,39 +163,31 @@ theorem integral_stdSimplex_eq_integral_logRatio {f : (ι → ℝ) → ℂ}
   have hsplit : ∫ y, Φ y = ∫ w : {j : ι // j ≠ i₀} → ℝ, ∫ τ : ℝ, Φ (T (τ, w)) := by
     rw [← hT.integral_comp' (g := Φ)]
     exact integral_prod_symm _ hΦT
-  -- The integrand in the new coordinates.
   have hTy : ∀ τ w, T (τ, w) = (fun _ => τ) + logRatioExt i₀ w := by
     intro τ w
     funext i
     by_cases hi : i = i₀
     · subst hi; simp [T, logRatioShear, logRatioExt]
     · simp [T, logRatioShear, logRatioExt, hi, add_comm]
-  have hcard : Fintype.card {j : ι // j ≠ i₀} + 1 = k := by
-    simp [k, Fintype.card_subtype_compl]
-    have := Fintype.card_pos (α := ι)
-    omega
   have hinner : ∀ w : {j : ι // j ≠ i₀} → ℝ, ∫ τ : ℝ, Φ (T (τ, w)) =
-      Gamma k * (((∏ i, logRatioPoint i₀ w i : ℝ) : ℂ) * f (logRatioPoint i₀ w)) := by
+      Gamma (∑ i, b i) * (Complex.exp
+        (∑ i, b i * (logRatioExt i₀ w i - Real.log (logRatioZ i₀ w))) *
+          g (logRatioPoint i₀ w)) := by
     intro w
     set Z := logRatioZ i₀ w
     have hZ := logRatioZ_pos i₀ w
-    have hpt : ∀ τ : ℝ, Φ (T (τ, w)) = (Complex.exp (∑ j, (w j : ℂ)) * f (logRatioPoint i₀ w)) *
-        (Complex.exp ((k : ℂ) * τ) * ((Real.exp (-(Z * Real.exp τ)) : ℝ) : ℂ)) := by
+    have hpt : ∀ τ : ℝ, Φ (T (τ, w)) =
+        (Complex.exp (∑ i, b i * logRatioExt i₀ w i) * g (logRatioPoint i₀ w)) *
+          (Complex.exp ((∑ i, b i) * τ) * ((Real.exp (-(Z * Real.exp τ)) : ℝ) : ℂ)) := by
       intro τ
       have hexp : piExp ((fun _ => τ) + logRatioExt i₀ w) =
           Real.exp τ • piExp (logRatioExt i₀ w) := by
         funext i; simp [piExp, Real.exp_add]
       have hS : ∑ i, piExp ((fun _ => τ) + logRatioExt i₀ w) i = Real.exp τ * Z := by
         rw [hexp]; simp [Z, logRatioZ, Finset.mul_sum]
-      have hsumy : ∑ i, (((fun _ => τ) + logRatioExt i₀ w : ι → ℝ) i : ℂ) =
-          (k : ℂ) * τ + ∑ j, (w j : ℂ) := by
-        simp only [Pi.add_apply, ofReal_add, Finset.sum_add_distrib, Finset.sum_const,
-          Finset.card_univ, nsmul_eq_mul]
-        have := sum_logRatioExt i₀ w
-        rw [show ∑ i, ((logRatioExt i₀ w i : ℝ) : ℂ) = ((∑ i, logRatioExt i₀ w i : ℝ) : ℂ) by
-          push_cast; rfl, this]
-        push_cast
-        ring
+      have hsumy : ∑ i, b i * (((fun _ => τ) + logRatioExt i₀ w : ι → ℝ) i : ℂ) =
+          (∑ i, b i) * τ + ∑ i, b i * logRatioExt i₀ w i := by
+        simp [mul_add, Finset.sum_add_distrib, Finset.sum_mul]
       have hnorm : (∑ i, piExp ((fun _ => τ) + logRatioExt i₀ w) i)⁻¹ •
           piExp ((fun _ => τ) + logRatioExt i₀ w) = logRatioPoint i₀ w := by
         rw [hS, hexp, smul_smul, logRatioPoint]
@@ -216,19 +199,42 @@ theorem integral_stdSimplex_eq_integral_logRatio {f : (ι → ℝ) → ℂ}
       rw [hnorm, hsumy, hS, Complex.exp_add]
       ring_nf
     simp_rw [hpt]
-    have hk0 : 0 < ((k : ℂ)).re := by simp only [natCast_re]; exact_mod_cast Fintype.card_pos
-    rw [MeasureTheory.integral_const_mul, integral_exp_mul_exp_neg_mul_exp hk0 hZ,
-      prod_logRatioPoint]
-    push_cast
-    rw [show ((Z : ℂ) ^ (-(k : ℂ))) = ((Z : ℂ)⁻¹) ^ k by
-      rw [cpow_neg, cpow_natCast, inv_pow]]
-    simp only [Z, k]
-    ring
-  have hΓ : Gamma (k : ℂ) ≠ 0 := Gamma_ne_zero_of_re_pos (by
-    simp only [natCast_re]; exact_mod_cast Fintype.card_pos)
+    rw [MeasureTheory.integral_const_mul, integral_exp_mul_exp_neg_mul_exp ha hZ]
+    have he : Complex.exp (∑ i, b i * logRatioExt i₀ w i) * (Z : ℂ) ^ (-(∑ i, b i)) =
+        Complex.exp (∑ i, b i * (logRatioExt i₀ w i - Real.log Z)) := by
+      rw [cpow_def_of_ne_zero (ofReal_ne_zero.mpr hZ.ne'), ← ofReal_log hZ.le,
+        ← Complex.exp_add]
+      congr 1
+      simp only [mul_sub, Finset.sum_sub_distrib, ← Finset.sum_mul]
+      ring
+    rw [show (Complex.exp (∑ i, b i * logRatioExt i₀ w i) * g (logRatioPoint i₀ w)) *
+        ((Z : ℂ) ^ (-(∑ i, b i)) * Gamma (∑ i, b i)) =
+      Gamma (∑ i, b i) * ((Complex.exp (∑ i, b i * logRatioExt i₀ w i) *
+        (Z : ℂ) ^ (-(∑ i, b i))) * g (logRatioPoint i₀ w)) by ring, he]
   have hall := hB.symm.trans (hE.trans hsplit)
   simp_rw [hinner, MeasureTheory.integral_const_mul] at hall
-  exact mul_left_cancel₀ hΓ hall
+  exact mul_left_cancel₀ (Gamma_ne_zero_of_re_pos ha) hall
+
+/-- **Change of variables to log-ratio coordinates.** For `f` continuous on the simplex,
+`∫_Δ f(u) du = ∫ (∏ i, u(w) i) f(u(w)) dw` over `w : {j // j ≠ i₀} → ℝ`. -/
+theorem integral_stdSimplex_eq_integral_logRatio {f : (ι → ℝ) → ℂ}
+    (hf : ContinuousOn f (Convexity.StdSimplex.coordinateSet ℝ ι)) :
+    ∫ u in Convexity.StdSimplex.coordinateSet ℝ ι, f u ∂Measure.stdSimplexMeasure =
+      ∫ w : {j : ι // j ≠ i₀} → ℝ,
+        ((∏ i, logRatioPoint i₀ w i : ℝ) : ℂ) * f (logRatioPoint i₀ w) := by
+  have h := prodGamma_regDirichletIntegral_eq_integral_logRatio i₀
+    (b := fun _ => 1) (fun _ => by simp) hf
+  rw [regDirichletIntegral_eq_prod_inv_Gamma_mul] at h
+  simp only [Gamma_one, Finset.prod_const_one, inv_one, one_mul, sub_self, cpow_zero] at h
+  refine h.trans (integral_congr_ae (Filter.Eventually.of_forall fun w => ?_))
+  dsimp only
+  congr 1
+  rw [Complex.exp_sum, ofReal_prod]
+  apply Finset.prod_congr rfl
+  intro i _
+  rw [← ofReal_sub, ← Complex.ofReal_exp, Real.exp_sub,
+    Real.exp_log (logRatioZ_pos i₀ w)]
+  simp [logRatioPoint, piExp, div_eq_inv_mul]
 
 end Dirichlet
 

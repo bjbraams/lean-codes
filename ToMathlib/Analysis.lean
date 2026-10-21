@@ -32,7 +32,12 @@ public import ToMathlib.Analysis.Integral.Tail
 public import ToMathlib.Analysis.Integral.EndpointDeformation
 public import ToMathlib.Analysis.MvMellinTransform
 public import ToMathlib.Analysis.SchwartzExpExp
+public import ToMathlib.Analysis.SchwartzSumExp
 public import ToMathlib.Analysis.Fourier.PaleyWiener
+public import ToMathlib.Analysis.Fourier.FiniteRegularity
+public import ToMathlib.Analysis.Fourier.Plancherel
+public import ToMathlib.Analysis.Fourier.Sobolev
+public import ToMathlib.Analysis.Fourier.DiagonalSobolev
 public import ToMathlib.Analysis.Complex.Carlson
 public import ToMathlib.Analysis.MellinBarnes
 public import ToMathlib.Analysis.SpecialFunctions.RamanujanMaster
@@ -65,7 +70,7 @@ path integrals. Reciprocal substitution compactifies positive half-lines and pre
 integrability with its Jacobian. Operator-norm and speed bounds control curve integrals;
 common integrable majorants give uniformly vanishing tails. Power-decay estimates give
 explicit rates for tails and growing connecting paths. Declarations use the namespaces of their
-underlying Mathlib APIs. This library depends only on Mathlib.
+underlying Mathlib APIs. This library depends on Mathlib and the pinned TauCeti library.
 
 ## Main results
 
@@ -122,6 +127,9 @@ This module re-exports the following developments:
   relations and the composition theorem.
 * `ToMathlib.Analysis.Integral.FunSplitAt`: Splitting one coordinate off Lebesgue measure.
 * `ToMathlib.Analysis.SchwartzExpExp`: The Schwartz function `exp (∑ i, (c i y i - e^(y i)))`.
+* `ToMathlib.Analysis.Fourier.DiagonalSobolev`: Fourier integrability above half the transverse
+  dimension with an additional Sobolev-controlled diagonal derivative; finite smooth
+  diagonal-constant multipliers of Hilbert-valued Schwartz functions.
 * `ToMathlib.Analysis.MvMellinTransform`: The multivariable Mellin transform, its exponential
   and Fourier forms, and separable functions.
 * `ToMathlib.Analysis.Integral.EndpointDeformation`: Deforming path integrals with integrable

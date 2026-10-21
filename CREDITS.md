@@ -17,9 +17,11 @@ entry points.
 
 ## TauCeti dependency and adopted proofs — 4 October 2026
 
-The project now depends on the Tau Ceti contributors' work at revision
+The initial adoption used the Tau Ceti contributors' work at revision
 `a780c7ad6beb23f60a17351a492d177878020ad5`, compatible with Lean `v4.35.0-rc3`.
-The synchronized master copies import its proofs in four files:
+These dated credits retain the source revisions used for attribution. The current
+dependency pins and the Lean 4.36 compatibility patch are described in `README.md`.
+The synchronized master copies initially imported its proofs in four files:
 
 - `ComplexAnalysis/Injective.lean`: nonvanishing of the derivative of an injective holomorphic
   function, from [Conformal.LocalDegree][tau-codes-degree].
@@ -226,3 +228,73 @@ the existing piecewise C¹ assumption via
 Its original hypotheses and conclusion are preserved. The one-line compatibility
 edit to TauCeti's finite-measure extension proof is saved in `TauCeti-4.36.patch`;
 it uses Mathlib's renamed `ContinuousMap.coe_ofClass` without changing the proof.
+
+## Boundary-kernel Fourier estimates — 21 October 2026
+
+`ToMathlib.Analysis.Fourier.FiniteRegularity` specializes Mathlib's Fourier derivative
+estimate `Real.pow_mul_norm_iteratedFDeriv_fourier_le` and its integrable Japanese-bracket
+bounds. `ToMathlib.Analysis.SchwartzSumExp` uses Mathlib's quantitative Faà di Bruno bound
+`norm_iteratedFDeriv_comp_le` and Schwartz seminorms. These are applications of Mathlib's
+existing proofs, credited to the Mathlib contributors; no additional dependency is introduced.
+The simplex pole statements specialize the existing local `Dirichlet.GammaPoles` results
+and the boundary-jet formulas of `SimplexMellin.Face`.
+
+## Classical Plancherel and continuous boundary kernels — 21 October 2026
+
+`ToMathlib.Analysis.Fourier.Plancherel` combines Mathlib's Fourier multiplication
+formula, `MeasureTheory.Lp.fourier_toTemperedDistribution_eq` and the `L²` Fourier
+isometry with the Tau Ceti contributors'
+`MeasureTheory.Lp.ae_eq_of_toTemperedDistribution_apply_eq`, from
+`TauCeti.Analysis.Distribution.TemperedDistribution.Lp` in the pinned checkout.
+This proves classical Plancherel on `L¹ ∩ L²` without duplicating either extension
+or distribution uniqueness. `SimplexMellin.L2` applies that theorem to continuous
+boundary kernels and uses Mathlib's isometry directly for the logarithmic `L²` transform.
+
+## Complete weighted simplex L² space — 21 October 2026
+
+`SimplexMellin.WeightedL2` uses Mathlib's `SchwartzMap.denseRange_toLpCLM` and
+`LinearMap.extendOfIsometry` to extend the logarithmic kernel map to weighted simplex
+`L²` equivalence classes. Mathlib's `Lp.fourierTransformₗᵢ` gives the frequency-space
+isometry, and `LinearIsometry.equivRange` supplies the inverse onto the closed image.
+The norm calculation uses the Tau Ceti contributors'
+`MeasureTheory.Lp.integral_norm_sq_eq_norm_sq` from
+`TauCeti.MeasureTheory.Function.Lp.Norm`, together with the existing local real/complex
+Dirichlet bridge and Mathlib's Mellin dilation and Gamma integral formulas.
+
+## Sobolev improvement of the inversion threshold — 21 October 2026
+
+`ToMathlib.Analysis.Fourier.Sobolev` reuses the Tau Ceti contributors'
+`TemperedDistribution.memSobolev_natCast_add_one_iff` from
+`TauCeti.Analysis.Distribution.Sobolev` and
+`TauCeti.HasWeakLineDerivOn.lineDerivOp_toTemperedDistribution_eq` from
+`TauCeti.Analysis.Sobolev.WeakDeriv.TemperedDistribution`. Classical derivatives are weak
+derivatives by `TauCeti.hasWeakLineDerivOn_of_hasLineDerivAt`. Mathlib's
+`TemperedDistribution.MemSobolev.fourier_memL1` gives the dimension bound; the local
+Plancherel bridge identifies its `L¹` representative with the classical Fourier integral.
+The finite-multiplier bounds use Mathlib's iterated Leibniz estimates and Schwartz seminorms.
+The simplex applications improve the sufficient integer derivative count to `2N > card ι`
+without changing dependency pins or older theorem statements.
+
+## Intrinsic log-ratio Schwartz weights and inversion — 21 October 2026
+
+`SimplexMellin.LogRatioSchwartz` uses Mathlib's
+`SchwartzMap.compCLMOfAntilipschitz` to pull the double-exponential weight back along
+logarithmic simplex coordinates. Mathlib's `Function.HasTemperateGrowth.of_fderiv`,
+mean-value Lipschitz estimate, and `Complex.hasTemperateGrowth_exp_mul_I` control the
+normalizing logarithm and imaginary Mellin phases. The existing local Sobolev bridge
+and Mathlib Fourier inversion then give native fixed-sum hyperplane inversion with
+the sufficient intrinsic derivative count `2N > card ι - 1`. The positive-parameter
+change of variables extends the local Mellin/Gamma/shear argument and subsumes its
+earlier continuous-integrand specialization.
+
+## Intrinsic full-plane inversion — 21 October 2026
+
+`ToMathlib.Analysis.Fourier.DiagonalSobolev` combines Mathlib's
+`integrable_rpow_neg_one_add_norm_sq`, product integrability and Hölder estimates
+with a measure-preserving coordinate-sum shear. The local weighted classical Fourier
+lemma reuses Mathlib's distributional characterization
+`memSobolev_iff_exists_smulLeftCLM_fourier` and the existing Tau Ceti uniqueness bridge.
+Mathlib's `Real.fourier_fderiv` supplies the diagonal frequency multiplier, and its
+Schwartz derivative maps preserve the smooth weight. Together with the existing finite
+multiplier derivative bounds this proves the intrinsic sufficient count
+`2N > card ι - 1` for the full-plane simplex Mellin inversion formulas.

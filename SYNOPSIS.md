@@ -87,9 +87,12 @@ extension to functions of several variables.
 
 **The simplex Mellin transform.** [SimplexMellin](SYNOPSIS_SIMPLEXMELLIN.md): face formulas,
 uniqueness and estimates; the Mellin bridge identifying the regularized Dirichlet transform as
-the angular part of the multivariable Mellin transform; inversion and Plancherel; Paley–Wiener
-theory with a description of the image; lattice values via Carlson's theorem; and a master
-theorem with simplex structure.
+the angular part of the multivariable Mellin transform; finite-regularity inversion, including
+intrinsic fixed-sum hyperplane inversion with `2N > card ι - 1`, and
+Plancherel for continuous boundary kernels; the exponential-profile transform on the
+complete weighted simplex $L^2$ space, with inverse onto its closed image; boundary-jet residues and removability;
+fixed-total-frequency decay; a Paley–Wiener image description for kernels vanishing near the
+faces; lattice values via Carlson's theorem; and a master theorem with simplex structure.
 
 **Carlson's special functions.** [Carlson](SYNOPSIS_CARLSON.md): R-polynomials; the $R$-function
 for all complex exponents, parameters and slit-plane nodes with its relations, recurrences,

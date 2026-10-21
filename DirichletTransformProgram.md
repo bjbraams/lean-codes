@@ -252,12 +252,12 @@ polar decomposition is `MeasureTheory.lintegral_eq_radial_stdSimplex` (`StdSimpl
    transform is integrable (TauCeti) and the integrability hypothesis holds
    (`integrable_simplexMellinRadial`). This gives the unconditional inversion formula
    `regDirichletIntegral_inversion_of_contDiff`. No Schwartz bounds are needed.
-   *Exponential profile, done* (`SimplexMellin.Schwartz`): for smooth `g` vanishing
-   near the faces the function in logarithmic coordinates is `G · A`, with
-   `A(y) = exp(∑ (cᵢyᵢ − e^{yᵢ}))` Schwartz (`ToMathlib.Analysis.SchwartzExpExp`, by Faà di
-   Bruno bounds) and `G(y) = g(e^y / ∑ e^y)` of temperate growth (it equals a compactly supported
-   smooth function composed with the linear map `y ↦ y − y_{i₀} 𝟙`). Hence
-   `integrable_simplexMellin` and the unconditional `regDirichletIntegral_inversion_exp_of_contDiff`.
+   *Exponential profile, done* (`SimplexMellin.Schwartz`): the original proof assumed
+   vanishing near the faces. On 21 October 2026 this was extended to every kernel smooth near
+   the closed simplex, including nonzero boundary values. The angular factor has uniformly
+   bounded derivatives; multiplication by the double-exponential Schwartz weight gives
+   `integrable_simplexMellin_of_smoothNear` and
+   `regDirichletIntegral_inversion_exp_of_smoothNear`. See step 8.
 6. **Plancherel.** An `L²` isometry between `g` on `Δ` (weighted by `u^(2c−1)`) and
    `Γ(B) ∏ Γ(bᵢ) T_b[g]` on the plane, if Mathlib's `L²` Fourier theory suffices; otherwise
    record as open.
@@ -265,10 +265,23 @@ polar decomposition is `MeasureTheory.lintegral_eq_radial_stdSimplex` (`StdSimpl
    `(0, ∞)` and a smooth kernel vanishing near the faces,
    `∫ |ℳ[φ](∑ b) ∏ Γ(bᵢ) T_b[g]|² dξ = ℳ[|φ|²](2∑c) ∏ Γ(2cᵢ) T_{2c}[|g|²]`, from Mathlib's
    Plancherel theorem for Schwartz functions and the bridge at `2c`.
+   The identity now holds for every continuous kernel on the closed simplex, with first
+   and second radial convergence (`integral_norm_sq_simplexMellinRadial_of_continuous`).
+   This includes the exponential profile and continuous profiles supported in a compact
+   positive interval, without boundary vanishing or derivative assumptions.
+   `simplexMellinRadialL2` also defines a transform for any square-integrable logarithmic
+   kernel, with inverse and distance preservation; on the continuous class it agrees a.e.
+   with the native integral. `SimplexMellin.WeightedL2` now extends the exponential-profile
+   transform to the complete weighted simplex `L²` space as a linear isometry onto a closed
+   image, with inverse. The exact source measure is
+   `(∏ Γ(2cᵢ) / 2^(2∑cᵢ)) • Dirichlet(2c)`, with density
+   `(Γ(2∑cᵢ) / 2^(2∑cᵢ)) ∏ uᵢ^(2cᵢ−1)`. Schwartz kernels are dense and the extension agrees
+   with the native transform for all continuous boundary kernels, without assuming native
+   convergence for arbitrary measurable kernels.
 
 **Consequences and later steps.** Item 5 makes the uniqueness theorem of step 1.4
 constructive. Items 5–6 prepare a Paley–Wiener description of the image (which entire functions
-are transforms of smooth kernels, with the growth estimate deferred in step 1.5) and the
+are transforms of smooth kernels, with the quantitative estimate supplied by step 1.5) and the
 interpolation of moments (Fritz Carlson's theorem on entire functions of exponential type). The
 Euler–Mellin (A-hypergeometric) and symmetric-cone directions build on the bridge but are not
 part of step 5.
@@ -281,9 +294,10 @@ The transform's definition, continuation, structural laws and merging identity s
 the shared basis of the two collections. `SimplexMellin` and `Carlson` do not import each other,
 and `Dirichlet` imports neither (`AGENTS.md`). Declarations keep the `Dirichlet` namespace.
 Generic inputs stay in `ToMathlib.Analysis.MvMellinTransform`,
-`ToMathlib.Analysis.SchwartzExpExp` and `StdSimplexMeasure.Radial`. Future work (Paley–Wiener,
-the quantitative growth estimate, Euler–Mellin integrals, symmetric cones) goes to
-`SimplexMellin`.
+`ToMathlib.Analysis.SchwartzExpExp` and `StdSimplexMeasure.Radial`.
+Paley–Wiener theory and the quantitative growth estimate were subsequently completed
+in `SimplexMellin` (steps 6–7 and step 1.5). Further boundary-kernel theory,
+Euler–Mellin integrals, and symmetric cones belong to that library.
 
 ### Step 6. Paley–Wiener description of the image (done)
 
@@ -433,6 +447,79 @@ the coordinates (`Complex.eqOn_zero_of_natCast_eq_zero_pi`).
   * **Open:** a master theorem for genuinely multivariable series `∑ c(n) ∏(−xᵢ)^{nᵢ}/nᵢ!`
     (the method of brackets) is not attempted.
 
+### Step 8. Boundary kernels (started 21 October 2026)
+
+The exponential-profile integrability gap for kernels smooth up to the faces is resolved.
+No face-vanishing assumption is needed. The key estimate is stronger than temperate growth:
+every angular derivative is uniformly bounded.
+
+- `simplexSoftmaxDeriv` gives the derivative of normalized exponential coordinates as a
+  polynomial in their values, valid up to the closed simplex.
+- `exists_bound_iteratedFDeriv_simplexAngle` bounds the angular derivative of order `n` using
+  only `ContDiffNearStdSimplex n g`. The proof iterates the chain rule, changing the target
+  to continuous linear maps, and uses compactness for the zeroth-order bound.
+- `hasTemperateGrowth_simplexAngle_of_smoothNear` and `exists_schwartzMap_radialLog_exp`
+  show that the exponential-profile logarithmic kernel is Schwartz for `SmoothNearStdSimplex`.
+- `integrable_simplexMellin_of_smoothNear` and
+  `regDirichletIntegral_inversion_exp_of_smoothNear` remove the vertical-plane integrability
+  hypothesis for all such kernels; inversion is still evaluated at interior simplex points.
+- `integral_norm_sq_simplexMellin_of_smoothNear` gives Plancherel for the same class, with
+  squared radial profile `exp (-2t)`. The general Fourier argument is factored out as
+  `integral_norm_sq_simplexMellinRadial_of_schwartz`.
+
+The previous face-supported theorem statements remain as specializations. No admission or
+additional axiom is introduced.
+
+Further results of 21 October 2026:
+
+- **Finite regularity** (`SimplexMellin.FiniteRegularity`): `2N > card ι` continuous derivatives
+  near the closed simplex suffice for exponential-profile vertical-plane integrability and
+  interior inversion. Square-integrable logarithmic derivatives give `H^N` membership and
+  Mathlib's Sobolev Fourier criterion. This improves the earlier `N > card ι` bound; the
+  endpoint and optimal derivative count are not asserted.
+- **Intrinsic hyperplane inversion** (`SimplexMellin.LogRatioSchwartz`): a single positive
+  fixed-sum vertical hyperplane gives absolute interior inversion with `2N > card ι - 1`
+  derivatives near the closed simplex, without face vanishing. Positive complex Mellin weights
+  are Schwartz in log-ratio coordinates, and the positive-parameter change of variables
+  identifies the native restriction with their weighted angular Fourier transform. Smooth
+  boundary kernels therefore give Schwartz native restrictions; neither endpoint nor
+  optimality is asserted.
+- **Intrinsic full-plane inversion** (`SimplexMellin.IntrinsicInversion`): the same sufficient
+  count `2N > card ι - 1` now applies to the full vertical plane for exponential and compact
+  positive smooth radial profiles. The angular factor has zero diagonal derivative. A
+  diagonal derivative of its product with any Schwartz weight thus preserves `H^N`
+  regularity. The new anisotropic Fourier criterion separates the coordinate-sum frequency
+  from the transverse frequencies and proves absolute integrability by Cauchy–Schwarz.
+- **General radial profiles** (`SimplexMellin.RadialProfile`): any smooth compactly supported
+  profile gives a Schwartz radial logarithmic weight. It is the double-exponential weight
+  times `ψ(∑ exp yᵢ)`, with `ψ(t) = exp(t) φ(t)` Schwartz. A general lemma in
+  `ToMathlib.Analysis.SchwartzSumExp` proves temperate growth of this composition. The same
+  finite-regularity threshold gives integrability for all such profiles, and inversion for
+  those supported in a compact positive interval with `φ(1) ≠ 0`. General-profile Plancherel
+  now holds for all smooth boundary kernels.
+- **Boundary poles** (`SimplexMellin.Poles`): `simplexMomentContinuation` agrees with the
+  native transform on the convergence region. It is analytic away from coordinate Gamma
+  poles and has a joint analytic numerator over the product of simple coordinate
+  denominators at their intersections. The existing face formulas give explicit residues
+  through tangential boundary jets at every nonpositive integral parameter.
+- **Removal and traces** (`removable_zero_hyperplane_iff_face_eq_zero`): for a nontrivial index
+  type, the zero-parameter poles are removable for all positive complementary parameters iff
+  the kernel vanishes on that face. This uses moment determination of the face trace.
+  The native limit `tendsto_mul_simplexMoment_update_nhdsGT_zero` recovers the face's
+  unnormalized transform as a parameter tends to zero from above.
+- **Frequency decay** (`SimplexMellin.BoundaryDecay`): `C^N` kernels give order-`N` decay of
+  the full exponential-profile transform. On every fixed-total-frequency hyperplane,
+  division by its constant nonzero radial Gamma factor gives the same decay of `S_g`.
+  Smooth boundary kernels therefore have rapid decay on these hyperplanes.
+
+The boundary image characterization and same-sign-ray stationary-phase asymptotics remain
+open. The new meromorphic and decay statements are necessary properties; sufficiency has
+not been proved. Sharp regularity thresholds remain further work. Plancherel now holds
+for continuous boundary kernels (`SimplexMellin.L2`), and the exponential-profile transform
+is now defined on the complete weighted simplex `L²` space as an isometry onto a closed
+image, with inverse (`SimplexMellin.WeightedL2`). This handles measurable equivalence classes
+by completion even when their native Mellin integrals do not converge.
+
 ## Status log
 
 * 2026-10-05: programme set up; step 1 started.
@@ -473,3 +560,40 @@ the coordinates (`Complex.eqOn_zero_of_natCast_eq_zero_pi`).
   use 3 complete (existence and uniqueness of continuations of lattice data).
 * 2026-10-06: step 7 use 4: Ramanujan's master theorem (Hardy's form) with Mellin–Barnes contour
   tools in `ToMathlib`, and its simplex form (`SimplexMellin.Master`). Step 7 complete.
+
+* 2026-10-21: step 8 started; exponential-profile Schwartz bounds, integrability, inversion,
+  and Plancherel proved for all kernels smooth near the closed simplex, without boundary vanishing.
+
+* 2026-10-21: finite-regularity inversion (`N > card ι`), general compact radial profiles,
+  coordinate and joint pole forms, explicit boundary-jet residues, the face-removability
+  criterion, native face limits, and fixed-total-frequency decay completed.
+
+* 2026-10-21: extended Plancherel to all continuous boundary kernels, with first and second
+  radial convergence; added the radial transform in logarithmic `L²`, its inverse, distance
+  preservation and agreement with native Mellin integrals. The Fourier identification reuses
+  Mathlib's `L²` isometry and Tau Ceti's tempered-distribution uniqueness theorem.
+
+* 2026-10-21: constructed the exponential-profile transform on the complete weighted simplex
+  `L²` space by Mathlib's isometric extension from the dense Schwartz core. Proved its exact
+  monomial density, Plancherel norm identity, closed image, inverse onto that image, convergence
+  of Schwartz approximations and compatibility with native transforms for all continuous
+  boundary kernels.
+
+* 2026-10-21: improved the sufficient inversion threshold from `N > card ι` to
+  `2N > card ι`, for exponential and smooth compact radial profiles. Proved square
+  integrability of logarithmic derivatives and integer Bessel-potential membership, using
+  Tau Ceti's weak/distributional derivative bridge and derivative characterization. The
+  general support also covers real Sobolev orders `s` with `2s > dim V`. Earlier theorem
+  statements are retained as wrappers; endpoint and intrinsic-dimension optimality remain open.
+
+* 2026-10-21: proved intrinsic fixed-sum hyperplane inversion with the sufficient bound
+  `2N > card ι - 1` for boundary kernels. Extended the log-ratio change of variables to all
+  positive complex parameters and continuous boundary kernels, allowing singular monomial
+  densities. Proved Schwartz Mellin weights, native Fourier identification, absolute
+  hyperplane integrability and interior inversion, and Schwartz restrictions for smooth kernels.
+
+* 2026-10-21: extended the intrinsic sufficient bound `2N > card ι - 1` to full-plane
+  integrability and inversion with exponential and smooth compact radial profiles.
+  Added the classical weighted Fourier characterization of Sobolev regularity and an
+  anisotropic criterion with one additional Sobolev-controlled diagonal derivative;
+  diagonal invariance ensures no extra derivative of the angular kernel is used.

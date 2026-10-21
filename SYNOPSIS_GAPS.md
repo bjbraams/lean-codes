@@ -40,15 +40,23 @@ and `DirichletTransformProgram.md`.
 
 ## SimplexMellin
 
-* **The image for general kernels.** The Paley–Wiener description of the image is proved for
-  kernels smooth near the simplex and vanishing near its faces; kernels smooth up to the faces
-  are not characterized.
-* **Inversion with the general integrability hypothesis.** The inversion formula is
-  unconditional for smooth kernels vanishing near the faces; for other kernels the integrability
-  of the transform on the vertical plane remains a hypothesis.
-* **Decay of the simplex Mellin transform.** The stationary-phase decay
-  $|\operatorname{Im} b|^{-(|I|-1)/2}$ of $S_g$ in directions where all $\operatorname{Im} b_i$
-  have the same sign is not formalized.
+* **The image for general kernels.** The Paley–Wiener image theorem covers kernels vanishing
+  near the faces. General smooth boundary kernels now have a proved normal-crossing pole form,
+  boundary-jet residues, and fixed-total-frequency decay estimates, but a sufficient image
+  characterization is still missing.
+* **Weaker regularity and sharp thresholds.** Exponential-profile inversion and inversion for
+  smooth profiles supported in compact positive intervals are proved for $C^N$ boundary kernels
+  with the intrinsic sufficient bound $2N>|I|-1$, improved from $2N>|I|$ and $N>|I|$.
+  This count applies both to the full-plane radial formula and to inversion from one
+  positive fixed-sum vertical hyperplane, without face vanishing. Endpoint statements
+  at $2N=|I|-1$ and optimality remain open.
+  The general continuous-kernel pointwise inversion theorem retains its
+  integrability hypothesis.
+  Weighted $L^2$ Plancherel and inversion onto the closed image are now proved for the
+  exponential profile on the complete weighted simplex space (`SimplexMellin.WeightedL2`).
+* **Stationary-phase decay.** The decay $|\operatorname{Im} b|^{-(|I|-1)/2}$ of $S_g$ on
+  same-sign rays is not formalized. Rapid decay on every positive fixed-sum vertical hyperplane
+  is now proved for smooth boundary kernels, and order-$N$ decay for $C^N$ kernels.
 * **Master theorems for genuinely multivariable series** $\sum c(n)\prod(-x_i)^{n_i}/n_i!$ (the
   method of brackets).
 * **Further directions** of the programme: Euler–Mellin (A-hypergeometric) integrals and

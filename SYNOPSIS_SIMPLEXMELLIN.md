@@ -45,7 +45,11 @@ only at $b_i \in -\mathbb N$.
 ($\tilde w_{i_0} = 0$) parametrizes the open simplex, and
 $\int_\Delta f = \int\prod_iu_i(w)\,f(u(w))\,dw$ with
 $\prod_iu_i(w) = e^{\sum w}Z(w)^{-|I|}$, $Z(w) = 1 + \sum_je^{w_j}$; the proof evaluates the bridge
-at $b = \mathbf 1$ in two coordinate systems instead of computing a Jacobian.
+at positive parameters in two coordinate systems instead of computing a Jacobian.
+In particular, for every continuous boundary kernel and $\operatorname{Re}b_i>0$,
+$$\prod_i\Gamma(b_i)T_b[g]
+=\int \exp\Bigl(\sum_i b_i\log u_i(w)\Bigr)g(u(w))\,dw.$$
+This allows monomial densities singular at the faces.
 
 ## Inversion and Plancherel
 
@@ -54,13 +58,117 @@ $\xi \mapsto \mathcal M[\varphi](\sum b)\prod\Gamma(b_i)T_b[g]$ is integrable on
 then at every interior point
 $$g(u) = \varphi(1)^{-1}\int_{\mathbb R^{I}}\prod_iu_i^{-b_i}\;\mathcal M[\varphi]\Bigl(\sum_ib_i\Bigr)
 \prod_i\Gamma(b_i)\,T_b[g]\,d\xi$$
-(Fourier inversion in logarithmic coordinates; for $\varphi = e^{-t}$ the factor is $e$). The
-integrability hypothesis holds, and the formula is unconditional, when $g$ is smooth and
-vanishes near the faces and either $\varphi$ is smooth with compact support in $(0, \infty)$ or
-$\varphi = e^{-t}$ (the function inverted is then the product of the Schwartz function
-$\exp\sum(c_iy_i - e^{y_i})$ and a function of temperate growth). Plancherel:
+(Fourier inversion in logarithmic coordinates; for $\varphi = e^{-t}$ the factor is $e$).
+For the exponential profile, integrability is proved for **every kernel smooth near the
+closed simplex**, including kernels nonzero on its faces. All derivatives of
+$G(y) = g(e^y/\sum e^y)$ are bounded: differentiation of normalized exponential
+coordinates is polynomial in their values, and the chain rule reduces the estimate to a
+smooth function on the compact closed simplex. Thus the logarithmic kernel is the product
+of a function of temperate growth and the Schwartz weight
+$\exp\sum(c_i y_i-e^{y_i})$. The statements use `SmoothNearStdSimplex`, allowing the
+smooth neighborhood to depend on the derivative order.
+
+The sufficient condition now extends to finite regularity: if $g$ has $N$ continuous
+derivatives near the closed simplex and $2N>|I|-1$, the inversion integral converges absolutely.
+All logarithmic derivatives through order $N$ belong to $L^2$. The angular factor is constant
+under diagonal translations, so a diagonal derivative of the logarithmic kernel falls entirely
+on its Schwartz weight. Both the kernel and this diagonal derivative therefore lie in $H^N$.
+A volume-preserving frequency shear and Cauchy–Schwarz separate the coordinate sum from the
+transverse directions; the resulting dual weight belongs to $L^2$ under the stated
+sufficient dimension inequality. This gives $L^1$ integrability of the full Fourier transform.
+The same condition works for every smooth radial profile supported in a compact subinterval
+of $(0,\infty)$ with $\varphi(1)\ne0$. No boundary vanishing is required.
+This improves the earlier full-plane bounds $N>|I|$ and $2N>|I|$
+(`SimplexMellin.IntrinsicInversion`).
+
+There is now also absolute inversion from a single positive fixed-sum vertical hyperplane,
+with the intrinsic sufficient count $2N>|I|-1$ (`SimplexMellin.LogRatioSchwartz`).
+For a base point $\beta$ with positive real parts, set
+$Q_\beta(w)=\exp(\sum_i\beta_i\log u_i(w))$ and extend intrinsic frequencies by
+$\xi_{i_0}=-\sum_{j\ne i_0}\xi_j$. The weight $Q_\beta$ is Schwartz: the map
+$w\mapsto\log u(w)$ has temperate growth and a continuous linear left inverse, so it
+pulls back the double-exponential Schwartz weight to $Q_{\operatorname{Re}\beta}$,
+up to the constant $e^{-1}$. The imaginary part supplies a temperate oscillatory multiplier.
+The native transform at $b=\beta-2\pi i\xi$ is exactly the intrinsic Fourier transform
+of $Q_\beta(w)g(u(w))$. Bounded angular derivatives and Sobolev Fourier integrability in
+$|I|-1$ variables give the stated count. Smooth boundary kernels give Schwartz native
+restrictions. No face vanishing is required. Endpoints and optimality are not asserted.
+
+Plancherel gives
 $$\int_{\mathbb R^{I}}\Bigl|\mathcal M[\varphi]\Bigl(\sum b\Bigr)\prod\Gamma(b_i)T_b[g]\Bigr|^2d\xi
 = \mathcal M[|\varphi|^2]\Bigl(2\sum c_i\Bigr)\prod_i\Gamma(2c_i)\,T_{2c}[|g|^2].$$
+
+This identity now holds for **every continuous kernel on the closed simplex**, with
+$\varphi$ continuous on $(0,\infty)$ and convergent first and second radial Mellin
+integrals at $\sum c_i$ and $2\sum c_i$. In particular it applies to the exponential
+profile and to continuous profiles supported in a compact positive interval; neither
+factor needs derivatives. The statements are
+`integral_norm_sq_simplexMellinRadial_of_continuous` and
+`integral_norm_sq_simplexMellin_of_continuous` in `SimplexMellin.L2`.
+The transform is square integrable even when it is not absolutely integrable.
+Finite-regularity pointwise inversion is
+`regDirichletIntegral_inversion_exp_of_contDiffNear_of_card_sub_one_lt_two_mul` or
+`regDirichletIntegral_inversion_radial_of_contDiffNear_of_card_sub_one_lt_two_mul`.
+The earlier interfaces retain their statements as wrappers.
+
+`simplexMellinRadialL2` defines the transform of any square-integrable logarithmic kernel
+by Mathlib's Fourier isometry. It preserves distances and has an inverse in $L^2$, without
+an $L^1$ assumption. On the continuous class above, it agrees almost everywhere with the
+native Mellin integral.
+
+`SimplexMellin.WeightedL2` now constructs the exponential-profile transform on the
+**complete weighted simplex $L^2$ space**, including arbitrary measurable equivalence classes.
+Its measure is
+$$d\nu_c(u)=\frac{\Gamma(2\sum_i c_i)}{2^{2\sum_i c_i}}
+  \prod_i u_i^{2c_i-1}\,du
+=\frac{\prod_i\Gamma(2c_i)}{2^{2\sum_i c_i}}\,d\mathrm{Dirichlet}_{2c}(u).$$
+`simplexMellinL2Isometry` is a complex linear isometry from $L^2(\nu_c)$ into
+frequency $L^2(\mathbb R^I)$. Its image is closed, and `simplexMellinL2EquivRange`
+gives the inverse onto that image. Schwartz kernels are dense, their transforms converge
+in $L^2$ under weighted $L^2$ approximation, and the extension agrees almost everywhere
+with the native integral for every continuous boundary kernel. This is an extension by
+completion; it does not assert convergence of the native Mellin integral for arbitrary
+measurable kernels. The index type must be nonempty; singleton coordinates are included.
+
+## Boundary traces and meromorphic continuation
+
+For a smooth boundary kernel, `simplexMomentContinuation` is the product of the entire
+regularized transform and the coordinate Gamma factors. It agrees with the native integral
+on $\operatorname{Re} b_i>0$, is analytic away from $b_i\in-\mathbb N$, and has a joint
+analytic numerator divided by $\prod_{i\in J}(b_i+m_i)$ near an intersection of coordinate
+pole hyperplanes. Thus there are at most simple poles in each coordinate.
+
+Fixing the other parameters away from Gamma poles, the transverse residue is
+$$\operatorname{Res}_{b_i=-m} S_g(b)
+=\frac{(-1)^m}{m!}\prod_{j\ne i}\Gamma(b_j)\,
+  T_{(b_i=-m)}[g].$$
+The face formula expresses the last factor as a binomial sum of transforms of tangential
+boundary jets. At $m=0$ it is simply the unnormalized transform of the face trace.
+The corresponding pole is removable exactly when that face transform vanishes.
+Moreover, removability for **all positive complementary parameters** is equivalent to
+$g|_{u_i=0}=0$; moments of the trace prove the reverse implication.
+These face statements assume at least two coordinates.
+
+There is also a native boundary limit, with the other parameters fixed in the convergence
+region:
+$$\lim_{\varepsilon\downarrow0}\varepsilon\,
+ S_g(b_1,\ldots,\varepsilon,\ldots)
+ = S_{g|_{u_i=0}}(b_{\widehat i}).$$
+The continuation and residue results are in `SimplexMellin.Poles`. Pole statements concern
+punctured germs, not the totalized Gamma values at the pole centers.
+
+## Frequency decay
+
+For a $C^N$ kernel near the closed simplex and fixed $c_i>0$,
+$$\|\xi\|^N\left|\Gamma\Bigl(\sum b_i\Bigr)S_g(b)\right|\le C_N,
+\qquad b=c-2\pi i\xi.$$
+The logarithmic kernel has $N$ integrable derivatives, so this follows from Mathlib's Fourier
+derivative estimates. On each hyperplane $\sum_i\xi_i=t$ the radial Gamma factor is a
+nonzero constant. Hence
+$$\|\xi\|^N|S_g(c-2\pi i\xi)|\le C_{N,t}\quad(\sum_i\xi_i=t).$$
+Smooth boundary kernels have rapid decay on every such hyperplane, even when they are nonzero
+on the faces (`SimplexMellin.BoundaryDecay`). Stationary-phase decay on same-sign rays, where
+the total frequency grows, remains open.
 
 ## Paley–Wiener theory
 

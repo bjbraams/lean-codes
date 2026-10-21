@@ -122,6 +122,33 @@ families with common bounds, and the asymptotic equivalent when $A(0) \ne 0$.
   $\mathbb R^{I}$, and on a vertical plane $\operatorname{Re} s = c$ into a Fourier transform;
   separable functions give products of one-variable Mellin transforms, and
   $\operatorname{mvMellin}(e^{-\sum x_i})(s) = \prod_i \Gamma(s_i)$.
+* **Classical $L^2$ Fourier theory.** On $L^1 \cap L^2$, the classical Fourier integral
+  represents Mathlib's abstract $L^2$ transform almost everywhere and satisfies Plancherel.
+  No derivatives or $L^1$ condition on the transform are needed. The identification uses
+  Mathlib's Fourier multiplication formula and Tau Ceti's distribution uniqueness theorem.
+* **Finite-regularity Fourier estimates.** If $f$ has $N$ continuous, integrable derivatives,
+  then $\|\xi\|^N|\widehat f(\xi)|$ is bounded. If $N$ exceeds the real dimension, the
+  Fourier transform is integrable. A finite smooth multiplier with bounded derivatives
+  preserves integrability of the corresponding derivatives of a Schwartz function.
+  These statements use Mathlib's Fourier derivative estimates.
+* **Sobolev Fourier integrability.** For a complex Hilbert-valued $L^1$ function, membership
+  in $H^s$ with $2s>\dim V$ implies integrability of the classical Fourier integral.
+  A $C^N$ function with square-integrable derivatives through order $N$ belongs to $H^N$,
+  giving the sufficient condition $2N>\dim V$. Finite smooth multipliers with bounded
+  derivatives preserve square integrability of Schwartz derivatives. The bridges use
+  Tau Ceti's distributional weak derivatives and Bessel-potential derivative characterization,
+  followed by Mathlib's Sobolev Fourier integrability theorem.
+* **Additional diagonal regularity.** For functions on $\mathbb R^I$, if both $f$ and its
+  diagonal derivative belong to $L^1\cap H^s$, then $2s>|I|-1$ suffices for Fourier
+  integrability. A measure-preserving frequency shear separates the coordinate sum
+  from the remaining coordinates, and a square-integrable dual weight gives the result
+  by Cauchy–Schwarz. In particular, a $C^N$ multiplier with bounded derivatives and zero
+  diagonal derivative times any Hilbert-valued Schwartz function has an integrable
+  Fourier transform when $2N>|I|-1$.
+* **Sums of exponentials.** For a Schwartz function $\psi$ on $\mathbb R$ with values in a
+  real normed space, $y\mapsto\psi(\sum_i e^{y_i})$ has bounded derivatives of every order.
+  Polynomial growth from differentiating the inner exponentials is canceled by Schwartz
+  decay of the outer derivatives.
 * **A double-exponential Schwartz function.** For $c_i > 0$,
   $y \mapsto \exp\sum_i (c_i y_i - e^{y_i})$ is a Schwartz function on $\mathbb R^{I}$ (bounds
   from Faà di Bruno's formula); it is the Mellin weight of $e^{-\sum x_i}$ in logarithmic
