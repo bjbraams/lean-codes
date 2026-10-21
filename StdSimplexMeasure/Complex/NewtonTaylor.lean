@@ -37,6 +37,8 @@ open MeasureTheory
 
 namespace Complex
 
+variable {n p : ℕ}
+
 /-- The node vector obtained by placing `x` before a vector of `n` nodes. -/
 def prependNewtonNode (x : ℂ) (z : Fin n → ℂ) : Fin (n + 1) → ℂ :=
   Fin.cons x z

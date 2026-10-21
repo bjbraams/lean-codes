@@ -23,6 +23,9 @@ $$\int_{\Delta_n}\prod_{i=1}^n x_i^{b_i - 1}\Bigl(1 - \sum x_i\Bigr)^{b_0 - 1}dx
 \qquad \int_{\Delta_n}\prod_{i=1}^n x_i^{b_i - 1}dx = \frac{\prod_i\Gamma(b_i)}{\Gamma(1 + \sum_i b_i)},$$
 and, on the hyperplane, $\int_{E_I}\prod_i u_i^{b_i - 1}d\sigma = B(b)$ for real and complex
 parameters in the convergence region, with logarithmic-moment majorants.
+Strict log-convexity of Gamma shows that $B(b)$ is strictly minimized by the constant
+parameter vector at a fixed positive total, unless the parameters are already equal
+(Exercises 4.2-3 and 4.3-2).
 
 ## The Dirichlet distribution
 
@@ -61,6 +64,15 @@ $b = \mathbf 1$), invariant under simultaneous permutation of coordinates and pa
   with explicit bounds for Lipschitz kernels and convergence for $C^1$ kernels.
 
 ## Complex Dirichlet integrals
+
+For nonempty $I$ and $\operatorname{Re}b_i>0$, the normalized density also defines a bundled
+complex measure $\mu_b$. Its mass is one and its variation is
+$|\mu_b|=B(\operatorname{Re}b)/|B(b)|\,\operatorname{Dir}(\operatorname{Re}b)$, with finite total
+mass $B(\operatorname{Re}b)/|B(b)|$. When $\operatorname{Re}b_i\ge\tfrac12$, this is at most
+$\exp(\tfrac\pi2\sum_i|\operatorname{Im}b_i|)$ (Exercise 4.4-8).
+Native complex integration conserves coordinate block sums for every continuous simplex
+kernel, and a function of one block sum reduces to a single Euler beta integral
+(Theorem 4.4-3, Corollary 4.4-4); no entire-continuation assumption is needed.
 
 The *regularized Dirichlet density*
 $\rho_b(u) = \mathbf 1_{E_I}(u)\prod_i u_i^{b_i - 1}/\Gamma(b_i)$ is entire in $b$ pointwise; the

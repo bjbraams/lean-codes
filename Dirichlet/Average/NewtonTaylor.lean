@@ -47,7 +47,7 @@ open Complex MeasureTheory ProbabilityTheory
 
 namespace Dirichlet
 
-variable {ι : Type*} [Fintype ι]
+variable {ι : Type*} [Fintype ι] {n p : ℕ}
 
 /-- Carlson's unweighted Dirichlet average, obtained by setting every Dirichlet parameter
 equal to one. -/

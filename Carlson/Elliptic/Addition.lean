@@ -832,4 +832,57 @@ theorem tendsto_dupSeq {x₀ y₀ z₀ : ℝ} (hx : 0 < x₀) (hy : 0 < y₀) (h
   rw [show (-1 / 2 : ℂ) = ((-(1 / 2) : ℝ) : ℂ) by push_cast; ring, ← ofReal_cpow hML2'.le,
     Real.rpow_neg hML2'.le, ← Real.sqrt_eq_rpow, Real.sqrt_sq hmLpos.le]
 
+/-- **Carlson (9.6-9)**: the third new coordinate can be recovered without a third
+square root, whenever `x + y > 0`. -/
+theorem dupStep_thd_eq {x y z : ℝ} (hxy : 0 < x + y) :
+    (dupStep (x, y, z)).2.2 =
+      2 * (dupStep (x, y, z)).1 * (dupStep (x, y, z)).2.1 / (x + y) := by
+  have hs := Real.sq_sqrt hxy.le
+  simp only [dupStep, add_comm y x, add_comm z x, add_comm z y]
+  field_simp
+  linear_combination -(√(x + z) * √(y + z)) * hs
+
+/-- The three squared differences contract exactly by `1/4` in a duplication step. -/
+theorem dupStep_sq_sub {x y z : ℝ} (hx : 0 ≤ x) (hy : 0 ≤ y) (hz : 0 ≤ z) :
+    let q := dupStep (x, y, z)
+    q.1 ^ 2 - q.2.1 ^ 2 = (x ^ 2 - y ^ 2) / 4 ∧
+      q.1 ^ 2 - q.2.2 ^ 2 = (x ^ 2 - z ^ 2) / 4 ∧
+      q.2.1 ^ 2 - q.2.2 ^ 2 = (y ^ 2 - z ^ 2) / 4 := by
+  dsimp only [dupStep]
+  rw [mul_pow, mul_pow, mul_pow, mul_pow, mul_pow, mul_pow,
+    Real.sq_sqrt (by positivity), Real.sq_sqrt (by positivity),
+    Real.sq_sqrt (by positivity), Real.sq_sqrt (by positivity),
+    Real.sq_sqrt (by positivity), Real.sq_sqrt (by positivity)]
+  constructor
+  · ring
+  constructor <;> ring
+
+/-- **Carlson (9.6-10)**: exact squared-difference identities throughout the iteration,
+including nonnegative initial coordinates. -/
+theorem dupSeq_sq_sub {x y z : ℝ} (hx : 0 ≤ x) (hy : 0 ≤ y) (hz : 0 ≤ z) (n : ℕ) :
+    let q := dupSeq x y z n
+    q.1 ^ 2 - q.2.1 ^ 2 = (x ^ 2 - y ^ 2) / 4 ^ n ∧
+      q.1 ^ 2 - q.2.2 ^ 2 = (x ^ 2 - z ^ 2) / 4 ^ n ∧
+      q.2.1 ^ 2 - q.2.2 ^ 2 = (y ^ 2 - z ^ 2) / 4 ^ n := by
+  have hnonneg : ∀ j, 0 ≤ (dupSeq x y z j).1 ∧
+      0 ≤ (dupSeq x y z j).2.1 ∧ 0 ≤ (dupSeq x y z j).2.2 := by
+    intro j
+    cases j with
+    | zero => exact ⟨hx, hy, hz⟩
+    | succ j =>
+      rw [dupSeq, Function.iterate_succ_apply']
+      exact ⟨by dsimp [dupStep]; positivity, by dsimp [dupStep]; positivity,
+        by dsimp [dupStep]; positivity⟩
+  induction n with
+  | zero => simp [dupSeq]
+  | succ n ih =>
+    dsimp only at ih ⊢
+    have hsucc : dupSeq x y z (n + 1) = dupStep (dupSeq x y z n) :=
+      Function.iterate_succ_apply' dupStep n (x, y, z)
+    rw [hsucc]
+    have h := dupStep_sq_sub (hnonneg n).1 (hnonneg n).2.1 (hnonneg n).2.2
+    dsimp only at h ⊢
+    rw [h.1, h.2.1, h.2.2, ih.1, ih.2.1, ih.2.2]
+    simp [pow_succ, div_div]
+
 end Carlson

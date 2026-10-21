@@ -60,6 +60,7 @@ public import Carlson.Jacobi.PolynomialGrowth
 public import Carlson.Jacobi.SecondKindSaddle
 public import Carlson.Jacobi.SaddleLaplace
 public import Carlson.Jacobi.SaddleUniform
+public import Carlson.Jacobi.UniformGrowth
 public import Carlson.Jacobi.SaddleJoint
 public import Carlson.Jacobi.AsymptoticZeros
 public import Carlson.Jacobi.PolynomialSaddle
@@ -196,6 +197,10 @@ exceptional parameters.
   open elliptic disks.
 * `Carlson.TwoVariable.tendsto_norm_eval_jacobiOn_rpow`,
   `Carlson.TwoVariable.tendsto_norm_jacobiSecondKind_rpow`: Theorem 7.5-1.
+* `Carlson.TwoVariable.tendstoUniformlyOn_norm_jacobiSecondKind_rpow`: compact-uniform
+  second-kind root convergence for all complex parameters, with coincident foci included.
+* `Carlson.TwoVariable.eventually_jacobiSecondKind_ne_zero`: uniform eventual absence
+  of zeros on compact sets off the focal segment.
 * `Carlson.TwoVariable.not_summable_jacobiOn`, `Carlson.TwoVariable.not_tendsto_jacobiSecondKind`:
   divergence outside the ellipses of convergence (Theorem 7.5-3).
 * `Carlson.TwoVariable.exists_jacobiSecondKind_three_term`,
@@ -315,8 +320,8 @@ exceptional parameters.
 Branches adapted to contours crossing the endpoint segment, boundary values outside
 the integrable-weight range and endpoint finite parts, the polynomial asymptotics
 of §7.4 at general parameters with an error formulation accounting for zeros,
-compact-uniform root limits, and the Bessel addition
-theorem of Example 7.7-4 remain further work.
+the polynomial compact-uniform root limit remain further work. The second-kind
+compact-uniform root limit and Bessel addition (Example 7.7-4) are proved.
 
 ## References
 

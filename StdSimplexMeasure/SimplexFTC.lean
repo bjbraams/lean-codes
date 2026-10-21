@@ -42,6 +42,8 @@ open MeasureTheory MeasureTheory.Measure
 
 namespace MeasureTheory
 
+variable {n : ℕ}
+
 /-- Reconstruct the last barycentric coordinate. -/
 def finSimplexPoint (v : Fin n → ℝ) : Fin (n + 1) → ℝ :=
   Fin.snoc v (1 - ∑ k, v k)

@@ -6,6 +6,7 @@ Authors: Bastiaan J Braams
 module
 
 public import Dirichlet.Beta.Real
+public import Dirichlet.Beta.Strict
 public import Dirichlet.Beta.Complex
 public import Dirichlet.Integral.Real
 public import Dirichlet.Integral.Complex
@@ -13,6 +14,8 @@ public import Dirichlet.Real
 public import Dirichlet.Complex
 public import Dirichlet.ParameterShift
 public import Dirichlet.Complex.Analytic
+public import Dirichlet.Complex.Aggregation
+public import Dirichlet.Complex.Variation
 public import Dirichlet.Bridge
 public import Dirichlet.Moments
 public import Dirichlet.Real.Average

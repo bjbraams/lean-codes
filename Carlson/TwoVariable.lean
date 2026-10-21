@@ -6,6 +6,7 @@ Authors: Bastiaan J Braams
 module
 
 public import Carlson.TwoVariable.Basic
+public import Carlson.TwoVariable.ZeroFOneJoint
 public import Carlson.TwoVariable.RPolynomial
 public import Carlson.TwoVariable.R
 public import Carlson.TwoVariable.L
@@ -36,7 +37,11 @@ public import Carlson.TwoVariable.EqualParameterSlit
 public import Carlson.TwoVariable.ConfluentHypergeometric
 public import Carlson.TwoVariable.Borchardt
 public import Carlson.TwoVariable.RCAsymptotic
+public import Carlson.TwoVariable.LogarithmicCoefficients
+public import Carlson.TwoVariable.ElementaryIndependence
+public import Carlson.TwoVariable.HalfIntegralReduction
 public import Carlson.TwoVariable.GaussHypergeometric
+public import Carlson.TwoVariable.GaussTerminating
 public import Carlson.TwoVariable.GaussExercises
 public import Carlson.TwoVariable.ThreeFTwoExercises
 public import Carlson.TwoVariable.Reduction
@@ -63,6 +68,12 @@ Bessel functions.
   `Carlson.TwoVariable.exists_real_fractionalIntegral_continuation`: the fractional integral
   continued in its order, with `I^{-n} f = f⁽ⁿ⁾` (5.5-16).
 * `Carlson.hasSum_gaussCoeff`, `Carlson.ordinaryHypergeometric_one`: Gauss's theorem (8.3-4).
+* `Carlson.TwoVariable.ordinaryHypergeometric_neg_natCast_one`: terminating Gauss summation,
+  with only a finite denominator Pochhammer condition.
+* `Carlson.TwoVariable.digamma_nat_sub_half`: logarithmic coefficient evaluation (8.3-15).
+* `Carlson.TwoVariable.carlsonRC_polynomial_independent`,
+  `Carlson.TwoVariable.exists_polynomial_reduction_half_integral`: elementary-basis independence
+  and the general two-variable half-integral reduction step of Theorem 8.5-4.
 * `Carlson.TwoVariable.regCarlsonR_kummer`,
   `Carlson.TwoVariable.ordinaryHypergeometric_kummer_half`,
   `Carlson.TwoVariable.hasSum_beta_series`: Exercises 8.3-1 to 8.3-5.

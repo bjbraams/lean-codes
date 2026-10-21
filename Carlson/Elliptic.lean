@@ -29,6 +29,8 @@ public import Carlson.Elliptic.LegendreStandard
 public import Carlson.Elliptic.LandenExercises
 public import Carlson.Elliptic.AGMSecondKind
 public import Carlson.Elliptic.Independence
+public import Carlson.Elliptic.DuplicationError
+public import Carlson.Elliptic.ComplexDuplication
 public import Carlson.Elliptic.QuarticIntegral
 public import Carlson.Elliptic.Applications
 
@@ -62,6 +64,13 @@ Umbrella module for the elliptic material of Carlson's Chapters 8 and 9. It cove
   Legendre's third-kind integral reduced to `R_F`, `R_H` and to `R_K`, `R_L`, respectively.
 * `Carlson.regCarlsonR_landen`, `Carlson.tendsto_ascLanden`, `Carlson.tendsto_descGauss`: §9.5.
 * `Carlson.carlsonRF_duplication`, `Carlson.tendsto_dupSeq`: §9.6.
+* `Carlson.dupStep_thd_eq`, `Carlson.dupSeq_sq_sub`: the real iteration identities
+  (9.6-9), (9.6-10), including nonnegative inputs for squared-difference contraction.
+* `Carlson.exists_dupMean_error_bound`, `Carlson.tendsto_dupSeq_zero`: an explicit
+  `16^(-n)` arithmetic-mean error bound and convergence started at `(x,y,0)`.
+* `Carlson.tendsto_complexDupSeq`, `Carlson.tendsto_complexDupSeq_zero`: Algorithm 9.6-2
+  for complex right-half-plane square roots, including the zero-coordinate boundary.
+* `Carlson.complexDupSeq_dist_limit_le`: an explicit `4^(-n)` complex coordinate error bound.
 * `Carlson.carlsonRF_add_carlsonRF`: §9.7.
 * `Carlson.carlsonRK_duplication`, `Carlson.carlsonRF_add_carlsonRF_zero`: the zero-variable cases
   of the duplication and addition theorems, (9.7-17).

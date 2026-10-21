@@ -124,8 +124,12 @@ Gegenbauer and Legendre polynomial addition,
 plane-wave and Fourier/Bessel expansions, and Laguerre/Hermite polynomial and second-kind
 limits are proved. The Laguerre second-kind limit retains `re(1+β+n) > 0`; the weighted
 Laguerre/Hermite representations impose growth bounds also on the highest derivative.
+The second-kind root limit of Theorem 7.5-1 is uniform on compact sets off the focal
+segment for all complex parameters, including coincident foci. The proof also gives
+uniform two-sided geometric bounds and eventual absence of second-kind zeros on these
+compact sets. Bessel addition (Example 7.7-4) is proved.
 Remaining Chapter 7 work includes the general-parameter polynomial asymptotics
-of §7.4, compact-uniform root limits, the Bessel addition theorem of Example 7.7-4, and continued boundary theory
+of §7.4, the polynomial compact-uniform root limit, and continued boundary theory
 beyond the current orthogonality range. `Carlson.Jacobi.AsymptoticZeros` records a
 qualification to the printed ratio definition in Theorem 7.4-2: odd-degree
 Chebyshev zeros prevent an unextended quotient from tending to one at the
@@ -143,12 +147,28 @@ meromorphic continuation is not yet formalized.
 The small-variable limit holds for continued complex parameters satisfying
 `re(a' - bₖ) > 0`, with right-half-plane nodes and approach, also jointly in the nodes.
 The Gauss-function identification is on the unit disk, its boundary limit approaches
-1 from inside that disk, and Gauss summation assumes `re(γ-α-β) > 0`.
+1 from inside that disk. Nonterminating Gauss summation assumes `re(γ-α-β) > 0`;
+the terminating theorem is proved as a Pochhammer quotient without that inequality.
 The associated-function dependence theorem 8.4-3 is proved for fixed arbitrary complex
 parameters on slit-plane nodes. Integer log-rational reduction 8.5-1, Table 8.5-1 and
-Example 8.5-5 are proved. General reductions 8.5-3/8.5-4, the connection formula (8.3-10),
-the full logarithmic expansion of `R_K`, and the wider slit-sector limits remain.
+Example 8.5-5 are proved. The independence of `R_C(x,y)` and `x^(-1/2)` with polynomial
+coefficients in both nodes now gives the general two-variable half-integral reduction
+`R_{-1/2+k}(1/2+m,1+n;x,y)` for arbitrary integer shifts, throughout the slit domain.
+The arbitrary-node classifications 8.5-3/8.5-4 and branch-point splitting remain open.
+The connection formula (8.3-10), the full logarithmic expansion of `R_K`, and the wider
+slit-sector limits also remain; the coefficient evaluation (8.3-15) is proved.
 See [CarlsonCoverage.md](CarlsonCoverage.md).
+
+For Chapters 2–6, the support theory includes the full hypergeometric convergence-radius
+classification, strict log-convexity of Gamma and uniqueness of its positive minimum, and
+strict beta inequalities at fixed total parameter. The logarithmic-mean comparisons and sharp
+real and complex error bounds of §2.6 are proved, as is the complex trigonometric beta integral
+(4.2-3), including convergence for parameters with positive real parts. Native complex Dirichlet
+aggregation holds for merely continuous simplex kernels; bundled complex Dirichlet measures have an exact
+variation formula and Carlson's exponential variation bound. Continued R-functions have mixed
+node derivatives of every order on the full slit domain, and regularized `₀F₁` is jointly
+entire in its parameter and argument. Remaining coverage gaps are listed in
+[SYNOPSIS_GAPS.md](SYNOPSIS_GAPS.md).
 
 Chapter 9 has the symmetric standard functions `R_F`, `R_G`, `R_H`, `R_K`, `R_E`, `R_L`,
 their symmetries and several zero-variable limits. Legendre's `F`, `E`, `Π`, `K` and
@@ -156,14 +176,16 @@ complete `E` are defined; `F` and `E` are represented as R-functions and `K` is 
 with `R_K`. Both incomplete and complete `Π` now have R-function representations and
 reductions to `R_F`, `R_H` and to `R_K`, `R_L`, respectively. These hold for real arguments
 with `k² < 1`, `0 < φ < π/2`, and `n sin² φ < 1` in the incomplete case, and `n < 1`
-in the complete case. Two rows each of Tables 9.3-3 and 9.3-4 are proved on the full
-complex slit domain, including coincident nodes. The remaining table rows and the
-standard-basis reduction of `E` are still missing. The transformation results include:
+in the complete case. All rows of Tables 9.3-1 to 9.3-4 and the standard-basis reduction
+of `E` are proved, with the polynomial-coefficient table identities on the complex slit
+domain, including coincident nodes. The transformation results include:
 
 - Landen's Theorem 9.5-1 for all complex exponents, with positive real source and
   transformed variables, and its ascending/descending algorithms;
-- duplication on the slit domain and convergence of Algorithm 9.6-2 for positive
-  real initial values;
+- duplication on the slit domain and convergence of Algorithm 9.6-2 for complex initial
+  square roots in the right half-plane, also started at `(x,y,0)` with `re x,re y > 0`;
+  exact complex iteration identities, an explicit complex `4^(-n)` coordinate error bound,
+  and a real `16^(-n)` arithmetic-mean error bound;
 - addition for positive real variables and the zero-variable form (9.7-17);
 - zero-variable duplication and ascending Landen with `s₀ = 0`;
 - quartic reduction 9.8-1 when the source and transformed square roots have positive
@@ -176,9 +198,9 @@ standard-basis reduction of `E` are still missing. The transformation results in
 duplication and homogeneity. The full logarithmic series, its complex-sector
 extension and additive constant-term limits are not asserted by these equivalents.
 
-The standard-basis independence theorem 9.2-1, the remaining reductions of §9.3, applications §9.4,
-algorithmic error estimates, complex duplication iteration, and the practical quartic
-integration formulas (9.8-10)–(9.8-13) remain priorities.
+The standard-basis independence theorem 9.2-1 beyond its `R_H` part, remaining applications
+of §9.4, and the precise duplication error expansion remain priorities. The practical finite-interval quartic formulas (9.8-10)–(9.8-13) are proved
+when all four real linear factors are positive on the integration interval.
 See [CarlsonCoverage.md](CarlsonCoverage.md) for detailed coverage.
 
 Dependencies flow from the support libraries and simplex foundations to

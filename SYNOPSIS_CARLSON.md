@@ -77,7 +77,9 @@ $a + a' = \Sigma$.
   lowering, tangential relations
   $(z_i - z_j)\,t\,\mathcal R_{t-1}(b + e_i + e_j, z) = \mathcal R_t(b + e_i, z) - \mathcal R_t(b + e_j, z)$,
   Zill's relation and Carlson's Exercises 5.9-6 to 5.9-10, 5.9-13;
-* node derivatives $\partial_{z_i}\mathcal R_t = t\,b_i\mathcal R_{t-1}(b + e_i, z)$, second derivatives,
+* node derivatives $\partial_{z_i}\mathcal R_t = t\,b_i\mathcal R_{t-1}(b + e_i, z)$ and arbitrary
+  mixed derivatives: for a coordinate list with multiplicities $m$ and length $n$,
+  $\partial^m\mathcal R_t = t(t-1)\cdots(t-n+1)\prod_i(b_i)_{m_i}\mathcal R_{t-n}(b+m,z)$,
   the translation and Euler identities $\sum_i\partial_i\mathcal R_t = t\mathcal R_{t-1}$,
   $\sum_iz_i\partial_i\mathcal R_t = t\mathcal R_t$, and the Euler–Poisson system (6.4-2);
 * **Euler's transformation (Theorem 6.8-3)** $\mathcal R_t(b, z) = \prod_iz_i^{-b_i}\mathcal
@@ -119,7 +121,11 @@ $a + a' = \Sigma$.
   cases are explicit. **Theorem 8.5-1:** for integral $t$ and $b$, $R_t(b, z)$ is log-rational on
   the slit domain, $Q(z)R = P_0(z) + \sum_iP_i(z)\log z_i$ with polynomials $Q \ne 0$, $P_0$, $P_i$;
   $(z_i - z_j)R_{-1}(e_i + e_j; z) = \log z_i - \log z_j$; Table 8.5-1 (all seven rows) and
-  Example 8.5-5. Exercise 8.5-1 gives $R_{-1}(\tfrac12, \tfrac12, 1; x, y, z)$ as a logarithm for
+  Example 8.5-5. The standard functions $R_C(x,y)$ and $x^{-1/2}$ are independent with
+  polynomial coefficients in both nodes. Every $R_{-1/2+k}(1/2+m,1+n;x,y)$ for integer
+  $k,m,n$ reduces to these two standard functions, with a nonzero polynomial denominator
+  cleared on the whole product slit plane. The arbitrary-node classification and branch-point
+  splitting are still open. Exercise 8.5-1 gives $R_{-1}(\tfrac12, \tfrac12, 1; x, y, z)$ as a logarithm for
   positive nodes.
 * **Equal parameters (Theorems 6.2-6, 6.8-4, Corollary 6.3-7).** $R_t(\beta, \dots, \beta; z)/\Gamma(k\beta)$
   vanishes at $\beta = 0, -1, -2, \dots$, and $\Gamma(\beta)R_t/\Gamma(k\beta)$ is holomorphic in
@@ -239,7 +245,10 @@ For $I = \{0, 1\}$, nodes $(x, y)$ and parameters $(u, v)$ or $(\beta, \beta)$:
 * **Gauss hypergeometric function (§8.3).** ${}_2F_1$ as an $R$-function (8.3-7), Corollary
   8.3-3, Gauss's theorem $F(\alpha, \beta; \gamma; 1) = \Gamma(\gamma)\Gamma(\gamma - \alpha - \beta)/
   (\Gamma(\gamma - \alpha)\Gamma(\gamma - \beta))$ for $\operatorname{Re}(\gamma - \alpha - \beta) > 0$,
-  Kummer's theorems at $-1$ and $\tfrac12$, ${}_3F_2$ as an average of ${}_2F_1$ and its
+  and its terminating Chu--Vandermonde cases as Pochhammer quotients without that inequality.
+  The digamma coefficient evaluation (8.3-15) is proved; the connection formula and the
+  logarithmic series (8.3-13), (8.3-14) remain open. Kummer's theorems at $-1$ and
+  $\tfrac12$, ${}_3F_2$ as an average of ${}_2F_1$ and its
   transformations at unit argument (Exercises 8.3-1 to 8.3-5, 8.3-10 to 8.3-12).
 * **Product formulas (§6.11).** The bilateral generating relation 6.11-1 and Meixner's formula
   6.11-2 for all complex parameters, Ossicini's formula 6.11-3 and Gegenbauer's product formula
@@ -280,7 +289,10 @@ integer where a basis is needed; coincident foci $r = s$ give Taylor theory.
   elliptic discs (recurrence and maximum modulus) and $\|q_n(y)\| \le C(1/\sigma + \varepsilon)^n$ on
   closed elliptic exteriors (deformation of the Euler integral onto Carlson's saddle curve);
   the root limits $\|p_n(x)\|^{1/n} \to \mu(x)$, $\|q_n(y)\|^{1/n} \to 1/\mu(y)$ (Theorem 7.5-1) and for
-  maxima on confocal ellipses (7.5-2); convergence and divergence of series of both kinds
+  maxima on confocal ellipses (7.5-2). The second-kind root limit is uniform on compact
+  sets off the segment for all complex parameters; sharp-rate two-sided geometric bounds
+  imply uniform eventual absence of zeros there. The polynomial compact-uniform root limit
+  remains open at general parameters. Convergence and divergence of series of both kinds
   (7.5-3); the Cauchy-kernel expansion $\sum_np_n(x)q_n(y) = (y - x)^{-1}$ on $\mu(x) < \mu(y)$
   (Lemma 7.6-1); **Theorem 7.6-2**: a function holomorphic on an open elliptic disc is the sum
   of its Jacobi series there, uniformly on closed subdiscs, with coefficients on any confocal
@@ -338,7 +350,17 @@ endpoints $s_0 = 0$ and $t_0 = a_0$; $R_E(x^2, y^2) = B/M$ along the AGM (Exerci
 $R_F(x, y, z) = 2R_F(x + \lambda, y + \lambda, z + \lambda)$, $\lambda = \sqrt x\sqrt y + \sqrt x\sqrt z +
 \sqrt y\sqrt z$, on the whole slit domain, with the zero-variable form
 $\frac\pi2R_K(x, y) = 2R_F(x + \sqrt{xy}, y + \sqrt{xy}, \sqrt{xy})$; convergence of Algorithm 9.6-2 to
-$R_F(x_0^2, y_0^2, z_0^2) = 1/L$ for positive initial values. The addition theorem 9.7-1 for
+$R_F(x_0^2, y_0^2, z_0^2) = 1/L$ for positive initial values, and convergence from
+$(x,y,0)$ for $x,y>0$ with boundary value $(\pi/2)R_K(x^2,y^2)=1/L$.
+Complex right-half-plane initial square roots also converge, with $R_F(x^2,y^2,z^2)=1/L$,
+$\operatorname{Re}L>0$, and an explicit $4^{-n}$ coordinate error bound. Pairwise sums
+in the right half-plane suffice for convergence, and the zero-coordinate boundary identity
+also holds for complex $x,y$ with positive real parts. The identities (9.6-9), (9.6-10)
+are proved for complex inputs; squared-difference contraction has no domain restriction. For initial coordinates bounded below by $m>0$,
+the arithmetic mean $a_n$ in (9.6-11) satisfies
+$|a_n-L|\le S_0^2/(30m^3 16^n)$, where $S_0$ is the sum of the three absolute squared
+differences. The precise expansion (9.6-12) and the complex accelerated error estimate remain open.
+The addition theorem 9.7-1 for
 positive variables with Euler's algebraic solution, and (9.7-17)
 $R_F(x + \lambda, y + \lambda, \lambda) + R_F(x + \mu, y + \mu, \mu) = \frac\pi2R_K(x, y)$ for $\lambda\mu = xy$.
 

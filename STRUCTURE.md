@@ -242,6 +242,19 @@ formulas with exact remainder (Theorem 5.5-2, (5.5-8)), all in Carlson's case (i
 
 ## Dirichlet theory modules
 
+`Dirichlet.Beta.Strict` uses `ToMathlib.Analysis.SpecialFunctions.GammaStrictConvex`
+to prove the strict beta minimum at equal parameters (Exercises 4.2-3, 4.3-2).
+The support module proves strict log-convexity and strict convexity of Gamma, and
+uniqueness of its positive minimum. `ToMathlib.Analysis.SpecialFunctions.HypergeometricDivergence`
+completes Mathlib's convergence-radius classification with the nonterminating `p > q + 1` case.
+
+`ToMathlib.Analysis.SpecialFunctions.LogarithmicMean` proves the geometric/logarithmic/arithmetic
+mean comparisons and sharp real and complex relative error bounds (Theorems 2.6-1–2.6-3).
+The complex theorem uses the principal logarithm of the quotient under
+`0 < ‖x-y‖ < ‖x+y‖`. `ToMathlib.Analysis.SpecialFunctions.BetaTrigonometric` evaluates the
+complex trigonometric beta integral (4.2-3) and proves its convergence for parameters with
+positive real parts, using the substitution `t = sin θ ^ 2`.
+
 ### `Dirichlet.Beta.Complex.Basic`
 
 Contains module `Integral`.
@@ -272,6 +285,11 @@ determination), with the corresponding iterated integral for continuous kernels.
 Complex Dirichlet results.
 Analytic dependence and
 continuation are downstream of the native complex integrals.
+`Dirichlet.Complex.Aggregation` proves native complex aggregation and its reduction to a
+single Euler integral for continuous kernels, using analytic uniqueness on the native
+convergence region. `Dirichlet.Complex.Variation` constructs a complex vector measure,
+identifies its variation with a scalar multiple of the real Dirichlet law, and proves
+normalization, finite variation and Exercise 4.4-8's exponential bound.
 
 ### `Dirichlet.Bridge`
 
@@ -696,7 +714,12 @@ and the resulting exponential upper bound. `Jacobi.PolynomialGrowth` derives the
 polynomial upper bound from the recurrence. `Jacobi.GrowthLimits` and
 `Jacobi.SecondKindLimits` prove matching pointwise root limits off the segment,
 using the Cauchy kernel and perturbed recurrences. `Jacobi.GrowthMaxima` proves
-the root limits for maxima on confocal ellipses.
+the root limits for maxima on confocal ellipses. `Jacobi.UniformGrowth` proves the
+second-kind root limit uniformly on every compact set off the segment, for all complex
+parameters, together with sharp-rate two-sided geometric bounds and uniform eventual
+absence of second-kind zeros. Its proof uses the continuous nonvanishing coefficient
+from `Jacobi.SaddleUniform` and the reusable uniform root lemma in
+`ToMathlib.Analysis.Asymptotics.UniformRoot`.
 
 `Jacobi.EllipticExpansion` proves `∑ pₙ(x) qₙ(y) = (y-x)⁻¹` on the full domain
 `μ(x) < μ(y)`, uniformly on a closed elliptic disk times a larger closed exterior.
@@ -761,9 +784,9 @@ equivalent even where the sum vanishes. On `W` the dominant-term relative error
 is exactly `‖(x-y)/(x+y)‖^(2n)`, and tends to zero uniformly on compact sets.
 
 Remaining work includes the general-parameter polynomial asymptotics of §7.4
-with a formulation accounting for zeros, the compact-uniform root limits
-asserted in 7.5-1, Bessel addition
-Example 7.7-4, and boundary theory beyond `re α, re β > -1`. Continuation of the
+with a formulation accounting for zeros, the polynomial compact-uniform root limit
+asserted in 7.5-1, and boundary theory beyond `re α, re β > -1`. Bessel addition
+Example 7.7-4 is proved in `Jacobi.BesselExercises`. Continuation of the
 boundary formulas to all admissible parameters, endpoint regularization, and
 branches for contours crossing the segment remain open.
 The physical examples in §§7.9–7.10 and many exercises are not formalized.
@@ -854,6 +877,12 @@ Scalar Gamma-regularity and reciprocal-Gamma estimates live in
 `Pochhammer.Gamma`.
 
 ### Two-variable and S-function theory
+
+`Carlson.R.IteratedDeriv` gives arbitrary mixed node derivatives on the full slit domain,
+indexed by coordinate lists; the coefficient is a falling factorial times a multivariate
+Pochhammer symbol, including repeated indices and exceptional parameters.
+`Carlson.TwoVariable.ZeroFOneJoint` proves joint entire dependence of regularized `₀F₁`
+and locally uniform convergence of its defining series in both variables (Exercise 6.9-19).
 
 `Carlson.TwoVariable.Basic` contains only the two-coordinate and swap API.
 Function abbreviations have their own `R.Basic`, `RPolynomial.Basic`, and
@@ -1000,8 +1029,11 @@ Chapter 6 exercises in `CarlsonChapter6Exercises.md`.
 The small-variable theorems use right-half-plane nodes and approach to zero;
 Carlson's wider slit-sector approach is still open. The Gauss identification is
 on the unit disk, and its limit approaches 1 within that disk; the summation
-formula assumes `re(γ-α-β) > 0`. General reduction Theorems 8.5-3/8.5-4 and the
-branch-point splitting formula are not yet proved. The rectangle inverses do not
+formula assumes `re(γ-α-β) > 0` in the nonterminating case; terminating summation
+requires only the finite denominator Pochhammer symbol to be nonzero. The general
+two-variable half-integral reduction and independence of its elementary basis are proved;
+the arbitrary-node classifications 8.5-3/8.5-4 and branch-point split remain open.
+The rectangle inverses do not
 yet have a doubly periodic meromorphic continuation. Further details are in
 [CarlsonCoverage.md](CarlsonCoverage.md).
 
@@ -1032,6 +1064,32 @@ principal-value integrals or complex amplitudes. The polynomial-coefficient
 reduction identities themselves hold for arbitrary slit-plane nodes.
 
 Remaining Chapter 9 work includes the standard-function independence 9.2-1 beyond its `R_H`
-part, complex iteration and error estimates for duplication, Carlson's remark on complex
+part, the precise error expansion for duplication, Carlson's remark on complex
 Landen transformations, and the multivariable applications of §9.4. See
 [SYNOPSIS_GAPS.md](SYNOPSIS_GAPS.md) and [CarlsonCoverage.md](CarlsonCoverage.md).
+
+Further modules for §§8.3, 8.5 and 9.6:
+
+- `Carlson.TwoVariable.GaussTerminating`: terminating Gauss summation in Pochhammer form,
+  without a real-part restriction.
+- `Carlson.TwoVariable.LogarithmicCoefficients`: the digamma coefficient formula (8.3-15).
+- `ToMathlib.Analysis.Polynomial.SlowSingularity`: a function divergent at zero but
+  satisfying `x f(x) → 0` cannot be rational.
+- `Carlson.TwoVariable.ElementaryIndependence`: independence of `R_C(x,y)` and `x^(-1/2)`
+  with polynomial coefficients in both nodes, using the logarithmic boundary singularity.
+- `Carlson.TwoVariable.HalfIntegralReduction`: reduction of all integer shifts of
+  `R_{-1/2}(1/2,1;x,y)` to this elementary basis, in regularized and ordinary normalizations,
+  with nonzero polynomial denominators cleared throughout the slit domain.
+- `Carlson.Elliptic.DuplicationError`: the arithmetic-mean approximation (9.6-11), its
+  explicit error bound `S₀² / (30 m³ 16ⁿ)` for positive real initial coordinates bounded
+  below by `m > 0`, and convergence of the real iteration started at `(x,y,0)`.
+  Here `S₀` is the sum of the three absolute squared-coordinate differences.
+  The public real identities (9.6-9), (9.6-10) are in `Carlson.Elliptic.Addition`.
+- `ToMathlib.Analysis.Complex.GeometricMean`: the product of principal square roots
+  of right-half-plane numbers has real part at least the geometric mean of their real parts.
+- `Carlson.Elliptic.ComplexDuplication`: complex Algorithm 9.6-2, including the
+  `R_F(x²,y²,z²)=1/L` identity, exact iteration formulas, and an explicit coordinate
+  error bound `M S₀ / (6 m² 4ⁿ)`. Here `m > 0` bounds the initial real parts below,
+  `M` bounds their norms above, and `S₀` is the sum of the norms of the three squared
+  differences. Pairwise sums with positive real parts suffice for convergence; the
+  `(x,y,0)` boundary identity is expressed through `R_K`.

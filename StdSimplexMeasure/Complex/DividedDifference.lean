@@ -40,6 +40,8 @@ open MeasureTheory
 
 namespace Complex
 
+variable {n : ℕ}
+
 /-- The Hermite–Genocchi divided difference of order `n`, defined by integrating
 `iteratedDeriv n f` over the simplex of nodes. Analyticity on a convex neighborhood of the
 nodes gives the usual divided-difference recurrence, including coincident nodes. -/

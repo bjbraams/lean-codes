@@ -66,14 +66,36 @@ and `DirichletTransformProgram.md`.
 
 ### Background chapters (Carlson 1977, Chapters 2–4)
 
-These chapters are used through Mathlib's Gamma and beta theory and the project's support
-libraries and are not formalized systematically. Items from Chapter 3 not available: the
-packaged simple-pole and residue statements of $\Gamma$ at every nonpositive integer, the
-ratio asymptotic for real arguments with fixed complex shifts, Weierstrass's product and the
-partial-fraction expansions of the digamma function, strict log-convexity of $\Gamma$, the
-logarithmic correction series and the sectorial Stirling theorem, the quantitative Gamma
-inequalities of §3.10, and the normalized complex Euler integration functional with rotated rays
-of §3.11 as a general theory. Many Chapter 3 exercises are open.
+These chapters are used through Mathlib's Gamma, beta and hypergeometric theory and the
+project's support libraries. They are not formalized systematically; the inventory in
+[CarlsonCoverage.md](CarlsonCoverage.md) now includes Chapters 2 and 4.
+
+* Chapter 2: an integer-order Pochhammer API including negative orders; Appell's $F_1$; and the specific
+  half-integer Pochhammer remainder formulas of §2.7. Wallis' product, factorial Stirling
+  asymptotics, natural-order Pochhammer identities and much hypergeometric convergence
+  theory are already available upstream. The general nonterminating $p > q + 1$ divergence
+  assertion and zero convergence radius are proved in `HypergeometricDivergence`.
+  All three logarithmic-mean inequalities of §2.6, including the sharp real and complex
+  error bounds, are proved in `LogarithmicMean`.
+  The examples and exercises lack a complete inventory.
+* Chapter 3: the ratio asymptotic for real arguments with fixed complex shifts, Weierstrass's
+  product and the partial-fraction expansions of the digamma function, the logarithmic
+  correction series and the sectorial Stirling theorem, the remaining
+  quantitative Gamma inequalities of §3.10, and the normalized complex Euler integration
+  functional with rotated rays of §3.11 as a general theory. Many exercises are open. The
+  strict log-convexity and uniqueness of the positive Gamma minimum are proved in
+  `GammaStrictConvex`. The simple poles and residues are proved through the analytic,
+  nonzero pole factor in `Dirichlet.GammaPoles`; a standalone meromorphic-order statement
+  is only an API addition.
+* Chapter 4: the solid-coordinate Liouville form of Corollary 4.4-5 and general hypergeometric
+  parameter-raising integral identities (Exercises 4.4-3–4.4-4). Multiplication specializations and
+  geometric and physical exercises are not systematically covered. The principal beta
+  evaluations, density integrals, symmetry, moments and parameter holomorphy are proved,
+  as are the strict beta inequalities of Exercises 4.2-3 and 4.3-2, native complex aggregation
+  and its one-variable reduction (Theorem 4.4-3, Corollary 4.4-4), the bundled variation
+  identities (4.4-3), (4.4-4) and the exponential variation bound of Exercise 4.4-8.
+  `BetaTrigonometric` supplies convergence and evaluation of the complex trigonometric
+  beta integral (4.2-3) for parameters of positive real part.
 
 ### Chapter 5
 
@@ -83,7 +105,6 @@ of §3.11 as a general theory. Many Chapter 3 exercises are open.
 * The confluence limit (5.10-1) for the continued function at non-convergent parameters.
 * The real-variable forms of (5.5-10)–(5.5-13) for merely continuous $f$ (covered through
   (5.5-15)).
-* Arbitrary-order continued node derivatives of $R$ as a general theorem.
 
 ### Chapter 6
 
@@ -97,8 +118,7 @@ of §3.11 as a general theory. Many Chapter 3 exercises are open.
   (6.9-22), which needs a branch condition.
 * Exercises 6.3-1 (holomorphy on the plane cut along the segment), 6.3-5 (Appell's $F_1$),
   6.7-6; partial: 6.2-7, 6.2-14 (the homogeneity step), 6.3-6 (joint holomorphy on
-  $\mathbb C \setminus \operatorname{con}(z)$), 6.6-9 and 6.6-15 (Jordan-curve forms), 6.9-19 (joint
-  entire dependence of ${}_0F_1$ on its parameter).
+  $\mathbb C \setminus \operatorname{con}(z)$), 6.6-9 and 6.6-15 (Jordan-curve forms).
 * The generating relations (2.14), (2.15) of Carlson (1970) in closed form.
 
 ### Chapter 7
@@ -106,8 +126,10 @@ of §3.11 as a general theory. Many Chapter 3 exercises are open.
 * **Polynomial asymptotics.** Theorem 7.4-2 and the polynomial part of Corollary 7.4-4 at general
   parameters, which need a formulation accounting for the zeros of the polynomials (see the
   errata); the second-kind part and Theorem 7.4-3 are proved.
-* The compact-uniform root limits asserted in Theorem 7.5-1 (the pointwise limits are proved);
-  coefficient growth is expressed by explicit bounds rather than $\limsup$.
+* The polynomial compact-uniform root limit in Theorem 7.5-1 remains open at general
+  parameters. The second-kind compact-uniform root limit and uniform eventual absence of
+  zeros off the segment are proved for all complex parameters in `Jacobi.UniformGrowth`.
+  Coefficient growth is expressed by explicit bounds rather than $\limsup$.
 * **Boundary theory.** Separate boundary values and principal values outside
   $\operatorname{Re}\alpha, \operatorname{Re}\beta > -1$, endpoint finite parts, arbitrary approach
   paths, and branches along contours crossing the focal segment (the jump (7.8-5) itself is
@@ -122,14 +144,20 @@ of §3.11 as a general theory. Many Chapter 3 exercises are open.
 ### Chapter 8
 
 * **Logarithmic boundary behaviour.** The connection formula (8.3-10), the logarithmic series of
-  $R_K$ (8.3-13)–(8.3-15), the complex-sector form of (8.3-16), and the remainder after the
-  leading logarithm (only leading equivalents are proved).
+  $R_K$ (8.3-13)–(8.3-14), the complex-sector form of (8.3-16), and the remainder after the
+  leading logarithm (only leading equivalents are proved). The digamma coefficient formula
+  (8.3-15) is proved in `Carlson.TwoVariable.LogarithmicCoefficients`.
 * **Small-variable limits** through closed sectors avoiding the cut with the other nodes in the
   slit plane (proved through the right half-plane); Corollary 8.3-3 with approach to $1$ from
-  outside the unit disc; the terminating cases of Gauss's theorem 8.3-4.
-* **General reductions.** Theorems 8.5-3 and 8.5-4, which need formal definitions of the
-  function classes, the branch-point splitting formula (8.5-5), and the linear independence of
-  $R_C$ and $x^{-1/2}$ over rational functions.
+  outside the unit disc. The terminating cases of Gauss's theorem 8.3-4 are proved in
+  Pochhammer-quotient form, requiring only nonvanishing of the denominator through the
+  terminating degree, without a real-part inequality.
+* **General reductions.** The arbitrary-node classification in Theorems 8.5-3 and 8.5-4
+  still needs formal function classes and the branch-point splitting formula (8.5-5).
+  The independence of $R_C$ and $x^{-1/2}$ with polynomial coefficients in both nodes and
+  the reduction of every $R_{-1/2+k}(1/2+m,1+n;x,y)$, for integers $k,m,n$, are proved.
+  The reduction identities hold on the entire product slit plane with a nonzero polynomial
+  denominator cleared, also at coincident nodes.
 * **Global elliptic functions.** Continuation of the inverses of §8.2 (Weierstrass and Jacobian
   functions) to doubly periodic meromorphic functions by reflection, with their poles and zeros.
 * **Branches in §8.1.** Integrals with arbitrary continuously tracked phases beyond
@@ -144,9 +172,15 @@ of §3.11 as a general theory. Many Chapter 3 exercises are open.
   expansions.
 * **Transformations.** The two-free-parameter transformation (9.5-1) beyond Theorem 9.5-1;
   formula (9.5-18); Carlson's remark extending Theorem 9.5-1 to complex $x, y, z$.
-* **Duplication.** Convergence of Algorithm 9.6-2 for complex initial values (the iteration
-  identity is proved on the whole slit domain, but convergence needs a uniform lower bound on the
-  iterates); the iteration identities and error expansion (9.6-9)–(9.6-12) and Exercise 9.6-1.
+* **Duplication.** The precise leading coefficient and remainder in (9.6-12) and
+  Exercise 9.6-1 remain. Algorithm 9.6-2 now converges for complex initial square roots
+  in the right half-plane, with $R_F(x^2,y^2,z^2)=1/L$ and an explicit $4^{-n}$ error bound.
+  Convergence also holds when the three pairwise sums have positive real parts, including
+  all allowed zero-coordinate cases. For $(x,y,0)$ with $\operatorname{Re}x,\operatorname{Re}y>0$,
+  the boundary identity is $(\pi/2)R_K(x^2,y^2)=1/L$.
+  Formulas (9.6-9), (9.6-10) are proved over the complex numbers. The arithmetic-mean
+  approximation (9.6-11) has an explicit real $16^{-n}$ error bound; its complex counterpart
+  and the precise expansion remain open.
 * **Applications (§9.4).** The arc of an ellipse (9.4-3), (9.4-4); the surface area of an ellipsoid
   (Example 9.4-2, (9.4-6), (9.4-7)); the capacity of an ellipsoid in $\mathbb R^n$ (9.4-14,
   Exercise 9.8-2); the asymptotics (9.4-23), (9.4-24) beyond Exercise 9.2-1; Exercises 9.4-2 and

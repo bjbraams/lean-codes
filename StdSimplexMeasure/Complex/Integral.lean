@@ -40,6 +40,8 @@ open MeasureTheory
 
 namespace Complex
 
+variable {m n : ℕ}
+
 /-- The integral of a complex kernel over the simplex spanned by its nodes.
 The coordinate measure has mass `1 / n!`; this is not a probability average. -/
 def simplexIntegral (z : Fin (n + 1) → ℂ) (f : ℂ → ℂ) : ℂ :=

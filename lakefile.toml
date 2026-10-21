@@ -3,6 +3,11 @@ version = "0.2.0"
 defaultTargets = ["Main"]
 buildDir = ".lake/build-codes"
 
+[leanOptions]
+# Mathlib convention: undeclared names in statements are errors, not auto-bound implicits.
+autoImplicit = false
+relaxedAutoImplicit = false
+
 [[lean_lib]]
 name = "Main"
 roots = ["ToMathlib.Algebra", "ToMathlib.Analysis", "ToMathlib.Topology", "Dirichlet", "SimplexMellin", "Carlson", "StdSimplexMeasure", "Pochhammer", "SeveralComplexVariables", "ComplexAnalysis"]

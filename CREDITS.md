@@ -4,6 +4,30 @@ This file collects credits and related-work notes for the open-mapping, holomorp
 and curve-integral modules retained in `lean-codes` after removal from `lean-PR`.
 For other credits, see [lean-PR/CREDITS.md](../lean-PR/CREDITS.md).
 
+## Carlson Chapters 2–6 foundations — 21 October 2026
+
+`ToMathlib.Analysis.SpecialFunctions.GammaStrictConvex` upgrades David Loeffler's Mathlib
+Gamma log-convexity theorem using the Gamma recurrence and strict concavity of logarithm.
+`Dirichlet.Beta.Strict` then applies Mathlib's strict Jensen inequality.
+`ToMathlib.Analysis.SpecialFunctions.HypergeometricDivergence` adapts the coefficient-scaling
+calculation in Moritz Doll's
+`Mathlib.Analysis.SpecialFunctions.RegularizedHypergeometric`, using its public recurrence
+and eventual-nonvanishing theorem and Mathlib's scalar-series radius and ratio tests.
+`Dirichlet.Complex.Variation` uses Sébastien Gouëzel's
+`MeasureTheory.Measure.variation_withDensityᵥ` from
+`Mathlib.MeasureTheory.VectorMeasure.WithDensityVec` to identify the entire variation measure.
+Native complex aggregation specializes the project's analytic uniqueness argument to the
+product of right half-planes, starting from the previously credited TauCeti probability
+aggregation theorem. No new TauCeti dependency or dependency revision is introduced.
+
+`ToMathlib.Analysis.SpecialFunctions.LogarithmicMean` adapts Mathlib's real odd-logarithm
+series and uses Jeremy Tan's `Complex.hasSum_arctan_aux` to combine the principal logarithms
+on the unit disk. The strict mean comparisons use Mathlib's real logarithm and hyperbolic
+sine inequalities. `ToMathlib.Analysis.SpecialFunctions.BetaTrigonometric` pulls David
+Loeffler's Mathlib complex beta integral back along squared sine, using Sébastien Gouëzel's
+one-dimensional Jacobian and integrability theorems. Both modules follow Carlson (1977),
+Theorems 2.6-1–2.6-3 and formula (4.2-3), respectively.
+
 The normal-family development in
 `ToMathlib/Analysis/Holomorphic/NormalFamily.lean`
 acknowledges Vincent Beffara's [RMT4 formalization of the Riemann mapping theorem](https://github.com/vbeffara/RMT4),
@@ -298,3 +322,31 @@ Mathlib's `Real.fourier_fderiv` supplies the diagonal frequency multiplier, and 
 Schwartz derivative maps preserve the smooth weight. Together with the existing finite
 multiplier derivative bounds this proves the intrinsic sufficient count
 `2N > card ι - 1` for the full-plane simplex Mellin inversion formulas.
+
+## Carlson logarithmic coefficients and reductions — 21 October 2026
+
+`Carlson.TwoVariable.LogarithmicCoefficients` reuses Mathlib's digamma values at
+`1` and `1/2` and `Complex.digamma_apply_add_nat` to prove Carlson (8.3-15).
+The terminating Gauss theorem specializes the existing local R-polynomial identity;
+the general two-variable half-integral reduction combines the existing associated-function
+dependence theorem with a new proof of elementary-basis independence from the boundary
+logarithm. Mathlib's polynomial `divX` identities support the slow-singularity criterion.
+`Carlson.Elliptic.DuplicationError` uses Mathlib's
+`dist_le_of_le_geometric_of_tendsto` to sum the quadratic arithmetic-mean deficits and
+obtain an explicit `16^(-n)` error bound for Carlson's real duplication iteration.
+
+## Complex duplication and uniform Jacobi growth — 21 October 2026
+
+`ToMathlib.Analysis.Complex.GeometricMean` uses Mathlib's principal-root real-part
+formula `Complex.cpow_inv_two_re`, square-root identities, and norm inequalities.
+`Carlson.Elliptic.ComplexDuplication` combines this real-part bound with the existing
+local duplication identity. Mathlib's `cauchySeq_of_le_geometric`, completeness of
+the complex numbers, and `dist_le_of_le_geometric_of_tendsto` supply convergence and
+an explicit geometric coordinate error bound. Mathlib's `Complex.sq_cpow_two_inv`
+retains the principal-branch normalization of the initial square roots and the limit.
+
+`Carlson.Jacobi.UniformGrowth` uses the existing local uniform saddle asymptotic,
+now with the continuity of its nonvanishing coefficient made explicit. Mathlib's
+extreme-value theorem gives uniform upper and lower coefficient bounds.
+`ToMathlib.Analysis.Asymptotics.UniformRoot` uses Mathlib's continuity of real powers
+and the reciprocal-degree limit to obtain uniform root convergence from geometric bounds.

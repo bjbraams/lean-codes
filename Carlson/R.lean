@@ -35,6 +35,7 @@ public import Carlson.R.ZeroParameter
 public import Carlson.R.IntegerParameters
 public import Carlson.R.AssociatedDependence
 public import Carlson.R.SlitDeriv
+public import Carlson.R.IteratedDeriv
 public import Carlson.R.SlitRelations
 public import Carlson.R.AssociatedExercises
 public import Carlson.R.IntegerReduction

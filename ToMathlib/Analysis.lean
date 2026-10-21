@@ -6,6 +6,7 @@ Authors: Bastiaan J Braams
 module
 
 public import ToMathlib.Analysis.Analytic.PolynomialApproximation
+public import ToMathlib.Analysis.Polynomial.SlowSingularity
 public import ToMathlib.Analysis.Connected
 public import ToMathlib.Analysis.Calculus.MeanWeights
 public import ToMathlib.Analysis.Calculus.IteratedDerivOpen
@@ -39,6 +40,8 @@ public import ToMathlib.Analysis.Fourier.Plancherel
 public import ToMathlib.Analysis.Fourier.Sobolev
 public import ToMathlib.Analysis.Fourier.DiagonalSobolev
 public import ToMathlib.Analysis.Complex.Carlson
+public import ToMathlib.Analysis.Complex.GeometricMean
+public import ToMathlib.Analysis.Asymptotics.UniformRoot
 public import ToMathlib.Analysis.MellinBarnes
 public import ToMathlib.Analysis.SpecialFunctions.RamanujanMaster
 public import ToMathlib.Analysis.AppellSequence
@@ -56,6 +59,10 @@ public import ToMathlib.Analysis.SpecialFunctions.Pow
 public import ToMathlib.Analysis.SpecialFunctions.GammaRatio
 public import ToMathlib.Analysis.SpecialFunctions.LaplaceOneSubCos
 public import ToMathlib.Analysis.SpecialFunctions.GammaBounds
+public import ToMathlib.Analysis.SpecialFunctions.GammaStrictConvex
+public import ToMathlib.Analysis.SpecialFunctions.HypergeometricDivergence
+public import ToMathlib.Analysis.SpecialFunctions.LogarithmicMean
+public import ToMathlib.Analysis.SpecialFunctions.BetaTrigonometric
 public import ToMathlib.Analysis.TaylorBounds
 public import ToMathlib.Analysis.UpperHalfPlaneMaximum
 
@@ -146,6 +153,10 @@ This module re-exports the following developments:
 * `ToMathlib.Analysis.SpecialFunctions.GammaRatio`: The bound `Γ(x)/|Γ(x + iy)| ≤ √(cosh (π y))`
   for `x ≥ 1/2`.
 * `ToMathlib.Analysis.SpecialFunctions.Gamma`: The Gamma integral with a complex Laplace parameter.
+* `ToMathlib.Analysis.SpecialFunctions.LogarithmicMean`: The strict geometric/logarithmic/arithmetic
+  mean inequalities and sharp real and principal-complex-logarithm relative error bounds (§2.6).
+* `ToMathlib.Analysis.SpecialFunctions.BetaTrigonometric`: Convergence and evaluation of the
+  trigonometric beta integral for complex parameters with positive real parts (4.2-3).
 * `ToMathlib.Analysis.SpecialFunctions.Pow`: Elementary power bounds and identities.
 * `ToMathlib.Analysis.SpecialFunctions.GammaBounds`: `|Γ(s)| ≤ Γ(re s)`, monotonicity of
   `Γ(x + r)/Γ(x)`, and `Γ(x) ≤ Γ(y)` for `1 ≤ x ≤ y`, `2 ≤ y`.

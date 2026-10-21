@@ -1,13 +1,15 @@
 # Carlson coverage
 
 Status of the formalization against B. C. Carlson, *Special Functions of Applied Mathematics*
-(Academic Press, 1977), Chapters 3 and 5–9, and against Carlson, *Dirichlet averages of
+(Academic Press, 1977), Chapters 2–9, and against Carlson, *Dirichlet averages of
 x^t log x*, SIAM J. Math. Anal. 18 (1987). The scans are in `Carlson/References/`. Section,
 theorem and equation numbers refer to the book unless stated otherwise.
 
-"Not located" means that no corresponding Lean statement exists in the project. Where a result
-is proved under narrower hypotheses than in the book, the hypotheses are stated. No item is
-represented by an admitted proof. Related documents:
+"Not located" means that the review has not identified a corresponding Lean statement in the
+project or the cited dependency APIs. Where a result is proved under narrower hypotheses than
+in the book, the hypotheses are stated. No item is represented by an admitted proof in the
+proof libraries; the separate registry's intentional placeholders in `Statement.lean` have
+proved counterparts in `Solution.lean`. Related documents:
 
 * [CARLSON_ERRATA.md](CARLSON_ERRATA.md): printed statements found false or needing
   qualification, with counterexamples and the proved corrections.
@@ -33,6 +35,35 @@ represented by an admitted proof. Related documents:
   limits, not by values of the slit-domain function.
 * Index types may be empty; statements that need nonempty index types say so.
 
+## Chapter 2: Appell's symbol and hypergeometric series
+
+The background chapters are not covered exercise by exercise. The following inventory
+distinguishes existing upstream theory from book-specific statements not located in the
+project or the pinned dependencies.
+
+* **§§2.2–2.3.** Natural-order Pochhammer symbols, addition, reflection and duplication,
+  binomial series, and binary and multivariate Vandermonde identities are available in
+  Mathlib and `Pochhammer`. The book's negative integer orders and the identities of
+  Theorem 2.2-2 with arbitrary integer orders are not packaged as an integer-order API.
+* **§2.4.** Mathlib's `regularizedHGFun` supplies general regularized hypergeometric
+  series, termination, entire dependence on the argument when `p ≤ q`, and radius one
+  when `p = q + 1` in the nonterminating case. The project supplies many `₀F₁`, `₁F₁`
+  and `₂F₁` identifications through Chapters 5–7. A systematic inventory of the elementary
+  and polynomial examples and exercises is absent; Appell's `F₁` double series (2.4-25)
+  and its identification in Exercise 6.3-5 are not available.
+  `ToMathlib.Analysis.SpecialFunctions.HypergeometricDivergence` completes the radius
+  classification: in the nonterminating `p > q + 1` case the coefficient ratio tends to
+  infinity, the radius is zero, and the series diverges at every nonzero argument.
+* **§§2.5, 2.7.** Mathlib proves Wallis' product and factorial Stirling asymptotics, with
+  quantitative factorial bounds. The specific half-integer Pochhammer remainder formula
+  of Theorem 2.7-1 and its exercise variants are not stated in the book's form.
+* **§2.6.** `ToMathlib.Analysis.SpecialFunctions.LogarithmicMean` proves Theorems
+  2.6-1–2.6-3: the strict geometric/logarithmic/arithmetic mean comparisons, the sharp
+  two-sided real error bounds and the complex norm bound. The latter uses the principal
+  value of `log (x / y)`, as specified in the book, under `0 < ‖x-y‖ < ‖x+y‖`.
+  The supporting relative-error series and disk-coordinate bounds are also proved.
+  Its geometric exercises have not been systematically identified.
+
 ## Chapter 3: Gamma function foundations
 
 Mathlib supplies most of the chapter; local supplements are in `Pochhammer/` and `ToMathlib/`.
@@ -40,17 +71,46 @@ Mathlib supplies most of the chapter; local supplements are in `Pochhammer/` and
 | Source | Available | Not located |
 | --- | --- | --- |
 | §3.2 integral, recurrence, Pochhammer ratios | Mathlib `Gamma.Basic`, `Gamma.Beta`; `Pochhammer.Gamma` | — |
-| §3.3 holomorphy and poles | Mathlib differentiability and the limit at `0`; one-variable pole, residue and removability criteria in `Dirichlet.GammaPoles` | the packaged simple pole with residue `(-1)ⁿ/n!` at every nonpositive integer as a statement about `Γ` |
+| §3.3 holomorphy and poles | Mathlib differentiability and meromorphy; `Dirichlet.GammaPoles` gives `Γ(c) = GammaPoleFactor n c / (c + n)`, analyticity of the factor, its nonzero value `(-1)ⁿ/n!`, and the corresponding residue limit and removability criteria | no substantive pole/residue gap; a standalone statement about the meromorphic order of `Γ` would be an API addition |
 | §3.4 asymptotic ratio, Euler limit | Mathlib `GammaSeq_tendsto_Gamma` | the ratio asymptotic with fixed complex shifts; the infinite product as a reusable statement |
-| §3.5 log-convexity, Bohr–Mollerup | Mathlib convexity and Bohr–Mollerup | strict log-convexity and its equality consequences |
+| §3.5 log-convexity, Bohr–Mollerup | Mathlib convexity and Bohr–Mollerup; strict log-convexity and strict convexity in `ToMathlib.Analysis.SpecialFunctions.GammaStrictConvex` | — |
 | §3.6 reciprocal Gamma, digamma | Mathlib nonvanishing, entire `1/Γ`, digamma recurrence and values | Weierstrass's product; partial-fraction expansions of digamma |
 | §3.7 duplication | Mathlib | — |
 | §3.8 Stirling | Mathlib factorial Stirling | the logarithmic correction series, sectorial Stirling theorem and Gamma-ratio corollary |
 | §3.9 reflection | Mathlib | — |
-| §3.10 inequalities | Mathlib minimum in `(1, 2)`; `ToMathlib.Analysis.SpecialFunctions.GammaBounds`, `GammaRatio` | uniqueness of the minimum; the chapter's quantitative and complex bounds |
+| §3.10 inequalities | Mathlib minimum in `(1, 2)`; uniqueness in `GammaStrictConvex`; `ToMathlib.Analysis.SpecialFunctions.GammaBounds`, `GammaRatio` | the remaining quantitative and complex bounds |
 | §3.11 Euler measures, rotated rays | real Gamma laws and `Dirichlet.Gamma`; Euler measures and rotated rays for `₂F₀` in `Carlson.T.TwoF0`, `TwoF0Sector` | a general normalized complex Euler functional with moments and total variation |
 
 Most Chapter 3 exercises are not formalized.
+
+## Chapter 4: beta functions and Dirichlet measures
+
+* **§§4.2–4.3.** Mathlib's complex beta integral and Gamma quotient, together with
+  `Pochhammer.BetaIntegral`, `Dirichlet.Beta` and `Dirichlet.Integral`, cover the main
+  one-variable and multivariate beta-integral evaluations, symmetry, integer shifts and
+  simplex normalizations. `ToMathlib.Analysis.SpecialFunctions.BetaTrigonometric` proves
+  convergence and the trigonometric beta integral (4.2-3) for general complex parameters
+  with positive real parts, in both set- and interval-integral notation. The real half-line
+  beta integral is available in pinned TauCeti. `Dirichlet.Beta.Strict` proves Exercises 4.2-3 and 4.3-2:
+  at a fixed positive total parameter, the beta function has its strict minimum at equal
+  parameters. Multiplication specializations and geometric and physical exercises are
+  not systematically covered.
+* **§4.4.** Normalized complex densities and their native integrals, permutation symmetry,
+  moments and holomorphy for continuous simplex kernels are proved in `Dirichlet.Complex`,
+  `Dirichlet.Complex.Analytic` and `Dirichlet.Transform.Laws`. `Dirichlet.Complex.Variation`
+  bundles the normalized density as a complex vector measure and proves (4.4-3), (4.4-4)
+  as an equality of variation measures and an exact total mass, plus the exponential bound
+  of Exercise 4.4-8. Native normalization and finite variation include singleton indices.
+* **Aggregation and multiple-integral reduction.** Real probability aggregation is proved
+  for general kernels; aggregation of entire regularized continuations is also proved
+  (`Dirichlet.Transform.Aggregation`). `Dirichlet.Complex.Aggregation` proves the native
+  complex-parameter statement of Theorem 4.4-3 for merely continuous kernels, without an
+  entire-continuation hypothesis, and the single Euler-integral reduction of Corollary
+  4.4-4. The solid-coordinate Liouville form of Corollary 4.4-5 is not separately packaged.
+* **Exercises.** The `₁F₁` and `₂F₁` integral identifications of Exercise 4.4-2 are supplied
+  by the later Carlson theory. The general hypergeometric parameter-raising integral
+  identities of Exercises 4.4-3–4.4-4 are not located as general statements. The remaining
+  exercises have no complete exercise-by-exercise inventory.
 
 ## Chapter 5: averages of an arbitrary function
 
@@ -63,7 +123,7 @@ Most Chapter 3 exercises are not formalized.
 | 5.6 associated functions | Parameter shift, tangent/backward shift, three-node, multiplication by the argument, 5.6-4, all on the full parameter space (`Dirichlet.Average.ContinuedRelations`) | — |
 | 5.7 power series | Termwise averaging; Taylor representation on a disk with entire-parameter continuation (`RPolynomial.PowerSeries`, `TaylorContinuation`) | conventional hypergeometric notation for general series |
 | 5.8 exponential averages | S: native, entire series, joint entire dependence, derivatives (5.8-2), translation, symmetry, aggregation, zero-parameter deletion, ordinary normalization; (5.8-6) `S(a, b; x, 0) = ₁F₁` (`regCarlsonS_pair_zero_right`); (5.8-23) for `J_μ` | Whittaker and physical special functions |
-| 5.9 power averages | R on the slit domain: joint holomorphy, associated relations, node derivatives, Euler transformation, two-variable interchange; homogeneity (5.9-3) under `arg μ + arg zᵢ ∈ (-π, π)` (`R.Homogeneity`); Exercises 5.9-6 to 5.9-10, 5.9-13; zero-parameter deletion | arbitrary-order continued node derivatives as a general R theorem |
+| 5.9 power averages | R on the slit domain: joint holomorphy, associated relations, arbitrary mixed node derivatives with falling-factorial and multivariate Pochhammer coefficients (`R.IteratedDeriv`), Euler transformation, two-variable interchange; homogeneity (5.9-3) under `arg μ + arg zᵢ ∈ (-π, π)` (`R.Homogeneity`); Exercises 5.9-6 to 5.9-10, 5.9-13; zero-parameter deletion | — |
 | 5.10 confluence | (5.10-1) with complex exponent tending to infinity and the refinement (5.10-9) (`R.Confluence`); 5.10-2 on its native domain | confluence of the continued function at non-convergent parameters |
 | 5.11 Cauchy averages | Resolvent analyticity (5.11-1); 5.11-2 on circles for every derivative order, continued to all parameters; on `C¹` cycles homologous to zero avoiding the node hull, with the index as weight (`Dirichlet.Average.CauchyCycle`) | rectifiable non-`C¹` Jordan curves |
 | 5.12 reciprocal exponential | T: native, joint continuation on the zero-avoiding hull domain, principal slit-plane T-series (`Carlson.T`). `₂F₀`: Definition 5.12-3 (double and single Euler integrals), remainder representation (5.12-10), Theorems 5.12-2, 5.12-4, 5.12-5, error bounds (5.12-15), (5.12-16) and expansion (5.12-17), sectorial continuation (5.12-6) with bounds on closed subsectors, (5.12-7) for `|ph(-x)| < π`, Theorems 5.12-8 (5.12-18) and 5.12-9 (5.12-20), zero-node limit (5.12-2), (5.12-3) | the identifications (5.12-21)–(5.12-28) (Tricomi, Whittaker, parabolic cylinder, Macdonald, Hankel) |
@@ -107,7 +167,7 @@ Notation: `pₙ = jacobiOn α β r s n` (monic, foci `r, s`), `qₙ = jacobiSeco
 | 7.2 biorthogonality | Theorem 7.2-1 on circles and on `C¹` cycles with the index as factor; contour independence; Theorem 7.2-2 at arbitrary complex endpoints with duality | — |
 | 7.3 addition theorems | Gegenbauer polynomials at every parameter and their derivatives; (7.3-7); Theorem 7.3-1 for complex arguments; its Jacobi form; (7.3-11) in both forms (`Jacobi.GegenbauerAddition`) | — |
 | 7.4 asymptotics | Saddle-curve deformation of the Euler integral; Lemma 7.4-1 on `W`; `qₙ(z) ∼ C(4/Λ(z))ⁿ`, `C ≠ 0`, uniformly on compact sets off the segment, all complex parameters (`Jacobi.SaddleLaplace`, `SaddleUniform`), the second-kind part of Corollary 7.4-4; Theorem 7.4-3 uniformly on compact subsets of `W` (`SaddleJoint`); the exact Chebyshev formula (7.4-1) and its dominant-term limit (`PolynomialSaddle`); the obstruction to the printed ratio definition of 7.4-2 (`AsymptoticZeros`, see the errata) | Theorem 7.4-2 and the polynomial part of Corollary 7.4-4 at general parameters |
-| 7.5 convergence | Ellipse geometry, elliptic disks and exteriors, confocal ellipses as `C¹` cycles of index one; Theorem 7.5-1 (pointwise), 7.5-2 (maxima on confocal ellipses), 7.5-3 | the compact-uniform root convergence asserted in 7.5-1; growth is stated by explicit bounds rather than `limsup` |
+| 7.5 convergence | Ellipse geometry, elliptic disks and exteriors, confocal ellipses as `C¹` cycles of index one; Theorem 7.5-1 (pointwise for polynomials, compact-uniform for second-kind functions at all complex parameters in `Jacobi.UniformGrowth`), 7.5-2 (maxima on confocal ellipses), 7.5-3 | the polynomial compact-uniform root convergence asserted in 7.5-1; growth is stated by explicit bounds rather than `limsup` |
 | 7.6 Jacobi series | Lemma 7.6-1 on `μ(x) < μ(y)`; Theorem 7.6-2 on open elliptic disks and general cycles, uniqueness, maximal ellipse of convergence, entire functions; (7.6-8) on circles and confocal ellipses | — |
 | 7.7 applications | Examples 7.7-1 (plane wave with S-coefficients, spherical-Bessel form), 7.7-2 (Fourier cosine, (6)), 7.7-3 ((7)–(10), with `J_m` and `I_m`), 7.7-4 (Gegenbauer's addition theorem for Bessel functions, `Jacobi.BesselExercises`) | — |
 | 7.8 Rodrigues and orthogonality | Rodrigues for real and complex parameters and at complex endpoints; orthogonality and norms for `α, β > -1` and `re α, re β > -1`; Representation 7.8-2 and Theorem 7.8-3 on complex segments; the jump (7.8-5) for all complex parameters (`Jacobi.SecondKindJump`); separate boundary values and principal values for `re α, re β > -1` (`Jacobi.SecondKindPlemelj`); orthogonality deduced from biorthogonality | separate boundary values outside `re α, re β > -1`; endpoint finite parts; branches along contours crossing the segment |
@@ -129,13 +189,13 @@ Notation: `pₙ = jacobiOn α β r s n` (monic, foci `r, s`), `qₙ = jacobiSeco
 | 8.2-14, 8.2-16, 8.2-18, 8.2-20, 8.2-21, Example 8.2-3 | Proved; (8.2-18) for `k² y² < 1` | `carlsonRF_sub_one_self_self`, `integral_Ioo_rsqrt_sn_incomplete_of_mul_lt`, `integral_Ioo_rsqrt_sn_complete`, `snK'_eq`, `bijOn_snV`, `sq_deriv_jacobiSnk` |
 | Doubly periodic continuation of the inverses | Not located | — |
 | Theorems 8.3-1, 8.3-2 | 8.3-2 for all complex `a, b` with `re(a' - bₖ) > 0`, approach through the right half-plane, also jointly in the nodes | `Carlson.R.SmallVariable`, `tendsto_regCarlsonR_update_zero`, `tendsto_regCarlsonR_nhdsWithin_zero` |
-| (8.3-7), Corollary 8.3-3, Theorem 8.3-4 | Proved; 8.3-3 approaching `1` inside the unit disk; 8.3-4 for `re(γ - α - β) > 0` | `regCarlsonR_pair_one_sub_eq_regularizedGaussHGFun`, `tendsto_regularizedGaussHGFun_one`, `hasSum_gaussCoeff`, `ordinaryHypergeometric_one` |
-| (8.3-10); (8.3-13)–(8.3-15) | Not located | — |
+| (8.3-7), Corollary 8.3-3, Theorem 8.3-4 | Proved; 8.3-3 approaching `1` inside the unit disk; 8.3-4 for `re(γ - α - β) > 0`; terminating cases as Pochhammer quotients without that inequality | `regCarlsonR_pair_one_sub_eq_regularizedGaussHGFun`, `tendsto_regularizedGaussHGFun_one`, `hasSum_gaussCoeff`, `ordinaryHypergeometric_one` |
+| (8.3-10); (8.3-13)–(8.3-15) | (8.3-15) proved; connection formula and logarithmic series not located | `digamma_one_sub_half`, `digamma_nat_sub_half` (`Carlson.TwoVariable.LogarithmicCoefficients`) |
 | (8.3-16) | Leading equivalent for fixed positive `x`, `y → 0+` | `isEquivalent_carlsonRK_zero` (`Carlson.Elliptic.Asymptotic`) |
 | (8.3-17) | As a limit, jointly in the variables, also for `x, y` in the slit plane | `tendsto_carlsonRF_zero`, `tendsto_carlsonRF_nhdsWithin_zero`, `tendsto_carlsonRF_zero_of_tendsto_slit` |
 | Relation 8.4-1, Lemma 8.4-2, Theorem 8.4-3 | Proved on slit-plane nodes; 8.4-3 for fixed exponent and parameters | `sum_carlsonAssociatedRecurrencePolynomial_mul_regCarlsonR`, `exists_polynomial_carlsonAssociated_exponent_reduction`, `exists_polynomial_relation_associatedCarlsonR` |
 | Theorem 8.5-1, 8.5 (1), (2) | Log-rational form for all integral `t`, `b` on the slit domain | `isLogRationalOn_regCarlsonR`, `regCarlsonR_tangent_sub`, `regCarlsonR_single_add_single_log` |
-| Theorems 8.5-3, 8.5-4; (8.5-5) | Not stated (they need formal function classes, the branch-point split (8.5-5), and independence of `R_C` and `x^{-1/2}`) | — |
+| Theorems 8.5-3, 8.5-4; (8.5-5) | Elementary-basis independence and the general two-variable half-integral reduction step proved on slit nodes; arbitrary-node classification and branch-point split remain | `carlsonRC_polynomial_independent`, `exists_polynomial_reduction_half_integral`, `exists_polynomial_reduction_half_integral_carlsonR` |
 | Table 8.5-1, Example 8.5-5 | All seven rows, `re x, re y > 0` | `carlsonR_table_row_one` … `_row_seven`, `integral_sqrt_div_sqrt_affine` (`Carlson.TwoVariable.Reduction`) |
 
 | Exercise | Status | Lean / remark |
@@ -181,8 +241,8 @@ Notation: `pₙ = jacobiOn α β r s n` (monic, foci `r, s`), `qₙ = jacobiSeco
 | Algorithm 9.5-2 | `s₀ ≥ 0`, `a₀ > c₀ > 0` | `tendsto_ascLanden`, `tendsto_ascLanden_zero` |
 | Algorithm 9.5-3 | `t₀ ≥ a₀ > c₀ > 0` | `tendsto_descGauss`, `tendsto_descGauss_self` |
 | Theorem 9.6-1 | Whole slit domain; with one variable `0` | `carlsonRF_duplication`, `carlsonRK_duplication` |
-| Algorithm 9.6-2 | Strictly positive real initial values | `tendsto_dupSeq` |
-| Algorithm 9.6-2 for complex initial values; (9.6-9)–(9.6-12) | Not located (a private squared-spread contraction `triSpread_dupStep` is used in the real proof) | — |
+| Algorithm 9.6-2 | Complex right-half-plane initial square roots; also `(x,y,0)` with `re x,re y > 0`, using the boundary value `(π/2) R_K(x²,y²)`; pairwise right-half-plane sums suffice for convergence | `tendsto_complexDupSeq`, `tendsto_complexDupSeq_zero`, `exists_tendsto_complexDupSeq_of_pairwise_re_pos` |
+| (9.6-9)–(9.6-12) | (9.6-9), (9.6-10) proved for complex inputs; explicit complex `4^(-n)` coordinate bounds; (9.6-11) has an explicit real `16^(-n)` error bound; precise (9.6-12) and complex acceleration remain | `complexDupStep_thd_eq`, `complexDupSeq_sq_sub`, `complexDupSeq_dist_limit_le`, `exists_dupMean_error_bound` |
 | Theorem 9.7-1 | Positive `x, y, z, λ, μ`; with `z = 0` as (9.7-17) | `carlsonRF_add_carlsonRF`, `carlsonRF_add_carlsonRF_zero` |
 | 9.7-11, 9.7-12 | On the branch `λμ > f` | `eulerMu`, `eulerMu_spec`, `eq_eulerMu` |
 | Theorem 9.8-1 | `A, …, D, X, Y, Z` with positive real parts; `D = 0`; `X = 0` (then `π R_K(Y², Z²)`) | `carlsonR_quartic_eq_carlsonRF`, `integral_quartic_eq_integral_cubic`, `carlsonR_triple_eq_carlsonRF`, `carlsonR_quartic_eq_carlsonRK` |

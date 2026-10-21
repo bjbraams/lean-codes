@@ -44,6 +44,8 @@ open MeasureTheory
 
 namespace Real
 
+variable {m n p : ℕ}
+
 /-- The integral of a kernel `f : ℝ → ℂ` over the simplex spanned by real nodes. The coordinate
 measure has mass `1 / n!`. -/
 def simplexIntegral (z : Fin (n + 1) → ℝ) (f : ℝ → ℂ) : ℂ :=

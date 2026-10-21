@@ -1,9 +1,9 @@
 # Shared Lean project instructions
 
-These instructions are shared by `lean-CA`, `lean-SCV`, `lean-LCS`, `lean-AAR`,
-`lean-codes`, and `lean-PR`. Each project's root `AGENTS.md` explicitly directs the
-agent to read this file. This file is maintained in `lean-codes`; edit it there
-rather than copying its rules into the other projects.
+These instructions are shared by `lean-CA`, `lean-SCV`, `lean-LCS`, `lean-DLMF`
+(formerly `lean-AAR`), `lean-codes`, and `lean-PR`. Each project's root `AGENTS.md`
+explicitly directs the agent to read this file. This file is maintained in `lean-codes`;
+edit it there rather than copying its rules into the other projects.
 
 Read the current project's `AGENTS.md` as well. Its specific rules and exceptions
 take precedence over these shared defaults. “Project root” below always means the
@@ -27,6 +27,11 @@ When moving to another project, read that project's local instructions too.
 - Without LSP/MCP, treat `lake build` output as the only proof-state evidence.
 - `lake env lean f.lean` uses compiled imports. Rebuild changed upstream modules
   before checking their dependents; a direct file check alone is not a full build.
+- Each `lakefile.toml` sets `autoImplicit = false` and `relaxedAutoImplicit = false` under
+  `[leanOptions]` (the Mathlib convention), so undeclared names are errors rather than
+  auto-bound implicits. Declare every variable explicitly. `lake env lean` does not apply
+  package options: check single files with
+  `lake env lean -DautoImplicit=false -DrelaxedAutoImplicit=false f.lean`.
 
 ## Proof requirements and upstream reuse
 
@@ -71,8 +76,9 @@ When moving to another project, read that project's local instructions too.
 
 ## Validation and completion report
 
-For each changed Lean file, run `lake env lean path/to/File.lean` from the project
-root after building its imports. Also run `git diff --check` and scan affected Lean
+For each changed Lean file, run
+`lake env lean -DautoImplicit=false -DrelaxedAutoImplicit=false path/to/File.lean` from the
+project root after building its imports. Also run `git diff --check` and scan affected Lean
 sources with `rg -n '\bsorry\b' ...`. Retain local axiom-audit and entry-module checks.
 For documentation-only edits, check the documentation and diff; no Lean build is needed.
 

@@ -353,11 +353,18 @@ theorem tendstoUniformlyOn_jacobiSecondKind_div_saddle_shift (α β r s : ℂ) (
   rw [div_pow, div_pow]
   field_simp
 
+/-- The complex saddle scale is continuous off the focal segment. -/
+theorem continuousAt_jacobiSaddleScale {r s z : ℂ} (hz : z ∉ segment ℝ r s) :
+    ContinuousAt (jacobiSaddleScale r s) z := by
+  exact (continuousAt_id.sub continuousAt_const).mul
+    (((continuousAt_jacobiSaddleRatio hz).add continuousAt_const).pow 2)
+
 /-- The compact-uniform relative second-kind asymptotic for arbitrary complex
 Jacobi parameters, with the auxiliary degree shift removed. The same nonzero
 coefficient function works on every compact set off the focal segment. -/
-theorem exists_tendstoUniformlyOn_jacobiSecondKind_div_geometric (α β r s : ℂ) :
-    ∃ C : ℂ → ℂ, (∀ z ∉ segment ℝ r s, C z ≠ 0) ∧
+theorem exists_continuous_tendstoUniformlyOn_jacobiSecondKind_div_geometric (α β r s : ℂ) :
+    ∃ C : ℂ → ℂ, ContinuousOn C (segment ℝ r s)ᶜ ∧
+      (∀ z ∉ segment ℝ r s, C z ≠ 0) ∧
       ∀ K : Set ℂ, IsCompact K → (∀ z ∈ K, z ∉ segment ℝ r s) →
         TendstoUniformlyOn (fun n : ℕ => fun z => jacobiSecondKind α β r s n z /
           (C z * (4 / jacobiSaddleScale r s z) ^ n)) (fun _ => 1) atTop K := by
@@ -371,7 +378,15 @@ theorem exists_tendstoUniformlyOn_jacobiSecondKind_div_geometric (α β r s : �
   let G := fun z => 4 / jacobiSaddleScale r s z
   have hG (z : ℂ) (hz : z ∉ segment ℝ r s) : G z ≠ 0 :=
     div_ne_zero (by norm_num) (jacobiSaddleScale_ne_zero hz)
-  refine ⟨fun z => jacobiSecondKindSaddleCoefficient α β N r s z / G z ^ N,
+  have hC : ContinuousOn (fun z => jacobiSecondKindSaddleCoefficient α β N r s z / G z ^ N)
+      (segment ℝ r s)ᶜ := by
+    intro z hz
+    have hcoef : ContinuousAt (jacobiSecondKindSaddleCoefficient α β N r s) z :=
+      (continuousAt_jacobiSaddleLeading _ _ _ hz).div_const _
+    have hgeom : ContinuousAt G z := continuousAt_const.div
+      (continuousAt_jacobiSaddleScale hz) (jacobiSaddleScale_ne_zero hz)
+    exact (hcoef.div (hgeom.pow N) (pow_ne_zero N (hG z hz))).continuousWithinAt
+  refine ⟨fun z => jacobiSecondKindSaddleCoefficient α β N r s z / G z ^ N, hC,
     fun z hz => div_ne_zero (jacobiSecondKindSaddleCoefficient_ne_zero _ _ _ hz)
       (pow_ne_zero _ (hG z hz)), fun K hK hKs => ?_⟩
   have h := tendstoUniformlyOn_jacobiSecondKind_div_saddle_shift α β r s N hα hβ hK hKs
@@ -386,5 +401,16 @@ theorem exists_tendstoUniformlyOn_jacobiSecondKind_div_geometric (α β r s : �
   change _ / (_ * G z ^ (n - N)) = _ / ((_ / G z ^ N) * G z ^ n)
   rw [← hpow]
   field_simp [hG z (hKs z hz)]
+
+/-- The compact-uniform relative second-kind asymptotic for arbitrary complex parameters.
+The coefficient is nonzero off the focal segment. -/
+theorem exists_tendstoUniformlyOn_jacobiSecondKind_div_geometric (α β r s : ℂ) :
+    ∃ C : ℂ → ℂ, (∀ z ∉ segment ℝ r s, C z ≠ 0) ∧
+      ∀ K : Set ℂ, IsCompact K → (∀ z ∈ K, z ∉ segment ℝ r s) →
+        TendstoUniformlyOn (fun n : ℕ => fun z => jacobiSecondKind α β r s n z /
+          (C z * (4 / jacobiSaddleScale r s z) ^ n)) (fun _ => 1) atTop K := by
+  obtain ⟨C, _, hC, h⟩ :=
+    exists_continuous_tendstoUniformlyOn_jacobiSecondKind_div_geometric α β r s
+  exact ⟨C, hC, h⟩
 
 end Carlson.TwoVariable
