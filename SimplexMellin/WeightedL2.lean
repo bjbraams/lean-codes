@@ -138,7 +138,8 @@ theorem memLp_simplexMellinMeasure {c : ι → ℝ} (hc : ∀ i, 0 < c i)
   have hm := (Convexity.StdSimplex.isClosed_coordinateSet ℝ ι).measurableSet
   have hgm := hg.aestronglyMeasurable (μ := simplexMellinMeasure c hc) hm
   rw [simplexMellinMeasure_restrict] at hgm
-  obtain ⟨C, hC⟩ := (Convexity.StdSimplex.isCompact_coordinateSet ℝ ι).exists_bound_of_continuousOn hg
+  obtain ⟨C, hC⟩ := (Convexity.StdSimplex.isCompact_coordinateSet ℝ ι).exists_bound_of_continuousOn
+    hg
   apply MemLp.of_bound hgm C
   have hmem : ∀ᵐ u ∂simplexMellinMeasure c hc,
       u ∈ Convexity.StdSimplex.coordinateSet ℝ ι := by
@@ -318,7 +319,8 @@ theorem exists_schwartz_approximation_simplexMellinL2 {c : ι → ℝ} (hc : ∀
     ∃ S : ℕ → SchwartzMap (ι → ℝ) ℂ,
       Filter.Tendsto (fun n => (S n).toLp 2 (simplexMellinMeasure c hc))
         Filter.atTop (nhds g) ∧
-      Filter.Tendsto (fun n => simplexMellinL2Isometry hc ((S n).toLp 2 (simplexMellinMeasure c hc)))
+      Filter.Tendsto (fun n => simplexMellinL2Isometry hc ((S n).toLp 2 (simplexMellinMeasure c
+        hc)))
         Filter.atTop (nhds (simplexMellinL2Isometry hc g)) := by
   have hmem := (SchwartzMap.denseRange_toLpCLM (E := ι → ℝ) (F := ℂ)
     (p := 2) (μ := simplexMellinMeasure c hc) ENNReal.ofNat_ne_top).closure_range ▸ Set.mem_univ g

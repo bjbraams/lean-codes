@@ -398,7 +398,8 @@ theorem smoothNearStdSimplex_logRatioKernel (i₀ : ι) (s : ℂ) {ψ : ({j : ι
       have hcoords : ContDiffAt ℝ ∞ (logRatioCoords i₀) u := by
         refine contDiffAt_pi.mpr fun j => ?_
         exact (ContDiffAt.div (f := fun x : ι → ℝ => x j) (g := fun x : ι → ℝ => x i₀)
-          (contDiff_apply ℝ (fun _ => ℝ) (j : ι)).contDiffAt (contDiff_apply ℝ (fun _ => ℝ) i₀).contDiffAt
+          (contDiff_apply ℝ (fun _ => ℝ) (j : ι)).contDiffAt (contDiff_apply ℝ (fun _ => ℝ)
+            i₀).contDiffAt
           (hpos i₀).ne').log (div_pos (hpos j) (hpos i₀)).ne'
       have hZ : ContDiffAt ℝ ∞ (fun x => logRatioZ i₀ (logRatioCoords i₀ x)) u := by
         simp only [logRatioZ, piExp]

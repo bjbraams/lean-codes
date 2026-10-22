@@ -43,20 +43,24 @@ project or the pinned dependencies.
 
 * **§§2.2–2.3.** Natural-order Pochhammer symbols, addition, reflection and duplication,
   binomial series, and binary and multivariate Vandermonde identities are available in
-  Mathlib and `Pochhammer`. The book's negative integer orders and the identities of
-  Theorem 2.2-2 with arbitrary integer orders are not packaged as an integer-order API.
+  Mathlib and `Pochhammer`. `ToMathlib.Algebra.Polynomial.IntegerPochhammer` supplies
+  negative integer orders and all three identities of Theorem 2.2-2. Its domain predicate
+  excludes negative-order poles while allowing natural-order zeros.
 * **§2.4.** Mathlib's `regularizedHGFun` supplies general regularized hypergeometric
   series, termination, entire dependence on the argument when `p ≤ q`, and radius one
   when `p = q + 1` in the nonterminating case. The project supplies many `₀F₁`, `₁F₁`
   and `₂F₁` identifications through Chapters 5–7. A systematic inventory of the elementary
-  and polynomial examples and exercises is absent; Appell's `F₁` double series (2.4-25)
-  and its identification in Exercise 6.3-5 are not available.
+  and polynomial examples and exercises is absent. `ToMathlib.Analysis.SpecialFunctions.AppellF1`
+  supplies the absolutely convergent double series (2.4-25) on the unit bidisk, including
+  regularization at exceptional denominator parameters. `Carlson.TwoVariable.AppellF1`
+  identifies it with the three-node R-function for all complex parameters (Exercise 6.3-5).
   `ToMathlib.Analysis.SpecialFunctions.HypergeometricDivergence` completes the radius
   classification: in the nonterminating `p > q + 1` case the coefficient ratio tends to
   infinity, the radius is zero, and the series diverges at every nonzero argument.
 * **§§2.5, 2.7.** Mathlib proves Wallis' product and factorial Stirling asymptotics, with
-  quantitative factorial bounds. The specific half-integer Pochhammer remainder formula
-  of Theorem 2.7-1 and its exercise variants are not stated in the book's form.
+  quantitative factorial bounds. `ToMathlib.Analysis.SpecialFunctions.PochhammerStirling`
+  proves the exact half-integer remainder formula of Theorem 2.7-1, with `0 < θ < 1`
+  for every positive integer order. Its exercise variants are not systematically covered.
 * **§2.6.** `ToMathlib.Analysis.SpecialFunctions.LogarithmicMean` proves Theorems
   2.6-1–2.6-3: the strict geometric/logarithmic/arithmetic mean comparisons, the sharp
   two-sided real error bounds and the complex norm bound. The latter uses the principal
@@ -72,9 +76,9 @@ Mathlib supplies most of the chapter; local supplements are in `Pochhammer/` and
 | --- | --- | --- |
 | §3.2 integral, recurrence, Pochhammer ratios | Mathlib `Gamma.Basic`, `Gamma.Beta`; `Pochhammer.Gamma` | — |
 | §3.3 holomorphy and poles | Mathlib differentiability and meromorphy; `Dirichlet.GammaPoles` gives `Γ(c) = GammaPoleFactor n c / (c + n)`, analyticity of the factor, its nonzero value `(-1)ⁿ/n!`, and the corresponding residue limit and removability criteria | no substantive pole/residue gap; a standalone statement about the meromorphic order of `Γ` would be an API addition |
-| §3.4 asymptotic ratio, Euler limit | Mathlib `GammaSeq_tendsto_Gamma` | the ratio asymptotic with fixed complex shifts; the infinite product as a reusable statement |
+| §3.4 asymptotic ratio, Euler limit | Mathlib `GammaSeq_tendsto_Gamma`; `GammaAsymptotic` proves Theorem 3.4-1 for arbitrary fixed complex shifts along real arguments tending to infinity | Euler's infinite-product formula (3.4-6) is not separately packaged |
 | §3.5 log-convexity, Bohr–Mollerup | Mathlib convexity and Bohr–Mollerup; strict log-convexity and strict convexity in `ToMathlib.Analysis.SpecialFunctions.GammaStrictConvex` | — |
-| §3.6 reciprocal Gamma, digamma | Mathlib nonvanishing, entire `1/Γ`, digamma recurrence and values | Weierstrass's product; partial-fraction expansions of digamma |
+| §3.6 reciprocal Gamma, digamma | Mathlib nonvanishing, entire `1/Γ`, recurrence and values; `GammaProduct` proves convergence of the ordered Weierstrass products at every complex parameter; `DigammaSeries` proves both (3.6-9) and (3.6-12) at every nonpole parameter | — |
 | §3.7 duplication | Mathlib | — |
 | §3.8 Stirling | Mathlib factorial Stirling | the logarithmic correction series, sectorial Stirling theorem and Gamma-ratio corollary |
 | §3.9 reflection | Mathlib | — |
@@ -106,11 +110,15 @@ Most Chapter 3 exercises are not formalized.
   (`Dirichlet.Transform.Aggregation`). `Dirichlet.Complex.Aggregation` proves the native
   complex-parameter statement of Theorem 4.4-3 for merely continuous kernels, without an
   entire-continuation hypothesis, and the single Euler-integral reduction of Corollary
-  4.4-4. The solid-coordinate Liouville form of Corollary 4.4-5 is not separately packaged.
+  4.4-4. `Dirichlet.Complex.Liouville` proves the solid-coordinate reduction of Corollary
+  4.4-5 for positive-real-part complex parameters and continuous kernels on `[0, 1]`.
 * **Exercises.** The `₁F₁` and `₂F₁` integral identifications of Exercise 4.4-2 are supplied
-  by the later Carlson theory. The general hypergeometric parameter-raising integral
-  identities of Exercises 4.4-3–4.4-4 are not located as general statements. The remaining
-  exercises have no complete exercise-by-exercise inventory.
+  by the later Carlson theory. `Dirichlet.Complex.HypergeometricBeta` proves the double-beta
+  `₃F₂` identity of Exercise 4.4-3 on the unit disk. `ToMathlib.Analysis.SpecialFunctions.HypergeometricBeta`
+  proves both parameter-raising formulas of Exercise 4.4-4 for arbitrary numerator and
+  denominator multisets, with positive-real-part endpoint parameters and the argument in
+  the original series' convergence ball. Regularized functions include exceptional
+  denominator parameters. The remaining exercises have no complete exercise-by-exercise inventory.
 
 ## Chapter 5: averages of an arbitrary function
 

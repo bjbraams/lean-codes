@@ -177,19 +177,10 @@ theorem exists_lower_bound_of_perturbed_recurrence {u v : ℂ} (hvu : ‖v‖ < 
   obtain ⟨N, hN⟩ := hrec η hη0
   set d : ℕ → ℂ := fun n => y (n + 1) - u * y n
   set g : ℕ → ℂ := fun n => y (n + 1) - v * y n
-  have hyn (n : ℕ) : ‖y n‖ ≤ (‖d n‖ + ‖g n‖) / ‖u - v‖ := by
-    rw [le_div_iff₀ hw, ← norm_mul]
-    calc
-      _ = ‖g n - d n‖ := by congr 1; simp only [d, g]; ring
-      _ ≤ _ := (norm_sub_le _ _).trans_eq (add_comm _ _)
-  have hyn1 (n : ℕ) : ‖y (n + 1)‖ ≤ ‖u‖ * (‖d n‖ + ‖g n‖) / ‖u - v‖ := by
-    rw [le_div_iff₀ hw, ← norm_mul]
-    calc
-      _ = ‖u * g n - v * d n‖ := by congr 1; simp only [d, g]; ring
-      _ ≤ ‖u‖ * ‖g n‖ + ‖v‖ * ‖d n‖ := by
-        refine (norm_sub_le _ _).trans ?_; rw [norm_mul, norm_mul]
-      _ ≤ ‖u‖ * ‖g n‖ + ‖u‖ * ‖d n‖ := by gcongr
-      _ = _ := by ring
+  have hyn (n : ℕ) : ‖y n‖ ≤ (‖d n‖ + ‖g n‖) / ‖u - v‖ :=
+    (norm_le_root_component_sum huv hvu.le).1
+  have hyn1 (n : ℕ) : ‖y (n + 1)‖ ≤ ‖u‖ * (‖d n‖ + ‖g n‖) / ‖u - v‖ :=
+    (norm_le_root_component_sum huv hvu.le).2
   have he (n : ℕ) (hn : N ≤ n) :
       ‖y (n + 2) - (u + v) * y (n + 1) + u * v * y n‖ ≤ η * κ * (‖d n‖ + ‖g n‖) := by
     refine (hN n hn).trans ?_
@@ -211,26 +202,14 @@ theorem exists_lower_bound_of_perturbed_recurrence {u v : ℂ} (hvu : ‖v‖ < 
     have hq0 : 0 ≤ q := by linarith
     have hstep (n : ℕ) (hn : N ≤ n) (h : ‖d n‖ ≤ ‖g n‖) :
         ‖d (n + 1)‖ ≤ ‖g (n + 1)‖ ∧ q * ‖g n‖ ≤ ‖g (n + 1)‖ := by
-      have heb : ‖e n‖ ≤ 2 * η * κ * ‖g n‖ := by
-        have := he n hn
-        have hηκ : 0 ≤ η * κ := by positivity
-        calc
-          ‖e n‖ ≤ η * κ * (‖d n‖ + ‖g n‖) := this
-          _ ≤ η * κ * (‖g n‖ + ‖g n‖) := by gcongr
-          _ = _ := by ring
-      have hdn : ‖d (n + 1)‖ ≤ (‖v‖ + 2 * η * κ) * ‖g n‖ := by
-        rw [hd1]
-        calc
-          _ ≤ ‖v‖ * ‖d n‖ + ‖e n‖ := (norm_add_le _ _).trans (by rw [norm_mul])
-          _ ≤ ‖v‖ * ‖g n‖ + 2 * η * κ * ‖g n‖ := by gcongr
-          _ = _ := by ring
-      have hgn : q * ‖g n‖ ≤ ‖g (n + 1)‖ := by
-        rw [hg1]
-        have := norm_sub_norm_le (u * g n) (-(e n))
-        simp only [sub_neg_eq_add, norm_neg, norm_mul] at this
-        change q * ‖g n‖ ≤ ‖u * g n + e n‖
-        nlinarith
-      exact ⟨hdn.trans ((mul_le_mul_of_nonneg_right hqv (norm_nonneg _)).trans hgn), hgn⟩
+      have hgap : ‖v‖ + 2 * (η * κ) ≤ ‖u‖ - 2 * (η * κ) := by linarith
+      have he' : ‖e n‖ ≤ η * κ * (‖g n‖ + ‖d n‖) := by
+        rw [add_comm (‖g n‖) (‖d n‖)]
+        exact he n hn
+      have hd : v * d n + e n = d (n + 1) := (hd1 n).symm
+      have hg : u * g n + e n = g (n + 1) := (hg1 n).symm
+      simpa only [q, mul_assoc, hd, hg] using
+        perturbed_recurrence_cone_step (by positivity) hgap h he'
     have hind : ∀ j, ‖d (n₀ + j)‖ ≤ ‖g (n₀ + j)‖ ∧ ‖g n₀‖ * q ^ j ≤ ‖g (n₀ + j)‖ := by
       intro j
       induction j with

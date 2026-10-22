@@ -1,13 +1,13 @@
 # Synopsis: Pochhammer symbols, Gamma, beta and incomplete Mellin transforms (`Pochhammer`)
 
 Part of the [mathematical synopsis](SYNOPSIS.md) of the project. This library depends only on
-Mathlib and the pinned TauCeti library. It collects the scalar facts about rising factorials,
+Mathlib, the pinned TauCeti library and the scalar `ToMathlib` support. It collects the scalar facts about rising factorials,
 the Gamma and beta functions and one-variable Mellin-type integrals that the simplex and
 Dirichlet theories need.
 
 Notation: $(a)_n = a(a+1)\cdots(a+n-1)$ is the rising factorial (Mathlib's `ascPochhammer`).
-All algebraic identities below are division-free, so they remain valid at zeros of the
-symbols.
+The natural-order polynomial identities are division-free, so they remain valid at zeros
+of the symbols.
 
 ## Algebraic identities
 
@@ -19,6 +19,11 @@ symbols.
   $(\sum_i a_i)_n = \sum_{|m| = n}\binom nm\prod_i (a_i)_{m_i}$. (Mathlib records these for falling
   factorials.)
 * $(a)_n/n!$ is the binomial-ring coefficient `Ring.multichoose a n` in characteristic zero.
+
+The re-exported `ToMathlib.Algebra.Polynomial.IntegerPochhammer` extends the order to
+$n\in\mathbb Z$, with $(a)_{-m}=1/(a-m)_m$ and an explicit predicate excluding
+negative-order poles. Addition, reflection and duplication are proved for arbitrary
+integer orders (Carlson, Theorem 2.2-2); natural orders may have zeros.
 
 ## The Pochhammer polynomial transform
 
@@ -34,7 +39,10 @@ multiplication by $X$ with the shift $X \mapsto X + 1$.
 $|(a)_n| \le (|a|)_n$; $|(a)_n| \le n!\,(1 + |a|)^n$ and related factorial-geometric bounds;
 a common bound for products of prescribed total degree; power lower bounds from a lower bound on
 $\operatorname{Re} a$; $(a)_n \ne 0$ for $\operatorname{Re} a > 0$; comparison of $(1/2)_n$ with
-factorials.
+factorials. The support module `ToMathlib.Analysis.SpecialFunctions.PochhammerStirling`
+proves the exact formula
+$$(1/2)_n=\sqrt2\,n^n\exp(-n-\theta/(24n)),\qquad 0<\theta<1,$$
+for every $n>0$ (Carlson, Theorem 2.7-1).
 
 ## Binomial series
 

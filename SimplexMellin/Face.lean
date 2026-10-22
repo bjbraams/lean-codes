@@ -51,24 +51,126 @@ open scoped Topology
 
 namespace Complex
 
+/-- The reciprocal Gamma factor in the normalized Mellin kernel tends to one. -/
+private theorem tendsto_inv_Gamma_add_one_nhdsGT_zero :
+    Tendsto (fun ε : ℝ => (Gamma ((ε : ℂ) + 1))⁻¹) (𝓝[>] 0) (𝓝 1) := by
+  have hc : Continuous (fun ε : ℝ => (Gamma ((ε : ℂ) + 1))⁻¹) := by
+    have := differentiable_one_div_Gamma.continuous.comp
+      (continuous_ofReal.add (continuous_const (y := (1 : ℂ))))
+    simpa [Function.comp_def, one_div] using this
+  have := hc.tendsto 0
+  simp only [ofReal_zero, zero_add, Gamma_one, inv_one] at this
+  exact this.mono_left nhdsWithin_le_nhds
+
+/-- The contribution of `h(t) - h(0)` to the normalized Mellin integral vanishes.
+The near-zero estimate uses continuity, and the complement uses a uniform bound. -/
+private theorem tendsto_incompleteMellin_zero_remainder {h : ℝ → ℂ}
+    (hh : ContinuousOn h (Icc 0 1)) : Tendsto (fun ε : ℝ => (ε : ℂ) * (Gamma ((ε : ℂ) + 1))⁻¹ *
+      ∫ t in Icc (0 : ℝ) 1, (t : ℂ) ^ ((ε : ℂ) - 1) * (h t - h 0)) (𝓝[>] 0) (𝓝 0) := by
+  have h0mem : (0 : ℝ) ∈ Icc (0 : ℝ) 1 := ⟨le_rfl, zero_le_one⟩
+  obtain ⟨M, hM⟩ := isCompact_Icc.exists_bound_of_continuousOn
+    (hh.sub continuousOn_const : ContinuousOn (fun t => h t - h 0) (Icc 0 1))
+  have hM0 : 0 ≤ M := (norm_nonneg _).trans (hM 0 h0mem)
+  have hrecip := tendsto_inv_Gamma_add_one_nhdsGT_zero
+  rw [Metric.tendsto_nhds]
+  intro η hη
+  -- Choose `δ` such that `‖h t - h 0‖ ≤ η / 8` on `[0, δ]`.
+  have hc0 : ContinuousWithinAt h (Icc 0 1) 0 := hh 0 h0mem
+  obtain ⟨δ₀, hδ₀, hδ⟩ := Metric.continuousWithinAt_iff.mp hc0 (η / 8) (by positivity)
+  set δ := min (δ₀ / 2) (1 / 2) with hδ_def
+  have hδpos : 0 < δ := by positivity
+  have hδ1 : δ ≤ 1 / 2 := min_le_right _ _
+  have hnear : ∀ t ∈ Icc (0 : ℝ) 1, t ≤ δ → ‖h t - h 0‖ ≤ η / 8 := by
+    intro t ht htδ
+    have := hδ ht (by
+      rw [Real.dist_eq, sub_zero, abs_of_nonneg ht.1]
+      exact lt_of_le_of_lt htδ (lt_of_le_of_lt (min_le_left _ _) (by linarith)))
+    rw [dist_eq_norm] at this
+    exact this.le
+  have hev1 := hrecip.eventually (Metric.ball_mem_nhds (1 : ℂ) (by norm_num : (0 : ℝ) < 1))
+  have hev2 : ∀ᶠ ε : ℝ in 𝓝[>] (0 : ℝ), ε < min 1 (η * δ / (8 * (M + 1))) := by
+    filter_upwards [Ioo_mem_nhdsGT (show (0 : ℝ) < min 1 (η * δ / (8 * (M + 1))) by
+      positivity)] with ε hε using hε.2
+  filter_upwards [hev1, hev2, self_mem_nhdsWithin] with ε h1 h2 (hε : 0 < ε)
+  have hεre : 0 < ((ε : ℂ)).re := by simpa using hε
+  have hε1 : ε < 1 := lt_of_lt_of_le h2 (min_le_left _ _)
+  have hΓbound : ‖(Gamma ((ε : ℂ) + 1))⁻¹‖ ≤ 2 := by
+    have := mem_ball_iff_norm.mp h1
+    calc ‖(Gamma ((ε : ℂ) + 1))⁻¹‖ ≤ ‖(Gamma ((ε : ℂ) + 1))⁻¹ - 1‖ + ‖(1 : ℂ)‖ :=
+          norm_le_norm_sub_add ((Gamma ((ε : ℂ) + 1))⁻¹) 1
+      _ ≤ 2 := by rw [norm_one]; linarith
+  -- Pointwise bound for the integrand.
+  have hbound : ∀ t ∈ Icc (0 : ℝ) 1,
+      ‖(t : ℂ) ^ ((ε : ℂ) - 1) * (h t - h 0)‖ ≤
+        η / 8 * ‖(t : ℂ) ^ ((ε : ℂ) - 1)‖ + M / δ := by
+    intro t ht
+    rw [norm_mul]
+    by_cases htδ : t ≤ δ
+    · have := hnear t ht htδ
+      nlinarith [norm_nonneg ((t : ℂ) ^ ((ε : ℂ) - 1)), div_nonneg hM0 hδpos.le]
+    · push Not at htδ
+      have htpos : 0 < t := hδpos.trans htδ
+      have hnorm : ‖(t : ℂ) ^ ((ε : ℂ) - 1)‖ = t ^ (ε - 1) := by
+        rw [show ((ε : ℂ) - 1) = ((ε - 1 : ℝ) : ℂ) by push_cast; ring,
+          ← ofReal_cpow htpos.le, norm_real, Real.norm_eq_abs,
+          abs_of_pos (Real.rpow_pos_of_pos htpos _)]
+      have hle : t ^ (ε - 1) ≤ 1 / δ := by
+        calc t ^ (ε - 1) ≤ δ ^ (ε - 1) :=
+              Real.rpow_le_rpow_of_nonpos hδpos htδ.le (by linarith)
+          _ ≤ δ ^ (-1 : ℝ) := Real.rpow_le_rpow_of_exponent_ge hδpos (by linarith) (by linarith)
+          _ = 1 / δ := by rw [Real.rpow_neg_one, one_div]
+      have := hM t ht
+      calc ‖(t : ℂ) ^ ((ε : ℂ) - 1)‖ * ‖h t - h 0‖ ≤ (1 / δ) * M := by
+            rw [hnorm]
+            exact mul_le_mul hle this (norm_nonneg _) (by positivity)
+        _ = M / δ := by ring
+        _ ≤ η / 8 * ‖(t : ℂ) ^ ((ε : ℂ) - 1)‖ + M / δ := le_add_of_nonneg_left (by positivity)
+  have hintb : IntegrableOn (fun t : ℝ => η / 8 * ‖(t : ℂ) ^ ((ε : ℂ) - 1)‖ + M / δ)
+      (Icc 0 1) := by
+    refine Integrable.add ?_ (integrableOn_const (by simp) (by simp))
+    exact ((integrableOn_cpow_Icc hεre zero_le_one).norm.const_mul _)
+  have hnormint : ∫ t in Icc (0 : ℝ) 1, ‖(t : ℂ) ^ ((ε : ℂ) - 1)‖ = 1 / ε := by
+    have : ∀ t ∈ Icc (0 : ℝ) 1, ‖(t : ℂ) ^ ((ε : ℂ) - 1)‖ = t ^ (ε - 1) := by
+      intro t ht
+      rw [show ((ε : ℂ) - 1) = ((ε - 1 : ℝ) : ℂ) by push_cast; ring,
+        ← ofReal_cpow ht.1, norm_real, Real.norm_eq_abs,
+        abs_of_nonneg (Real.rpow_nonneg ht.1 _)]
+    rw [setIntegral_congr_fun measurableSet_Icc this, integral_Icc_eq_integral_Ioc,
+      ← intervalIntegral.integral_of_le zero_le_one, integral_rpow (Or.inl (by linarith))]
+    simp [Real.zero_rpow hε.ne']
+  have hI : ‖∫ t in Icc (0 : ℝ) 1, (t : ℂ) ^ ((ε : ℂ) - 1) * (h t - h 0)‖ ≤
+      η / 8 * (1 / ε) + M / δ := by
+    calc _ ≤ ∫ t in Icc (0 : ℝ) 1, (η / 8 * ‖(t : ℂ) ^ ((ε : ℂ) - 1)‖ + M / δ) :=
+          MeasureTheory.norm_integral_le_of_norm_le hintb
+            ((ae_restrict_iff' measurableSet_Icc).mpr (Eventually.of_forall hbound))
+      _ = η / 8 * (1 / ε) + M / δ := by
+        rw [integral_add ((integrableOn_cpow_Icc hεre zero_le_one).norm.const_mul _)
+          (integrableOn_const (by simp) (by simp)), integral_const_mul, hnormint,
+          setIntegral_const]
+        simp
+  rw [dist_zero_right, norm_mul, norm_mul, norm_real, Real.norm_eq_abs, abs_of_pos hε]
+  calc ε * ‖(Gamma ((ε : ℂ) + 1))⁻¹‖ *
+        ‖∫ t in Icc (0 : ℝ) 1, (t : ℂ) ^ ((ε : ℂ) - 1) * (h t - h 0)‖
+      ≤ ε * 2 * (η / 8 * (1 / ε) + M / δ) :=
+        mul_le_mul (mul_le_mul_of_nonneg_left hΓbound hε.le) hI (norm_nonneg _)
+          (by positivity)
+    _ = η / 4 + 2 * ε * (M / δ) := by field_simp; ring
+    _ < η := by
+        have hε' : ε < η * δ / (8 * (M + 1)) := lt_of_lt_of_le h2 (min_le_right _ _)
+        have : 2 * ε * (M / δ) < η / 4 + η / 4 := by
+          have hMδ : M / δ ≤ (M + 1) / δ := by gcongr; linarith
+          calc 2 * ε * (M / δ) ≤ 2 * ε * ((M + 1) / δ) := by gcongr
+            _ < 2 * (η * δ / (8 * (M + 1))) * ((M + 1) / δ) := by gcongr
+            _ = η / 4 := by field_simp; ring
+            _ < η / 4 + η / 4 := by linarith
+        linarith
+
 /-- The regularized incomplete Mellin transform of a function continuous on `[0, 1]` tends to the
 value of the function at zero as the exponent tends to zero from the right. This is the statement
 that `t₊^(ε-1)/Γ(ε)` tends to the Dirac measure at zero. -/
 theorem tendsto_regIncompleteMellin_nhdsGT_zero {h : ℝ → ℂ} (hh : ContinuousOn h (Icc 0 1)) :
     Tendsto (fun ε : ℝ => regIncompleteMellin (ε : ℂ) 1 h) (𝓝[>] 0) (𝓝 (h 0)) := by
-  have h0mem : (0 : ℝ) ∈ Icc (0 : ℝ) 1 := ⟨le_rfl, zero_le_one⟩
-  obtain ⟨M, hM⟩ := isCompact_Icc.exists_bound_of_continuousOn
-    (hh.sub continuousOn_const : ContinuousOn (fun t => h t - h 0) (Icc 0 1))
-  have hM0 : 0 ≤ M := (norm_nonneg _).trans (hM 0 h0mem)
-  -- The reciprocal of `Γ(ε + 1)` tends to one.
-  have hrecip : Tendsto (fun ε : ℝ => (Gamma ((ε : ℂ) + 1))⁻¹) (𝓝[>] 0) (𝓝 1) := by
-    have hc : Continuous (fun ε : ℝ => (Gamma ((ε : ℂ) + 1))⁻¹) := by
-      have := differentiable_one_div_Gamma.continuous.comp
-        (continuous_ofReal.add (continuous_const (y := (1 : ℂ))))
-      simpa [Function.comp_def, one_div] using this
-    have := hc.tendsto 0
-    simp only [ofReal_zero, zero_add, Gamma_one, inv_one] at this
-    exact this.mono_left nhdsWithin_le_nhds
+  have hrecip := tendsto_inv_Gamma_add_one_nhdsGT_zero
   -- Split off the value at zero.
   have hsplit : ∀ᶠ ε : ℝ in 𝓝[>] (0 : ℝ), regIncompleteMellin (ε : ℂ) 1 h =
       (Gamma ((ε : ℂ) + 1))⁻¹ * h 0 +
@@ -94,100 +196,7 @@ theorem tendsto_regIncompleteMellin_nhdsGT_zero {h : ℝ → ℂ} (hh : Continuo
     have hΓ : Gamma (ε : ℂ) ≠ 0 := Gamma_ne_zero_of_re_pos hεre
     field_simp
   -- The remainder tends to zero.
-  have hrem : Tendsto (fun ε : ℝ => (ε : ℂ) * (Gamma ((ε : ℂ) + 1))⁻¹ *
-      ∫ t in Icc (0 : ℝ) 1, (t : ℂ) ^ ((ε : ℂ) - 1) * (h t - h 0)) (𝓝[>] 0) (𝓝 0) := by
-    rw [Metric.tendsto_nhds]
-    intro η hη
-    -- Choose `δ` such that `‖h t - h 0‖ ≤ η / 8` on `[0, δ]`.
-    have hc0 : ContinuousWithinAt h (Icc 0 1) 0 := hh 0 h0mem
-    obtain ⟨δ₀, hδ₀, hδ⟩ := Metric.continuousWithinAt_iff.mp hc0 (η / 8) (by positivity)
-    set δ := min (δ₀ / 2) (1 / 2) with hδ_def
-    have hδpos : 0 < δ := by positivity
-    have hδ1 : δ ≤ 1 / 2 := min_le_right _ _
-    have hnear : ∀ t ∈ Icc (0 : ℝ) 1, t ≤ δ → ‖h t - h 0‖ ≤ η / 8 := by
-      intro t ht htδ
-      have := hδ ht (by
-        rw [Real.dist_eq, sub_zero, abs_of_nonneg ht.1]
-        exact lt_of_le_of_lt htδ (lt_of_le_of_lt (min_le_left _ _) (by linarith)))
-      rw [dist_eq_norm] at this
-      exact this.le
-    have hev1 := hrecip.eventually (Metric.ball_mem_nhds (1 : ℂ) (by norm_num : (0 : ℝ) < 1))
-    have hev2 : ∀ᶠ ε : ℝ in 𝓝[>] (0 : ℝ), ε < min 1 (η * δ / (8 * (M + 1))) := by
-      filter_upwards [Ioo_mem_nhdsGT (show (0 : ℝ) < min 1 (η * δ / (8 * (M + 1))) by
-        positivity)] with ε hε using hε.2
-    filter_upwards [hev1, hev2, self_mem_nhdsWithin] with ε h1 h2 (hε : 0 < ε)
-    have hεre : 0 < ((ε : ℂ)).re := by simpa using hε
-    have hε1 : ε < 1 := lt_of_lt_of_le h2 (min_le_left _ _)
-    have hΓbound : ‖(Gamma ((ε : ℂ) + 1))⁻¹‖ ≤ 2 := by
-      have := mem_ball_iff_norm.mp h1
-      calc ‖(Gamma ((ε : ℂ) + 1))⁻¹‖ ≤ ‖(Gamma ((ε : ℂ) + 1))⁻¹ - 1‖ + ‖(1 : ℂ)‖ :=
-            norm_le_norm_sub_add ((Gamma ((ε : ℂ) + 1))⁻¹) 1
-        _ ≤ 2 := by rw [norm_one]; linarith
-    -- Pointwise bound for the integrand.
-    have hbound : ∀ t ∈ Icc (0 : ℝ) 1,
-        ‖(t : ℂ) ^ ((ε : ℂ) - 1) * (h t - h 0)‖ ≤
-          η / 8 * ‖(t : ℂ) ^ ((ε : ℂ) - 1)‖ + M / δ := by
-      intro t ht
-      rw [norm_mul]
-      by_cases htδ : t ≤ δ
-      · have := hnear t ht htδ
-        nlinarith [norm_nonneg ((t : ℂ) ^ ((ε : ℂ) - 1)), div_nonneg hM0 hδpos.le]
-      · push Not at htδ
-        have htpos : 0 < t := hδpos.trans htδ
-        have hnorm : ‖(t : ℂ) ^ ((ε : ℂ) - 1)‖ = t ^ (ε - 1) := by
-          rw [show ((ε : ℂ) - 1) = ((ε - 1 : ℝ) : ℂ) by push_cast; ring,
-            ← ofReal_cpow htpos.le, norm_real, Real.norm_eq_abs,
-            abs_of_pos (Real.rpow_pos_of_pos htpos _)]
-        have hle : t ^ (ε - 1) ≤ 1 / δ := by
-          calc t ^ (ε - 1) ≤ δ ^ (ε - 1) :=
-                Real.rpow_le_rpow_of_nonpos hδpos htδ.le (by linarith)
-            _ ≤ δ ^ (-1 : ℝ) := Real.rpow_le_rpow_of_exponent_ge hδpos (by linarith) (by linarith)
-            _ = 1 / δ := by rw [Real.rpow_neg_one, one_div]
-        have := hM t ht
-        calc ‖(t : ℂ) ^ ((ε : ℂ) - 1)‖ * ‖h t - h 0‖ ≤ (1 / δ) * M := by
-              rw [hnorm]
-              exact mul_le_mul hle this (norm_nonneg _) (by positivity)
-          _ = M / δ := by ring
-          _ ≤ η / 8 * ‖(t : ℂ) ^ ((ε : ℂ) - 1)‖ + M / δ := le_add_of_nonneg_left (by positivity)
-    have hintb : IntegrableOn (fun t : ℝ => η / 8 * ‖(t : ℂ) ^ ((ε : ℂ) - 1)‖ + M / δ)
-        (Icc 0 1) := by
-      refine Integrable.add ?_ (integrableOn_const (by simp) (by simp))
-      exact ((integrableOn_cpow_Icc hεre zero_le_one).norm.const_mul _)
-    have hnormint : ∫ t in Icc (0 : ℝ) 1, ‖(t : ℂ) ^ ((ε : ℂ) - 1)‖ = 1 / ε := by
-      have : ∀ t ∈ Icc (0 : ℝ) 1, ‖(t : ℂ) ^ ((ε : ℂ) - 1)‖ = t ^ (ε - 1) := by
-        intro t ht
-        rw [show ((ε : ℂ) - 1) = ((ε - 1 : ℝ) : ℂ) by push_cast; ring,
-          ← ofReal_cpow ht.1, norm_real, Real.norm_eq_abs,
-          abs_of_nonneg (Real.rpow_nonneg ht.1 _)]
-      rw [setIntegral_congr_fun measurableSet_Icc this, integral_Icc_eq_integral_Ioc,
-        ← intervalIntegral.integral_of_le zero_le_one, integral_rpow (Or.inl (by linarith))]
-      simp [Real.zero_rpow hε.ne']
-    have hI : ‖∫ t in Icc (0 : ℝ) 1, (t : ℂ) ^ ((ε : ℂ) - 1) * (h t - h 0)‖ ≤
-        η / 8 * (1 / ε) + M / δ := by
-      calc _ ≤ ∫ t in Icc (0 : ℝ) 1, (η / 8 * ‖(t : ℂ) ^ ((ε : ℂ) - 1)‖ + M / δ) :=
-            MeasureTheory.norm_integral_le_of_norm_le hintb
-              ((ae_restrict_iff' measurableSet_Icc).mpr (Eventually.of_forall hbound))
-        _ = η / 8 * (1 / ε) + M / δ := by
-          rw [integral_add ((integrableOn_cpow_Icc hεre zero_le_one).norm.const_mul _)
-            (integrableOn_const (by simp) (by simp)), integral_const_mul, hnormint,
-            setIntegral_const]
-          simp
-    rw [dist_zero_right, norm_mul, norm_mul, norm_real, Real.norm_eq_abs, abs_of_pos hε]
-    calc ε * ‖(Gamma ((ε : ℂ) + 1))⁻¹‖ *
-          ‖∫ t in Icc (0 : ℝ) 1, (t : ℂ) ^ ((ε : ℂ) - 1) * (h t - h 0)‖
-        ≤ ε * 2 * (η / 8 * (1 / ε) + M / δ) :=
-          mul_le_mul (mul_le_mul_of_nonneg_left hΓbound hε.le) hI (norm_nonneg _)
-            (by positivity)
-      _ = η / 4 + 2 * ε * (M / δ) := by field_simp; ring
-      _ < η := by
-          have hε' : ε < η * δ / (8 * (M + 1)) := lt_of_lt_of_le h2 (min_le_right _ _)
-          have : 2 * ε * (M / δ) < η / 4 + η / 4 := by
-            have hMδ : M / δ ≤ (M + 1) / δ := by gcongr; linarith
-            calc 2 * ε * (M / δ) ≤ 2 * ε * ((M + 1) / δ) := by gcongr
-              _ < 2 * (η * δ / (8 * (M + 1))) * ((M + 1) / δ) := by gcongr
-              _ = η / 4 := by field_simp; ring
-              _ < η / 4 + η / 4 := by linarith
-          linarith
+  have hrem := tendsto_incompleteMellin_zero_remainder hh
   have hlim := (hrecip.mul_const (h 0)).add hrem
   rw [one_mul, add_zero] at hlim
   exact hlim.congr' (hsplit.mono fun ε h => h.symm)

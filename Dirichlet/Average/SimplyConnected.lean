@@ -290,74 +290,45 @@ theorem exists_isJointRegCarlsonContinuationOn_merge {D : Set ℂ} (hDo : IsOpen
     simp only [χ, Pi.zero_apply] at this
     rwa [show update b a' (-m - b a) = b by
       rw [update_eq_self_iff]; linear_combination -hm] at this
-  -- Removal of the Gamma poles.
-  let κ := {i : ι // i ≠ a'} ⊕ ι
-  let E : (ι → ℂ) × (ι → ℂ) → Option κ → ℂ := fun p o =>
-    o.elim (p.1 a + p.1 a') (Sum.elim (fun j => p.1 j) p.2)
-  let bOf : (Option κ → ℂ) → ι → ℂ := fun q i =>
-    if hi : i = a' then q none - q (some (Sum.inl (mergeIndex h))) else q (some (Sum.inl ⟨i, hi⟩))
-  let zOf : (Option κ → ℂ) → ι → ℂ := fun q i => q (some (Sum.inr i))
-  let Φt : (Option κ → ℂ) → ℂ := fun q => Φ (bOf q, zOf q)
-  let Ut : Set (Option κ → ℂ) := {q | ∀ i, zOf q i ∈ D}
-  have hUt : IsOpen Ut := by
-    simp only [Ut, ofPred_forall]
-    exact isOpen_iInter_of_finite fun i => hDo.preimage (continuous_apply _)
-  have hbOf : ∀ q, AnalyticAt ℂ bOf q := by
+  -- Remove the merged Gamma factor with the common parameter-change theorem.
+  let enc : (ι → ℂ) × (ι → ℂ) → (ι ⊕ ι) → ℂ := fun q => Sum.elim q.1 q.2
+  let dec : ((ι ⊕ ι) → ℂ) → (ι → ℂ) × (ι → ℂ) := fun q =>
+    ((fun i => q (Sum.inl i)), fun i => q (Sum.inr i))
+  have henc : ∀ q, AnalyticAt ℂ enc q := by
     intro q
-    refine analyticAt_pi_iff.mpr fun i => ?_
-    by_cases hi : i = a'
-    · subst hi
-      simpa [bOf] using (analyticAt_apply_coord none q).fun_sub
-        (analyticAt_apply_coord (some (Sum.inl (mergeIndex h))) q)
-    · simpa [bOf, hi] using analyticAt_apply_coord (some (Sum.inl ⟨i, hi⟩)) q
-  have hzOf : ∀ q, AnalyticAt ℂ zOf q := fun q => analyticAt_pi_iff.mpr fun i =>
-    (ContinuousLinearMap.proj (R := ℂ) (φ := fun _ : Option κ => ℂ) (some (Sum.inr i))).analyticAt q
-  have hΦt : AnalyticOnNhd ℂ Φt Ut := fun q hq =>
-    (hΦ (bOf q, zOf q) (by rintro _ ⟨i, rfl⟩; exact hq i)).comp_of_eq ((hbOf q).prod (hzOf q)) rfl
-  have hΦt0 : ∀ q ∈ Ut, Gamma (q none) = 0 → Φt q = 0 := by
-    intro q hq hΓ
-    obtain ⟨m, hm⟩ := (Gamma_eq_zero_iff _).mp hΓ
-    apply hzero m _ _ (by rintro _ ⟨i, rfl⟩; exact hq i)
-    simp only [bOf, h, dite_false, dite_true]
-    have : (⟨a, h⟩ : {i : ι // i ≠ a'}) = mergeIndex h := rfl
-    rw [this, ← hm]; ring
-  have hK := Complex.analyticOnNhd_GammaRemovedValue hUt hΦt hΦt0
-  have hbE : ∀ p, bOf (E p) = p.1 := by
-    intro p; funext i
-    by_cases hi : i = a'
-    · subst hi; simp [bOf, E, mergeIndex]
-    · simp [bOf, E, hi]
-  have hzE : ∀ p, zOf (E p) = p.2 := fun p => rfl
-  have hE : ∀ p, AnalyticAt ℂ E p := by
-    intro p
-    refine analyticAt_pi_iff.mpr fun o => ?_
-    rcases o with _ | j | i
-    · exact (((ContinuousLinearMap.proj (R := ℂ) (φ := fun _ : ι => ℂ) a).analyticAt _).comp
-        analyticAt_fst).add (((ContinuousLinearMap.proj (R := ℂ) (φ := fun _ : ι => ℂ)
-          a').analyticAt _).comp analyticAt_fst)
-    · exact ((ContinuousLinearMap.proj (R := ℂ) (φ := fun _ : ι => ℂ) j).analyticAt _).comp
-        analyticAt_fst
-    · exact ((ContinuousLinearMap.proj (R := ℂ) (φ := fun _ : ι => ℂ) i).analyticAt _).comp
-        analyticAt_snd
-  refine ⟨fun p => Complex.GammaRemovedValue Φt (E p), ?_, ?_⟩
-  · intro p hp
-    exact (hK (E p) (fun i => hp ⟨i, rfl⟩)).comp_of_eq (hE p) rfl
-  · intro z hz
-    have hGz : AnalyticOnNhd ℂ (fun b => Complex.GammaRemovedValue Φt (E (b, z))) univ :=
-      fun b _ => (hK (E (b, z)) (fun i => (hSsub z hz) ⟨i, rfl⟩)).comp_of_eq
-        ((hE (b, z)).comp_of_eq (analyticAt_id.prod analyticAt_const) rfl) rfl
-    have hcont : IsRegCarlsonContinuation f z
-        (fun b => Complex.GammaRemovedValue Φt (E (b, z))) := by
+    refine analyticAt_pi_iff.mpr fun k => ?_
+    cases k with
+    | inl i => exact (analyticAt_apply_coord i q.1).comp analyticAt_fst
+    | inr i => exact (analyticAt_apply_coord i q.2).comp analyticAt_snd
+  have hdec : ∀ q, AnalyticAt ℂ dec q := by
+    intro q
+    exact (analyticAt_pi_iff.mpr fun i => analyticAt_apply_coord (Sum.inl i) q).prod
+      (analyticAt_pi_iff.mpr fun i => analyticAt_apply_coord (Sum.inr i) q)
+  let U : Set ((ι ⊕ ι) → ℂ) := {q | ∀ i, (dec q).2 i ∈ D}
+  have hU : IsOpen U := by
+    simp only [U, dec, ofPred_forall]
+    exact isOpen_iInter_of_finite fun i => hDo.preimage (continuous_apply (Sum.inr i))
+  have hΦd : AnalyticOnNhd ℂ (Φ ∘ dec) U := fun q hq =>
+    (hΦ (dec q) (by rintro _ ⟨i, rfl⟩; exact hq i)).comp (hdec q)
+  obtain ⟨G, hG, hGeq⟩ := Complex.exists_analyticOnNhd_Gamma_mul_add
+    (a := Sum.inl a) (a' := Sum.inl a') (by simpa using h) hU hΦd
+    (fun m q hq hm => hzero m (dec q).1 (dec q).2 (by rintro _ ⟨i, rfl⟩; exact hq i) hm)
+  refine ⟨fun q => G (enc q), fun q hq => ?_, fun z hz => ?_⟩
+  · exact (hG _ (fun i => hq ⟨i, rfl⟩)).comp (henc q)
+  · have hGz : AnalyticOnNhd ℂ (fun b => G (enc (b, z))) univ := fun b _ =>
+      ((hG (enc (b, z)) (fun i => hSsub z hz ⟨i, rfl⟩)).comp (henc (b, z))).comp_of_eq
+        (analyticAt_id.prod analyticAt_const) rfl
+    have hcont : IsRegCarlsonContinuation f z (fun b => G (enc (b, z))) := by
       refine IsRegCarlsonContinuation.mk_of_eqOn_realDirichletDomain hGz (hNeq z hz) ?_
       intro c hc
-      have hpos : ∀ m : ℕ, E ((fun i => (c i : ℂ)), z) none ≠ -m := by
+      have hpos : ∀ m : ℕ, (c a : ℂ) + c a' ≠ -m := by
         intro m hm
         have := congrArg re hm
-        simp only [E, Option.elim, add_re, ofReal_re, neg_re, natCast_re] at this
+        simp only [add_re, ofReal_re, neg_re, natCast_re] at this
         linarith [hc a, hc a', (Nat.cast_nonneg m : (0 : ℝ) ≤ m)]
-      rw [Complex.GammaRemovedValue_of_ne _ hpos]
-      change Gamma ((c a : ℂ) + c a') * Φ (bOf (E _), zOf (E _)) = _
-      rw [hbE, hzE, ← hreal z hz c hc]
+      rw [hGeq _ (fun i => hSsub z hz ⟨i, rfl⟩) hpos]
+      change Gamma ((c a : ℂ) + c a') * Φ ((fun i => (c i : ℂ)), z) = _
+      rw [← hreal z hz c hc]
       ring
     exact fun b hb => hcont.eq_native hb
 

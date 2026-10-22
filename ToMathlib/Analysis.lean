@@ -6,11 +6,14 @@ Authors: Bastiaan J Braams
 module
 
 public import ToMathlib.Analysis.Analytic.PolynomialApproximation
+public import ToMathlib.Analysis.Analytic.ParameterTaylor
 public import ToMathlib.Analysis.Polynomial.SlowSingularity
 public import ToMathlib.Analysis.Connected
 public import ToMathlib.Analysis.Calculus.MeanWeights
+public import ToMathlib.Analysis.Calculus.HomogeneousMeanAsymptotic
 public import ToMathlib.Analysis.Calculus.IteratedDerivOpen
 public import ToMathlib.Analysis.Convex.GeometricMean
+public import ToMathlib.Analysis.Convex.ElementarySymmetricMean
 public import ToMathlib.Analysis.Convex.LogReciprocal
 public import ToMathlib.Analysis.Convex.NegativePower
 public import ToMathlib.Analysis.Convex.NormalizedAddition
@@ -39,6 +42,7 @@ public import ToMathlib.Analysis.Fourier.FiniteRegularity
 public import ToMathlib.Analysis.Fourier.Plancherel
 public import ToMathlib.Analysis.Fourier.Sobolev
 public import ToMathlib.Analysis.Fourier.DiagonalSobolev
+public import ToMathlib.Analysis.Complex.SecondOrderRecurrence
 public import ToMathlib.Analysis.Complex.Carlson
 public import ToMathlib.Analysis.Complex.GeometricMean
 public import ToMathlib.Analysis.Asymptotics.UniformRoot
@@ -60,9 +64,22 @@ public import ToMathlib.Analysis.SpecialFunctions.GammaRatio
 public import ToMathlib.Analysis.SpecialFunctions.LaplaceOneSubCos
 public import ToMathlib.Analysis.SpecialFunctions.GammaBounds
 public import ToMathlib.Analysis.SpecialFunctions.GammaStrictConvex
+public import ToMathlib.Analysis.SpecialFunctions.GammaProduct
+public import ToMathlib.Analysis.SpecialFunctions.GammaAsymptotic
+public import ToMathlib.Analysis.SpecialFunctions.DigammaSeries
 public import ToMathlib.Analysis.SpecialFunctions.HypergeometricDivergence
+public import ToMathlib.Analysis.SpecialFunctions.HypergeometricBeta
+public import ToMathlib.Analysis.SpecialFunctions.AppellF1
+public import ToMathlib.Analysis.SpecialFunctions.AppellLinear
+public import ToMathlib.Analysis.SpecialFunctions.AppellF2F3
+public import ToMathlib.Analysis.SpecialFunctions.AppellF4
+public import ToMathlib.Analysis.SpecialFunctions.AppellParameter
+public import ToMathlib.Analysis.SpecialFunctions.GammaShiftBounds
+public import ToMathlib.Analysis.SpecialFunctions.ComplexPowerDeriv
 public import ToMathlib.Analysis.SpecialFunctions.LogarithmicMean
+public import ToMathlib.Analysis.SpecialFunctions.PochhammerStirling
 public import ToMathlib.Analysis.SpecialFunctions.BetaTrigonometric
+public import ToMathlib.Analysis.SpecialFunctions.BetaSeries
 public import ToMathlib.Analysis.TaylorBounds
 public import ToMathlib.Analysis.UpperHalfPlaneMaximum
 

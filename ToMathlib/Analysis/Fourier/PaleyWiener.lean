@@ -114,6 +114,71 @@ theorem norm_le_norm_of_re {v : ι → ℝ} {ζ : ι → ℂ} (h : ∀ i, (ζ i)
     rw [Real.norm_eq_abs, ← h i]
     exact (abs_re_le_norm _).trans (norm_le_pi_norm ζ i)
 
+/-- A horizontal contour shift makes the real-line integral vanish when its
+Fourier exponential points outside the prescribed exponential type. -/
+private theorem integral_eq_zero_of_horizontal_exp_bound {ψ : ℂ → ℂ}
+    (hψ : Differentiable ℂ ψ) {C ρ x : ℝ} (hC0 : 0 ≤ C) (hρ : 0 ≤ ρ)
+    (hgap : ρ < |x|)
+    (hbound : ∀ t y : ℝ, ‖ψ (t + y * I)‖ ≤
+      C * Real.exp (-(2 * π * y * x)) * Real.exp (2 * π * ρ * |y|) *
+        (1 + |t|) ^ (-2 : ℝ)) :
+    (∫ t : ℝ, ψ t) = 0 := by
+  have hxj : x ≠ 0 := fun h => by rw [h, abs_zero] at hgap; linarith
+  -- Shift to `ℝ + iη` and let `|η| → ∞`.
+  set a : ℝ := |x| - ρ
+  have ha : 0 < a := by simp [a]; linarith
+  set K : ℝ := ∫ t : ℝ, (1 + |t|) ^ (-2 : ℝ)
+  have hshift : ∀ s : ℝ, 0 < s →
+      ‖∫ t : ℝ, ψ t‖ ≤ C * K * Real.exp (-(2 * π * a * s)) := by
+    intro s hs
+    set η : ℝ := if 0 < x then s else -s
+    have hsgn : η * x = s * |x| := by
+      simp only [η]
+      split_ifs with h
+      · rw [abs_of_pos h]
+      · rw [abs_of_neg (lt_of_le_of_ne (not_lt.mp h) hxj)]; ring
+    have habsη : |η| = s := by
+      simp only [η]
+      split_ifs <;> simp [abs_of_pos hs]
+    have hstrip : ∀ t y : ℝ, |y| ≤ |η| → ‖ψ (t + y * I)‖ ≤
+        (C * Real.exp (2 * π * |x| * |η|) * Real.exp (2 * π * ρ * |η|)) *
+          (1 + |t|) ^ (-2 : ℝ) := by
+      intro t y hy
+      refine (hbound t y).trans ?_
+      have h1 : -(2 * π * y * x) ≤ 2 * π * |x| * |η| := by
+        have : |y * x| ≤ |x| * |η| := by
+          rw [abs_mul, mul_comm]; exact mul_le_mul_of_nonneg_left hy (abs_nonneg _)
+        nlinarith [neg_abs_le (y * x), Real.pi_pos]
+      have h2 : 2 * π * ρ * |y| ≤ 2 * π * ρ * |η| := by
+        have := hρ
+        gcongr
+      gcongr
+    have heq := integral_add_mul_I_eq_of_bound hψ hstrip
+    rw [← heq]
+    calc ‖∫ t : ℝ, ψ (t + η * I)‖
+        ≤ ∫ t : ℝ, C * Real.exp (-(2 * π * η * x)) * Real.exp (2 * π * ρ * |η|) *
+            (1 + |t|) ^ (-2 : ℝ) :=
+          norm_integral_le_of_norm_le
+            (integrable_one_add_abs_rpow_neg_two.const_mul _)
+            (Eventually.of_forall fun t ↦ hbound t η)
+      _ = C * K * Real.exp (-(2 * π * a * s)) := by
+          rw [MeasureTheory.integral_const_mul,
+            show -(2 * π * η * x) = -(2 * π * (η * x)) by ring, hsgn, habsη]
+          rw [show C * Real.exp (-(2 * π * (s * |x|))) * Real.exp (2 * π * ρ * s) * K =
+              C * K * (Real.exp (-(2 * π * (s * |x|))) * Real.exp (2 * π * ρ * s)) by ring,
+            ← Real.exp_add]
+          congr 2
+          simp only [a]
+          ring
+  -- Conclude.
+  have hlim : Tendsto (fun s : ℝ ↦ C * K * Real.exp (-(2 * π * a * s))) atTop (𝓝 0) := by
+    have : Tendsto (fun s : ℝ ↦ -(2 * π * a * s)) atTop atBot := by
+      refine tendsto_neg_atTop_atBot.comp (Tendsto.const_mul_atTop (by positivity) tendsto_id)
+    simpa using (Real.tendsto_exp_atBot.comp this).const_mul (C * K)
+  have hle : ‖∫ t : ℝ, ψ t‖ ≤ 0 :=
+    ge_of_tendsto hlim ((eventually_gt_atTop 0).mono fun s hs ↦ hshift s hs)
+  exact norm_le_zero_iff.mp hle
+
 /-- **Paley–Wiener, support.** Let `F` be entire on `ℂ^ι` with
 `‖F ζ‖ ≤ C (1 + ‖ζ‖)^(-(card ι + 2)) exp (2π ∑ i, ρ i |Im ζ i|)` and `ρ ≥ 0`. Then the inverse
 Fourier transform of the restriction of `F` to `ℝ^ι` vanishes at every `x` with `|x j| > ρ j`
@@ -248,61 +313,8 @@ theorem fourierInv_eq_zero_of_bound {F : (ι → ℂ) → ℂ} (hF : Differentia
           gcongr
           exact hF'.trans (by gcongr)
       _ = _ := by ring_nf
-  -- Shift to `ℝ + iη` and let `|η| → ∞`.
-  set a : ℝ := |x j| - ρ j
-  have ha : 0 < a := by simp [a]; linarith
-  set K : ℝ := ∫ t : ℝ, (1 + |t|) ^ (-2 : ℝ)
-  have hshift : ∀ s : ℝ, 0 < s →
-      ‖∫ t : ℝ, ψ t‖ ≤ C * K * Real.exp (-(2 * π * a * s)) := by
-    intro s hs
-    set η : ℝ := if 0 < x j then s else -s
-    have hsgn : η * x j = s * |x j| := by
-      simp only [η]
-      split_ifs with h
-      · rw [abs_of_pos h]
-      · rw [abs_of_neg (lt_of_le_of_ne (not_lt.mp h) hxj)]; ring
-    have habsη : |η| = s := by
-      simp only [η]
-      split_ifs <;> simp [abs_of_pos hs]
-    have hstrip : ∀ t y : ℝ, |y| ≤ |η| → ‖ψ (t + y * I)‖ ≤
-        (C * Real.exp (2 * π * |x j| * |η|) * Real.exp (2 * π * ρ j * |η|)) *
-          (1 + |t|) ^ (-2 : ℝ) := by
-      intro t y hy
-      refine (hbound t y).trans ?_
-      have h1 : -(2 * π * y * x j) ≤ 2 * π * |x j| * |η| := by
-        have : |y * x j| ≤ |x j| * |η| := by
-          rw [abs_mul, mul_comm]; exact mul_le_mul_of_nonneg_left hy (abs_nonneg _)
-        nlinarith [neg_abs_le (y * x j), Real.pi_pos]
-      have h2 : 2 * π * ρ j * |y| ≤ 2 * π * ρ j * |η| := by
-        have := hρ j
-        gcongr
-      gcongr
-    have heq := integral_add_mul_I_eq_of_bound hψ hstrip
-    rw [← heq]
-    calc ‖∫ t : ℝ, ψ (t + η * I)‖
-        ≤ ∫ t : ℝ, C * Real.exp (-(2 * π * η * x j)) * Real.exp (2 * π * ρ j * |η|) *
-            (1 + |t|) ^ (-2 : ℝ) :=
-          norm_integral_le_of_norm_le
-            (integrable_one_add_abs_rpow_neg_two.const_mul _)
-            (Eventually.of_forall fun t ↦ hbound t η)
-      _ = C * K * Real.exp (-(2 * π * a * s)) := by
-          rw [MeasureTheory.integral_const_mul,
-            show -(2 * π * η * x j) = -(2 * π * (η * x j)) by ring, hsgn, habsη]
-          rw [show C * Real.exp (-(2 * π * (s * |x j|))) * Real.exp (2 * π * ρ j * s) * K =
-              C * K * (Real.exp (-(2 * π * (s * |x j|))) * Real.exp (2 * π * ρ j * s)) by ring,
-            ← Real.exp_add]
-          congr 2
-          simp only [a]
-          ring
-  -- Conclude.
-  have hlim : Tendsto (fun s : ℝ ↦ C * K * Real.exp (-(2 * π * a * s))) atTop (𝓝 0) := by
-    have : Tendsto (fun s : ℝ ↦ -(2 * π * a * s)) atTop atBot := by
-      refine tendsto_neg_atTop_atBot.comp (Tendsto.const_mul_atTop (by positivity) tendsto_id)
-    simpa using (Real.tendsto_exp_atBot.comp this).const_mul (C * K)
-  have hle : ‖∫ t : ℝ, ψ t‖ ≤ 0 :=
-    ge_of_tendsto hlim ((eventually_gt_atTop 0).mono fun s hs ↦ hshift s hs)
   simp only [hψt]
-  exact norm_le_zero_iff.mp hle
+  exact integral_eq_zero_of_horizontal_exp_bound hψ hC0 (hρ j) hj hbound
 
 /-- On real points the bound in terms of `‖ζ‖` gives a bound in terms of the Euclidean norm. -/
 theorem one_add_norm_rpow_neg_le (ξ : EuclideanSpace ℝ ι) {N : ℝ} (hN : 0 ≤ N) :

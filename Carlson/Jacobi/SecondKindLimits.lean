@@ -459,18 +459,11 @@ theorem exists_lower_bound_of_perturbed_recurrence_recessive {a b : ℂ} (hab : 
   set g : ℕ → ℂ := fun n => y (n + 1) - b * y n
   set e : ℕ → ℂ := fun n => y (n + 2) - (a + b) * y (n + 1) + a * b * y n
   have hyn (n : ℕ) : ‖y n‖ ≤ (‖d n‖ + ‖g n‖) / ‖b - a‖ := by
-    rw [le_div_iff₀ hw, ← norm_mul]
-    calc
-      _ = ‖d n - g n‖ := by congr 1; simp only [d, g]; ring
-      _ ≤ _ := norm_sub_le _ _
+    simpa only [d, g, add_comm] using (norm_le_root_component_sum hba.symm hab.le
+      (y₀ := y n) (y₁ := y (n + 1))).1
   have hyn1 (n : ℕ) : ‖y (n + 1)‖ ≤ ‖b‖ * (‖d n‖ + ‖g n‖) / ‖b - a‖ := by
-    rw [le_div_iff₀ hw, ← norm_mul]
-    calc
-      _ = ‖b * d n - a * g n‖ := by congr 1; simp only [d, g]; ring
-      _ ≤ ‖b‖ * ‖d n‖ + ‖a‖ * ‖g n‖ := by
-        refine (norm_sub_le _ _).trans ?_; rw [norm_mul, norm_mul]
-      _ ≤ ‖b‖ * ‖d n‖ + ‖b‖ * ‖g n‖ := by gcongr
-      _ = _ := by ring
+    simpa only [d, g, add_comm] using (norm_le_root_component_sum hba.symm hab.le
+      (y₀ := y n) (y₁ := y (n + 1))).2
   have he (n : ℕ) (hn : N ≤ n) : ‖e n‖ ≤ η * κ * (‖d n‖ + ‖g n‖) := by
     refine (hN n hn).trans ?_
     have := add_le_add (hyn1 n) (hyn n)
@@ -488,23 +481,9 @@ theorem exists_lower_bound_of_perturbed_recurrence_recessive {a b : ℂ} (hab : 
     have hm : l < m := by linarith
     have hstep (n : ℕ) (hn : N ≤ n) (h : ‖g n‖ ≤ ‖d n‖) :
         ‖g (n + 1)‖ ≤ ‖d (n + 1)‖ ∧ m * ‖d n‖ ≤ ‖d (n + 1)‖ := by
-      have heb : ‖e n‖ ≤ 2 * η * κ * ‖d n‖ := by
-        calc ‖e n‖ ≤ η * κ * (‖d n‖ + ‖g n‖) := he n hn
-          _ ≤ η * κ * (‖d n‖ + ‖d n‖) := by gcongr
-          _ = _ := by ring
-      have hdn : m * ‖d n‖ ≤ ‖d (n + 1)‖ := by
-        rw [hd1]
-        have := norm_sub_norm_le (b * d n) (-(e n))
-        simp only [sub_neg_eq_add, norm_neg, norm_mul] at this
-        nlinarith
-      have hgn : ‖g (n + 1)‖ ≤ (‖a‖ + 2 * η * κ) * ‖d n‖ := by
-        rw [hg1]
-        calc
-          _ ≤ ‖a‖ * ‖g n‖ + ‖e n‖ := (norm_add_le _ _).trans (by rw [norm_mul])
-          _ ≤ ‖a‖ * ‖d n‖ + 2 * η * κ * ‖d n‖ := by gcongr
-          _ = _ := by ring
-      refine ⟨hgn.trans ((mul_le_mul_of_nonneg_right (by linarith) (norm_nonneg _)).trans hdn),
-        hdn⟩
+      have hgap : ‖a‖ + 2 * (η * κ) ≤ ‖b‖ - 2 * (η * κ) := by linarith
+      simpa only [m, mul_assoc, ← hd1 n, ← hg1 n] using
+        perturbed_recurrence_cone_step (by positivity) hgap h (he n hn)
     have hind : ∀ j, ‖g (n₀ + j)‖ ≤ ‖d (n₀ + j)‖ ∧ ‖d n₀‖ * m ^ j ≤ ‖d (n₀ + j)‖ := by
       intro j
       induction j with

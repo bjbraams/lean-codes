@@ -36,7 +36,7 @@ Legend:
 | 6.3-2 | Proved | `regCarlsonR_neg_one_one_neg_nat` |
 | 6.3-3 | Proved | `TwoVariable.exists_fractionalIntegral_continuation`, `continuedFractionalIntegral_neg_nat` |
 | 6.3-4 | Proved | `tendsto_gamma_mul_regCarlsonContinuation_smul` |
-| 6.3-5 | Ch. 7 | Appell's `F₁` as `R₋ₐ` |
+| 6.3-5 | Proved | `regCarlsonR_eq_regularizedAppellF1`, `carlsonR_eq_appellF1`: all complex parameters, unit bidisk |
 | 6.3-6 | Partial | `Normalization.EqualParameter` gives joint holomorphy on slit-plane nodes, not on `ℂ \ con(z)` |
 | 6.4-1 | Proved | `TwoVariable.ordinaryHypergeometric_neg_natCast_mul` |
 | 6.4-2 | Proved | `Appell.isAppell_iff_hasDiagonalDeriv` |

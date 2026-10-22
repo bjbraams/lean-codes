@@ -148,7 +148,8 @@ theorem exists_schwartzMap_radialLog_of_smoothNear [Nonempty ι]
 
 /-- Sobolev-improved inversion with a compact positive smooth profile and `2N > card ι`;
 the boundary kernel may have arbitrary face values. -/
-theorem regDirichletIntegral_inversion_radial_of_contDiffNear_of_card_lt_two_mul [Nonempty ι] {N : ℕ}
+theorem regDirichletIntegral_inversion_radial_of_contDiffNear_of_card_lt_two_mul [Nonempty ι] {N :
+  ℕ}
     (hN : Fintype.card ι < 2 * N) {c : ι → ℝ} (hc : ∀ i, 0 < c i)
     {g : (ι → ℝ) → ℂ} (hg : ContDiffNearStdSimplex N g) {φ : ℝ → ℂ}
     (hφs : ContDiff ℝ ∞ φ) {r₀ r₁ : ℝ} (hr₀ : 0 < r₀)

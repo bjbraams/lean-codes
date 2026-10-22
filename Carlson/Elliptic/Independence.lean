@@ -54,7 +54,8 @@ private theorem integrableOn_hBound : IntegrableOn hBound (Ioi 0) := by
       (intervalIntegral.integrableOn_Ioo_rpow_iff one_pos).mpr (by norm_num)
     have hr : IntegrableOn (fun s : ℝ => s ^ (-(1 / 2) : ℝ)) (Ioc 0 1) :=
       (integrableOn_Ioc_iff_integrableOn_Ioo).mpr hr0
-    refine hr.mono' ((continuousOn_hBound.mono (t := Ioc (0 : ℝ) 1) fun s hs => hs.1).aestronglyMeasurable
+    refine hr.mono' ((continuousOn_hBound.mono (t := Ioc (0 : ℝ) 1) fun s hs =>
+      hs.1).aestronglyMeasurable
       measurableSet_Ioc) ((ae_restrict_mem measurableSet_Ioc).mono fun s hs => ?_)
     have hs0 : 0 < s := hs.1
     rw [Real.norm_of_nonneg (by unfold hBound; positivity), Real.rpow_neg hs0.le,

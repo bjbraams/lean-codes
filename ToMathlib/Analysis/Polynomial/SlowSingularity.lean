@@ -41,11 +41,13 @@ theorem eq_zero_of_slow_singularity {f : ℝ → ℂ}
       by_contra hq₀
       have hqLim : Tendsto (fun x : ℝ => q.eval (x : ℂ)) (𝓝[>] 0)
           (𝓝 (q.coeff 0)) := by
-        simpa only [Function.comp_def, ofReal_zero, coeff_zero_eq_eval_zero] using (q.continuous.comp continuous_ofReal).tendsto (0 : ℝ) |>.mono_left
+        simpa only [Function.comp_def, ofReal_zero, coeff_zero_eq_eval_zero] using
+          (q.continuous.comp continuous_ofReal).tendsto (0 : ℝ) |>.mono_left
           (nhdsWithin_le_nhds (s := Ioi (0 : ℝ)))
       have hrLim : Tendsto (fun x : ℝ => r.eval (x : ℂ)) (𝓝[>] 0)
           (𝓝 (r.coeff 0)) := by
-        simpa only [Function.comp_def, ofReal_zero, coeff_zero_eq_eval_zero] using (r.continuous.comp continuous_ofReal).tendsto (0 : ℝ) |>.mono_left
+        simpa only [Function.comp_def, ofReal_zero, coeff_zero_eq_eval_zero] using
+          (r.continuous.comp continuous_ofReal).tendsto (0 : ℝ) |>.mono_left
           (nhdsWithin_le_nhds (s := Ioi (0 : ℝ)))
       have hf : Tendsto f (𝓝[>] 0) (𝓝 (r.coeff 0 / q.coeff 0)) := by
         apply (hrLim.div hqLim hq₀).congr'
@@ -58,7 +60,8 @@ theorem eq_zero_of_slow_singularity {f : ℝ → ℂ}
         (nhdsWithin_le_nhds (s := Ioi (0 : ℝ)))).mul h₀
       have hrLim : Tendsto (fun x : ℝ => r.eval (x : ℂ)) (𝓝[>] 0)
           (𝓝 (r.coeff 0)) := by
-        simpa only [Function.comp_def, ofReal_zero, coeff_zero_eq_eval_zero] using (r.continuous.comp continuous_ofReal).tendsto (0 : ℝ) |>.mono_left
+        simpa only [Function.comp_def, ofReal_zero, coeff_zero_eq_eval_zero] using
+          (r.continuous.comp continuous_ofReal).tendsto (0 : ℝ) |>.mono_left
           (nhdsWithin_le_nhds (s := Ioi (0 : ℝ)))
       have hzero : Tendsto (fun x : ℝ => r.eval (x : ℂ)) (𝓝[>] 0) (𝓝 0) := by
         simp only [mul_zero] at hlim

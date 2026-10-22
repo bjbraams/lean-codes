@@ -30,6 +30,12 @@ public import Dirichlet.Average.TwoNode
 public import Dirichlet.Average.SimplyConnected
 public import Dirichlet.Average.FibreContinuation
 public import Dirichlet.Average.SeveralVariables
+public import Dirichlet.Average.Matrix
+public import Dirichlet.Average.MatrixSeries
+public import Dirichlet.Average.MatrixMoments
+public import Dirichlet.Average.MatrixContinuation
+public import Dirichlet.Average.MatrixTaylor
+public import Dirichlet.Average.MatrixIdentities
 
 /-!
 # Carlson's Dirichlet averages
@@ -42,6 +48,11 @@ Newton--Taylor theory, and analytic continuation theory for Carlson's Dirichlet 
 This module re-exports the following developments:
 
 * `Dirichlet.Average.Basic`: Carlson's Dirichlet averages: basic definitions.
+* `Dirichlet.Average.Matrix`, `Dirichlet.Average.MatrixSeries`: native double averages with
+  independent row and column parameters; symmetries, merging and power-series expansions.
+* `Dirichlet.Average.MatrixMoments`: separated kernel expansions and mixed binomial moments.
+* `Dirichlet.Average.MatrixContinuation`: unique entire matrix-parameter continuation,
+  jointly holomorphic in matrix entries in a convex open kernel domain.
 * `Dirichlet.Average.Deriv`: Euler--Poisson equations for Carlson's Dirichlet averages.
 * `Dirichlet.Average.Associated`: Associated Dirichlet averages.
 * `Dirichlet.Average.PowerSeries`: Averages of uniformly summable series.

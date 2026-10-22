@@ -437,75 +437,51 @@ theorem exists_isJointRegVecContinuationOn_merge [DecidableEq ι] {a a' : ι}
     simp only [χ, Pi.zero_apply] at this
     rwa [show update b a' (-m - b a) = b by
       rw [update_eq_self_iff]; linear_combination -hm] at this
-  -- Removal of the Gamma poles.
-  let κ := {i : ι // i ≠ a'} ⊕ ι × σ
-  let Ep : (ι → ℂ) × (ι → σ → ℂ) → Option κ → ℂ := fun q o =>
-    o.elim (q.1 a + q.1 a') (Sum.elim (fun j => q.1 j) (fun k => q.2 k.1 k.2))
-  let bOf' : (Option κ → ℂ) → ι → ℂ := fun q i =>
-    if hi : i = a' then q none - q (some (Sum.inl (mergeIndex h)))
-    else q (some (Sum.inl ⟨i, hi⟩))
-  let zOf' : (Option κ → ℂ) → ι → σ → ℂ := fun q i s => q (some (Sum.inr (i, s)))
-  let Φt : (Option κ → ℂ) → ℂ := fun q => Φ (bOf' q, zOf' q)
-  let Ut : Set (Option κ → ℂ) := {q | ∀ i, zOf' q i ∈ D}
-  have hUt : IsOpen Ut := by
-    simp only [Ut, ofPred_forall]
+  -- Remove the merged Gamma factor with the common parameter-change theorem.
+  let enc : (ι → ℂ) × (ι → σ → ℂ) → (ι ⊕ ι × σ) → ℂ := fun q => Sum.elim q.1 (fun k => q.2 k.1 k.2)
+  let dec : ((ι ⊕ ι × σ) → ℂ) → (ι → ℂ) × (ι → σ → ℂ) := fun q =>
+    ((fun i => q (Sum.inl i)), fun i s => q (Sum.inr (i, s)))
+  have henc : ∀ q, AnalyticAt ℂ enc q := by
+    intro q
+    refine analyticAt_pi_iff.mpr fun k => ?_
+    cases k with
+    | inl i => exact (analyticAt_apply_coord i q.1).comp analyticAt_fst
+    | inr k => exact (analyticAt_node_apply k.1 k.2 q.2).comp analyticAt_snd
+  have hdec : ∀ q, AnalyticAt ℂ dec q := by
+    intro q
+    exact (analyticAt_pi_iff.mpr fun i => analyticAt_apply_coord (Sum.inl i) q).prod
+      (analyticAt_pi_iff.mpr fun i => analyticAt_pi_iff.mpr fun s =>
+        analyticAt_apply_coord (Sum.inr (i, s)) q)
+  let U : Set ((ι ⊕ ι × σ) → ℂ) := {q | ∀ i, (dec q).2 i ∈ D}
+  have hU : IsOpen U := by
+    simp only [U, dec, ofPred_forall]
     exact isOpen_iInter_of_finite fun i => hDo.preimage
-      (continuous_pi fun s => continuous_apply (some (Sum.inr (i, s))))
-  have hbOf' : ∀ q, AnalyticAt ℂ bOf' q := by
-    intro q
-    refine analyticAt_pi_iff.mpr fun i => ?_
-    by_cases hi : i = a'
-    · subst hi
-      simpa [bOf'] using (analyticAt_apply_coord none q).fun_sub
-        (analyticAt_apply_coord (some (Sum.inl (mergeIndex h))) q)
-    · simpa [bOf', hi] using analyticAt_apply_coord (some (Sum.inl ⟨i, hi⟩)) q
-  have hzOf' : ∀ q, AnalyticAt ℂ zOf' q := fun q => analyticAt_pi_iff.mpr fun i =>
-    analyticAt_pi_iff.mpr fun s => analyticAt_apply_coord (some (Sum.inr (i, s))) q
-  have hΦt : AnalyticOnNhd ℂ Φt Ut := fun q hq =>
-    (hΦ (bOf' q, zOf' q) hq).comp_of_eq ((hbOf' q).prod (hzOf' q)) rfl
-  have hΦt0 : ∀ q ∈ Ut, Gamma (q none) = 0 → Φt q = 0 := by
-    intro q hq hΓ
-    obtain ⟨m, hm⟩ := (Gamma_eq_zero_iff _).mp hΓ
-    apply hzero m _ _ hq
-    simp only [bOf', h, dite_false, dite_true]
-    have : (⟨a, h⟩ : {i : ι // i ≠ a'}) = mergeIndex h := rfl
-    rw [this, ← hm]; ring
-  have hK := Complex.analyticOnNhd_GammaRemovedValue hUt hΦt hΦt0
-  have hbE : ∀ q, bOf' (Ep q) = q.1 := by
-    intro q; funext i
-    by_cases hi : i = a'
-    · subst hi; simp [bOf', Ep, mergeIndex]
-    · simp [bOf', Ep, hi]
-  have hzE : ∀ q, zOf' (Ep q) = q.2 := fun q => rfl
-  have hEp : ∀ q, AnalyticAt ℂ Ep q := by
-    intro q
-    refine analyticAt_pi_iff.mpr fun o => ?_
-    rcases o with _ | j | ⟨i, s⟩
-    · exact ((analyticAt_apply_coord a q.1).comp analyticAt_fst).add
-        ((analyticAt_apply_coord a' q.1).comp analyticAt_fst)
-    · exact (analyticAt_apply_coord (j : ι) q.1).comp analyticAt_fst
-    · exact (analyticAt_node_apply i s q.2).comp analyticAt_snd
-  refine ⟨fun q => Complex.GammaRemovedValue Φt (Ep q), fun q hq => ?_, fun Z hZ => ?_⟩
-  · exact (hK (Ep q) hq).comp_of_eq (hEp q) rfl
-  · have hZD : ∀ i, Z i ∈ D := fun i => hZ (subset_convexHull ℝ _ ⟨i, rfl⟩)
-    obtain ⟨F, hF, -⟩ := hall Z hZ
-    have hGZ : AnalyticOnNhd ℂ (fun b => Complex.GammaRemovedValue Φt (Ep (b, Z))) univ :=
-      fun b _ => (hK (Ep (b, Z)) hZD).comp_of_eq
-        ((hEp (b, Z)).comp_of_eq (analyticAt_id.prod analyticAt_const) rfl) rfl
-    have hcont : IsRegDirichletContinuation (fun u => f (vecAffineForm Z u))
-        (fun b => Complex.GammaRemovedValue Φt (Ep (b, Z))) := by
-      refine IsRegDirichletContinuation.mk_of_eqOn_realDirichletDomain hGZ hF ?_
-      intro c hc
-      have hpos : ∀ m : ℕ, Ep ((fun i => (c i : ℂ)), Z) none ≠ -m := by
-        intro m hm
-        have := congrArg re hm
-        simp only [Ep, Option.elim, add_re, ofReal_re, neg_re, natCast_re] at this
-        linarith [hc a, hc a', (Nat.cast_nonneg m : (0 : ℝ) ≤ m)]
-      rw [Complex.GammaRemovedValue_of_ne _ hpos]
-      change Gamma ((c a : ℂ) + c a') * Φ (bOf' (Ep _), zOf' (Ep _)) = _
-      rw [hbE, hzE, ← hreal Z hZ hF c hc]
-      ring
-    exact fun b hb => hcont.eq_native hb
+      (continuous_pi fun s => continuous_apply (Sum.inr (i, s)))
+  have hΦd : AnalyticOnNhd ℂ (Φ ∘ dec) U := fun q hq =>
+    (hΦ (dec q) (fun i => hq i)).comp (hdec q)
+  obtain ⟨G, hG, hGeq⟩ := Complex.exists_analyticOnNhd_Gamma_mul_add
+    (a := Sum.inl a) (a' := Sum.inl a') (by simpa using h) hU hΦd
+    (fun m q hq hm => hzero m (dec q).1 (dec q).2 (fun i => hq i) hm)
+  refine ⟨fun q => G (enc q), fun q hq => (hG _ hq).comp (henc q), fun Z hZ => ?_⟩
+  have hZD : ∀ i, Z i ∈ D := fun i => hZ (subset_convexHull ℝ _ ⟨i, rfl⟩)
+  obtain ⟨F, hF, -⟩ := hall Z hZ
+  have hGZ : AnalyticOnNhd ℂ (fun b => G (enc (b, Z))) univ := fun b _ =>
+    ((hG (enc (b, Z)) hZD).comp (henc (b, Z))).comp_of_eq
+      (analyticAt_id.prod analyticAt_const) rfl
+  have hcont : IsRegDirichletContinuation (fun u => f (vecAffineForm Z u))
+      (fun b => G (enc (b, Z))) := by
+    refine IsRegDirichletContinuation.mk_of_eqOn_realDirichletDomain hGZ hF ?_
+    intro c hc
+    have hpos : ∀ m : ℕ, (c a : ℂ) + c a' ≠ -m := by
+      intro m hm
+      have := congrArg re hm
+      simp only [add_re, ofReal_re, neg_re, natCast_re] at this
+      linarith [hc a, hc a', (Nat.cast_nonneg m : (0 : ℝ) ≤ m)]
+    rw [hGeq _ hZD hpos]
+    change Gamma ((c a : ℂ) + c a') * Φ ((fun i => (c i : ℂ)), Z) = _
+    rw [← hreal Z hZ hF c hc]
+    ring
+  exact fun b hb => hcont.eq_native hb
 
 /-- **Continuation of Dirichlet averages of functions of several variables.** Let `f` be
 holomorphic on an open set `D ⊆ ℂ^σ` whose sections by the complex lines through any two of its

@@ -176,7 +176,7 @@ expansion (5.12-17), continuation to the sector $|\operatorname{ph}(-x)| < 3\pi/
 integral (5.12-7), the connection formulas (5.12-18) and (5.12-20) (Theorems 5.12-8, 5.12-9),
 and the zero-node limit (5.12-2), (5.12-3).
 
-## 5. Hypergeometric means (Carlson 1965, 1966; Carlson–Tobey 1968)
+## 5. Hypergeometric means (Carlson 1965, 1966; Carlson–Tobey 1968; Brenner–Carlson 1987)
 
 For positive nodes $x$ and positive parameters $b = cw$ ($w$ normalized weights, $c$ the
 concentration), the mean of order $t$ is $M_t = R_t(b, x)^{1/t}$, with $M_0 = \exp
@@ -201,6 +201,40 @@ weights equal to $b_i/\Sigma$ for complex parameters.
   strictly decreases in $c$ for $t < 0$ and $t > 1$ and increases for $0 < t < 1$, and $M_t$
   increases for $t < 1$ and decreases for $t > 1$. At order two, $R_2(cw; x) = A^2 + V/(c + 1)$
   for arbitrary real nodes, strictly decreasing and strictly log-convex in $c$.
+
+* **Large translates.** The general normalized homogeneous `C²` mean has
+  $M(x+a)=x+\sum_i w_i a_i+O(1/x)$ (Brenner–Carlson 1987, Theorem 1).
+  The hypergeometric specialization includes every real order and identifies the
+  real derivative weights with normalized parameters.
+* **Growing families.** With common positive lower and finite upper node bounds,
+  diverging parameter mass and converging weighted arithmetic means, `R`, `L`,
+  means and ratio means have the predicted limits (1987, Theorem 2). Both the
+  finite index type and normalized weights may vary. A scalar Lipschitz error
+  bound independent of dimension proves the convergence.
+* **Capacity.** Carlson (1966), Theorem 3, is proved in every dimension at least
+  three for positive nonconstant nodes. Nonnegative boundary nodes are covered
+  by an extended-integral inequality, including divergence. The three-node
+  `R_F` bound and its finite one-zero `R_K` limit are also proved.
+
+The Appell identification of Exercise 6.3-5 is proved in `Carlson.TwoVariable.AppellF1`:
+$F_1(a;b_1,b_2;c;x,y)=R_{-a}(b_1,b_2,c-b_1-b_2;1-x,1-y,1)$ on the unit bidisk.
+The regularized identity holds for every complex parameter, with no positivity assumptions;
+the usual ordinary double series additionally requires $c$ to avoid the nonpositive integers.
+`Carlson.TwoVariable.AppellLinear` proves Carlson's 1976 linear transformation to a
+third-order double series for $|x-y|+|y|<1$, using the division-free coefficient identity.
+The split parameters are positive real; the regularized $a,c$ are arbitrary complex numbers.
+The transformed series has a proved absolute Gauss-series majorant.
+`Carlson.TwoVariable.AppellMatrix` identifies the $F_2$ and $F_3$ series with native
+matrix averages on the full diamond and bidisk, respectively. Their regularized
+series converge for all complex parameters. `AppellContinuation` extends both
+identifications to arbitrary parameters on the same full argument regions. For
+$F_3$, the regularized matrix equals $F_3^{\mathrm{reg}}/\Gamma(c)$; the finite
+Gamma-normalized limit at $c=-m$ is proved in `AppellNormalization`, including its
+derivative formula. Matrix permutation and merging symmetries and the binomial
+expansion hold at arbitrary parameters on the stated convex kernel domains.
+`Carlson.Jacobi.AppellF4` proves the $F_4$ Jacobi expansion of Exercise 7.1-13 on
+$\sqrt{|x|}+\sqrt{|y|}<1$. Its numerator form has no parameter exclusions; the
+monic Jacobi form requires nonvanishing normalization factors.
 
 ## 6. Two variables (Sections 6.2–6.11, 8.3)
 

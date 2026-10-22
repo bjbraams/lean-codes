@@ -11,6 +11,7 @@ public import Carlson.TwoVariable.RPolynomial
 public import Mathlib.Analysis.SpecialFunctions.RegularizedHypergeometric
 public import Mathlib.Analysis.PSeries
 public import Mathlib.Analysis.Complex.AbelLimit
+public import ToMathlib.Analysis.SpecialFunctions.ComplexPowerDeriv
 
 /-!
 # Gauss's hypergeometric function and Gauss's theorem
@@ -47,22 +48,6 @@ open scoped Topology
 @[expose] public noncomputable section
 
 namespace Carlson
-
-/-- Iterated derivatives of a principal power on the slit plane. -/
-private theorem iteratedDeriv_cpow_const' (A : ℂ) (i : ℕ) {x : ℂ} (hx : x ∈ slitPlane) :
-    iteratedDeriv i (fun w : ℂ => w ^ A) x = (descPochhammer ℂ i).eval A * x ^ (A - i) := by
-  induction i generalizing x with
-  | zero => simp
-  | succ i ih =>
-    have he : iteratedDeriv i (fun w : ℂ => w ^ A) =ᶠ[𝓝 x]
-        fun w => (descPochhammer ℂ i).eval A * w ^ (A - i) := by
-      filter_upwards [isOpen_slitPlane.mem_nhds hx] with w hw using ih hw
-    have hd := ((hasDerivAt_id x).cpow_const (c := A - i) hx).const_mul
-      ((descPochhammer ℂ i).eval A)
-    simp only [id] at hd
-    rw [iteratedDeriv_succ, he.deriv_eq, hd.deriv, descPochhammer_succ_eval]
-    push_cast
-    ring_nf
 
 open TwoVariable in
 /-- **Carlson's (8.3-7)** (equivalently (5.9-11)) with Mathlib's regularized Gauss function:
@@ -102,7 +87,7 @@ theorem regCarlsonR_pair_one_sub_eq_regularizedGaussHGFun (α β γ : ℂ) {x : 
   have H2 := (regularizedGaussHGFunSeries α β γ).hasSum hmem
   refine H.unique (H2.congr_fun fun n => ?_)
   have hid : iteratedDeriv n (fun w : ℂ => w ^ (-α)) 1 = (descPochhammer ℂ n).eval (-α) := by
-    have h := iteratedDeriv_cpow_const' (-α) n (x := 1) (by simp)
+    have h := Complex.iteratedDeriv_cpow_const (-α) n (x := 1) (by simp)
     simpa using h
   have hdesc : (descPochhammer ℂ n).eval (-α) = (-1) ^ n * (ascPochhammer ℂ n).eval α := by
     have h := ascPochhammer_eval_neg_eq_descPochhammer (R := ℂ) (-α) n

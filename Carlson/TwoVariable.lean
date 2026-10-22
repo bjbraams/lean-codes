@@ -41,6 +41,12 @@ public import Carlson.TwoVariable.LogarithmicCoefficients
 public import Carlson.TwoVariable.ElementaryIndependence
 public import Carlson.TwoVariable.HalfIntegralReduction
 public import Carlson.TwoVariable.GaussHypergeometric
+public import Carlson.TwoVariable.AppellF1
+public import Carlson.TwoVariable.AppellLinear
+public import Carlson.TwoVariable.AppellMatrix
+public import Carlson.TwoVariable.MatrixTaylor
+public import Carlson.TwoVariable.AppellContinuation
+public import Carlson.TwoVariable.AppellNormalization
 public import Carlson.TwoVariable.GaussTerminating
 public import Carlson.TwoVariable.GaussExercises
 public import Carlson.TwoVariable.ThreeFTwoExercises

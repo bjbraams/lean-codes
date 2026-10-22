@@ -9,6 +9,7 @@ public import Carlson.Jacobi.Recurrence
 public import Carlson.Jacobi.EllipseCoordinates
 public import Pochhammer.Estimates
 public import Mathlib.Analysis.Complex.AbsMax
+public import ToMathlib.Analysis.Complex.SecondOrderRecurrence
 
 /-!
 # Sharp growth of monic Jacobi polynomials
@@ -23,6 +24,8 @@ for all complex parameters and endpoints, including coincident endpoints.
 
 ## Main results
 
+* `ToMathlib.Analysis.Complex.SecondOrderRecurrence` supplies the shared component
+  bounds and invariant-cone estimate for upper and lower recurrence arguments.
 * `norm_le_of_perturbed_recurrence`: growth of perturbed two-step recurrences.
 * `tendsto_jacobiRecurrenceV`, `tendsto_jacobiRecurrenceW`: limits of the coefficients.
 * `exists_bound_norm_eval_jacobiOn_of_isCompact`: the uniform bound on compact sets.
@@ -113,20 +116,10 @@ theorem norm_le_of_perturbed_recurrence {u v : ℂ} (huv : u ≠ v) (hvu : ‖v�
   have hw : 0 < ‖u - v‖ := norm_pos_iff.mpr (sub_ne_zero.mpr huv)
   set q := ‖u‖ + 2 * (‖u‖ + 1) * δ / ‖u - v‖ with hq
   let m : ℕ → ℝ := fun k => ‖y (k + 1) - u * y k‖ + ‖y (k + 1) - v * y k‖
-  have hy0 (k : ℕ) : ‖y k‖ ≤ m k / ‖u - v‖ := by
-    rw [le_div_iff₀ hw, ← norm_mul]
-    calc
-      _ = ‖(y (k + 1) - v * y k) - (y (k + 1) - u * y k)‖ := by congr 1; ring
-      _ ≤ m k := (norm_sub_le _ _).trans_eq (add_comm _ _)
-  have hy1 (k : ℕ) : ‖y (k + 1)‖ ≤ ‖u‖ * m k / ‖u - v‖ := by
-    rw [le_div_iff₀ hw, ← norm_mul]
-    calc
-      _ = ‖u * (y (k + 1) - v * y k) - v * (y (k + 1) - u * y k)‖ := by congr 1; ring
-      _ ≤ ‖u‖ * ‖y (k + 1) - v * y k‖ + ‖v‖ * ‖y (k + 1) - u * y k‖ := by
-        refine (norm_sub_le _ _).trans ?_
-        rw [norm_mul, norm_mul]
-      _ ≤ ‖u‖ * ‖y (k + 1) - v * y k‖ + ‖u‖ * ‖y (k + 1) - u * y k‖ := by gcongr
-      _ = ‖u‖ * m k := by ring
+  have hy0 (k : ℕ) : ‖y k‖ ≤ m k / ‖u - v‖ :=
+    (norm_le_root_component_sum huv hvu).1
+  have hy1 (k : ℕ) : ‖y (k + 1)‖ ≤ ‖u‖ * m k / ‖u - v‖ :=
+    (norm_le_root_component_sum huv hvu).2
   have hstep (k : ℕ) (hk : N ≤ k) : m (k + 1) ≤ q * m k := by
     set e := y (k + 2) - (u + v) * y (k + 1) + u * v * y k
     have he : ‖e‖ ≤ (‖u‖ + 1) * δ / ‖u - v‖ * m k := by

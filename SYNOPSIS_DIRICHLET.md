@@ -27,6 +27,14 @@ Strict log-convexity of Gamma shows that $B(b)$ is strictly minimized by the con
 parameter vector at a fixed positive total, unless the parameters are already equal
 (Exercises 4.2-3 and 4.3-2).
 
+Liouville's reduction (Corollary 4.4-5) is also proved in solid coordinates: for $n>0$,
+$\operatorname{Re}b_i>0$ and $g$ continuous on $[0,1]$,
+$$\int_{\Delta_n}\prod_i x_i^{b_i-1}g(\sum_i x_i)\,dx
+= B(b)\int_0^1 t^{\sum_i b_i-1}g(t)\,dt.$$
+The double-beta binomial integral of Exercise 4.4-3 is a regularized ${}_3F_2$ on
+the unit disk. Both general hypergeometric beta parameter-raising identities of
+Exercise 4.4-4 are in `ToMathlib.Analysis.SpecialFunctions.HypergeometricBeta`.
+
 ## The Dirichlet distribution
 
 For $b_i > 0$ the density $B(b)^{-1}\prod_i u_i^{b_i - 1}$ on the interior of $E_I$ defines a
@@ -214,3 +222,39 @@ hull of the nodes.
   domains), the average $\mathcal R_b(Z; h) = T_b[u \mapsto h(\sum_iu_iZ_i)]$ with vector nodes
   continues to all node tuples in $D^{I}$, entire in the parameters; for $n = 1$ this recovers
   Theorem 8.
+
+## Matrix double averages (Carlson 1971)
+
+`Dirichlet.Average.Matrix` averages a scalar kernel at
+$\sum_{i,j}u_i Z_{ij}v_j$ with independent Dirichlet parameter vectors on rows and
+columns. It proves row/column permutation and transpose symmetries, Fubini,
+constant and repeated-row/column reductions, and merging of equal rows or columns
+along arbitrary surjective partitions. Positive real parameters recover two
+independent Dirichlet probability expectations. The convex-hull lemma gives safe
+kernel domains, including the right half-plane.
+
+`MatrixSeries` proves the product-integral representation, linearity, dominated
+termwise integration, and the power-series expansion with coefficients given by
+double averages of shifted powers. Natural-power moments of rank-one matrices
+factor into single-average moments. Convergence statements assume positive real
+parts of both parameter vectors and continuity of the kernel on the entry convex
+hull; a power series uses an explicit summable majorant on a containing closed disk.
+`MatrixMoments` supplies finite separated-kernel expansions, binomial mixed
+moments, and explicit two- and three-coordinate Dirichlet moments. These give
+the native matrix identifications of Appell $F_2$ and $F_3$.
+
+`MatrixContinuation` constructs the unique entire regularized continuation in
+both independent complex parameter vectors, jointly holomorphic in the entries
+in any convex open scalar kernel domain. It agrees with the native integral and
+satisfies transpose symmetry at arbitrary parameters. The continuation first
+averages columns, then rows, using the parametric single-average transform.
+Arbitrary cut-plane matrix configurations are not asserted.
+
+`MatrixTaylor` recognizes continued scalar power series from native identities
+with entire coefficients. It uses holomorphic parameter-Taylor coefficients and
+analytic uniqueness, without assuming uniform summability in parameter space.
+`MatrixIdentities` extends row/column permutations, surjective merging of repeated
+rows/columns, and kernel linearity to arbitrary parameters. The Carlson layer
+uses these results for the continued matrix binomial expansion and the named
+$F_2,F_3$ identifications, including exceptional $F_3$ Gamma cancellation.
+The matrix differential system and double-average Cauchy formula remain open.

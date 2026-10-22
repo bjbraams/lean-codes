@@ -724,6 +724,88 @@ theorem isOpen_twoF0Domain (n : ℕ) : IsOpen (twoF0Domain n) := by
     ((isOpen_lt continuous_const c2).inter (isOpen_lt c3 continuous_const))
 
 set_option maxHeartbeats 1000000 in
+/-- The remainder integrand has an integrable majorant on a neighborhood
+of each parameter in its native domain. -/
+private theorem exists_twoF0Integrand_majorant (n : ℕ) (p : ℂ × ℂ × ℂ)
+    (hp : p ∈ twoF0Domain n) :
+    ∃ (s : Set (ℂ × ℂ × ℂ)) (bound : ℝ × ℝ → ℝ),
+      s ∈ 𝓝 p ∧ Integrable bound quadrantMeasure ∧
+        ∀ᵐ a ∂quadrantMeasure, ∀ q ∈ s,
+          ‖twoF0Integrand n (q, ((a.1 : ℂ), (a.2 : ℂ)))‖ ≤ bound a := by
+  set A := (p.1 + n).re
+  set B := (p.2.1 + n).re
+  have hA : 0 < A := hp.1
+  have hB : 0 < B := hp.2.1
+  have hev : ∀ᶠ q in 𝓝 p, A / 2 < (q.1 + (n : ℂ)).re ∧ (q.1 + (n : ℂ)).re < A + 1 ∧
+      B / 2 < (q.2.1 + (n : ℂ)).re ∧ (q.2.1 + (n : ℂ)).re < B + 1 ∧ q.2.2.re < 0 := by
+    have c1 : Continuous fun q : ℂ × ℂ × ℂ => (q.1 + (n : ℂ)).re :=
+      Complex.continuous_re.comp (continuous_fst.add continuous_const)
+    have c2 : Continuous fun q : ℂ × ℂ × ℂ => (q.2.1 + (n : ℂ)).re :=
+      Complex.continuous_re.comp ((continuous_fst.comp continuous_snd).add continuous_const)
+    have c3 : Continuous fun q : ℂ × ℂ × ℂ => q.2.2.re :=
+      Complex.continuous_re.comp (continuous_snd.comp continuous_snd)
+    filter_upwards [c1.continuousAt.eventually_const_lt (show A / 2 < A by linarith),
+      c1.continuousAt.eventually_lt_const (show A < A + 1 by linarith),
+      c2.continuousAt.eventually_const_lt (show B / 2 < B by linarith),
+      c2.continuousAt.eventually_lt_const (show B < B + 1 by linarith),
+      c3.continuousAt.eventually_lt_const hp.2.2] with q a b c d e
+    exact ⟨a, b, c, d, e⟩
+  obtain ⟨r, hr, hball⟩ := Metric.nhds_basis_closedBall.mem_iff.mp hev
+  have hK := isCompact_closedBall p r
+  have hGc : ContinuousOn (fun q : ℂ × ℂ × ℂ => ‖(Gamma (q.1 + n))⁻¹‖ * ‖(Gamma (q.2.1 + n))⁻¹‖)
+      (Metric.closedBall p r) :=
+    ((differentiable_one_div_Gamma.continuous.comp (continuous_fst.add continuous_const)).norm.mul
+      (differentiable_one_div_Gamma.continuous.comp
+        ((continuous_fst.comp continuous_snd).add continuous_const)).norm).continuousOn
+  obtain ⟨M, hM⟩ := hK.bddAbove_image hGc
+  set bound : ℝ × ℝ → ℝ := fun a => max M 0 *
+    (((a.1 ^ (A / 2 - 1) + a.1 ^ (A + 1 - 1)) * Real.exp (-a.1)) *
+      ((a.2 ^ (B / 2 - 1) + a.2 ^ (B + 1 - 1)) * Real.exp (-a.2)))
+  refine ⟨Metric.closedBall p r, bound, Metric.closedBall_mem_nhds p hr, ?_, ?_⟩
+  · have := (integrableOn_rpow_add_rpow_mul_exp (by linarith : 0 < A / 2)
+      (by linarith : 0 < A + 1)).mul_prod (integrableOn_rpow_add_rpow_mul_exp
+        (by linarith : 0 < B / 2) (by linarith : 0 < B + 1))
+    exact this.const_mul _
+  · filter_upwards [ae_quadrantMeasure] with a ha q hq
+    obtain ⟨h1, h2, h3, h4, h5⟩ := hball hq
+    have hMq := hM (mem_image_of_mem _ hq)
+    simp only [twoF0Integrand, bound]
+    rw [norm_mul, norm_mul, norm_mul, norm_mul, norm_mul, norm_mul,
+      Complex.norm_cpow_eq_rpow_re_of_pos ha.1, Complex.norm_cpow_eq_rpow_re_of_pos ha.2,
+      show -((a.1 : ℂ)) = ((-a.1 : ℝ) : ℂ) by push_cast; ring,
+      show -((a.2 : ℂ)) = ((-a.2 : ℝ) : ℂ) by push_cast; ring,
+      Complex.norm_exp_ofReal, Complex.norm_exp_ofReal]
+    have hE := norm_expRemainder_mul_le n h5.le ha.1 ha.2
+    have hs := Real.rpow_le_rpow_add_rpow ha.1 (c₁ := A / 2 - 1) (c := (q.1 + (n : ℂ) - 1).re)
+      (c₂ := A + 1 - 1) (by simp only [sub_re, one_re]; linarith)
+      (by simp only [sub_re, one_re]; linarith)
+    have ht := Real.rpow_le_rpow_add_rpow ha.2 (c₁ := B / 2 - 1) (c := (q.2.1 + (n : ℂ) - 1).re)
+      (c₂ := B + 1 - 1) (by simp only [sub_re, one_re]; linarith)
+      (by simp only [sub_re, one_re]; linarith)
+    have e1 := Real.exp_pos (-a.1)
+    have e2 := Real.exp_pos (-a.2)
+    have g1 := norm_nonneg ((Gamma (q.1 + n))⁻¹)
+    have g2 := norm_nonneg ((Gamma (q.2.1 + n))⁻¹)
+    have p1 := Real.rpow_nonneg ha.1.le (q.1 + (n : ℂ) - 1).re
+    have p2 := Real.rpow_nonneg ha.2.le (q.2.1 + (n : ℂ) - 1).re
+    have hMM : ‖(Gamma (q.1 + n))⁻¹‖ * ‖(Gamma (q.2.1 + n))⁻¹‖ ≤ max M 0 :=
+      hMq.trans (le_max_left _ _)
+    calc ‖(Gamma (q.1 + n))⁻¹‖ * (a.1 ^ (q.1 + (n : ℂ) - 1).re * Real.exp (-a.1)) *
+          (‖(Gamma (q.2.1 + n))⁻¹‖ * (a.2 ^ (q.2.1 + (n : ℂ) - 1).re * Real.exp (-a.2))) *
+          ‖expRemainder n (a.1 * a.2 * q.2.2)‖
+        ≤ ‖(Gamma (q.1 + n))⁻¹‖ * (a.1 ^ (q.1 + (n : ℂ) - 1).re * Real.exp (-a.1)) *
+          (‖(Gamma (q.2.1 + n))⁻¹‖ * (a.2 ^ (q.2.1 + (n : ℂ) - 1).re * Real.exp (-a.2))) * 1 := by
+            gcongr
+      _ = (‖(Gamma (q.1 + n))⁻¹‖ * ‖(Gamma (q.2.1 + n))⁻¹‖) *
+          ((a.1 ^ (q.1 + (n : ℂ) - 1).re * Real.exp (-a.1)) *
+            (a.2 ^ (q.2.1 + (n : ℂ) - 1).re * Real.exp (-a.2))) := by ring
+      _ ≤ max M 0 * (((a.1 ^ (A / 2 - 1) + a.1 ^ (A + 1 - 1)) * Real.exp (-a.1)) *
+            ((a.2 ^ (B / 2 - 1) + a.2 ^ (B + 1 - 1)) * Real.exp (-a.2))) := by
+            have q1 := Real.rpow_nonneg ha.1.le (A / 2 - 1)
+            have q2 := Real.rpow_nonneg ha.1.le (A + 1 - 1)
+            gcongr
+
+set_option maxHeartbeats 1000000 in
 /-- **Holomorphy of the remainder double integral** in `(α, β, x)`. -/
 theorem analyticOnNhd_twoF0Double (n : ℕ) :
     AnalyticOnNhd ℂ (fun p : ℂ × ℂ × ℂ => twoF0Double n p.1 p.2.1 p.2.2) (twoF0Domain n) := by
@@ -766,80 +848,7 @@ theorem analyticOnNhd_twoF0Double (n : ℕ) :
     intro p _
     exact (analyticAt_twoF0Integrand n p ha.1 ha.2).comp_of_eq
       (analyticAt_id.prod analyticAt_const) rfl
-  · intro p hp
-    -- a closed ball on which the real parts are controlled
-    set A := (p.1 + n).re
-    set B := (p.2.1 + n).re
-    have hA : 0 < A := hp.1
-    have hB : 0 < B := hp.2.1
-    have hev : ∀ᶠ q in 𝓝 p, A / 2 < (q.1 + (n : ℂ)).re ∧ (q.1 + (n : ℂ)).re < A + 1 ∧
-        B / 2 < (q.2.1 + (n : ℂ)).re ∧ (q.2.1 + (n : ℂ)).re < B + 1 ∧ q.2.2.re < 0 := by
-      have c1 : Continuous fun q : ℂ × ℂ × ℂ => (q.1 + (n : ℂ)).re :=
-        Complex.continuous_re.comp (continuous_fst.add continuous_const)
-      have c2 : Continuous fun q : ℂ × ℂ × ℂ => (q.2.1 + (n : ℂ)).re :=
-        Complex.continuous_re.comp ((continuous_fst.comp continuous_snd).add continuous_const)
-      have c3 : Continuous fun q : ℂ × ℂ × ℂ => q.2.2.re :=
-        Complex.continuous_re.comp (continuous_snd.comp continuous_snd)
-      filter_upwards [c1.continuousAt.eventually_const_lt (show A / 2 < A by linarith),
-        c1.continuousAt.eventually_lt_const (show A < A + 1 by linarith),
-        c2.continuousAt.eventually_const_lt (show B / 2 < B by linarith),
-        c2.continuousAt.eventually_lt_const (show B < B + 1 by linarith),
-        c3.continuousAt.eventually_lt_const hp.2.2] with q a b c d e
-      exact ⟨a, b, c, d, e⟩
-    obtain ⟨r, hr, hball⟩ := Metric.nhds_basis_closedBall.mem_iff.mp hev
-    have hK := isCompact_closedBall p r
-    have hGc : ContinuousOn (fun q : ℂ × ℂ × ℂ => ‖(Gamma (q.1 + n))⁻¹‖ * ‖(Gamma (q.2.1 + n))⁻¹‖)
-        (Metric.closedBall p r) :=
-      ((differentiable_one_div_Gamma.continuous.comp (continuous_fst.add continuous_const)).norm.mul
-        (differentiable_one_div_Gamma.continuous.comp
-          ((continuous_fst.comp continuous_snd).add continuous_const)).norm).continuousOn
-    obtain ⟨M, hM⟩ := hK.bddAbove_image hGc
-    set bound : ℝ × ℝ → ℝ := fun a => max M 0 *
-      (((a.1 ^ (A / 2 - 1) + a.1 ^ (A + 1 - 1)) * Real.exp (-a.1)) *
-        ((a.2 ^ (B / 2 - 1) + a.2 ^ (B + 1 - 1)) * Real.exp (-a.2)))
-    refine ⟨Metric.closedBall p r, bound, Metric.closedBall_mem_nhds p hr, ?_, ?_⟩
-    · have := (integrableOn_rpow_add_rpow_mul_exp (by linarith : 0 < A / 2)
-        (by linarith : 0 < A + 1)).mul_prod (integrableOn_rpow_add_rpow_mul_exp
-          (by linarith : 0 < B / 2) (by linarith : 0 < B + 1))
-      exact this.const_mul _
-    · filter_upwards [ae_quadrantMeasure] with a ha q hq
-      obtain ⟨h1, h2, h3, h4, h5⟩ := hball hq
-      have hMq := hM (mem_image_of_mem _ hq)
-      simp only [F, twoF0Integrand, bound]
-      rw [norm_mul, norm_mul, norm_mul, norm_mul, norm_mul, norm_mul,
-        Complex.norm_cpow_eq_rpow_re_of_pos ha.1, Complex.norm_cpow_eq_rpow_re_of_pos ha.2,
-        show -((a.1 : ℂ)) = ((-a.1 : ℝ) : ℂ) by push_cast; ring,
-        show -((a.2 : ℂ)) = ((-a.2 : ℝ) : ℂ) by push_cast; ring,
-        Complex.norm_exp_ofReal, Complex.norm_exp_ofReal]
-      have hE := norm_expRemainder_mul_le n h5.le ha.1 ha.2
-      have hs := Real.rpow_le_rpow_add_rpow ha.1 (c₁ := A / 2 - 1) (c := (q.1 + (n : ℂ) - 1).re)
-        (c₂ := A + 1 - 1) (by simp only [sub_re, one_re]; linarith)
-        (by simp only [sub_re, one_re]; linarith)
-      have ht := Real.rpow_le_rpow_add_rpow ha.2 (c₁ := B / 2 - 1) (c := (q.2.1 + (n : ℂ) - 1).re)
-        (c₂ := B + 1 - 1) (by simp only [sub_re, one_re]; linarith)
-        (by simp only [sub_re, one_re]; linarith)
-      have e1 := Real.exp_pos (-a.1)
-      have e2 := Real.exp_pos (-a.2)
-      have g1 := norm_nonneg ((Gamma (q.1 + n))⁻¹)
-      have g2 := norm_nonneg ((Gamma (q.2.1 + n))⁻¹)
-      have p1 := Real.rpow_nonneg ha.1.le (q.1 + (n : ℂ) - 1).re
-      have p2 := Real.rpow_nonneg ha.2.le (q.2.1 + (n : ℂ) - 1).re
-      have hMM : ‖(Gamma (q.1 + n))⁻¹‖ * ‖(Gamma (q.2.1 + n))⁻¹‖ ≤ max M 0 :=
-        hMq.trans (le_max_left _ _)
-      calc ‖(Gamma (q.1 + n))⁻¹‖ * (a.1 ^ (q.1 + (n : ℂ) - 1).re * Real.exp (-a.1)) *
-            (‖(Gamma (q.2.1 + n))⁻¹‖ * (a.2 ^ (q.2.1 + (n : ℂ) - 1).re * Real.exp (-a.2))) *
-            ‖expRemainder n (a.1 * a.2 * q.2.2)‖
-          ≤ ‖(Gamma (q.1 + n))⁻¹‖ * (a.1 ^ (q.1 + (n : ℂ) - 1).re * Real.exp (-a.1)) *
-            (‖(Gamma (q.2.1 + n))⁻¹‖ * (a.2 ^ (q.2.1 + (n : ℂ) - 1).re * Real.exp (-a.2))) * 1 := by
-              gcongr
-        _ = (‖(Gamma (q.1 + n))⁻¹‖ * ‖(Gamma (q.2.1 + n))⁻¹‖) *
-            ((a.1 ^ (q.1 + (n : ℂ) - 1).re * Real.exp (-a.1)) *
-              (a.2 ^ (q.2.1 + (n : ℂ) - 1).re * Real.exp (-a.2))) := by ring
-        _ ≤ max M 0 * (((a.1 ^ (A / 2 - 1) + a.1 ^ (A + 1 - 1)) * Real.exp (-a.1)) *
-              ((a.2 ^ (B / 2 - 1) + a.2 ^ (B + 1 - 1)) * Real.exp (-a.2))) := by
-              have q1 := Real.rpow_nonneg ha.1.le (A / 2 - 1)
-              have q2 := Real.rpow_nonneg ha.1.le (A + 1 - 1)
-              gcongr
+  · exact exists_twoF0Integrand_majorant n
 
 /-- **Theorem 5.12-4** (holomorphy): the continued `₂F₀(α, β; x)` is holomorphic in `(α, β, x)`
 on `ℂ² × {re x < 0}`. -/

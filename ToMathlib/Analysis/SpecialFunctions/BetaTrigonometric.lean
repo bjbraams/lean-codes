@@ -77,7 +77,8 @@ private theorem trig_beta_pullback (a b : ℂ) {θ : ℝ} (hθ : θ ∈ Ioo 0 (�
   have hs : 0 < Real.sin θ := Real.sin_pos_of_pos_of_lt_pi hθ.1 (by linarith [hθ.2, Real.pi_pos])
   have hc : 0 < Real.cos θ := Real.cos_pos_of_mem_Ioo ⟨by linarith [hθ.1, Real.pi_pos], hθ.2⟩
   have he : 1 - ((Real.sin θ ^ 2 : ℝ) : ℂ) = (Real.cos θ : ℂ) ^ 2 := by
-    exact_mod_cast (show 1 - Real.sin θ ^ 2 = Real.cos θ ^ 2 by nlinarith [Real.sin_sq_add_cos_sq θ])
+    exact_mod_cast (show 1 - Real.sin θ ^ 2 = Real.cos θ ^ 2 by
+      nlinarith [Real.sin_sq_add_cos_sq θ])
   rw [he, abs_of_pos (by positivity : 0 < 2 * Real.sin θ * Real.cos θ), real_smul]
   push_cast only [ofReal_mul, ofReal_ofNat, ofReal_pow]
   calc
@@ -121,7 +122,8 @@ theorem integral_cos_cpow_mul_sin_cpow {a b : ℂ} (ha : 0 < a.re) (hb : 0 < b.r
   rw [he] at h
   have hbval : (∫ t : ℝ in Ioo 0 1, (t : ℂ) ^ (b - 1) * (1 - (t : ℂ)) ^ (a - 1)) =
       Gamma a * Gamma b / Gamma (a + b) := by
-    rw [← integral_Ioc_eq_integral_Ioo, ← intervalIntegral.integral_of_le (by norm_num : (0 : ℝ) ≤ 1)]
+    rw [← integral_Ioc_eq_integral_Ioo, ← intervalIntegral.integral_of_le (by norm_num : (0 : ℝ) ≤
+      1)]
     change betaIntegral b a = _
     rw [betaIntegral_symm, betaIntegral_eq_Gamma_mul_div a b ha hb]
   rw [hbval] at h

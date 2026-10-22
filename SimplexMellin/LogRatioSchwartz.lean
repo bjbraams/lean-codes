@@ -315,7 +315,8 @@ theorem integrable_iteratedFDeriv_logRatioBoundaryKernel_of_contDiffNear {N n : 
     (hg : ContDiffNearStdSimplex N g) (hn : n ≤ N) :
     Integrable (iteratedFDeriv ℝ n (logRatioBoundaryKernel i₀ b g)) := by
   obtain ⟨S, hS⟩ := exists_schwartzMap_complexLogRatioWeight i₀ hb
-  change Integrable (iteratedFDeriv ℝ n (fun w => logRatioAngle i₀ g w • complexLogRatioWeight i₀ b w))
+  change Integrable (iteratedFDeriv ℝ n (fun w => logRatioAngle i₀ g w • complexLogRatioWeight i₀ b
+    w))
   rw [← hS]
   exact S.integrable_iteratedFDeriv_smul_of_bounded
     (contDiff_logRatioAngle_of_contDiffNear i₀ hg)
@@ -434,7 +435,8 @@ theorem fourier_logRatioBoundaryKernel {b : ι → ℂ} (hb : b ∈ mvBetaConver
         (2 * Real.pi : ℂ) * (∑ j, ξ j * w j : ℝ) * I := by
       calc
         _ = (2 * Real.pi : ℂ) *
-            (∑ i, logRatioFrequency i₀ ξ.ofLp i * logRatioLogPoint i₀ (WithLp.toLp 2 w) i : ℝ) * I := by
+            (∑ i, logRatioFrequency i₀ ξ.ofLp i * logRatioLogPoint i₀ (WithLp.toLp 2 w) i : ℝ) * I
+              := by
           push_cast
           simp only [Finset.mul_sum, Finset.sum_mul]
           apply Finset.sum_congr rfl

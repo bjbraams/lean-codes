@@ -73,7 +73,8 @@ theorem variation_complexDirichletMeasure [Nonempty ι] {b : ι → ℂ}
     (complexDirichletMeasure b).variation =
       ENNReal.ofReal (mvRealBeta (fun i => (b i).re) / ‖mvBeta b‖) •
         dirichletMeasure (fun i => (b i).re) := by
-  rw [complexDirichletMeasure, Measure.variation_withDensityᵥ (integrableOn_complexDirichletDensity hb)]
+  rw [complexDirichletMeasure, Measure.variation_withDensityᵥ (integrableOn_complexDirichletDensity
+    hb)]
   have he : (fun u => ‖complexDirichletDensity b u‖ₑ) =
       fun u => ENNReal.ofReal (mvRealBeta (fun i => (b i).re) / ‖mvBeta b‖) *
         dirichletPdf (fun i => (b i).re) u := by

@@ -251,8 +251,10 @@ theorem regCarlsonDirichletAverage_iteratedDeriv_eq_cycleIntegral (n : ℕ) {b :
       m * regCarlsonDirichletAverage b z (iteratedDeriv n f) := by
   have hF : ContinuousOn (fun p : ℂ × (ι → ℝ) => carlsonCauchyKernel n z p.2 p.1 * f p.1)
       (Γ.range ×ˢ Convexity.StdSimplex.coordinateSet ℝ ι) :=
-    ((continuousOn_carlsonCauchyKernel n z).mono (fun p (hp : p ∈ Γ.range ×ˢ Convexity.StdSimplex.coordinateSet ℝ ι) => ⟨havoid hp.1, hp.2⟩)).mul
-      ((hf.continuousOn.mono hΓU).comp continuous_fst.continuousOn (fun p (hp : p ∈ Γ.range ×ˢ Convexity.StdSimplex.coordinateSet ℝ ι) => hp.1))
+    ((continuousOn_carlsonCauchyKernel n z).mono (fun p (hp : p ∈ Γ.range ×ˢ
+      Convexity.StdSimplex.coordinateSet ℝ ι) => ⟨havoid hp.1, hp.2⟩)).mul
+      ((hf.continuousOn.mono hΓU).comp continuous_fst.continuousOn (fun p (hp : p ∈ Γ.range ×ˢ
+        Convexity.StdSimplex.coordinateSet ℝ ι) => hp.1))
   have hres : ∀ s, regCarlsonResolvent n b z s * f s =
       regDirichletIntegral b (fun u => carlsonCauchyKernel n z u s * f s) := by
     intro s

@@ -116,6 +116,120 @@ theorem summable_ascPochhammer_mul_ascPochhammer {A B q : ℝ} (hA : 0 ≤ A) (h
 
 variable {ι : Type*} [Fintype ι]
 
+/-- A bilateral generating series has a summable majorant on every unit ball
+of its joint parameter space. The radii satisfy the strict product bound. -/
+private theorem exists_bilateral_generating_majorant (z : ι → ℂ) (x y : ℂ)
+    {ρ r : ℝ} (hρ0 : 0 ≤ ρ) (hr0 : 0 ≤ r)
+    (hx : ‖x‖ ≤ ρ) (hy : ‖y‖ ≤ ρ) (hzr : ∀ i, ‖z i‖ ≤ r) (hρr : ρ * r < 1)
+    (hT : ∀ n, AnalyticOnNhd ℂ (fun p : Option ι → ℂ =>
+      carlsonRPolynomialNumerator₂ n (p none) (∑ i, p (some i) - p none) x y *
+        regCarlsonRPolynomial n (fun i => p (some i)) z / n.factorial) univ)
+    (p₀ : Option ι → ℂ) :
+    ∃ u : ℕ → ℝ, Summable u ∧ ∀ n, ∀ p ∈ Metric.ball p₀ 1,
+      ‖carlsonRPolynomialNumerator₂ n (p none) (∑ i, p (some i) - p none) x y *
+        regCarlsonRPolynomial n (fun i => p (some i)) z / n.factorial‖ ≤ u n := by
+  classical
+  let aP : (Option ι → ℂ) → ℂ := fun p => p none
+  let bP : (Option ι → ℂ) → ι → ℂ := fun p i => p (some i)
+  let T : ℕ → (Option ι → ℂ) → ℂ := fun n p =>
+    carlsonRPolynomialNumerator₂ n (aP p) (∑ i, bP p i - aP p) x y *
+      regCarlsonRPolynomial n (bP p) z / n.factorial
+  set R := ‖p₀‖ + 1
+  set k : ℝ := (Fintype.card ι : ℝ)
+  set B : ℝ := k * R
+  set A : ℝ := R + (B + R)
+  have hR0 : 0 ≤ R := by positivity
+  have hB0 : 0 ≤ B := by positivity
+  have hA0 : 0 ≤ A := by positivity
+  have hpR : ∀ p ∈ Metric.closedBall p₀ 1, ‖p‖ ≤ R := fun p hp => by
+    have := norm_le_of_mem_closedBall hp; simp only [R]; linarith
+  have hbB : ∀ p ∈ Metric.closedBall p₀ 1, ∑ i, ‖bP p i‖ ≤ B := by
+    intro p hp
+    calc ∑ i, ‖bP p i‖ ≤ ∑ _i : ι, R :=
+          Finset.sum_le_sum fun i _ => (norm_le_pi_norm p (some i)).trans (hpR p hp)
+      _ = B := by simp [B, k]
+  have hcB : ∀ p ∈ Metric.closedBall p₀ 1, ‖∑ i, bP p i‖ ≤ B := fun p hp =>
+    (norm_sum_le _ _).trans (hbB p hp)
+  have hNa : ∀ n, ∀ p ∈ Metric.closedBall p₀ 1,
+      ‖carlsonRPolynomialNumerator₂ n (aP p) (∑ i, bP p i - aP p) x y‖ ≤
+        (ascPochhammer ℝ n).eval A * ρ ^ n := by
+    intro n p hp
+    rw [← carlsonRPolynomialNumerator_pair]
+    refine (norm_carlsonRPolynomialNumerator_le_sum_norm n _ _ hρ0 fun i => ?_).trans ?_
+    · fin_cases i
+      · exact hx
+      · exact hy
+    · refine mul_le_mul_of_nonneg_right ?_ (pow_nonneg hρ0 _)
+      refine (ascPochhammer_real_eval_nonneg_le (by positivity) ?_ n).2
+      simp only [Fin.sum_univ_two, pair_zero, pair_one]
+      have h1 : ‖aP p‖ ≤ R := (norm_le_pi_norm p none).trans (hpR p hp)
+      have h2 : ‖∑ i, bP p i - aP p‖ ≤ B + R :=
+        (norm_sub_le _ _).trans (add_le_add (hcB p hp) h1)
+      simp only [A]; linarith
+  have hNb : ∀ n, ∀ p ∈ Metric.closedBall p₀ 1,
+      ‖carlsonRPolynomialNumerator n (bP p) z‖ ≤ (ascPochhammer ℝ n).eval B * r ^ n :=
+    fun n p hp => (norm_carlsonRPolynomialNumerator_le_sum_norm n _ z hr0 hzr).trans
+      (mul_le_mul_of_nonneg_right ((ascPochhammer_real_eval_nonneg_le
+        (Finset.sum_nonneg fun _ _ => norm_nonneg _) (hbB p hp) n).2) (pow_nonneg hr0 _))
+  -- the reciprocal Gamma factor
+  set N₀ : ℕ := ⌈B⌉₊ + 1
+  have hN₀ : B + 1 ≤ N₀ := by
+    simp only [N₀]; push_cast; linarith [Nat.le_ceil B]
+  have hcompact : IsCompact (Metric.closedBall p₀ (1 : ℝ)) := isCompact_closedBall _ _
+  obtain ⟨G, hG⟩ := hcompact.exists_bound_of_continuousOn (f := fun p : Option ι → ℂ =>
+    (Gamma (∑ i, bP p i + N₀))⁻¹) (by
+      refine Continuous.continuousOn ?_
+      have h1 : Continuous fun w : ℂ => (Gamma w)⁻¹ := by
+        simpa [one_div] using differentiable_one_div_Gamma.continuous
+      exact h1.comp (by fun_prop))
+  have hGam : ∀ n, N₀ ≤ n → ∀ p ∈ Metric.closedBall p₀ 1,
+      ‖(Gamma (∑ i, bP p i + n))⁻¹‖ ≤ G / (n - N₀).factorial := by
+    intro n hn p hp
+    have hre1 : 1 ≤ (∑ i, bP p i + N₀).re := by
+      have := (Complex.abs_re_le_norm (∑ i, bP p i)).trans (hcB p hp)
+      simp only [add_re, natCast_re]
+      linarith [neg_abs_le (∑ i, bP p i).re]
+    have := norm_inv_Gamma_add_nat_le hre1 (n - N₀)
+    rw [show ∑ i, bP p i + (N₀ : ℂ) + ((n - N₀ : ℕ) : ℂ) = ∑ i, bP p i + n by
+      push_cast [hn]; ring] at this
+    exact this.trans (div_le_div_of_nonneg_right (hG p hp) (by positivity))
+  -- small degrees
+  have hsmall : ∀ n : ℕ, ∃ M, ∀ p ∈ Metric.closedBall p₀ 1, ‖T n p‖ ≤ M := fun n =>
+    hcompact.exists_bound_of_continuousOn (fun p _ => (hT n p trivial).continuousAt
+      |>.continuousWithinAt)
+  choose M hM using hsmall
+  let u : ℕ → ℝ := fun n => if n < N₀ then M n else
+    (ascPochhammer ℝ n).eval A * (ρ * r) ^ n / n.factorial *
+      ((ascPochhammer ℝ n).eval B * G / (n - N₀).factorial)
+  refine ⟨u, ?_, fun n p hp => ?_⟩
+  · rw [← summable_nat_add_iff N₀]
+    have hsum := (summable_ascPochhammer_mul_ascPochhammer hA0 hB0
+      (mul_nonneg hρ0 hr0) hρr N₀).mul_right G
+    refine hsum.congr fun m => ?_
+    simp only [u, show ¬ (m + N₀ < N₀) by omega, ite_false, Nat.add_sub_cancel]
+    ring
+  · have hp' := Metric.ball_subset_closedBall hp
+    by_cases hn : n < N₀
+    · simp only [u, hn, ite_true]; exact hM n p hp'
+    · simp only [u, hn, ite_false]
+      push Not at hn
+      have hR := regCarlsonRPolynomial_eq_numerator_mul_one_div_Gamma n (bP p) z
+      rw [hR, norm_div, norm_mul, norm_mul, Complex.norm_natCast]
+      have e1 := hNa n p hp'
+      have e2 := hNb n p hp'
+      have e3 := hGam n hn p hp'
+      have hG0 : 0 ≤ G := (norm_nonneg _).trans (hG p hp')
+      calc ‖carlsonRPolynomialNumerator₂ n (aP p) (∑ i, bP p i - aP p) x y‖ *
+            (‖carlsonRPolynomialNumerator n (bP p) z‖ *
+              ‖(Gamma (∑ i, bP p i + n))⁻¹‖) / n.factorial
+          ≤ (ascPochhammer ℝ n).eval A * ρ ^ n *
+              ((ascPochhammer ℝ n).eval B * r ^ n * (G / (n - N₀).factorial)) /
+                n.factorial := by
+            have hA' := (ascPochhammer_real_eval_nonneg_le hA0 le_rfl n).1
+            have hB' := (ascPochhammer_real_eval_nonneg_le hB0 le_rfl n).1
+            gcongr
+        _ = _ := by rw [mul_pow]; ring
+
 /-- **Generating Relation 6.11-1 for all parameters.** For any number `k ≥ 1` of nodes, all
 complex `a` and all complex Dirichlet parameters `b`, `c = ∑ bᵢ`, and `‖x zᵢ‖, ‖y zᵢ‖ < 1`:
 `∏ (1 - y zᵢ)^(-bᵢ) R_{-a}(b; (1 - x z)/(1 - y z)) = ∑ (c)ₙ/n! Rₙ(a, c - a; x, y) Rₙ(b, z)`,
@@ -192,105 +306,8 @@ theorem hasSum_bilateral_generating_of_nonempty [Nonempty ι] (a : ℂ) (b z : �
         (fun _ => analyticAt_const) n
     exact (hN.mul hR).div_const
   -- a summable majorant on every unit ball
-  have hbound : ∀ p₀ : Option ι → ℂ, ∃ u : ℕ → ℝ, Summable u ∧
-      ∀ n, ∀ p ∈ Metric.ball p₀ 1, ‖T n p‖ ≤ u n := by
-    intro p₀
-    set R := ‖p₀‖ + 1
-    set k : ℝ := (Fintype.card ι : ℝ)
-    set B : ℝ := k * R
-    set A : ℝ := R + (B + R)
-    have hR0 : 0 ≤ R := by positivity
-    have hB0 : 0 ≤ B := by positivity
-    have hA0 : 0 ≤ A := by positivity
-    have hpR : ∀ p ∈ Metric.closedBall p₀ 1, ‖p‖ ≤ R := fun p hp => by
-      have := norm_le_of_mem_closedBall hp; simp only [R]; linarith
-    have hbB : ∀ p ∈ Metric.closedBall p₀ 1, ∑ i, ‖bP p i‖ ≤ B := by
-      intro p hp
-      calc ∑ i, ‖bP p i‖ ≤ ∑ _i : ι, R :=
-            Finset.sum_le_sum fun i _ => (norm_le_pi_norm p (some i)).trans (hpR p hp)
-        _ = B := by simp [B, k]
-    have hcB : ∀ p ∈ Metric.closedBall p₀ 1, ‖∑ i, bP p i‖ ≤ B := fun p hp =>
-      (norm_sum_le _ _).trans (hbB p hp)
-    have hNa : ∀ n, ∀ p ∈ Metric.closedBall p₀ 1,
-        ‖carlsonRPolynomialNumerator₂ n (aP p) (∑ i, bP p i - aP p) x y‖ ≤
-          (ascPochhammer ℝ n).eval A * ρ ^ n := by
-      intro n p hp
-      rw [← carlsonRPolynomialNumerator_pair]
-      refine (norm_carlsonRPolynomialNumerator_le_sum_norm n _ _ hρ0 fun i => ?_).trans ?_
-      · fin_cases i
-        · exact le_max_left _ _
-        · exact le_max_right _ _
-      · refine mul_le_mul_of_nonneg_right ?_ (pow_nonneg hρ0 _)
-        refine (ascPochhammer_real_eval_nonneg_le (by positivity) ?_ n).2
-        simp only [Fin.sum_univ_two, pair_zero, pair_one]
-        have h1 : ‖aP p‖ ≤ R := (norm_le_pi_norm p none).trans (hpR p hp)
-        have h2 : ‖∑ i, bP p i - aP p‖ ≤ B + R :=
-          (norm_sub_le _ _).trans (add_le_add (hcB p hp) h1)
-        simp only [A]; linarith
-    have hNb : ∀ n, ∀ p ∈ Metric.closedBall p₀ 1,
-        ‖carlsonRPolynomialNumerator n (bP p) z‖ ≤ (ascPochhammer ℝ n).eval B * r ^ n :=
-      fun n p hp => (norm_carlsonRPolynomialNumerator_le_sum_norm n _ z hr0 hzr).trans
-        (mul_le_mul_of_nonneg_right ((ascPochhammer_real_eval_nonneg_le
-          (Finset.sum_nonneg fun _ _ => norm_nonneg _) (hbB p hp) n).2) (pow_nonneg hr0 _))
-    -- the reciprocal Gamma factor
-    set N₀ : ℕ := ⌈B⌉₊ + 1
-    have hN₀ : B + 1 ≤ N₀ := by
-      simp only [N₀]; push_cast; linarith [Nat.le_ceil B]
-    have hcompact : IsCompact (Metric.closedBall p₀ (1 : ℝ)) := isCompact_closedBall _ _
-    obtain ⟨G, hG⟩ := hcompact.exists_bound_of_continuousOn (f := fun p : Option ι → ℂ =>
-      (Gamma (∑ i, bP p i + N₀))⁻¹) (by
-        refine Continuous.continuousOn ?_
-        have h1 : Continuous fun w : ℂ => (Gamma w)⁻¹ := by
-          simpa [one_div] using differentiable_one_div_Gamma.continuous
-        exact h1.comp (by fun_prop))
-    have hGam : ∀ n, N₀ ≤ n → ∀ p ∈ Metric.closedBall p₀ 1,
-        ‖(Gamma (∑ i, bP p i + n))⁻¹‖ ≤ G / (n - N₀).factorial := by
-      intro n hn p hp
-      have hre1 : 1 ≤ (∑ i, bP p i + N₀).re := by
-        have := (Complex.abs_re_le_norm (∑ i, bP p i)).trans (hcB p hp)
-        simp only [add_re, natCast_re]
-        linarith [neg_abs_le (∑ i, bP p i).re]
-      have := norm_inv_Gamma_add_nat_le hre1 (n - N₀)
-      rw [show ∑ i, bP p i + (N₀ : ℂ) + ((n - N₀ : ℕ) : ℂ) = ∑ i, bP p i + n by
-        push_cast [hn]; ring] at this
-      exact this.trans (div_le_div_of_nonneg_right (hG p hp) (by positivity))
-    -- small degrees
-    have hsmall : ∀ n : ℕ, ∃ M, ∀ p ∈ Metric.closedBall p₀ 1, ‖T n p‖ ≤ M := fun n =>
-      hcompact.exists_bound_of_continuousOn (fun p _ => (hT n p trivial).continuousAt
-        |>.continuousWithinAt)
-    choose M hM using hsmall
-    let u : ℕ → ℝ := fun n => if n < N₀ then M n else
-      (ascPochhammer ℝ n).eval A * (ρ * r) ^ n / n.factorial *
-        ((ascPochhammer ℝ n).eval B * G / (n - N₀).factorial)
-    refine ⟨u, ?_, fun n p hp => ?_⟩
-    · rw [← summable_nat_add_iff N₀]
-      have hsum := (summable_ascPochhammer_mul_ascPochhammer hA0 hB0
-        (mul_nonneg hρ0 hr0) hρr N₀).mul_right G
-      refine hsum.congr fun m => ?_
-      simp only [u, show ¬ (m + N₀ < N₀) by omega, ite_false, Nat.add_sub_cancel]
-      ring
-    · have hp' := Metric.ball_subset_closedBall hp
-      by_cases hn : n < N₀
-      · simp only [u, hn, ite_true]; exact hM n p hp'
-      · simp only [u, hn, ite_false]
-        push Not at hn
-        have hR := regCarlsonRPolynomial_eq_numerator_mul_one_div_Gamma n (bP p) z
-        simp only [T]
-        rw [hR, norm_div, norm_mul, norm_mul, Complex.norm_natCast]
-        have e1 := hNa n p hp'
-        have e2 := hNb n p hp'
-        have e3 := hGam n hn p hp'
-        have hG0 : 0 ≤ G := (norm_nonneg _).trans (hG p hp')
-        calc ‖carlsonRPolynomialNumerator₂ n (aP p) (∑ i, bP p i - aP p) x y‖ *
-              (‖carlsonRPolynomialNumerator n (bP p) z‖ *
-                ‖(Gamma (∑ i, bP p i + n))⁻¹‖) / n.factorial
-            ≤ (ascPochhammer ℝ n).eval A * ρ ^ n *
-                ((ascPochhammer ℝ n).eval B * r ^ n * (G / (n - N₀).factorial)) /
-                  n.factorial := by
-              have hA' := (ascPochhammer_real_eval_nonneg_le hA0 le_rfl n).1
-              have hB' := (ascPochhammer_real_eval_nonneg_le hB0 le_rfl n).1
-              gcongr
-          _ = _ := by rw [mul_pow]; ring
+  have hbound := exists_bilateral_generating_majorant z x y hρ0 hr0
+    (le_max_left _ _) (le_max_right _ _) hzr hρr hT
   -- holomorphy of the sum
   have hF : AnalyticOnNhd ℂ (fun p => ∑' n, T n p) univ := by
     intro p₀ _

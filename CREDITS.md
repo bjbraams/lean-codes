@@ -28,6 +28,34 @@ Loeffler's Mathlib complex beta integral back along squared sine, using Sébasti
 one-dimensional Jacobian and integrability theorems. Both modules follow Carlson (1977),
 Theorems 2.6-1–2.6-3 and formula (4.2-3), respectively.
 
+The integer-order Pochhammer API extends Mathlib's polynomial rising factorials. The
+existing natural-order algebraic proofs were moved from `Pochhammer.Identities` to
+`ToMathlib.Algebra.Polynomial.PochhammerIdentities`, retaining the compatibility import.
+`PochhammerStirling` combines Mathlib's factorial Stirling sequence with the project's
+strict logarithmic-mean bounds to obtain Carlson's exact half-integer remainder.
+
+`GammaAsymptotic` generalizes David Loeffler's Mathlib beta-integral approximation from
+natural cutoffs to real cutoffs, then uses Gamma recurrence for arbitrary complex shifts.
+`GammaProduct` combines Mathlib's Euler approximants and harmonic-number limits.
+`DigammaSeries` uses the Tau Ceti contributors' whole-domain locally uniform convergence
+theorem from `TauCeti.Analysis.Complex.Conformal.Vitali`, Mathlib's convergence theorem
+for logarithmic derivatives, and the quadratic linear-denominator summability result
+from `Mathlib.NumberTheory.ModularForms.EisensteinSeries.Summable`. The logarithmic
+series also uses Mathlib's harmonic characterization of Euler's constant.
+
+`BetaSeries` generalizes the project's existing dominated-convergence argument to any
+countable index set. `HypergeometricBeta` combines it with Moritz Doll's Mathlib
+hypergeometric coefficients and the natural-order duplication identity. The explicit
+double-beta specialization uses the existing TauCeti binomial-series adapter.
+`Dirichlet.Complex.Liouville` combines the existing native complex aggregation theorem
+with the solid-coordinate simplex integration formula.
+
+The Appell double-series construction uses Mathlib's hypergeometric radius classification
+and summable product majorants. Its Carlson identification uses the project's existing
+Taylor continuation and Pochhammer numerator formulas. The previously local
+principal-power iterated-derivative proof in `Carlson.TwoVariable.GaussHypergeometric`
+was moved to `ToMathlib.Analysis.SpecialFunctions.ComplexPowerDeriv` for reuse.
+
 The normal-family development in
 `ToMathlib/Analysis/Holomorphic/NormalFamily.lean`
 acknowledges Vincent Beffara's [RMT4 formalization of the Riemann mapping theorem](https://github.com/vbeffara/RMT4),
@@ -350,3 +378,76 @@ now with the continuity of its nonvanishing coefficient made explicit. Mathlib's
 extreme-value theorem gives uniform upper and lower coefficient bounds.
 `ToMathlib.Analysis.Asymptotics.UniformRoot` uses Mathlib's continuity of real powers
 and the reciprocal-degree limit to obtain uniform root convergence from geometric bounds.
+
+The Brenner–Carlson (1987) homogeneous-mean asymptotic in
+`ToMathlib.Analysis.Calculus.HomogeneousMeanAsymptotic` uses Mathlib's
+`exists_taylor_mean_remainder_bound` under a local `ContDiffAt` hypothesis.
+The growing-family argument in `Dirichlet.Real.UniformConcentration` uses the
+project's existing Dirichlet moment API and Mathlib's integral Hölder inequality;
+its variance estimate is independent of dimension. The Maclaurin inequality in
+`ToMathlib.Analysis.Convex.ElementarySymmetricMean` is a local proof by maximizing
+on the compact simplex and averaging unequal coordinates, used in Carlson's
+1966 capacity comparison. No new TauCeti dependency is introduced by these modules.
+
+
+## Linear Appell transformation and matrix averages — 22 October 2026
+
+`ToMathlib.Analysis.SpecialFunctions.AppellLinear` uses Mathlib's hypergeometric
+convergence radius, summation over antidiagonals, and cast binomial-coefficient
+formula. A Gauss-series majorant proves absolute convergence in the open diamond.
+`Carlson.TwoVariable.AppellLinear` reuses the existing local division-free
+R-polynomial translation identity to prove Carlson (1976), equation (4), after
+grouping by total degree. The positive split parameters follow the article;
+Gamma regularization permits arbitrary complex values of the other parameters.
+
+`Dirichlet.Average.Matrix` and `MatrixSeries` reuse the local complex Dirichlet
+integration, permutation, aggregation and probability-bridge APIs. Mathlib's
+product integrability, Fubini theorem and dominated convergence justify the
+independent row/column averaging and termwise power-series integration.
+No new dependency or shared complex-analysis implementation is needed.
+
+
+## Appell F₂/F₃ and matrix continuation — 22 October 2026
+
+`ToMathlib.Analysis.SpecialFunctions.AppellF2F3` uses Mathlib's scalar
+hypergeometric convergence radii, finite binomial sums, and absolute summation
+over antidiagonals. Scalar Gauss-series majorants give the full $F_2$ diamond
+and $F_3$ bidisk without positivity assumptions on the complex parameters.
+`Dirichlet.Average.MatrixMoments` reuses local monomial Dirichlet integrals and
+Mathlib's product-integral API. `Carlson.TwoVariable.AppellMatrix` combines
+these moments, the existing matrix series theorem, and the local binomial
+series for principal powers to obtain the native matrix identifications.
+
+`Dirichlet.Average.MatrixContinuation` iterates the local parametric Dirichlet
+continuation: first the columns, then the rows. The convex scalar kernel domain
+ensures the row simplex maps into the column continuation domain. Existing
+analytic uniqueness in each parameter space characterizes the entire matrix
+continuation and extends transpose symmetry. No new dependency or shared
+complex-analysis implementation is needed.
+
+
+## Continued Appell identities and F₄ Jacobi series — 22 October 2026
+
+`ToMathlib.Analysis.Analytic.ParameterTaylor` uses Mathlib's analytic Fréchet
+derivative and uniqueness of formal power series to prove holomorphic parameter
+Taylor coefficients. `Dirichlet.Average.MatrixTaylor` combines this with existing
+Dirichlet analytic uniqueness in each parameter block. The continued matrix
+binomial series and arbitrary-parameter Appell identities reuse the native
+polynomial moments; no parameter-uniform series bound is assumed in that step.
+Continued matrix permutations, merging and kernel linearity likewise use native
+identities and analytic uniqueness.
+
+`GammaShiftBounds` now holds the existing uniform reciprocal-Gamma estimates
+formerly in `Pochhammer.Gamma`, which reexports them. A scalar hypergeometric
+majorant gives a new compact uniform factorial-geometric bound. `AppellParameter`
+uses it and Mathlib's Weierstrass theorem for entire denominator dependence of
+regularized $F_3$. `AppellNormalization` reuses the local Gamma-pole limit theorem
+to identify the removable matrix normalization and its derivative value.
+
+`AppellF4` uses Mathlib's hypergeometric convergence radii, finite squared-binomial
+bounds and absolute antidiagonal regrouping to retain the full square-root domain.
+`Carlson.Jacobi.AppellF4` reuses local Pochhammer reflection, reciprocal-Gamma
+recurrences and the Jacobi/R-polynomial bridge for Carlson (1975), equation (2.2),
+and book Exercise 7.1-13. Its division-free numerator version covers exceptional
+parameters; the normalized Jacobi version states its nondegeneracy hypotheses.
+No new dependency or shared complex-analysis implementation is introduced.

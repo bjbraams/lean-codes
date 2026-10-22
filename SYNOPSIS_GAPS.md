@@ -70,27 +70,32 @@ These chapters are used through Mathlib's Gamma, beta and hypergeometric theory 
 project's support libraries. They are not formalized systematically; the inventory in
 [CarlsonCoverage.md](CarlsonCoverage.md) now includes Chapters 2 and 4.
 
-* Chapter 2: an integer-order Pochhammer API including negative orders; Appell's $F_1$; and the specific
-  half-integer Pochhammer remainder formulas of §2.7. Wallis' product, factorial Stirling
-  asymptotics, natural-order Pochhammer identities and much hypergeometric convergence
-  theory are already available upstream. The general nonterminating $p > q + 1$ divergence
+* Chapter 2: the remaining elementary and polynomial examples, the exercise variants of
+  §2.7, and a complete exercise inventory. Integer-order Pochhammer identities, including
+  negative orders, are proved in `IntegerPochhammer`; the exact half-integer remainder
+  formula of Theorem 2.7-1 is proved in `PochhammerStirling`. Appell's $F_1$ double series
+  and its Carlson identification are proved on the unit bidisk. Wallis' product, factorial
+  Stirling asymptotics and much hypergeometric convergence theory are available upstream.
+  The general nonterminating $p > q + 1$ divergence
   assertion and zero convergence radius are proved in `HypergeometricDivergence`.
   All three logarithmic-mean inequalities of §2.6, including the sharp real and complex
   error bounds, are proved in `LogarithmicMean`.
-  The examples and exercises lack a complete inventory.
-* Chapter 3: the ratio asymptotic for real arguments with fixed complex shifts, Weierstrass's
-  product and the partial-fraction expansions of the digamma function, the logarithmic
-  correction series and the sectorial Stirling theorem, the remaining
+* Chapter 3: Euler's infinite-product formula (3.4-6) as a standalone statement, the
+  logarithmic correction series and the sectorial Stirling theorem, the remaining
   quantitative Gamma inequalities of §3.10, and the normalized complex Euler integration
   functional with rotated rays of §3.11 as a general theory. Many exercises are open. The
   strict log-convexity and uniqueness of the positive Gamma minimum are proved in
-  `GammaStrictConvex`. The simple poles and residues are proved through the analytic,
+  `GammaStrictConvex`. `GammaAsymptotic` proves the ratio asymptotic along real arguments
+  for arbitrary fixed complex shifts. `GammaProduct` proves the ordered Weierstrass product
+  at all complex parameters; `DigammaSeries` proves both partial-fraction expansions on
+  the full pole complement. The simple poles and residues are proved through the analytic,
   nonzero pole factor in `Dirichlet.GammaPoles`; a standalone meromorphic-order statement
   is only an API addition.
-* Chapter 4: the solid-coordinate Liouville form of Corollary 4.4-5 and general hypergeometric
-  parameter-raising integral identities (Exercises 4.4-3–4.4-4). Multiplication specializations and
-  geometric and physical exercises are not systematically covered. The principal beta
-  evaluations, density integrals, symmetry, moments and parameter holomorphy are proved,
+* Chapter 4: multiplication specializations and geometric and physical exercises are not
+  systematically covered. The solid-coordinate Liouville reduction (Corollary 4.4-5),
+  the double-beta identity of Exercise 4.4-3 and both general hypergeometric parameter-raising
+  identities of Exercise 4.4-4 are proved, with the convergence hypotheses recorded in
+  `CarlsonCoverage.md`. The principal beta evaluations, density integrals, symmetry, moments and parameter holomorphy are proved,
   as are the strict beta inequalities of Exercises 4.2-3 and 4.3-2, native complex aggregation
   and its one-variable reduction (Theorem 4.4-3, Corollary 4.4-4), the bundled variation
   identities (4.4-3), (4.4-4) and the exponential variation bound of Exercise 4.4-8.
@@ -116,8 +121,8 @@ project's support libraries. They are not formalized systematically; the invento
   positive order.
 * The transformation group of order six (§6.5) as a group action; the general-order form of
   (6.9-22), which needs a branch condition.
-* Exercises 6.3-1 (holomorphy on the plane cut along the segment), 6.3-5 (Appell's $F_1$),
-  6.7-6; partial: 6.2-7, 6.2-14 (the homogeneity step), 6.3-6 (joint holomorphy on
+* Exercises 6.3-1 (holomorphy on the plane cut along the segment), 6.7-6; partial: 6.2-7,
+  6.2-14 (the homogeneity step), 6.3-6 (joint holomorphy on
   $\mathbb C \setminus \operatorname{con}(z)$), 6.6-9 and 6.6-15 (Jordan-curve forms).
 * The generating relations (2.14), (2.15) of Carlson (1970) in closed form.
 
@@ -138,8 +143,9 @@ project's support libraries. They are not formalized systematically; the invento
 * **Confluent limits.** The Laguerre second-kind limit assumes $\operatorname{Re}(1 + \beta + n) > 0$;
   the weighted Laguerre and Hermite representations assume growth control also on $f^{(n)}$.
 * The physical Examples 7.9-6, 7.9-7 and 7.10-5.
-* Open exercises: 7.1-4, 7.1-13, 7.4-2 to 7.4-4, 7.6-1, 7.6-3, 7.6-4, 7.7-9 to 7.7-13, 7.8-2 to
-  7.8-4, 7.8-9, 7.8-10, 7.9-3, 7.9-4, 7.9-7, 7.9-9, 7.10-3; partial: 7.5-2.
+* Open exercises: 7.1-4, 7.4-2 to 7.4-4, 7.6-1, 7.6-3, 7.6-4, 7.7-9 to 7.7-13, 7.8-2 to
+  7.8-4, 7.8-9, 7.8-10, 7.9-3, 7.9-4, 7.9-7, 7.9-9, 7.10-3; partial: 7.1-13
+  (Jacobi series proved; equal-denominator Gauss-average identity open), 7.5-2.
 
 ### Chapter 8
 
@@ -208,13 +214,50 @@ project's support libraries. They are not formalized systematically; the invento
 
 ### Hypergeometric means and Carlson's articles
 
+* **Carlson (1965).** All eight numbered theorems are covered. Remaining ancillary
+  packaging includes the elementary/complete symmetric-function identifications (1.4),
+  with the finite polynomial normalization at exceptional negative parameter sums.
+* **Carlson (1966).** All three numbered theorems are covered. Theorem 3 is proved
+  for positive nodes in every dimension `n ≥ 3`; nonnegative boundary nodes have an
+  extended-integral bound including divergence, and the finite three-dimensional
+  one-zero limit is expressed through `R_K`. Remaining gaps include the strict
+  confluent inequalities (3.5)–(3.8), geometric ellipsoid area/capacity interpretations
+  and the sharper upper Pólya–Szegő bound in (4.7). Several specialized bounds are not
+  packaged; the Gauss/Appell series bridges cover the unit disk/bidisk rather than
+  all of the article's real domain.
+* **Brenner–Carlson (1987), *Homogeneous Mean Values: Weights and Asymptotics*.**
+  All three numbered theorems are covered, including the general local `C²` Hoehn–Niven
+  theorem, its hypergeometric specialization at all real orders, and growing-family
+  limits of `R`, `L`, means and ratio means with varying dimension and weights.
+  The explicit correction (4.4) and function-mean extension (4.5) remain open.
+  The near-diagonal `R` expansion supplies the coefficient needed for (4.4), but the
+  mean/root and large-argument remainder are not established. The uniform confluent
+  approximation and supporting partition/Stirling lemmas in Section 5 are not
+  formalized; the growing-family proof uses a dimension-independent variance estimate.
+  The power-transformed-mean limit is not separately packaged. The general families
+  for arbitrary simplex probability measures, the complete catalog of Section 3
+  weights, and a ratio-mean monotonicity theorem are also missing.
+  See the [detailed article coverage review](CARLSON_ARTICLES.md#lean-coverage-review-of-three-mean-value-papers).
 * **Carlson–Tobey (1968).** Concentration monotonicity for arbitrary finitely many nodes (proved
   for two nodes, and at order two for any number); strict derivative signs beyond order two;
   log-convexity in the concentration at negative orders and at integer orders above two;
   concavity for $0 < t < 1$ and convexity for $1 < t < 2$. (Log-convexity for all real orders
   above one is only a conjecture in the paper.)
+* **Appell papers (1971, 1975, 1976).** The 1976 linear double-series transformation,
+  absolute convergence, and native matrix double-average foundations (symmetries, merging,
+  power-series expansions) are proved. The $F_2,F_3$ matrix identifications now hold
+  at arbitrary complex parameters on the full diamond/bidisk, including removable
+  Gamma cancellation for $F_3$. Continued matrix permutations, merging and the
+  binomial expansion are proved on their convex kernel domains. The $F_4$ series
+  converges on the full square-root region, and its Jacobi expansion (Exercise
+  7.1-13, Jacobi-series part) is proved. The equal-denominator Gauss-average identity,
+  unrestricted matrix representation, six restricted matrix
+  cases, eight quadratic transformations, and generalized Landen/Bartky formulas
+  remain open, along with the matrix differential/Cauchy theory and the linear
+  transformation's arbitrary-order and several-variable extensions.
+  See the [article review](CARLSON_ARTICLES.md#lean-coverage-review-of-the-appell-papers).
 * **Carlson–Gustafson (1983)** (total positivity) and the remaining articles reviewed in
-  `CARLSON_ARTICLES.md` (Appell functions and multiple averages, mixed and logarithmic means,
+  `CARLSON_ARTICLES.md` (mixed and logarithmic means,
   averaged integral transforms, the tables of elliptic integrals, the numerical algorithms,
   Jacobian elliptic and theta functions) are not formalized beyond what the book chapters use.
 

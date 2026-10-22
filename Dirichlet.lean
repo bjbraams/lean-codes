@@ -15,6 +15,8 @@ public import Dirichlet.Complex
 public import Dirichlet.ParameterShift
 public import Dirichlet.Complex.Analytic
 public import Dirichlet.Complex.Aggregation
+public import Dirichlet.Complex.Liouville
+public import Dirichlet.Complex.HypergeometricBeta
 public import Dirichlet.Complex.Variation
 public import Dirichlet.Bridge
 public import Dirichlet.Moments
@@ -24,6 +26,7 @@ public import Dirichlet.Real.BetaAverage
 public import Dirichlet.Real.StrictAverage
 public import Dirichlet.Real.Support
 public import Dirichlet.Real.Concentration
+public import Dirichlet.Real.UniformConcentration
 public import Dirichlet.Gamma
 public import Dirichlet.GammaPoles
 public import Dirichlet.TauCetiBridge

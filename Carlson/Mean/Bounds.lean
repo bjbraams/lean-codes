@@ -203,7 +203,7 @@ theorem euler_weightedPower_lt_weightedPower {t : ℝ} (ht : t < -(∑ i, b i))
   simpa only [inv_inv, he', ← mul_assoc, he, one_mul] using mul_lt_mul_of_pos_left h hp
 
 /-- When `t + C ≥ 1`, the arithmetic-power bound is smaller than the Euler power sum.
-This resolves the minimum in Carlson's bound (2.13) under its additional hypothesis. -/
+This resolves the minimum in Carlson's bound (2.14) under its additional hypothesis. -/
 theorem arithmetic_rpow_lt_euler_weightedPower {t : ℝ} (ht : 1 ≤ t + ∑ i, b i)
     (hb : b ∈ mvRealBetaDomain) (hx : ∀ i, 0 < x i) (hne : ∃ i j, x i ≠ x j) :
     (∑ i, (b i / ∑ j, b j) * x i) ^ t <
@@ -230,7 +230,7 @@ theorem arithmetic_rpow_lt_euler_weightedPower {t : ℝ} (ht : 1 ≤ t + ∑ i, 
   exact (lt_inv_mul_iff₀ hg).mpr (h.trans_le hj)
 
 /-- At orders at most minus one, the Euler arithmetic-power bound is smaller than
- the power sum. This resolves the minimum in Carlson's bound (2.15). -/
+ the power sum. This resolves the minimum in Carlson's bound (2.16). -/
 theorem euler_arithmetic_rpow_lt_weightedPower {t : ℝ} (ht : t ≤ -1)
     (hb : b ∈ mvRealBetaDomain) (hx : ∀ i, 0 < x i) (hne : ∃ i j, x i ≠ x j) :
     (∏ i, x i ^ (-b i)) * (∑ i, (b i / ∑ j, b j) * (x i)⁻¹) ^ (-(∑ i, b i) - t) <
@@ -312,7 +312,7 @@ theorem carlsonRReal_bounds_between_neg_sum_zero {t : ℝ}
       (geometric_lt_carlsonMeanReal hb hx hne htc) ht0
     rwa [carlsonMeanReal_rpow ht0.ne hb hx] at h
 
-/-- Carlson's 1966 bound chain (2.12), for orders greater than one. -/
+/-- Carlson's 1966 bound chain (2.13), for orders greater than one. -/
 theorem carlsonRReal_bound_chain_of_one_lt {t : ℝ}
     (hb : b ∈ mvRealBetaDomain) (hx : ∀ i, 0 < x i) (hne : ∃ i j, x i ≠ x j)
     (ht : 1 < t) :
@@ -333,7 +333,7 @@ theorem carlsonRReal_bound_chain_of_one_lt {t : ℝ}
     (carlsonRReal_strict_bounds_of_one_lt ht hb hx hne).2,
     weightedPower_lt_euler_weightedPower ht0 hb hx hne⟩
 
-/-- Carlson's 1966 bound chain (2.13), for orders between zero and one. -/
+/-- Carlson's 1966 bound chain (2.14), for orders between zero and one. -/
 theorem carlsonRReal_bound_chain_of_pos_of_lt_one {t : ℝ}
     (hb : b ∈ mvRealBetaDomain) (hx : ∀ i, 0 < x i) (hne : ∃ i j, x i ≠ x j)
     (ht0 : 0 < t) (ht1 : t < 1) :
@@ -353,7 +353,7 @@ theorem carlsonRReal_bound_chain_of_pos_of_lt_one {t : ℝ}
     lt_min (carlsonRReal_strict_bounds_of_pos_of_lt_one ht0 ht1 hb hx hne).1
       (carlsonRReal_euler_strict_bounds_of_neg hb hx hne (by linarith)).2⟩
 
-/-- Carlson's 1966 bound chain (2.14), throughout the classical Euler convergence strip. -/
+/-- Carlson's 1966 bound chain (2.15), throughout the classical Euler convergence strip. -/
 theorem carlsonRReal_bound_chain_between_neg_sum_zero {t : ℝ}
     (hb : b ∈ mvRealBetaDomain) (hx : ∀ i, 0 < x i) (hne : ∃ i j, x i ≠ x j)
     (ht0 : t < 0) (htc : -(∑ i, b i) < t) :
@@ -371,7 +371,7 @@ theorem carlsonRReal_bound_chain_between_neg_sum_zero {t : ℝ}
     lt_min (geometric_rpow_lt_weightedPower ht0.ne hb hx hne)
       (geometric_lt_euler_weightedPower htc.ne' hb hx hne)⟩
 
-/-- Carlson's 1966 bound chain (2.15), for orders between minus the total parameter
+/-- Carlson's 1966 bound chain (2.16), for orders between minus the total parameter
  minus one and minus the total parameter. -/
 theorem carlsonRReal_bound_chain_of_lt_neg_sum {t : ℝ}
     (hb : b ∈ mvRealBetaDomain) (hx : ∀ i, 0 < x i) (hne : ∃ i j, x i ≠ x j)
@@ -392,7 +392,7 @@ theorem carlsonRReal_bound_chain_of_lt_neg_sum {t : ℝ}
     lt_min (carlsonRReal_euler_strict_bounds_of_pos_of_lt_one hb hx hne ht0 ht1).2
       (carlsonRReal_strict_bounds_of_neg (by linarith) hb hx hne).2⟩
 
-/-- Carlson's 1966 bound chain (2.16), for orders below minus the total parameter minus one. -/
+/-- Carlson's 1966 bound chain (2.17), for orders below minus the total parameter minus one. -/
 theorem carlsonRReal_bound_chain_of_lt_neg_sum_sub_one {t : ℝ}
     (hb : b ∈ mvRealBetaDomain) (hx : ∀ i, 0 < x i) (hne : ∃ i j, x i ≠ x j)
     (ht : t < -(∑ i, b i) - 1) :

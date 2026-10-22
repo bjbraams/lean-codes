@@ -1,6 +1,6 @@
 # Carlson's articles in relation to *Special Functions of Applied Mathematics* (1977)
 
-Review date: 30 September 2026.
+Book comparison: 30 September 2026. Selected Lean coverage review: 22 October 2026.
 
 ## Scope and conventions
 
@@ -18,6 +18,13 @@ in the closing material. Section and equation numbers below refer to the **book*
 unless explicitly identified as belonging to an article. This is a review of the
 mathematics and its relation to the book, not an assertion that the corresponding
 results have already been formalized in Lean.
+
+The separate [Lean coverage review of three mean-value papers](#lean-coverage-review-of-three-mean-value-papers)
+below compares the 1965, 1966, and Brenner–Carlson 1987 papers directly with the
+current code, rather than inferring coverage from their relation to the book.
+The [Appell coverage review](#lean-coverage-review-of-the-appell-papers) also
+compares the 1971, 1975, and two 1976 papers directly with the code, together
+with the related 1974 Euler-transform article.
 
 Three distinctions recur:
 
@@ -878,7 +885,7 @@ pair, and two conjugate pairs.
 
 **Source:** B. C. Carlson and J. L. Gustafson, *SIAM Journal on Mathematical
 Analysis* **25**, 288–303.
-[Article PDF](Carlson/References/CarlsonGustafson1994AsymptoticApproximationsSymmetricEllipticIntegrals-SIAM.JMathAnal25).
+[Article PDF](Carlson/References/CarlsonGustafson1994AsymptoticApproximationsSymmetricEllipticIntegrals-SIAM.JMathAnal25%60.pdf).
 
 **Content.** This paper systematically studies symmetric elliptic integrals
 when some real nonnegative arguments are much larger than others. It gives
@@ -1052,6 +1059,525 @@ normalization and permutation theory are a new direction beyond the book's
 systematic coverage. This is not a general account of all theta-function
 theory: the emphasis is on identities in the argument, with the nome fixed,
 and their relation to the symmetric elliptic-integral approach.
+
+## Lean coverage review of three mean-value papers
+
+Reviewed on 22 October 2026 against the three local article PDFs. All theorem and
+equation numbers in this section refer to the **articles**. Here **proved** means
+that a Lean theorem has the mathematical content and hypotheses of the article's
+result; **available by specialization** means that the general theorem is proved
+but its displayed application is not separately packaged. Definitions and tools
+for a proof are distinguished from completed results.
+
+The convention throughout the code is `carlsonR t b x = R_t(b; x)`. Thus the
+1965 and 1966 papers' `R(a,b,x)` corresponds to `carlsonR (-a) b x`. Their
+`M(t,c;x,w)` corresponds to `carlsonMeanReal t (fun i => c * w i) x`.
+For the real mean theory the index type is finite and nonempty, every parameter
+and node is strictly positive, and normalized weights are `b i / ∑ j, b j`.
+Strict comparisons assume nonconstant nodes or nonproportional vectors, as in
+the articles. No restriction on the real order is imposed merely to make the
+positive-ray Euler integral converge: the simplex probability integral is used.
+The [real/complex bridge](Carlson/Mean/Real.lean) identifies these means with the
+continued complex functions on positive data.
+
+### Carlson (1965): all eight numbered theorems are covered
+
+The main development of [*A Hypergeometric Mean Value*](Carlson/References/Carlson1965HypergeometricMeanValue-AMS.ProcAMS16.pdf)
+is proved, including the logarithmic order and the strict inequalities.
+
+- **Theorem 1, continuity and both concentration limits.**
+  [Concentration](Carlson/Mean/Concentration.lean) proves continuity of `R`, `L`,
+  and `M` for `c > 0`, and their limits as `c → ∞`. In particular,
+  `tendsto_carlsonMeanReal_concentration_atTop` applies at every real order.
+  [ConcentrationZero](Carlson/Mean/ConcentrationZero.lean) proves the limits as
+  `c → 0+`, including the geometric mean at order zero. The zero-concentration
+  statements for `R` and `L` extend to complex orders, complex normalized
+  weights, and slit-plane nodes. The polynomial concentration limits used in
+  Lemma 1 are also available in
+  [RPolynomial/Concentration](Carlson/RPolynomial/Concentration.lean).
+- **Theorem 2, elementary mean properties.**
+  [Properties](Carlson/Mean/Properties.lean) proves the constant-node value,
+  positive homogeneity, node bounds, and strict coordinate monotonicity at every
+  order. `continuousOn_carlsonMeanReal_nodes` in
+  [Real](Carlson/Mean/Real.lean) gives continuity on the positive node domain.
+  Strict node comparisons for nonzero-order `R` follow by taking the appropriate
+  power of the strictly positive mean.
+- **Theorem 3, order monotonicity and limiting extrema.**
+  `continuous_carlsonMeanReal_order` in [Real](Carlson/Mean/Real.lean),
+  `strictMono_carlsonMeanReal` in [StrictOrder](Carlson/Mean/StrictOrder.lean),
+  and the two limit theorems in [OrderLimits](Carlson/Mean/OrderLimits.lean)
+  cover the full real order axis, including passage through order zero.
+- **Theorem 4, strict log-convexity.**
+  [LogConvex](Carlson/Mean/LogConvex.lean) proves both
+  `strictConvexOn_log_carlsonRReal` and
+  `strictConvexOn_mul_log_carlsonMeanReal` for nonconstant positive nodes.
+- **Theorem 5, Minkowski and reverse Minkowski.**
+  [Minkowski](Carlson/Mean/Minkowski.lean) proves the strict inequality for
+  `t > 1` and its reverse for every `t < 1`, including zero and negative orders.
+  It also supplies the non-strict forms and exact equality conditions.
+- **Theorem 6 and Corollary 1, Euler inversion and special orders.**
+  `carlsonMeanReal_euler` in [Euler](Carlson/Mean/Euler.lean) covers every
+  nonzero order, including when the transformed order is zero. Order one is the
+  arithmetic mean (`carlsonMeanReal_one`); order `-c` is the geometric mean
+  (`carlsonMeanReal_neg_sum`). The order `-c-1` formula follows from Euler
+  inversion or `carlsonRReal_neg_sum_sub_one` in [Bounds](Carlson/Mean/Bounds.lean)
+  and the defining root formula; it is not a separately named mean identity.
+- **Theorem 7, Hölder and reversed Hölder.**
+  [Holder](Carlson/Mean/Holder.lean) has the conjugate-exponent statements
+  `carlsonMeanReal_holder_lt` for `t ≥ 0` and
+  `carlsonMeanReal_reverse_holder_lt` for `t < -c`, with the article's strict
+  nonproportionality condition on the powered vectors. Non-strict versions and
+  equality characterizations are also proved.
+- **Theorem 8, Beckenbach–Dresher.**
+  `carlsonRatioMeanReal_add_lt` in [Dresher](Carlson/Mean/Dresher.lean) has
+  `0 < s ≤ 1 ≤ t` and `s < t`, exactly covering the article's two parameter
+  cases. The ratio mean, non-strict form, and equality characterization are present.
+
+The remaining work for this paper is mainly explicit packaging of ancillary
+identities, rather than a missing numbered theorem. In particular, the
+elementary/complete symmetric-function identifications (1.4) are not connected
+to a symmetric-function API. The general multinomial numerator and its
+generating relation are proved in
+[RPolynomial/Generating](Carlson/RPolynomial/Generating.lean). For negative
+integer parameters one must use the finite polynomial normalization
+`carlsonRPolynomialNumerator N b x / (ascPochhammer ℂ N).eval (∑ i, b i)`
+where the denominator is nonzero. The ordinary definition of `carlsonR` uses
+`Gamma (∑ i, b i)` and cannot simply be evaluated at a Gamma pole to obtain
+these removable polynomial values. The mean at concentration zero is supplied
+as a limit, not as a direct substitution into the positive-parameter mean.
+
+### Carlson (1966): Theorems 1–3 covered; specialized applications partial
+
+For [*Some Inequalities for Hypergeometric Functions*](Carlson/References/Carlson1966SomeInequalitiesHypergeometricFunctions-AMS.ProcAMS17.pdf),
+the three numbered theorems are covered, with an explicit extended-integral
+interpretation at nonnegative boundary nodes. Some specialized applications remain open.
+
+- **Theorem 1, strict comparison with power means: proved.**
+  [Inequalities](Carlson/Mean/Inequalities.lean) gives
+  `carlsonMeanReal_lt_powerMean` for `t > 1` and
+  `powerMean_lt_carlsonMeanReal` for nonzero `t < 1`. The order-zero assertion
+  follows from `geometric_lt_carlsonMeanReal` in
+  [StrictOrder](Carlson/Mean/StrictOrder.lean), since `-c < 0`.
+- **Theorem 2, all five strict chains (2.13)–(2.17): proved.**
+  [Bounds](Carlson/Mean/Bounds.lean) contains the five
+  `carlsonRReal_bound_chain_*` theorems for `t > 1`, `0 < t < 1`,
+  `-c < t < 0`, `-c-1 < t < -c`, and `t < -c-1`. These become exactly the
+  article's five ranges after `t = -a`. The four exceptional values (2.12)
+  are supplied by the order-one, order-zero, order-minus-sum, and
+  `carlsonRReal_neg_sum_sub_one` identities. The subsequent refinements of
+  `min {H,J'}` and `min {H',J}` are covered by
+  `arithmetic_rpow_lt_euler_weightedPower` and
+  `euler_arithmetic_rpow_lt_weightedPower`.
+  The chain and minimum-refinement docstrings now use the PDF's equation numbers.
+- **Logarithmic-mean inequality (3.1): proved independently.**
+  `Real.geometric_lt_logarithmicMean_lt_arithmetic` in
+  [LogarithmicMean](ToMathlib/Analysis/SpecialFunctions/LogarithmicMean.lean)
+  has exactly the strict geometric/logarithmic/arithmetic comparison.
+  The following divided-power example can be specialized from the general
+  bounds and `regCarlsonR_pair_one_one` in
+  [Elementary](Carlson/TwoVariable/R/Elementary.lean), but is not packaged as
+  a separate inequality. The Watson–Szegő integral comparison likewise follows
+  from the proved central chain and the
+  [positive-ray representation](Carlson/R/SingleIntegral/PositiveRay.lean).
+- **Gauss and Appell applications (3.3)–(3.4), (3.9): partial.**
+  The `R` identifications with the hypergeometric series are proved in
+  [GaussHypergeometric](Carlson/TwoVariable/GaussHypergeometric.lean) and
+  [AppellF1](Carlson/TwoVariable/AppellF1.lean), on the unit disk and unit
+  bidisk respectively, for all complex parameters in regularized form and
+  with nonpole normalization in ordinary form. Thus the inequalities are
+  available by specialization there under the article's positive real
+  parameter assumptions. The displayed elementary bounds are not separately
+  stated. In particular, the series bridges alone do not supply the article's
+  whole real range `x < 1`, which includes arbitrarily negative arguments.
+- **Confluent inequalities (3.5)–(3.8): not proved as inequalities.**
+  [ConfluentHypergeometric](Carlson/TwoVariable/ConfluentHypergeometric.lean)
+  identifies `₁F₁` with `S`, and [TwoF0](Carlson/T/TwoF0.lean) defines and
+  studies the continued `₂F₀`, including integral and remainder formulas.
+  These do not constitute the strict exponential bounds for `₁F₁` or all
+  three parameter ranges of the `₂F₀` mean bounds in this paper.
+- **Ellipsoid and elliptic applications (4.1)–(4.7), (4.9): partial.**
+  The elementary `R_F` and `R_G` bounds (4.5)–(4.6) are specializations of the
+  proved chains, with the identifications in [RF](Carlson/Elliptic/RF.lean)
+  and [Standard](Carlson/Elliptic/Standard.lean); no separate named bound
+  theorems were found. The geometric derivations of surface area and capacity
+  in general dimension, and their displayed bounds, are not formalized.
+  The three-dimensional conductor-potential formulas in
+  [Applications](Carlson/Elliptic/Applications.lean) do not establish that
+  general-dimensional geometric theory. The sharper Pólya–Szegő bounds (4.7)
+  are not supplied by Theorem 2.
+- **Theorem 3, the sharper capacity bound (4.8): proved with a precise boundary formulation.**
+  [Capacity](Carlson/Mean/Capacity.lean) proves
+  `carlsonRReal_capacity_lower_bound` for arbitrary finite dimension `n ≥ 3`,
+  strictly positive nodes, and nonconstant inputs. It also proves the real
+  positive-ray representation and its exact normalization to the `R`-average.
+  [ElementarySymmetricMean](ToMathlib/Analysis/Convex/ElementarySymmetricMean.lean)
+  supplies the needed strict Maclaurin inequality by maximizing on the compact
+  simplex and averaging unequal coordinates. For nonnegative nonconstant nodes,
+  `capacity_lintegral_lower_bound` gives the strict bound in the extended
+  nonnegative reals, including divergent boundary integrals. It does not evaluate
+  the slit-domain `carlsonR` at zero. In dimension three,
+  [CapacityBound](Carlson/Elliptic/CapacityBound.lean) also proves the displayed
+  `R_F` inequality and its finite one-zero limit in terms of `(π/2) R_K`, using
+  monotonicity of the duplication arithmetic mean. The geometric identification
+  needed to express (4.9) directly as a bound on ellipsoid capacity is still absent.
+
+### Brenner–Carlson (1987): all three numbered theorems covered; correction and auxiliary theory remain
+
+For [*Homogeneous Mean Values: Weights and Asymptotics*](Carlson/References/BrennerCarlson1987HomogeneousMeanValuesWeightsAsymptotics-JMathAnalAppl123.pdf),
+the weight theory and all three numbered asymptotic theorems are now covered.
+The explicit second-order correction and some auxiliary results remain open.
+
+- **Section 2, derivative-defined weights: core API proved.**
+  [MeanWeights](ToMathlib/Analysis/Calculus/MeanWeights.lean) defines
+  `Function.meanWeight` over real or complex scalars, reconstructs the entire
+  first derivative from these weights, and proves their sum is one when the
+  differentiable diagonal restriction has derivative one. This proves the
+  normalization (2.5) under precise sufficient hypotheses. It is not a general
+  library of all the homogeneous and functional means discussed in the paper;
+  in particular, the functional-derivative formulation is absent.
+- **Section 3, hypergeometric families and weights (3.10)–(3.14), (3.18)–(3.19):
+  proved.** [Basic](Carlson/Mean/Basic.lean) defines the mean, two-order ratio
+  mean (including coincident orders), and power-transformed mean (including
+  zero power and zero order). [Weights](Carlson/Mean/Weights.lean) proves
+  `meanWeight_carlsonMean`, `meanWeight_carlsonRatioMean`, and
+  `meanWeight_carlsonPowerMean`: all equal `b i / ∑ j, b j`.
+  These are complex statements at every complex order, with the ordinary
+  normalization's nonpole assumption. The positive-real versions are accessible
+  through the real/complex bridges. Analytic removal at coincident orders and
+  zero power is proved. Principal complex logarithms require the stated branch
+  conditions; they do not give unrestricted complex homogeneity.
+- **Other examples and properties in Section 3: partial.**
+  The general arbitrary-simplex-measure families (3.6)–(3.9) and their weight
+  identification (3.7) are not packaged, nor is the full catalog of Muirhead,
+  mixed, symmetric, and iterative means with their derivative weights. The
+  three-parameter ratio/power family (3.25) is not separately defined.
+  Strict log-convexity of `R` is proved, but monotonicity of the ratio mean
+  (3.18) in each order, including the coincident-order case, has not been
+  packaged as a theorem. Elementary two-node `R` formulas and elliptic mean
+  iterations elsewhere in the project supply some of the examples, rather
+  than a complete formalization of the Section 3 catalog.
+- **Theorem 1, Hoehn–Niven asymptotic (4.1): proved.**
+  `Function.isBigO_homogeneous_mean_translate` in
+  [HomogeneousMeanAsymptotic](ToMathlib/Analysis/Calculus/HomogeneousMeanAsymptotic.lean)
+  assumes only `C²` regularity at the all-one vector, normalization there,
+  and positive homogeneity on positive inputs. It gives the actual `O(1/x)`
+  remainder with derivative-defined weights. The proof uses Mathlib's local
+  Taylor remainder estimate. [TranslateAsymptotic](Carlson/Mean/TranslateAsymptotic.lean)
+  proves smoothness and real parameter weights of the hypergeometric mean,
+  then `isBigO_carlsonMeanReal_translate` at every real order, including zero.
+  The function-mean extension (4.5) is not separately formalized.
+- **Explicit hypergeometric correction (4.4): close supporting result, not finished.**
+  Writing `ā = ∑ i, wᵢ aᵢ`, the paper's coefficient of `1/x` is
+  `½ (s(c+t)/(c+1) - 1) ∑ i, wᵢ(aᵢ-ā)²` for the power-transformed mean.
+  [NearDiagonal](Carlson/RPolynomial/NearDiagonal.lean) proves the matching
+  centered quadratic expansion of `R_t(cw; u^s)` with a uniform cubic
+  remainder (`exists_carlsonR_cpow_near_diagonal`). Passing to the mean's
+  root, scaling the centered nodes, and proving the `O(x⁻²)` remainder remain
+  to be done, with separate treatment of zero order or zero power.
+- **Theorem 2, growing-sequence convergence, and (5.23)–(5.24): proved.**
+  [GrowingFamilies](Carlson/Mean/GrowingFamilies.lean) proves convergence of
+  `R`, `L`, every real-order mean, and every two-order ratio mean, including
+  coincident orders. The finite index type and normalized parameter weights may
+  vary arbitrarily along a nontrivial filter. The assumptions are positive
+  parameters, common node bounds `0 < α ≤ xᵢ ≤ β`, divergence of total parameter
+  mass, and convergence of the weighted arithmetic means. Thus the article's
+  initial-segment sequence is a specialization. The limiting mean automatically
+  stays in the common interval, so no additional positivity assumption is imposed
+  on it. [UniformConcentration](Dirichlet/Real/UniformConcentration.lean) proves
+  the affine variance formula and the dimension-independent Lipschitz error
+  estimate `K sqrt(B²/(c+1))` for `|xᵢ| ≤ B`. This replaces the paper's series
+  proof. Lemma 1's `₁F₁ + O(1/c)` approximation (5.3), Lemma 2's partition
+  expansion (5.4), and Lemma 3's Stirling bound (5.6) remain unformalized as
+  separate results. The power-transformed-mean consequence after (5.24) is not
+  separately packaged.
+- **Theorem 3, fixed-dimensional concentration (5.25): proved.**
+  `tendsto_carlsonRReal_concentration_atTop` and
+  `tendsto_carlsonLReal_concentration_atTop` in
+  [Concentration](Carlson/Mean/Concentration.lean) give exactly these limits
+  for positive fixed nodes and normalized positive fixed weights at every real
+  order. This includes `L_t → ā^t log ā`, not merely the zero-order logarithmic
+  limit already stated in 1965.
+
+### Remaining work and verification
+
+A useful order for further work is:
+
+1. Finish the explicit hypergeometric correction (4.4) from the proved
+   near-diagonal expansion, including the exceptional order/power limits.
+2. Prove the function-mean extension (4.5) with explicit function-space hypotheses.
+3. Formalize the separate confluent approximation, partition expansion, and
+   Stirling-number bound in Section 5; package the power-transformed-mean limit.
+4. Add the confluent inequalities and the specialized Gauss/Appell/elliptic
+   bound statements, extending the series identifications' domains where needed.
+5. Connect the proved general-dimensional capacity inequality to a geometric
+   definition of ellipsoid capacity and the displayed formula (4.9).
+
+The review checked the statements and hypotheses in the PDFs against the Lean
+sources, including images of the formulas with ambiguous extracted text. A Lean
+axiom audit of **213 declarations** (the public mean theorems, weight normalization,
+near-diagonal expansions, and selected hypergeometric bridges) succeeded; their
+only axioms were `propext`, `Classical.choice`, and `Quot.sound`, with no
+`sorryAx`. The subsequent formalization adds the proofs described above; the
+explicit qualifications on the remaining gaps are retained. An additional audit
+of all **41 new public theorems** found the same three standard axioms and no
+admissions. The full build and individual checks of the new source and affected
+entry modules passed.
+
+## Lean coverage review of the Appell papers
+
+Reviewed on 22 October 2026 against the local PDFs and current Lean sources.
+Equation numbers in this section belong to the **articles**. Coverage includes
+the single-average foundations, the 1976 linear series transformation,
+independent matrix double averages with entire parameter continuation, the
+`F₂` and `F₃` matrix identifications at arbitrary complex parameters, the
+`F₄` series and Jacobi expansion, and selected polynomial and elliptic consequences.
+The unrestricted `F₄` matrix representation and broader quadratic transformations
+remain open.
+The existing `AppellSequence` modules concern polynomial sequences satisfying
+a binomial theorem, a different subject from the functions `F₁`–`F₄`.
+
+### Common foundation: F₁ is proved on the unit bidisk
+
+[SpecialFunctions/AppellF1](ToMathlib/Analysis/SpecialFunctions/AppellF1.lean)
+defines the regularized double series, proves absolute convergence for
+`‖x‖ < 1`, `‖y‖ < 1`, and justifies grouping by total degree, for every complex
+parameter. The ordinary Pochhammer series is proved when `c` avoids the
+nonpositive integers. [TwoVariable/AppellF1](Carlson/TwoVariable/AppellF1.lean)
+proves the regularized identification
+
+`F₁(a; b₁, b₂; c; x, y)/Γ(c) = regCarlsonR (-a) (b₁, b₂, c-b₁-b₂) (1-x, 1-y, 1)`.
+
+There are no positivity assumptions on the parameters in this identity.
+The named `F₁` series has not been extended to a principal cut-plane function:
+the general continued `R`-function is available there, but its identification
+as the continued `F₁` still needs to be defined and packaged. The `F₂` and
+`F₃` and `F₄` series are now defined as described below.
+
+### Carlson (1971): matrix continuation and F₂/F₃ identifications at all parameters
+
+[*Appell Functions and Multiple Averages*](Carlson/References/Carlson1971AppellFunctionsMultipleAverages-SIAM.JMathAnal02.pdf)
+introduces the independent row/column average of `f(∑ᵢⱼ uᵢ Zᵢⱼ vⱼ)`.
+
+- **Available foundations and consequences.** Complex Dirichlet integration,
+  entire regularized parameter continuation, single-average permutation and
+  merging identities, and Cauchy representations are proved. The rank-one
+  bilateral generating relation underlying (6.7) has its book counterpart in
+  `hasSum_bilateral_generating_of_nonempty`
+  ([BilateralContinuation](Carlson/TwoVariable/BilateralContinuation.lean));
+  the latter allows all complex parameters under its node-convergence
+  conditions. The single-average `F₁` identification above is also present.
+- **Native matrix construction: proved.**
+  [Average/Matrix](Dirichlet/Average/Matrix.lean) defines regularized and
+  normalized averages with independent complex row/column parameter vectors.
+  Fubini and transpose symmetry, both permutation symmetries (2.9), repeated
+  row/column reduction, constant matrices (2.7), and aggregation along any
+  surjective row/column partition are proved. For positive real parameters,
+  the normalized average is the expectation under two independent Dirichlet
+  laws. Continuity of the kernel on the convex hull of the entries suffices;
+  the parameters have positive real parts. The convex-hull lemma ensures
+  that a convex domain containing the entries contains the integration range.
+- **Matrix series: proved on the native domain.**
+  [MatrixSeries](Dirichlet/Average/MatrixSeries.lean) proves the product-integral
+  representation, linearity, termwise averaging under uniform summable
+  domination, and the power-series formula (6.2) with explicit absolute
+  convergence hypotheses on a closed disk. Its coefficients are averaged
+  shifted powers. Rank-one polynomial moments factor into two single-average
+  moments, the natural-power case of (6.5).
+- **Entire matrix continuation: proved on convex kernel domains.**
+  [MatrixContinuation](Dirichlet/Average/MatrixContinuation.lean) constructs
+  the unique entire regularized continuation in both independent complex
+  parameter vectors. It is jointly holomorphic in all matrix entries in any
+  convex open domain where the fixed scalar kernel is holomorphic. The
+  selected continuation agrees with the native integral, and transpose
+  symmetry holds at arbitrary complex parameters. The construction iterates
+  the existing parametric single-average continuation.
+  [MatrixIdentities](Dirichlet/Average/MatrixIdentities.lean) extends row and
+  column permutations, surjective merging of repeated rows/columns, and kernel
+  linearity to arbitrary complex parameters on those domains.
+- **F₂ and F₃ series and native matrix identifications: proved.**
+  [SpecialFunctions/AppellF2F3](ToMathlib/Analysis/SpecialFunctions/AppellF2F3.lean)
+  defines regularized and ordinary series. Absolute convergence and grouping
+  by total degree hold for all complex parameters on `‖x‖+‖y‖<1` for `F₂`
+  and `‖x‖<1`, `‖y‖<1` for `F₃`. Ordinary Pochhammer-denominator series
+  require the denominator parameters to avoid the nonpositive integers.
+  [TwoVariable/AppellMatrix](Carlson/TwoVariable/AppellMatrix.lean) identifies
+  the series with native matrix averages on these full regions, using the
+  separated mixed moments in [MatrixMoments](Dirichlet/Average/MatrixMoments.lean).
+  Both row and column parameter vectors have positive real parts. The
+  regularized `F₂` equals its regularized matrix average; for `F₃` the latter
+  is multiplied by `Γ(c)`. Normalized averages equal the ordinary functions.
+- **Continued binomial series and named identifications: proved.**
+  [Average/MatrixTaylor](Dirichlet/Average/MatrixTaylor.lean) recognizes continued
+  scalar series from entire coefficients and their native identity. It uses
+  holomorphic parameter-Taylor coefficients, so no extra uniform summability
+  assumption in the parameter vectors is imposed.
+  [TwoVariable/MatrixTaylor](Carlson/TwoVariable/MatrixTaylor.lean) proves the
+  continued binomial expansion on the full matrix entry disk about one.
+  [AppellContinuation](Carlson/TwoVariable/AppellContinuation.lean) then proves
+  the `F₂` and division-free `F₃` identifications at **every complex parameter**,
+  on their full diamond/bidisk. The continued regularized `F₃` matrix equals
+  `F₃reg / Γ(c)`; it vanishes at nonpositive integral common totals.
+- **Exceptional F₃ cancellation: proved.**
+  [AppellParameter](ToMathlib/Analysis/SpecialFunctions/AppellParameter.lean)
+  proves local uniform series convergence and entire dependence on `c`.
+  [AppellNormalization](Carlson/TwoVariable/AppellNormalization.lean) proves
+  that `Γ(c)` times the bare regularized matrix has a removable singularity
+  at every `c = -m`, with value `F₃reg`. That value is also `(-1)^m/m!` times
+  the derivative of the entire matrix family. This is a limit statement,
+  not multiplication of zero by totalized Gamma, and does not assert removal
+  of poles of ordinary `F₃`.
+- **Still missing.** General restricted/bare forms in Section 4, the differential system
+  (6.12)–(6.18), the double-average Cauchy formula (6.11), and systematic
+  `F₂`/`F₃` transformations in Sections 3 and 5 remain open.
+- **Several variables needs a distinction.**
+  [Average/SeveralVariables](Dirichlet/Average/SeveralVariables.lean) proves
+  continuation for a single Dirichlet measure acting on vector nodes.
+  All coordinates share the same simplex weights. This does not implement
+  the independent coordinate averages (7.2), their separate parameter vectors,
+  or the Lauricella `F_A` framework in Section 7.
+- **Domain qualification.** The 1976 paper expressly retracts the unsupported
+  1971 assertion of continuation to arbitrary matrix entries in the cut plane.
+  The native theory works on convex hulls inside the kernel domain.
+  The new entire parameter continuation requires a convex open scalar kernel
+  domain, including the right half-plane. It does not establish the disputed
+  assertion for arbitrary cut-plane configurations.
+
+### Carlson (1975): F₄ series and Jacobi expansion proved; matrix theory remains
+
+[*Appell's Function F4 as a Double Average*](Carlson/References/Carlson1975AppellFunctionF4DoubleAverage-SIAM.JMathAnal06.pdf)
+has its defining series and the Jacobi expansion (2.2) formalized.
+
+- [SpecialFunctions/AppellF4](ToMathlib/Analysis/SpecialFunctions/AppellF4.lean)
+  defines regularized and ordinary `F₄`, proves absolute convergence for all
+  complex parameters on `sqrt ‖x‖ + sqrt ‖y‖ < 1`, and justifies grouping by
+  total degree. The ordinary Pochhammer series requires both denominators
+  to avoid the nonpositive integers. A squared binomial-sum majorant retains
+  the full square-root convergence region.
+- [Jacobi/AppellF4](Carlson/Jacobi/AppellF4.lean) proves the homogeneous
+  coefficient identity and Jacobi expansion (2.2), proving the Jacobi-series
+  part of **Exercise 7.1-13**. Its equal-denominator Gauss-average part remains open.
+  The R-polynomial numerator form is division-free and has no parameter
+  exclusions. The monic Jacobi form explicitly requires each normalizing
+  Pochhammer factor to be nonzero; the ordinary form also excludes the two
+  denominator pole sets. See [the exercise review](CarlsonChapter7Exercises.md).
+- The equal-denominator Gauss-average identity in Exercise 7.1-13, the
+  equal-denominator quadratic transformation and third-order series
+  (2.4)–(2.8), unrestricted two-by-three matrix representation (3.5), and six
+  restricted two-by-two cases (4.1)–(4.6) remain unformalized. The Pochhammer,
+  two-node R-polynomial and Jacobi/Gegenbauer ingredients are available.
+
+### Carlson (1976): quadratic-transform consequences, not the full family
+
+[*Quadratic Transformations of Appell Functions*](Carlson/References/Carlson1976QuadraticTransformationsAppellFunctions-SIAM.JMathAnal07.pdf)
+has meaningful coverage of its ingredients and applications.
+
+- **Proved ingredients.** The two single-average quadratic transformations
+  (1.10)–(1.11) are `regRSlit_firstQuadratic` and
+  `regRSlit_secondQuadratic`
+  ([QuadraticSlit](Carlson/TwoVariable/QuadraticSlit.lean)), with regularization
+  removing parameter exclusions and explicit branch-domain hypotheses.
+  Polynomial linear and quadratic transformations supporting Section 3 are
+  proved in [Quadratic/Polynomial](Carlson/TwoVariable/Quadratic/Polynomial.lean).
+- **Proved applications.** Gegenbauer's product formula derived from (3.6)
+  and addition theorem (3.12) have book-form counterparts in
+  [GegenbauerProductComplex](Carlson/Jacobi/GegenbauerProductComplex.lean) and
+  [GegenbauerAddition](Carlson/Jacobi/GegenbauerAddition.lean), with their
+  stated parameter restrictions. Ossicini's product-generating formula is
+  also proved. [Landen](Carlson/Elliptic/Landen.lean) supplies the book's
+  one-parameter `R`-transformation and first-kind specialization;
+  [LandenExercises](Carlson/Elliptic/LandenExercises.lean) includes second-kind
+  transformations. The native double-average framework is now defined, but
+  these consequences were proved independently of its transformation theory.
+- **Missing main family.** The eight matrix transformations (2.1)–(2.8), the
+  named `F₂` transformations (2.10), (2.12), and the full two-parameter `F₁`
+  transformations (4.1)–(4.2), equivalently (4.9), (4.12), are not packaged.
+  The complete Bartky third-kind transformation (4.14) is also not separately
+  proved in the article's form. General product-series and boundary-value
+  applications in Section 3 should not be counted as completed merely from
+  the product formula and the general Jacobi expansion theory.
+
+### Carlson (1976): the linear double-series transformation is proved
+
+[*The Need for a New Classification of Double Hypergeometric Series*](Carlson/References/Carlson1976NeedNewClassificationDoubleHypergeometricSeries-AMS.ProcAMS56.pdf)
+has its main identity (4) proved in
+[TwoVariable/AppellLinear](Carlson/TwoVariable/AppellLinear.lean).
+
+- `carlsonRPolynomialNumerator₂_eq_sum_sub` in
+  [RPolynomial/Hypergeometric](Carlson/TwoVariable/RPolynomial/Hypergeometric.lean)
+  is the division-free version of the finite homogeneous identity (8), (12).
+  It holds for arbitrary complex parameters; division by `N!` and the
+  Pochhammer concatenation identity recover the article's positive-parameter
+  coefficient statement.
+- `regularizedAppellF1_linear` and `appellF1_linear` prove the infinite
+  double-series transformation for `‖x-y‖ + ‖y‖ < 1`. The split parameters
+  `b,b′` are positive real as in the article; `a,c` may be arbitrary complex
+  numbers in regularized form. The exclusions used to distinguish Horn
+  orders are unnecessary for the identity.
+- [SpecialFunctions/AppellLinear](ToMathlib/Analysis/SpecialFunctions/AppellLinear.lean)
+  defines the third-order series, proves absolute convergence in
+  `‖X‖ + ‖Y‖ < 1` by a Gauss-series majorant, and supplies the explicit
+  Pochhammer coefficients and ordinary series sum away from the denominator
+  poles. Grouping by total degree and the finite identity prove the equality.
+- The arbitrary-order and several-variable extensions, including (13), and
+  a formal definition and comparison of Horn orders remain open.
+
+### Related Carlson (1974): Euler continuation is substantially covered
+
+[*Analytic Continuation of the Euler Transform*](Carlson/References/Carlson1974AnalyticContinuationEulerTransform-SIAM.JMathAnal05.pdf)
+is much closer to complete coverage than the matrix-average articles.
+`exists_joint_regEulerContinuation`
+([Transform/Euler](Dirichlet/Transform/Euler.lean)) proves entire continuation
+in both endpoint exponents, also allowing holomorphic auxiliary parameters.
+[CauchyCycle](Dirichlet/Average/CauchyCycle.lean) proves the continued
+single-average contour representation, and `regCarlsonR_neg_eq_cycleIntegral`
+([ContourRepresentation](Carlson/R/ContourRepresentation.lean)) proves the
+article's general `R` representation (3.3) for all complex parameters and
+slit-plane nodes.
+
+These contour theorems use `C¹` cycles with explicit index and domain
+hypotheses, rather than all rectifiable Jordan curves as in the paper.
+The explicit Gauss-kernel notation and named continued-`F₁` formula (3.1)
+throughout the argument cut planes remain to be packaged. The current
+Gauss/`F₁` series identifications alone only cover the unit disk/bidisk.
+
+### Suggested order and verification
+
+1. Prove the unrestricted `F₄` matrix representation and its six parameter
+   restrictions, using the now-proved series and Jacobi expansion.
+2. Develop the general restricted/bare forms and named Appell linear transformations
+   from the continued matrix symmetries.
+3. Prove the matrix differential system and double-average Cauchy formula.
+4. Prove the eight quadratic transformations and their generalized
+   Landen/Bartky consequences. Extend node domains only with proved continuation.
+5. Generalize the 1976 linear series transformation to arbitrary order and
+   several variables, and formalize the comparison of Horn orders if desired.
+
+This is missing coverage rather than a list of existing `sorry` declarations.
+An audit of **28 supporting theorems**, including all seven public theorems
+in the two `F₁` modules, found only `propext`, `Classical.choice`, and
+`Quot.sound`, with no admissions. The full build passed (10015 jobs), as did
+the strict-option Lean audit, local-link checks, and `git diff --check`.
+The subsequent implementation adds the two linear-transformation modules and
+the two native matrix-average modules described above. All **45 new public
+theorems** passed a transitive axiom audit with the same three standard axioms
+and no admissions. The full build passed (10023 jobs), and all Lean source
+lines remain within 100 characters. Individual strict-option checks of the
+new sources and affected entry modules also passed.
+The next implementation adds `AppellF2F3`, `AppellMatrix`, `MatrixMoments`,
+and `MatrixContinuation`. All **37 new public theorems** passed the transitive
+axiom audit with only those three standard axioms and no admissions. The full
+build passed (10031 jobs), as did individual strict-option checks of the new
+sources and affected entry modules. New Lean source lines stay within 100 characters.
+
+The continued-identification and `F₄` implementation adds **38 public theorems**
+and relocates three existing Gamma estimates to the supporting layer. A transitive
+axiom audit of all **41 declarations** found only `propext`, `Classical.choice`,
+and `Quot.sound`, with no admissions. The full build passed (10051 jobs), and
+strict-option checks passed for all ten new implementation modules, the modified
+Gamma module, and the affected entry modules. All project Lean lines remain
+within 100 characters; shared implementations match their primary copies, and
+local documentation links and `git diff --check` pass. Exercise 7.1-13 is marked
+**partial** because the separate equal-denominator Gauss-average part remains open.
 
 ## Overall relation of the collection to the book
 

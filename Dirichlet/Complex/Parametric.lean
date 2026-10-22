@@ -53,7 +53,8 @@ theorem continuousOn_complexSimplexKernel
       (z, fun i => (u i : ℂ)) ∈ W) :
     ContinuousOn (fun p : (κ → ℂ) × (ι → ℝ) => H (p.1, fun i => (p.2 i : ℂ)))
       (U ×ˢ Convexity.StdSimplex.coordinateSet ℝ ι) :=
-  hH.comp (by fun_prop) (fun p (hp : p ∈ U ×ˢ Convexity.StdSimplex.coordinateSet ℝ ι) => hW p.1 hp.1 p.2 hp.2)
+  hH.comp (by fun_prop) (fun p (hp : p ∈ U ×ˢ Convexity.StdSimplex.coordinateSet ℝ ι) => hW p.1 hp.1
+    p.2 hp.2)
 
 /-- Differentiation in auxiliary parameters passes through a convergent Dirichlet integral. -/
 theorem hasFDerivAt_regDirichletIntegral_kernel
@@ -73,7 +74,8 @@ theorem hasFDerivAt_regDirichletIntegral_kernel
   have hc := continuousOn_complexSimplexKernel hH.continuousOn hW
   have hD : ContinuousOn (fun p : (κ → ℂ) × (ι → ℝ) => D p.1 p.2) (U ×ˢ K) := by
     exact (hH.fderiv.continuousOn.comp (by fun_prop)
-      (fun p (hp : p ∈ U ×ˢ Convexity.StdSimplex.coordinateSet ℝ ι) => hW p.1 hp.1 p.2 hp.2)).clm_comp continuousOn_const
+      (fun p (hp : p ∈ U ×ˢ Convexity.StdSimplex.coordinateSet ℝ ι) => hW p.1 hp.1 p.2
+        hp.2)).clm_comp continuousOn_const
   simpa only [regDirichletIntegral, smul_eq_mul, K, D, Function.comp_def] using!
     hasFDerivAt_integral_smul_of_continuousOn_compact hK
       (integrableOn_regDirichletDensity b hb) hU hz hc hD

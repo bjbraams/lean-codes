@@ -158,6 +158,116 @@ theorem isOpen_twoF0RotDomain (n : ℕ) : IsOpen (twoF0RotDomain n) := by
     ((isOpen_lt continuous_const c3).inter (isOpen_lt c4 continuous_const)))
 
 set_option maxHeartbeats 2000000 in
+/-- The rotated remainder integrand has an integrable majorant on a neighborhood
+of each parameter in its native domain. -/
+private theorem exists_twoF0RotIntegrand_majorant (n : ℕ)
+    (P : (ℂ × ℂ × ℂ) × ℂ) (hP : P ∈ twoF0RotDomain n) :
+    ∃ (s : Set ((ℂ × ℂ × ℂ) × ℂ)) (bound : ℝ × ℝ → ℝ),
+      s ∈ 𝓝 P ∧ Integrable bound quadrantMeasure ∧
+        ∀ᵐ a ∂quadrantMeasure, ∀ q ∈ s,
+          ‖twoF0RotIntegrand n (q, ((a.1 : ℂ), (a.2 : ℂ)))‖ ≤ bound a := by
+  set A := (P.1.1 + n).re
+  set B := (P.1.2.1 + n).re
+  set c := P.2.re / 2
+  have hA : 0 < A := hP.1
+  have hB : 0 < B := hP.2.1
+  have hc : 0 < c := by simp only [c]; linarith [hP.2.2.1]
+  have c1 : Continuous fun q : (ℂ × ℂ × ℂ) × ℂ => (q.1.1 + (n : ℂ)).re := by fun_prop
+  have c2 : Continuous fun q : (ℂ × ℂ × ℂ) × ℂ => (q.1.2.1 + (n : ℂ)).re := by fun_prop
+  have c3 : Continuous fun q : (ℂ × ℂ × ℂ) × ℂ => q.2.re := by fun_prop
+  have c4 : Continuous fun q : (ℂ × ℂ × ℂ) × ℂ => (q.2 ^ 2 * q.1.2.2).re := by fun_prop
+  have hev : ∀ᶠ q in 𝓝 P, A / 2 < (q.1.1 + (n : ℂ)).re ∧ (q.1.1 + (n : ℂ)).re < A + 1 ∧
+      B / 2 < (q.1.2.1 + (n : ℂ)).re ∧ (q.1.2.1 + (n : ℂ)).re < B + 1 ∧ c < q.2.re ∧
+      (q.2 ^ 2 * q.1.2.2).re < 0 := by
+    filter_upwards [c1.continuousAt.eventually_const_lt (show A / 2 < A by linarith),
+      c1.continuousAt.eventually_lt_const (show A < A + 1 by linarith),
+      c2.continuousAt.eventually_const_lt (show B / 2 < B by linarith),
+      c2.continuousAt.eventually_lt_const (show B < B + 1 by linarith),
+      c3.continuousAt.eventually_const_lt (show c < P.2.re by simp only [c]; linarith [hP.2.2.1]),
+      c4.continuousAt.eventually_lt_const hP.2.2.2] with q a b d e f g
+    exact ⟨a, b, d, e, f, g⟩
+  obtain ⟨r, hr, hball⟩ := Metric.nhds_basis_closedBall.mem_iff.mp hev
+  have hK := isCompact_closedBall P r
+  set Φ : (ℂ × ℂ × ℂ) × ℂ → ℝ := fun q =>
+    ‖(Gamma (q.1.1 + n))⁻¹‖ * (‖q.2‖ ^ (q.1.1 + (n : ℂ) - 1).re /
+      Real.exp (arg q.2 * (q.1.1 + (n : ℂ) - 1).im)) *
+    (‖(Gamma (q.1.2.1 + n))⁻¹‖ * (‖q.2‖ ^ (q.1.2.1 + (n : ℂ) - 1).re /
+      Real.exp (arg q.2 * (q.1.2.1 + (n : ℂ) - 1).im))) * ‖q.2‖ ^ 2
+  have hΦc : ContinuousOn Φ (Metric.closedBall P r) := by
+    intro q hq
+    obtain ⟨-, -, -, -, h5, -⟩ := hball hq
+    have hq2 : q.2 ≠ 0 := fun h => by rw [h] at h5; simp at h5; linarith
+    have hsl : q.2 ∈ slitPlane := mem_slitPlane_iff.mpr (Or.inl (by linarith))
+    have harg : ContinuousAt (fun q : (ℂ × ℂ × ℂ) × ℂ => arg q.2) q :=
+      (continuousAt_arg hsl).comp continuous_snd.continuousAt
+    have hnorm : ContinuousAt (fun q : (ℂ × ℂ × ℂ) × ℂ => ‖q.2‖) q :=
+      continuous_snd.norm.continuousAt
+    have hpow : ∀ {g : (ℂ × ℂ × ℂ) × ℂ → ℂ}, Continuous g →
+        ContinuousAt (fun q : (ℂ × ℂ × ℂ) × ℂ =>
+          ‖q.2‖ ^ (g q).re / Real.exp (arg q.2 * (g q).im)) q := fun hg =>
+      (hnorm.rpow (Complex.continuous_re.comp hg).continuousAt
+        (Or.inl (norm_ne_zero_iff.mpr hq2))).div
+        (Real.continuous_exp.continuousAt.comp (harg.mul
+          (Complex.continuous_im.comp hg).continuousAt)) (Real.exp_pos _).ne'
+    have hG1 : ContinuousAt (fun q : (ℂ × ℂ × ℂ) × ℂ => ‖(Gamma (q.1.1 + n))⁻¹‖) q :=
+      (differentiable_one_div_Gamma.continuous.comp (by fun_prop)).norm.continuousAt
+    have hG2 : ContinuousAt (fun q : (ℂ × ℂ × ℂ) × ℂ => ‖(Gamma (q.1.2.1 + n))⁻¹‖) q :=
+      (differentiable_one_div_Gamma.continuous.comp (by fun_prop)).norm.continuousAt
+    exact (((hG1.mul (hpow (by fun_prop))).mul (hG2.mul (hpow (by fun_prop)))).mul
+      (hnorm.pow 2)).continuousWithinAt
+  obtain ⟨M, hM⟩ := hK.bddAbove_image hΦc
+  set bound : ℝ × ℝ → ℝ := fun a => max M 0 *
+    (((a.1 ^ (A / 2 - 1) + a.1 ^ (A + 1 - 1)) * Real.exp (-c * a.1)) *
+      ((a.2 ^ (B / 2 - 1) + a.2 ^ (B + 1 - 1)) * Real.exp (-c * a.2)))
+  refine ⟨Metric.closedBall P r, bound, Metric.closedBall_mem_nhds P hr, ?_, ?_⟩
+  · have := (integrableOn_rpow_add_rpow_mul_exp_mul (by linarith : 0 < A / 2)
+      (by linarith : 0 < A + 1) hc).mul_prod (integrableOn_rpow_add_rpow_mul_exp_mul
+        (by linarith : 0 < B / 2) (by linarith : 0 < B + 1) hc)
+    exact this.const_mul _
+  · filter_upwards [ae_quadrantMeasure] with a ha q hq
+    obtain ⟨h1, h2, h3, h4, h5, h6⟩ := hball hq
+    have hq2 : q.2 ≠ 0 := fun h => by rw [h] at h5; simp at h5; linarith
+    have hMq : Φ q ≤ max M 0 := (hM (mem_image_of_mem _ hq)).trans (le_max_left _ _)
+    have hE : ‖expRemainder n ((a.1 : ℂ) * q.2 * ((a.2 : ℂ) * q.2) * q.1.2.2)‖ ≤ 1 := by
+      refine norm_expRemainder_le n ?_
+      have : ((a.1 : ℂ) * q.2 * ((a.2 : ℂ) * q.2) * q.1.2.2).re =
+          a.1 * a.2 * (q.2 ^ 2 * q.1.2.2).re := by
+        rw [show (a.1 : ℂ) * q.2 * ((a.2 : ℂ) * q.2) * q.1.2.2 =
+          ((a.1 * a.2 : ℝ) : ℂ) * (q.2 ^ 2 * q.1.2.2) by push_cast; ring, re_ofReal_mul]
+      rw [this]
+      exact mul_nonpos_of_nonneg_of_nonpos (mul_pos ha.1 ha.2).le h6.le
+    have hexp : ∀ {s : ℝ}, 0 < s → ‖exp (-((s : ℂ) * q.2))‖ ≤ Real.exp (-c * s) := by
+      intro s hs
+      rw [norm_exp, neg_re, re_ofReal_mul]
+      exact Real.exp_le_exp.mpr (by nlinarith)
+    simp only [twoF0RotIntegrand, twoF0Integrand, bound]
+    simp only [norm_mul]
+    rw [norm_ofReal_mul_cpow ha.1 hq2, norm_ofReal_mul_cpow ha.2 hq2, norm_pow]
+    have hs := Real.rpow_le_rpow_add_rpow ha.1 (c₁ := A / 2 - 1) (c := (q.1.1 + (n : ℂ) - 1).re)
+      (c₂ := A + 1 - 1) (by simp only [sub_re, one_re]; linarith)
+      (by simp only [sub_re, one_re]; linarith)
+    have ht := Real.rpow_le_rpow_add_rpow ha.2 (c₁ := B / 2 - 1)
+      (c := (q.1.2.1 + (n : ℂ) - 1).re) (c₂ := B + 1 - 1)
+      (by simp only [sub_re, one_re]; linarith) (by simp only [sub_re, one_re]; linarith)
+    have e1 := hexp ha.1
+    have e2 := hexp ha.2
+    have p1 := Real.rpow_nonneg ha.1.le (q.1.1 + (n : ℂ) - 1).re
+    have p2 := Real.rpow_nonneg ha.2.le (q.1.2.1 + (n : ℂ) - 1).re
+    have hΦ0 : 0 ≤ Φ q := by positivity
+    calc _ = Φ q * ((a.1 ^ (q.1.1 + (n : ℂ) - 1).re * ‖exp (-((a.1 : ℂ) * q.2))‖) *
+            (a.2 ^ (q.1.2.1 + (n : ℂ) - 1).re * ‖exp (-((a.2 : ℂ) * q.2))‖)) *
+            ‖expRemainder n ((a.1 : ℂ) * q.2 * ((a.2 : ℂ) * q.2) * q.1.2.2)‖ := by
+          simp only [Φ]; ring
+      _ ≤ max M 0 * ((((a.1 ^ (A / 2 - 1) + a.1 ^ (A + 1 - 1)) * Real.exp (-c * a.1))) *
+            ((a.2 ^ (B / 2 - 1) + a.2 ^ (B + 1 - 1)) * Real.exp (-c * a.2))) * 1 := by
+          have q1 := Real.rpow_nonneg ha.1.le (A / 2 - 1)
+          have q2 := Real.rpow_nonneg ha.1.le (A + 1 - 1)
+          have q3 := Real.rpow_nonneg ha.2.le (B / 2 - 1)
+          have q4 := Real.rpow_nonneg ha.2.le (B + 1 - 1)
+          gcongr
+      _ = _ := by ring
+
+set_option maxHeartbeats 2000000 in
 /-- **Holomorphy of the rotated remainder integral** in `(α, β, x, w)`. -/
 theorem analyticOnNhd_twoF0DoubleRot (n : ℕ) :
     AnalyticOnNhd ℂ (fun P : (ℂ × ℂ × ℂ) × ℂ => twoF0DoubleRot n P.1.1 P.1.2.1 P.1.2.2 P.2)
@@ -198,107 +308,7 @@ theorem analyticOnNhd_twoF0DoubleRot (n : ℕ) :
     intro P hP
     exact (analyticAt_twoF0RotIntegrand n P hP.2.2.1 ha.1 ha.2).comp_of_eq
       (analyticAt_id.prod analyticAt_const) rfl
-  · intro P hP
-    set A := (P.1.1 + n).re
-    set B := (P.1.2.1 + n).re
-    set c := P.2.re / 2
-    have hA : 0 < A := hP.1
-    have hB : 0 < B := hP.2.1
-    have hc : 0 < c := by simp only [c]; linarith [hP.2.2.1]
-    have c1 : Continuous fun q : (ℂ × ℂ × ℂ) × ℂ => (q.1.1 + (n : ℂ)).re := by fun_prop
-    have c2 : Continuous fun q : (ℂ × ℂ × ℂ) × ℂ => (q.1.2.1 + (n : ℂ)).re := by fun_prop
-    have c3 : Continuous fun q : (ℂ × ℂ × ℂ) × ℂ => q.2.re := by fun_prop
-    have c4 : Continuous fun q : (ℂ × ℂ × ℂ) × ℂ => (q.2 ^ 2 * q.1.2.2).re := by fun_prop
-    have hev : ∀ᶠ q in 𝓝 P, A / 2 < (q.1.1 + (n : ℂ)).re ∧ (q.1.1 + (n : ℂ)).re < A + 1 ∧
-        B / 2 < (q.1.2.1 + (n : ℂ)).re ∧ (q.1.2.1 + (n : ℂ)).re < B + 1 ∧ c < q.2.re ∧
-        (q.2 ^ 2 * q.1.2.2).re < 0 := by
-      filter_upwards [c1.continuousAt.eventually_const_lt (show A / 2 < A by linarith),
-        c1.continuousAt.eventually_lt_const (show A < A + 1 by linarith),
-        c2.continuousAt.eventually_const_lt (show B / 2 < B by linarith),
-        c2.continuousAt.eventually_lt_const (show B < B + 1 by linarith),
-        c3.continuousAt.eventually_const_lt (show c < P.2.re by simp only [c]; linarith [hP.2.2.1]),
-        c4.continuousAt.eventually_lt_const hP.2.2.2] with q a b d e f g
-      exact ⟨a, b, d, e, f, g⟩
-    obtain ⟨r, hr, hball⟩ := Metric.nhds_basis_closedBall.mem_iff.mp hev
-    have hK := isCompact_closedBall P r
-    set Φ : (ℂ × ℂ × ℂ) × ℂ → ℝ := fun q =>
-      ‖(Gamma (q.1.1 + n))⁻¹‖ * (‖q.2‖ ^ (q.1.1 + (n : ℂ) - 1).re /
-        Real.exp (arg q.2 * (q.1.1 + (n : ℂ) - 1).im)) *
-      (‖(Gamma (q.1.2.1 + n))⁻¹‖ * (‖q.2‖ ^ (q.1.2.1 + (n : ℂ) - 1).re /
-        Real.exp (arg q.2 * (q.1.2.1 + (n : ℂ) - 1).im))) * ‖q.2‖ ^ 2
-    have hΦc : ContinuousOn Φ (Metric.closedBall P r) := by
-      intro q hq
-      obtain ⟨-, -, -, -, h5, -⟩ := hball hq
-      have hq2 : q.2 ≠ 0 := fun h => by rw [h] at h5; simp at h5; linarith
-      have hsl : q.2 ∈ slitPlane := mem_slitPlane_iff.mpr (Or.inl (by linarith))
-      have harg : ContinuousAt (fun q : (ℂ × ℂ × ℂ) × ℂ => arg q.2) q :=
-        (continuousAt_arg hsl).comp continuous_snd.continuousAt
-      have hnorm : ContinuousAt (fun q : (ℂ × ℂ × ℂ) × ℂ => ‖q.2‖) q :=
-        continuous_snd.norm.continuousAt
-      have hpow : ∀ {g : (ℂ × ℂ × ℂ) × ℂ → ℂ}, Continuous g →
-          ContinuousAt (fun q : (ℂ × ℂ × ℂ) × ℂ =>
-            ‖q.2‖ ^ (g q).re / Real.exp (arg q.2 * (g q).im)) q := fun hg =>
-        (hnorm.rpow (Complex.continuous_re.comp hg).continuousAt
-          (Or.inl (norm_ne_zero_iff.mpr hq2))).div
-          (Real.continuous_exp.continuousAt.comp (harg.mul
-            (Complex.continuous_im.comp hg).continuousAt)) (Real.exp_pos _).ne'
-      have hG1 : ContinuousAt (fun q : (ℂ × ℂ × ℂ) × ℂ => ‖(Gamma (q.1.1 + n))⁻¹‖) q :=
-        (differentiable_one_div_Gamma.continuous.comp (by fun_prop)).norm.continuousAt
-      have hG2 : ContinuousAt (fun q : (ℂ × ℂ × ℂ) × ℂ => ‖(Gamma (q.1.2.1 + n))⁻¹‖) q :=
-        (differentiable_one_div_Gamma.continuous.comp (by fun_prop)).norm.continuousAt
-      exact (((hG1.mul (hpow (by fun_prop))).mul (hG2.mul (hpow (by fun_prop)))).mul
-        (hnorm.pow 2)).continuousWithinAt
-    obtain ⟨M, hM⟩ := hK.bddAbove_image hΦc
-    set bound : ℝ × ℝ → ℝ := fun a => max M 0 *
-      (((a.1 ^ (A / 2 - 1) + a.1 ^ (A + 1 - 1)) * Real.exp (-c * a.1)) *
-        ((a.2 ^ (B / 2 - 1) + a.2 ^ (B + 1 - 1)) * Real.exp (-c * a.2)))
-    refine ⟨Metric.closedBall P r, bound, Metric.closedBall_mem_nhds P hr, ?_, ?_⟩
-    · have := (integrableOn_rpow_add_rpow_mul_exp_mul (by linarith : 0 < A / 2)
-        (by linarith : 0 < A + 1) hc).mul_prod (integrableOn_rpow_add_rpow_mul_exp_mul
-          (by linarith : 0 < B / 2) (by linarith : 0 < B + 1) hc)
-      exact this.const_mul _
-    · filter_upwards [ae_quadrantMeasure] with a ha q hq
-      obtain ⟨h1, h2, h3, h4, h5, h6⟩ := hball hq
-      have hq2 : q.2 ≠ 0 := fun h => by rw [h] at h5; simp at h5; linarith
-      have hMq : Φ q ≤ max M 0 := (hM (mem_image_of_mem _ hq)).trans (le_max_left _ _)
-      have hE : ‖expRemainder n ((a.1 : ℂ) * q.2 * ((a.2 : ℂ) * q.2) * q.1.2.2)‖ ≤ 1 := by
-        refine norm_expRemainder_le n ?_
-        have : ((a.1 : ℂ) * q.2 * ((a.2 : ℂ) * q.2) * q.1.2.2).re =
-            a.1 * a.2 * (q.2 ^ 2 * q.1.2.2).re := by
-          rw [show (a.1 : ℂ) * q.2 * ((a.2 : ℂ) * q.2) * q.1.2.2 =
-            ((a.1 * a.2 : ℝ) : ℂ) * (q.2 ^ 2 * q.1.2.2) by push_cast; ring, re_ofReal_mul]
-        rw [this]
-        exact mul_nonpos_of_nonneg_of_nonpos (mul_pos ha.1 ha.2).le h6.le
-      have hexp : ∀ {s : ℝ}, 0 < s → ‖exp (-((s : ℂ) * q.2))‖ ≤ Real.exp (-c * s) := by
-        intro s hs
-        rw [norm_exp, neg_re, re_ofReal_mul]
-        exact Real.exp_le_exp.mpr (by nlinarith)
-      simp only [F, twoF0RotIntegrand, twoF0Integrand, bound]
-      simp only [norm_mul]
-      rw [norm_ofReal_mul_cpow ha.1 hq2, norm_ofReal_mul_cpow ha.2 hq2, norm_pow]
-      have hs := Real.rpow_le_rpow_add_rpow ha.1 (c₁ := A / 2 - 1) (c := (q.1.1 + (n : ℂ) - 1).re)
-        (c₂ := A + 1 - 1) (by simp only [sub_re, one_re]; linarith)
-        (by simp only [sub_re, one_re]; linarith)
-      have ht := Real.rpow_le_rpow_add_rpow ha.2 (c₁ := B / 2 - 1)
-        (c := (q.1.2.1 + (n : ℂ) - 1).re) (c₂ := B + 1 - 1)
-        (by simp only [sub_re, one_re]; linarith) (by simp only [sub_re, one_re]; linarith)
-      have e1 := hexp ha.1
-      have e2 := hexp ha.2
-      have p1 := Real.rpow_nonneg ha.1.le (q.1.1 + (n : ℂ) - 1).re
-      have p2 := Real.rpow_nonneg ha.2.le (q.1.2.1 + (n : ℂ) - 1).re
-      have hΦ0 : 0 ≤ Φ q := by positivity
-      calc _ = Φ q * ((a.1 ^ (q.1.1 + (n : ℂ) - 1).re * ‖exp (-((a.1 : ℂ) * q.2))‖) *
-              (a.2 ^ (q.1.2.1 + (n : ℂ) - 1).re * ‖exp (-((a.2 : ℂ) * q.2))‖)) *
-              ‖expRemainder n ((a.1 : ℂ) * q.2 * ((a.2 : ℂ) * q.2) * q.1.2.2)‖ := by
-            simp only [Φ]; ring
-        _ ≤ max M 0 * ((((a.1 ^ (A / 2 - 1) + a.1 ^ (A + 1 - 1)) * Real.exp (-c * a.1))) *
-              ((a.2 ^ (B / 2 - 1) + a.2 ^ (B + 1 - 1)) * Real.exp (-c * a.2))) * 1 := by
-            have q1 := Real.rpow_nonneg ha.1.le (A / 2 - 1)
-            have q2 := Real.rpow_nonneg ha.1.le (A + 1 - 1)
-            have q3 := Real.rpow_nonneg ha.2.le (B / 2 - 1)
-            have q4 := Real.rpow_nonneg ha.2.le (B + 1 - 1)
-            gcongr
-        _ = _ := by ring
+  · exact exists_twoF0RotIntegrand_majorant n
 
 /-- Along the unrotated rays the rotated integral is Carlson's remainder integral. -/
 theorem twoF0DoubleRot_one (n : ℕ) (α β x : ℂ) : twoF0DoubleRot n α β x 1 =

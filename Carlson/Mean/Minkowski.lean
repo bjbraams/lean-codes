@@ -112,7 +112,8 @@ theorem lt_carlsonMeanReal_add {t : ℝ} (ht : t < 1) {b x y : ι → ℝ}
     simpa only [carlsonMeanReal, ↓reduceIte, Real.exp_zero] using Real.exp_lt_exp.mpr h
   · have hF : StrictConcaveOn ℝ {x : ι → ℝ | ∀ i, 0 < x i} (carlsonRReal t b) :=
       strictConcaveOn_dirichlet_average hb
-        ((Real.strictConcaveOn_rpow hp ht).subset (s := Ioi (0 : ℝ)) (fun _ h => h.le) (convex_Ioi 0))
+        ((Real.strictConcaveOn_rpow hp ht).subset (s := Ioi (0 : ℝ)) (fun _ h => h.le) (convex_Ioi
+          0))
         (fun z hz => (Real.continuousAt_rpow_const z t (Or.inl hz.ne')).continuousWithinAt)
     have h := hF.lt_map_normalized_add hx hy
       (inv_mul_ne_inv_mul_of_not_proportional hne hA hB) hA hB

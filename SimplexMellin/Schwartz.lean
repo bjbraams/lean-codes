@@ -151,7 +151,8 @@ private theorem exists_bound_iteratedFDeriv_simplexAngle_aux [Nonempty ι] (n : 
       ‖iteratedFDeriv ℝ n (g ∘ simplexSoftmax) y‖ ≤ C := by
   induction n generalizing F with
   | zero =>
-    obtain ⟨C, hC⟩ := (Convexity.StdSimplex.isCompact_coordinateSet ℝ ι).exists_bound_of_continuousOn
+    obtain ⟨C, hC⟩ := (Convexity.StdSimplex.isCompact_coordinateSet ℝ
+      ι).exists_bound_of_continuousOn
       (hg.continuousOn.mono hΔ)
     refine ⟨C, fun y => ?_⟩
     simpa only [norm_iteratedFDeriv_zero, Function.comp_apply] using

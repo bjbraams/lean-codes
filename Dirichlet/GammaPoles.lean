@@ -44,6 +44,8 @@ theory as well as by the Carlson functions.
 * `Complex.exists_analyticAt_Gamma_mul_comp_of_factor`: joint removal from local divisibility.
 * `Complex.analyticOnNhd_GammaRemovedValue`: removal of Gamma poles in one variable, jointly
   analytic in the others, when the regularized function vanishes at the poles.
+* `Complex.exists_analyticOnNhd_Gamma_mul_add`: the same removal for the sum of two
+  parameter coordinates, shared by the scalar and vector-node merging arguments.
 
 ## References
 
@@ -354,5 +356,75 @@ theorem tendsto_GammaRemovedValue {κ : Type*} [Fintype κ] [DecidableEq κ]
   filter_upwards [eventually_Gamma_ne_zero_nhdsNE (p none)] with β hβ
   rw [GammaRemovedValue_of_ne _ (fun m h => hβ ((Gamma_eq_zero_iff _).mpr ⟨m, by simpa using h⟩))]
   simp
+
+/-- Coordinate projections are analytic. -/
+private theorem analyticAt_gammaCoord {ρ : Type*} [Fintype ρ] (i : ρ) (p : ρ → ℂ) :
+    AnalyticAt ℂ (fun q : ρ → ℂ => q i) p :=
+  (ContinuousLinearMap.proj (R := ℂ) (φ := fun _ : ρ => ℂ) i).analyticAt p
+
+/-- Replace one coordinate by the sum of two distinct coordinates. -/
+private def gammaAddCoords {ρ : Type*} (a a' : ρ) (p : ρ → ℂ) :
+    Option {j : ρ // j ≠ a'} → ℂ :=
+  fun o => o.elim (p a + p a') (fun j => p j)
+
+/-- Recover the original coordinates from their sum and the remaining coordinates. -/
+private def gammaAddCoordsInv {ρ : Type*} [DecidableEq ρ] {a a' : ρ} (h : a ≠ a')
+    (q : Option {j : ρ // j ≠ a'} → ℂ) : ρ → ℂ :=
+  fun i => if hi : i = a' then q none - q (some ⟨a, h⟩) else q (some ⟨i, hi⟩)
+
+/-- The parameter change used for Gamma-pole removal is analytic. -/
+private theorem analyticAt_gammaAddCoords {ρ : Type*} [Fintype ρ] [DecidableEq ρ]
+    (a a' : ρ) (p : ρ → ℂ) :
+    AnalyticAt ℂ (gammaAddCoords a a') p := by
+  refine analyticAt_pi_iff.mpr fun o => ?_
+  cases o with
+  | none => exact (analyticAt_gammaCoord a p).add (analyticAt_gammaCoord a' p)
+  | some j => exact analyticAt_gammaCoord (j : ρ) p
+
+/-- The inverse parameter change used for Gamma-pole removal is analytic. -/
+private theorem analyticAt_gammaAddCoordsInv {ρ : Type*} [Fintype ρ] [DecidableEq ρ]
+    {a a' : ρ} (h : a ≠ a') (q : Option {j : ρ // j ≠ a'} → ℂ) :
+    AnalyticAt ℂ (gammaAddCoordsInv h) q := by
+  refine analyticAt_pi_iff.mpr fun i => ?_
+  by_cases hi : i = a'
+  · subst hi
+    simpa [gammaAddCoordsInv] using
+      (analyticAt_gammaCoord none q).fun_sub (analyticAt_gammaCoord (some ⟨a, h⟩) q)
+  · simpa [gammaAddCoordsInv, hi] using analyticAt_gammaCoord (some ⟨i, hi⟩) q
+
+/-- Gamma-pole removal when the exceptional parameter is the sum of two coordinates.
+This isolates the common parameter change in scalar and vector-node merging proofs. -/
+theorem exists_analyticOnNhd_Gamma_mul_add {ρ : Type*} [Fintype ρ] [DecidableEq ρ]
+    {a a' : ρ} (h : a ≠ a') {U : Set (ρ → ℂ)} (hU : IsOpen U) {Φ : (ρ → ℂ) → ℂ}
+    (hΦ : AnalyticOnNhd ℂ Φ U)
+    (hzero : ∀ m : ℕ, ∀ p ∈ U, p a + p a' = -m → Φ p = 0) :
+    ∃ G : (ρ → ℂ) → ℂ, AnalyticOnNhd ℂ G U ∧
+      ∀ p ∈ U, (∀ m : ℕ, p a + p a' ≠ -m) → G p = Gamma (p a + p a') * Φ p := by
+  let enc := gammaAddCoords a a'
+  let dec := gammaAddCoordsInv h
+  have henc := analyticAt_gammaAddCoords a a'
+  have hdec := analyticAt_gammaAddCoordsInv h
+  have hinv (p : ρ → ℂ) : dec (enc p) = p := by
+    funext i
+    by_cases hi : i = a'
+    · subst hi; simp [dec, enc, gammaAddCoordsInv, gammaAddCoords]
+    · simp [dec, enc, gammaAddCoordsInv, gammaAddCoords, hi]
+  let V := dec ⁻¹' U
+  have hV : IsOpen V := hU.preimage (continuous_iff_continuousAt.mpr fun q =>
+    (hdec q).continuousAt)
+  have hΨ : AnalyticOnNhd ℂ (Φ ∘ dec) V := fun q hq => (hΦ _ hq).comp (hdec q)
+  have hΨ0 : ∀ q ∈ V, Gamma (q none) = 0 → (Φ ∘ dec) q = 0 := by
+    intro q hq hΓ
+    obtain ⟨m, hm⟩ := (Gamma_eq_zero_iff _).mp hΓ
+    apply hzero m (dec q) hq
+    simp only [dec, gammaAddCoordsInv, h, dite_false, dite_true]
+    rw [← hm]; ring
+  have hK := analyticOnNhd_GammaRemovedValue hV hΨ hΨ0
+  refine ⟨GammaRemovedValue (Φ ∘ dec) ∘ enc, fun p hp => ?_, fun p hp hreg => ?_⟩
+  · exact (hK (enc p) (by change dec (enc p) ∈ U; rwa [hinv])).comp (henc p)
+  · dsimp only [Function.comp_apply]
+    rw [GammaRemovedValue_of_ne _ hreg]
+    change Gamma (p a + p a') * Φ (dec (enc p)) = _
+    rw [hinv]
 
 end Complex

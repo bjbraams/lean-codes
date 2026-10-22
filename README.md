@@ -159,6 +159,13 @@ The connection formula (8.3-10), the full logarithmic expansion of `R_K`, and th
 slit-sector limits also remain; the coefficient evaluation (8.3-15) is proved.
 See [CarlsonCoverage.md](CarlsonCoverage.md).
 
+The mean theory now includes Brenner–Carlson's (1987) general smooth homogeneous-mean
+asymptotic and growing-family convergence theorem, allowing varying dimension and weights.
+Carlson's (1966) strict capacity bound is proved in all dimensions at least three,
+with an extended-integral formulation at nonnegative boundary nodes. The explicit
+second-order mean correction remains open; see the
+[article coverage review](CARLSON_ARTICLES.md#lean-coverage-review-of-three-mean-value-papers).
+
 For Chapters 2–6, the support theory includes the full hypergeometric convergence-radius
 classification, strict log-convexity of Gamma and uniqueness of its positive minimum, and
 strict beta inequalities at fixed total parameter. The logarithmic-mean comparisons and sharp
@@ -167,7 +174,23 @@ real and complex error bounds of §2.6 are proved, as is the complex trigonometr
 aggregation holds for merely continuous simplex kernels; bundled complex Dirichlet measures have an exact
 variation formula and Carlson's exponential variation bound. Continued R-functions have mixed
 node derivatives of every order on the full slit domain, and regularized `₀F₁` is jointly
-entire in its parameter and argument. Remaining coverage gaps are listed in
+entire in its parameter and argument. Further support includes integer-order Pochhammer
+identities, the exact half-integer Stirling remainder, Gamma-ratio asymptotics for fixed
+complex shifts along real arguments, the Weierstrass product and both digamma expansions.
+Liouville's solid-simplex reduction and the double-beta and general hypergeometric
+parameter-raising integrals are proved. Appell's `F₁` has an absolutely convergent double
+series on the unit bidisk and a Carlson R-function identification at all complex parameters.
+Carlson's 1976 linear transformation into a third-order double series is also proved,
+including absolute convergence. Native matrix double averages have independent row and
+column parameters, permutation and transpose symmetries, merging, and power-series expansions.
+Appell's `F₂` and `F₃` series converge absolutely on the full diamond and bidisk,
+respectively, and are identified with continued matrix averages at arbitrary complex parameters.
+The exceptional Gamma cancellation in the `F₃` representation is proved by removable limits.
+Appell's `F₄` has its absolutely convergent series on the full square-root region and its
+Jacobi expansion (the series part of Exercise 7.1-13). Regularized matrix averages have a separate entire
+continuation in both parameter vectors, jointly holomorphic in the entries in convex open
+scalar kernel domains, with continued permutation, merging, and binomial-series identities.
+Remaining coverage gaps are listed in
 [SYNOPSIS_GAPS.md](SYNOPSIS_GAPS.md).
 
 Chapter 9 has the symmetric standard functions `R_F`, `R_G`, `R_H`, `R_K`, `R_E`, `R_L`,

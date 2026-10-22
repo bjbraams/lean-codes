@@ -28,6 +28,7 @@ public import Carlson.Jacobi.ComplexAverage
 public import Carlson.Jacobi.Endpoints
 public import Carlson.Jacobi.FiniteExpansion
 public import Carlson.Jacobi.EndpointBridge
+public import Carlson.Jacobi.AppellF4
 public import Carlson.Jacobi.SecondKind
 public import Carlson.Jacobi.Contour
 public import Carlson.Jacobi.SeriesCoefficients

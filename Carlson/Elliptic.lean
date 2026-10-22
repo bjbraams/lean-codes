@@ -30,6 +30,7 @@ public import Carlson.Elliptic.LandenExercises
 public import Carlson.Elliptic.AGMSecondKind
 public import Carlson.Elliptic.Independence
 public import Carlson.Elliptic.DuplicationError
+public import Carlson.Elliptic.CapacityBound
 public import Carlson.Elliptic.ComplexDuplication
 public import Carlson.Elliptic.QuarticIntegral
 public import Carlson.Elliptic.Applications

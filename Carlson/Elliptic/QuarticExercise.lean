@@ -215,7 +215,8 @@ private theorem integrableOn_quartic_reduced {A B C : ℝ} (hA : 0 < A) (hB : 0 
   have htail : IntegrableOn g (Ioi 1) := by
     refine Integrable.mono' (((integrableOn_Ioi_rpow_of_lt (by norm_num : -(3 / 2 : ℝ) < -1)
       one_pos).const_mul (m ^ (-(3 / 2) : ℝ)))) ?_ ?_
-    · exact (hcont.mono (t := Ioi (1 : ℝ)) fun σ (hσ : 1 < σ) => (show (0 : ℝ) ≤ σ by linarith)).aestronglyMeasurable
+    · exact (hcont.mono (t := Ioi (1 : ℝ)) fun σ (hσ : 1 < σ) => (show (0 : ℝ) ≤ σ by
+      linarith)).aestronglyMeasurable
         measurableSet_Ioi
     · exact (ae_restrict_mem measurableSet_Ioi).mono hbound
   have hhead : IntegrableOn g (Ioc 0 1) :=

@@ -23,6 +23,7 @@ The local singularity estimate specializes the Tau Ceti contributors'
 
 * `intervalIntegral.intervalIntegrable_abs_sub_rpow`: `|σ - c|^r` is interval integrable for
   `r > -1`.
+* `locallyIntegrable_prod_abs_sub_rpow_neg`: the local result without a decay hypothesis.
 * `integrable_prod_abs_sub_rpow_neg`: integrability of `∏ |σ - xᵢ|^{-bᵢ}` on `ℝ`.
 -/
 
@@ -39,6 +40,87 @@ theorem intervalIntegral.intervalIntegrable_abs_sub_rpow {r : ℝ} (hr : -1 < r)
   simpa [Real.norm_eq_abs, abs_sub_comm] using
     (h.integrableOn_isCompact (k := uIcc a b) isCompact_uIcc).intervalIntegrable
 
+/-- A product of powers at distinct real nodes is locally integrable when each
+singularity has exponent greater than `-1`; no condition at infinity is needed. -/
+theorem locallyIntegrable_prod_abs_sub_rpow_neg {ι : Type*} [Fintype ι] {x : ι → ℝ}
+    (hx : Function.Injective x) {b : ι → ℝ} (hb1 : ∀ i, b i < 1) :
+    LocallyIntegrable (fun σ : ℝ ↦ ∏ i, |σ - x i| ^ (-b i)) := by
+  classical
+  set f : ℝ → ℝ := fun σ ↦ ∏ i, |σ - x i| ^ (-b i) with hf_def
+  have hmeas : Measurable f :=
+    Finset.measurable_prod _ fun i _ ↦
+      (continuous_abs.comp (continuous_id.sub continuous_const)).measurable.pow_const _
+  have hf0 : ∀ σ, 0 ≤ f σ := fun σ ↦
+    Finset.prod_nonneg fun i _ ↦ Real.rpow_nonneg (abs_nonneg _) _
+  intro y
+  have hev : ∀ᶠ δ in 𝓝[>] (0 : ℝ), ∀ i, x i ≠ y → 2 * δ ≤ |y - x i| := by
+    rw [Filter.eventually_all]
+    intro i
+    by_cases hi : x i = y
+    · exact Filter.Eventually.of_forall fun _ h ↦ (h hi).elim
+    · have hpos : 0 < |y - x i| := abs_pos.mpr (sub_ne_zero.mpr (Ne.symm hi))
+      have : ∀ᶠ δ in 𝓝 (0 : ℝ), δ < |y - x i| / 2 :=
+        eventually_lt_nhds (by linarith)
+      filter_upwards [nhdsWithin_le_nhds this] with δ hδ _
+      linarith
+  obtain ⟨δ, hδ, hδpos⟩ := (hev.and self_mem_nhdsWithin).exists
+  have hδpos : 0 < δ := hδpos
+  refine ⟨Ioo (y - δ) (y + δ), Ioo_mem_nhds (by linarith) (by linarith), ?_⟩
+  -- the bound
+  let C := fun i ↦ max (δ ^ (-b i)) ((|y - x i| + δ) ^ (-b i))
+  set g : ℝ → ℝ := fun σ ↦ ∏ i, (if x i = y then |σ - y| ^ (-b i) else C i) with hg
+  have hbound : ∀ σ ∈ Ioo (y - δ) (y + δ), f σ ≤ g σ := by
+    intro σ hσ
+    refine Finset.prod_le_prod₀ (fun i _ ↦ Real.rpow_nonneg (abs_nonneg _) _) fun i _ ↦ ?_
+    split_ifs with hi
+    · rw [hi]
+    · have hd : δ ≤ |σ - x i| := by
+        have h2 := hδ i hi
+        have : |y - x i| ≤ |y - σ| + |σ - x i| := by
+          have := abs_sub_le y σ (x i); linarith
+        have hyσ : |y - σ| < δ := by
+          rw [abs_sub_lt_iff]; constructor <;> linarith [hσ.1, hσ.2]
+        linarith
+      by_cases hb : 0 ≤ b i
+      · exact (Real.rpow_le_rpow_of_nonpos hδpos hd (neg_nonpos.mpr hb)).trans
+          (le_max_left _ _)
+      · have hu : |σ - x i| ≤ |y - x i| + δ := by
+          have ht := abs_sub_le σ y (x i)
+          have hyσ : |σ - y| < δ := by
+            rw [abs_sub_lt_iff]; constructor <;> linarith [hσ.1, hσ.2]
+          linarith
+        exact (Real.rpow_le_rpow (abs_nonneg _) hu (by linarith)).trans
+          (le_max_right _ _)
+  have hgint : IntegrableOn g (Ioo (y - δ) (y + δ)) := by
+    by_cases hj : ∃ j, x j = y
+    · obtain ⟨j, hj⟩ := hj
+      have hgeq : g = fun σ ↦ (∏ i ∈ Finset.univ.erase j, C i) *
+          |σ - y| ^ (-b j) := by
+        funext σ
+        simp only [hg]
+        rw [← Finset.mul_prod_erase _ _ (Finset.mem_univ j), mul_comm]
+        simp only [hj, ↓reduceIte]
+        congr 1
+        refine Finset.prod_congr rfl fun i hi ↦ ?_
+        have : x i ≠ y := fun h ↦ (Finset.mem_erase.mp hi).1 (hx (h.trans hj.symm))
+        simp only [this, ↓reduceIte]
+      rw [hgeq]
+      refine Integrable.const_mul ?_ _
+      have := intervalIntegral.intervalIntegrable_abs_sub_rpow (r := -b j) (by linarith [hb1 j]) y
+        (y - δ) (y + δ)
+      rw [intervalIntegrable_iff_integrableOn_Ioo_of_le (by linarith)] at this
+      exact this
+    · simp only [not_exists] at hj
+      have hgeq : g = fun _ ↦ ∏ i, C i := by
+        funext σ
+        exact Finset.prod_congr rfl fun i _ ↦ by simp only [hj i, ↓reduceIte]
+      rw [hgeq]
+      exact integrableOn_const (by simp) (by simp)
+  refine hgint.mono' hmeas.aestronglyMeasurable ?_
+  filter_upwards [ae_restrict_mem measurableSet_Ioo] with σ hσ
+  rw [Real.norm_eq_abs, abs_of_nonneg (hf0 σ)]
+  exact hbound σ hσ
+
 /-- **Integrability of `∏ |σ - xᵢ|^{-bᵢ}`**: for injective real nodes `xᵢ` and exponents
 `bᵢ < 1` with `∑ bᵢ > 1`, the product is integrable on `ℝ`. -/
 theorem integrable_prod_abs_sub_rpow_neg {ι : Type*} [Fintype ι] {x : ι → ℝ}
@@ -53,75 +135,7 @@ theorem integrable_prod_abs_sub_rpow_neg {ι : Type*} [Fintype ι] {x : ι → �
   have hf0 : ∀ σ, 0 ≤ f σ := fun σ ↦
     Finset.prod_nonneg fun i _ ↦ Real.rpow_nonneg (abs_nonneg _) _
   -- local integrability
-  have hloc : LocallyIntegrable f := by
-    intro y
-    have hev : ∀ᶠ δ in 𝓝[>] (0 : ℝ), ∀ i, x i ≠ y → 2 * δ ≤ |y - x i| := by
-      rw [Filter.eventually_all]
-      intro i
-      by_cases hi : x i = y
-      · exact Filter.Eventually.of_forall fun _ h ↦ (h hi).elim
-      · have hpos : 0 < |y - x i| := abs_pos.mpr (sub_ne_zero.mpr (Ne.symm hi))
-        have : ∀ᶠ δ in 𝓝 (0 : ℝ), δ < |y - x i| / 2 :=
-          eventually_lt_nhds (by linarith)
-        filter_upwards [nhdsWithin_le_nhds this] with δ hδ _
-        linarith
-    obtain ⟨δ, hδ, hδpos⟩ := (hev.and self_mem_nhdsWithin).exists
-    have hδpos : 0 < δ := hδpos
-    refine ⟨Ioo (y - δ) (y + δ), Ioo_mem_nhds (by linarith) (by linarith), ?_⟩
-    -- the bound
-    let C := fun i ↦ max (δ ^ (-b i)) ((|y - x i| + δ) ^ (-b i))
-    set g : ℝ → ℝ := fun σ ↦ ∏ i, (if x i = y then |σ - y| ^ (-b i) else C i) with hg
-    have hbound : ∀ σ ∈ Ioo (y - δ) (y + δ), f σ ≤ g σ := by
-      intro σ hσ
-      refine Finset.prod_le_prod₀ (fun i _ ↦ Real.rpow_nonneg (abs_nonneg _) _) fun i _ ↦ ?_
-      split_ifs with hi
-      · rw [hi]
-      · have hd : δ ≤ |σ - x i| := by
-          have h2 := hδ i hi
-          have : |y - x i| ≤ |y - σ| + |σ - x i| := by
-            have := abs_sub_le y σ (x i); linarith
-          have hyσ : |y - σ| < δ := by
-            rw [abs_sub_lt_iff]; constructor <;> linarith [hσ.1, hσ.2]
-          linarith
-        by_cases hb : 0 ≤ b i
-        · exact (Real.rpow_le_rpow_of_nonpos hδpos hd (neg_nonpos.mpr hb)).trans
-            (le_max_left _ _)
-        · have hu : |σ - x i| ≤ |y - x i| + δ := by
-            have ht := abs_sub_le σ y (x i)
-            have hyσ : |σ - y| < δ := by
-              rw [abs_sub_lt_iff]; constructor <;> linarith [hσ.1, hσ.2]
-            linarith
-          exact (Real.rpow_le_rpow (abs_nonneg _) hu (by linarith)).trans
-            (le_max_right _ _)
-    have hgint : IntegrableOn g (Ioo (y - δ) (y + δ)) := by
-      by_cases hj : ∃ j, x j = y
-      · obtain ⟨j, hj⟩ := hj
-        have hgeq : g = fun σ ↦ (∏ i ∈ Finset.univ.erase j, C i) *
-            |σ - y| ^ (-b j) := by
-          funext σ
-          simp only [hg]
-          rw [← Finset.mul_prod_erase _ _ (Finset.mem_univ j), mul_comm]
-          simp only [hj, ↓reduceIte]
-          congr 1
-          refine Finset.prod_congr rfl fun i hi ↦ ?_
-          have : x i ≠ y := fun h ↦ (Finset.mem_erase.mp hi).1 (hx (h.trans hj.symm))
-          simp only [this, ↓reduceIte]
-        rw [hgeq]
-        refine Integrable.const_mul ?_ _
-        have := intervalIntegral.intervalIntegrable_abs_sub_rpow (r := -b j) (by linarith [hb1 j]) y
-          (y - δ) (y + δ)
-        rw [intervalIntegrable_iff_integrableOn_Ioo_of_le (by linarith)] at this
-        exact this
-      · simp only [not_exists] at hj
-        have hgeq : g = fun _ ↦ ∏ i, C i := by
-          funext σ
-          exact Finset.prod_congr rfl fun i _ ↦ by simp only [hj i, ↓reduceIte]
-        rw [hgeq]
-        exact integrableOn_const (by simp) (by simp)
-    refine hgint.mono' hmeas.aestronglyMeasurable ?_
-    filter_upwards [ae_restrict_mem measurableSet_Ioo] with σ hσ
-    rw [Real.norm_eq_abs, abs_of_nonneg (hf0 σ)]
-    exact hbound σ hσ
+  have hloc : LocallyIntegrable f := locallyIntegrable_prod_abs_sub_rpow_neg hx hb1
   -- decay at infinity
   set B := ∑ i, b i
   set M : ℝ := ∑ i, |x i| + 1 with hM

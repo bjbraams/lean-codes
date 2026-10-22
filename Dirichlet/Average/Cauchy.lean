@@ -244,8 +244,10 @@ theorem circleIntegral_regCarlsonResolvent_mul
     linarith
   have hF : ContinuousOn (fun p : ℂ × (ι → ℝ) => carlsonCauchyKernel n z p.2 p.1 * f p.1)
       (sphere c R ×ˢ Convexity.StdSimplex.coordinateSet ℝ ι) :=
-    ((continuousOn_carlsonCauchyKernel n z).mono (fun p (hp : p ∈ sphere c R ×ˢ Convexity.StdSimplex.coordinateSet ℝ ι) => ⟨hout hp.1, hp.2⟩)).mul
-      (hf.comp continuous_fst.continuousOn (fun p (hp : p ∈ sphere c R ×ˢ Convexity.StdSimplex.coordinateSet ℝ ι) => hp.1))
+    ((continuousOn_carlsonCauchyKernel n z).mono (fun p (hp : p ∈ sphere c R ×ˢ
+      Convexity.StdSimplex.coordinateSet ℝ ι) => ⟨hout hp.1, hp.2⟩)).mul
+      (hf.comp continuous_fst.continuousOn (fun p (hp : p ∈ sphere c R ×ˢ
+        Convexity.StdSimplex.coordinateSet ℝ ι) => hp.1))
   rw [← circleIntegral_regDirichletIntegral hb c hR hF]
   apply circleIntegral.integral_congr hR
   intro s _

@@ -7,6 +7,7 @@ module
 
 public import ToMathlib.Algebra.LinearMap.Ordered
 public import ToMathlib.Algebra.LinearDependence
+public import ToMathlib.Algebra.Polynomial.IntegerPochhammer
 public import ToMathlib.Algebra.Submodule.SaturationLocalization
 
 /-!

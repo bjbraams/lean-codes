@@ -19,7 +19,10 @@ public import Carlson.Mean.Ratio
 public import Carlson.Mean.Holder
 public import Carlson.Mean.Dresher
 public import Carlson.Mean.Bounds
+public import Carlson.Mean.Capacity
 public import Carlson.Mean.Concentration
+public import Carlson.Mean.GrowingFamilies
+public import Carlson.Mean.TranslateAsymptotic
 public import Carlson.Mean.ConcentrationQuadratic
 public import Carlson.Mean.ConcentrationTwo
 public import Carlson.Mean.OrderLimits
@@ -57,6 +60,13 @@ strict decrease and strict log-convexity hold for arbitrary finite nonconstant
 real node sets, with an explicit strictly negative concentration derivative.
 General finite-node concentration monotonicity and the remaining concentration
 convexity results are still to be proved.
+
+The Brenner–Carlson large-translation estimate holds for every real order,
+including zero. Growing-family limits of R, L, means and ratio means allow both
+the finite index type and normalized weights to vary. A dimension-independent
+Dirichlet variance estimate controls the error. Carlson's 1966 capacity bound is
+proved in all dimensions at least three, with an extended-integral formulation
+for nonnegative boundary nodes, including divergent integrals.
 
 ## References
 

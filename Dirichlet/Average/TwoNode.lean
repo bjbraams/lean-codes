@@ -534,6 +534,31 @@ private theorem tendsto_rpow_nhdsGT_zero_of_pos {q : ℝ} (hq : 0 < q) :
   rw [Real.zero_rpow hq.ne'] at h
   exact h.mono_left nhdsWithin_le_nhds
 
+/-- The strip used to deform an Euler path remains convex after restricting
+its affine image to any convex set. -/
+private theorem convex_eulerDeformationDomain {B : Set ℂ} (hB : Convex ℝ B) (x y : ℂ) :
+    Convex ℝ {τ : ℂ | 0 < τ.re ∧ 0 < (1 - τ).re ∧ y + τ * (x - y) ∈ B} := by
+  intro a ha a' ha' p q hp hq hpq
+  refine ⟨?_, ?_, ?_⟩
+  · have hre : (p • a + q • a').re = p * a.re + q * a'.re := by simp
+    rw [hre]
+    rcases eq_or_lt_of_le hp with h | h
+    · subst h; simp only [zero_add] at hpq; subst hpq; simpa using ha'.1
+    · have := mul_pos h ha.1; have := mul_nonneg hq ha'.1.le; linarith
+  · have : (1 - (p • a + q • a')) = p • (1 - a) + q • (1 - a') := by
+      simp only [real_smul]; rw [show q = 1 - p by linarith]; push_cast; ring
+    rw [this]
+    have hre : (p • (1 - a) + q • (1 - a')).re = p * (1 - a).re + q * (1 - a').re := by
+      simp
+    rw [hre]
+    rcases eq_or_lt_of_le hp with h | h
+    · subst h; simp only [zero_add] at hpq; subst hpq; simpa using ha'.2.1
+    · have := mul_pos h ha.2.1; have := mul_nonneg hq ha'.2.1.le; linarith
+  · have : y + (p • a + q • a') * (x - y) = p • (y + a * (x - y)) + q • (y + a' * (x - y)) := by
+      simp only [real_smul]; rw [show q = 1 - p by linarith]; push_cast; ring
+    rw [this]
+    exact hB ha.2.2 ha'.2.2 hp hq hpq
+
 /-- **Agreement near the diagonal.** For node pairs near a diagonal point of `D`, the regularized
 Euler integral of the pulled-back kernel is the regularized Euler integral of `g` along the
 segment, for Dirichlet parameters with positive real parts. -/
@@ -595,27 +620,7 @@ theorem regEulerIntegral_twoNodeKernel_eventually_eq {D V : Set ℂ} {φ ψ : �
     refine (isOpen_lt continuous_const continuous_re).inter
       ((isOpen_lt continuous_const (continuous_re.comp (continuous_const.sub continuous_id))).inter
         (Metric.isOpen_ball.preimage (by fun_prop)))
-  have hUc : Convex ℝ U := by
-    intro a ha a' ha' p q hp hq hpq
-    refine ⟨?_, ?_, ?_⟩
-    · have hre : (p • a + q • a').re = p * a.re + q * a'.re := by simp
-      rw [hre]
-      rcases eq_or_lt_of_le hp with h | h
-      · subst h; simp only [zero_add] at hpq; subst hpq; simpa using ha'.1
-      · have := mul_pos h ha.1; have := mul_nonneg hq ha'.1.le; linarith
-    · have : (1 - (p • a + q • a')) = p • (1 - a) + q • (1 - a') := by
-        simp only [real_smul]; rw [show q = 1 - p by linarith]; push_cast; ring
-      rw [this]
-      have hre : (p • (1 - a) + q • (1 - a')).re = p * (1 - a).re + q * (1 - a').re := by
-        simp
-      rw [hre]
-      rcases eq_or_lt_of_le hp with h | h
-      · subst h; simp only [zero_add] at hpq; subst hpq; simpa using ha'.2.1
-      · have := mul_pos h ha.2.1; have := mul_nonneg hq ha'.2.1.le; linarith
-    · have : y + (p • a + q • a') * (x - y) = p • (y + a * (x - y)) + q • (y + a' * (x - y)) := by
-        simp only [real_smul]; rw [show q = 1 - p by linarith]; push_cast; ring
-      rw [this]
-      exact (convex_ball x₀ (ε / 2)) ha.2.2 ha'.2.2 hp hq hpq
+  have hUc : Convex ℝ U := convex_eulerDeformationDomain (convex_ball _ _) x y
   set ω : ℂ → ℂ := fun τ => τ ^ (b₀ - 1) * (1 - τ) ^ (b₁ - 1) * g (y + τ * (x - y)) with hω_def
   have hω : DifferentiableOn ℂ ω U := by
     intro τ hτ

@@ -255,6 +255,64 @@ The complex theorem uses the principal logarithm of the quotient under
 complex trigonometric beta integral (4.2-3) and proves its convergence for parameters with
 positive real parts, using the substitution `t = sin θ ^ 2`.
 
+`ToMathlib.Algebra.Polynomial.IntegerPochhammer` supplies arbitrary integer orders,
+with an explicit pole predicate, addition, reflection and duplication. Natural-order
+algebraic identities live in `ToMathlib.Algebra.Polynomial.PochhammerIdentities`, re-exported
+by `Pochhammer.Identities`. `PochhammerStirling` proves the strict half-integer remainder
+formula of Theorem 2.7-1. The special-function support modules `GammaAsymptotic`,
+`GammaProduct` and `DigammaSeries` provide the fixed-complex-shift ratio asymptotic along
+real arguments, the ordered Weierstrass product, locally uniform Euler approximants away
+from poles, and both digamma expansions.
+
+`BetaSeries` justifies countably indexed termwise beta integration. `HypergeometricBeta`
+uses it for both general parameter-raising formulas of Exercise 4.4-4.
+`Dirichlet.Complex.HypergeometricBeta` gives the double-beta specialization of Exercise
+4.4-3; `Dirichlet.Complex.Liouville` gives Corollary 4.4-5 in solid-simplex coordinates.
+`ToMathlib.Analysis.SpecialFunctions.AppellF1` defines the regularized and ordinary Appell
+functions and proves absolute double-series convergence on the unit bidisk.
+`Carlson.TwoVariable.AppellF1` identifies them with the three-node R-function for all
+complex parameters, using the existing Taylor continuation. The generic principal-power
+derivative lemma is in `ToMathlib.Analysis.SpecialFunctions.ComplexPowerDeriv`.
+`ToMathlib.Analysis.SpecialFunctions.AppellLinear` defines Carlson's transformed
+third-order series and proves absolute convergence in the open diamond;
+`Carlson.TwoVariable.AppellLinear` proves the 1976 linear transformation by total degree.
+
+`Dirichlet.Average.Matrix` defines native regularized and normalized double averages
+with independent row and column parameters. It proves Fubini, permutation and transpose
+symmetries, repeated-row/column reductions, arbitrary surjective aggregation, and the
+positive-real probability bridge. `Dirichlet.Average.MatrixSeries` gives the product
+integral, linearity, dominated termwise averaging, power-series expansions, and
+factorization of rank-one polynomial moments. These are native integrals, with
+positive real parts of the parameters where convergence is needed; they do not
+assert matrix-parameter continuation outside that region.
+`Dirichlet.Average.MatrixMoments` supplies separated-kernel and binomial mixed
+moments, together with explicit coordinate moments.
+`Dirichlet.Average.MatrixContinuation` constructs a separate, unique entire
+regularized continuation in both parameter vectors, jointly holomorphic in all
+entries in a convex open scalar kernel domain. It proves native agreement and
+transpose symmetry at arbitrary parameters.
+
+`ToMathlib.Analysis.SpecialFunctions.AppellF2F3` defines regularized and ordinary
+series and proves absolute convergence for arbitrary complex parameters on the
+full $F_2$ diamond and $F_3$ bidisk. `Carlson.TwoVariable.AppellMatrix` identifies
+them with matrix averages when both parameter vectors have positive real parts.
+`Carlson.TwoVariable.AppellContinuation` extends the series identifications to
+arbitrary complex parameters. The division-free $F_3$ identity has reciprocal
+Gamma on the series side; `AppellNormalization` recovers its regularized series
+at exceptional totals by removable limits and parameter derivatives.
+`AppellParameter` proves entire denominator dependence of regularized $F_3$,
+using uniform reciprocal-Gamma bounds now in `GammaShiftBounds` and reexported by
+`Pochhammer.Gamma`.
+
+`Dirichlet.Average.MatrixTaylor` recognizes continued scalar series from native
+identities with entire coefficients, using `ToMathlib.Analysis.Analytic.ParameterTaylor`.
+`Carlson.TwoVariable.MatrixTaylor` proves the continued binomial expansion on the
+full entry disk about one. `Dirichlet.Average.MatrixIdentities` extends permutation,
+merging and kernel linearity to arbitrary parameters.
+`ToMathlib.Analysis.SpecialFunctions.AppellF4` gives absolute convergence on the
+full square-root region. `Carlson.Jacobi.AppellF4` proves the all-parameter numerator
+expansion and the normalized Jacobi series under explicit nondegeneracy assumptions.
+
 ### `Dirichlet.Beta.Complex.Basic`
 
 Contains module `Integral`.
@@ -523,6 +581,23 @@ The new probability support is in `Dirichlet.Real.Support` (equivalent null sets
 for positive Dirichlet laws and exact essential affine bounds) and
 `Dirichlet.Real.Concentration` (coordinate deviation estimates and convergence of
 Lipschitz or continuously differentiable simplex averages).
+
+Further mean and capacity modules are:
+
+- `Carlson.Mean.TranslateAsymptotic`: smoothness at positive real nodes, real
+  derivative weights, and the Hoehn–Niven estimate at every real order.
+- `Carlson.Mean.GrowingFamilies`: growing-family limits with varying finite index
+  types and normalized weights, including the ratio mean's coincident orders.
+- `Dirichlet.Real.UniformConcentration`: affine variance and a scalar Lipschitz
+  concentration estimate independent of dimension.
+- `ToMathlib.Analysis.Calculus.HomogeneousMeanAsymptotic`: the general local
+  `C²` homogeneous-mean theorem, built on Mathlib's Taylor estimate.
+- `ToMathlib.Analysis.Convex.ElementarySymmetricMean`: the strict Maclaurin
+  inequality at degree `n-1`, proved by averaging pairs on the compact simplex.
+- `Carlson.Mean.Capacity`: the general-dimensional positive-node `R` bound and
+  extended-integral nonnegative boundary bound of Carlson (1966), Theorem 3.
+- `Carlson.Elliptic.CapacityBound`: strict three-dimensional `R_F` and one-zero
+  `R_K` bounds, and monotonicity of the duplication arithmetic means.
 
 Carlson–Tobey (1968) is now partly formalized. For two distinct positive nodes and
 positive, possibly unnormalized parameters, R strictly decreases in concentration

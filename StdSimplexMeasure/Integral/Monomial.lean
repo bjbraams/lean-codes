@@ -50,6 +50,33 @@ variable {ι : Type u} [Fintype ι]
 
 
 open scoped Classical in
+/-- Factoring a monomial after deleting one simplex coordinate separates its beta weight. -/
+private theorem monomial_stdSimplexCoordMap (i : ι) (m : ι → ℕ) (t : ℝ) (v : {j : ι // j ≠ i} → ℝ)
+    (hv : v ∈ Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i}) :
+    (∏ j, stdSimplexCoordMap i (fun q => (1 - t) * v q) j ^ m j) =
+      t ^ m i * (1 - t) ^ (∑ q : {j : ι // j ≠ i}, m q.val) *
+        ∏ q : {j : ι // j ≠ i}, v q ^ m q.val := by
+  rw [Fintype.prod_eq_mul_prod_subtype_ne _ i]
+  have hvsum : ∑ q, v q = 1 := hv.2
+  rw [stdSimplexCoordMap_apply_self, ← Finset.mul_sum, hvsum]
+  simp only [mul_one, sub_sub_cancel]
+  have hprod :
+      (∏ q : {j : ι // j ≠ i},
+        stdSimplexCoordMap i (fun q => (1 - t) * v q) q.val ^ m q.val) =
+      (1 - t) ^ (∑ q : {j : ι // j ≠ i}, m q.val) *
+        ∏ q : {j : ι // j ≠ i}, v q ^ m q.val := by
+    calc
+      _ = ∏ q : {j : ι // j ≠ i}, ((1 - t) * v q) ^ m q.val := by
+        apply Finset.prod_congr rfl
+        intro q _
+        rw [stdSimplexCoordMap_apply_of_ne i q.val q.property]
+      _ = _ := by
+        simp_rw [mul_pow, Finset.prod_mul_distrib,
+          ← Finset.prod_pow_eq_pow_sum]
+  rw [hprod]
+  ring
+
+open scoped Classical in
 /-- Reduce a monomial integral on a nontrivial simplex to the monomial integral on the simplex
 obtained by deleting coordinate `i`. -/
 theorem integral_stdSimplex_explicit_monomial_succ [Nontrivial ι] (i : ι) (m : ι → ℕ) :
@@ -63,30 +90,6 @@ theorem integral_stdSimplex_explicit_monomial_succ [Nontrivial ι] (i : ι) (m :
     apply ContinuousOn.integrableOn_stdSimplex
     fun_prop
   rw [integral_stdSimplex_split_at i _ hf]
-  have hfactor (t : ℝ) (v : {j : ι // j ≠ i} → ℝ)
-      (hv : v ∈ Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i}) :
-      (∏ j, stdSimplexCoordMap i (fun q => (1 - t) * v q) j ^ m j) =
-        t ^ m i * (1 - t) ^ (∑ q : {j : ι // j ≠ i}, m q.val) *
-          ∏ q : {j : ι // j ≠ i}, v q ^ m q.val := by
-    rw [Fintype.prod_eq_mul_prod_subtype_ne _ i]
-    have hvsum : ∑ q, v q = 1 := hv.2
-    rw [stdSimplexCoordMap_apply_self, ← Finset.mul_sum, hvsum]
-    simp only [mul_one, sub_sub_cancel]
-    have hprod :
-        (∏ q : {j : ι // j ≠ i},
-          stdSimplexCoordMap i (fun q => (1 - t) * v q) q.val ^ m q.val) =
-        (1 - t) ^ (∑ q : {j : ι // j ≠ i}, m q.val) *
-          ∏ q : {j : ι // j ≠ i}, v q ^ m q.val := by
-      calc
-        _ = ∏ q : {j : ι // j ≠ i}, ((1 - t) * v q) ^ m q.val := by
-          apply Finset.prod_congr rfl
-          intro q _
-          rw [stdSimplexCoordMap_apply_of_ne i q.val q.property]
-        _ = _ := by
-          simp_rw [mul_pow, Finset.prod_mul_distrib,
-            ← Finset.prod_pow_eq_pow_sum]
-    rw [hprod]
-    ring
   have hinner (t : ℝ) :
       ∫ v in Convexity.StdSimplex.coordinateSet ℝ {j : ι // j ≠ i},
           (∏ j, stdSimplexCoordMap i (fun q => (1 - t) * v q) j ^ m j)
@@ -99,7 +102,7 @@ theorem integral_stdSimplex_explicit_monomial_succ [Nontrivial ι] (i : ι) (m :
     filter_upwards [self_mem_ae_restrict
       (μ := stdSimplexMeasure)
           (Convexity.StdSimplex.isClosed_coordinateSet ℝ _).measurableSet] with v hv
-    exact hfactor t v hv
+    exact monomial_stdSimplexCoordMap i m t v hv
   simp_rw [hinner]
   simp only [smul_eq_mul]
   have hcard : 2 ≤ card ι := Nat.succ_le_iff.mpr Fintype.one_lt_card

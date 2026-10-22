@@ -231,7 +231,8 @@ theorem tendsto_carlsonR_sub_nhdsWithin (h : SchwarzChristoffelParams a b x) (t 
   have hval : scMap a b x t = a * ∫ σ in Ioi t, ∏ i, (((σ - x i : ℝ)) : ℂ) ^ (-(b i : ℂ)) := by
     simp [scMap, scIntegrand]
   rw [← hval]
-  refine ((hc.mono (s := {z : ℂ | 0 < z.im}) fun z (hz : 0 < z.im) => (le_of_lt hz : 0 ≤ z.im)).tendsto).congr' ?_
+  refine ((hc.mono (s := {z : ℂ | 0 < z.im}) fun z (hz : 0 < z.im) => (le_of_lt hz : 0 ≤
+    z.im)).tendsto).congr' ?_
   filter_upwards [self_mem_nhdsWithin] with z hz
   exact scMap_eq_carlsonR h hz
 

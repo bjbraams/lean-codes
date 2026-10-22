@@ -9,6 +9,7 @@ public import Pochhammer.BinomialSeries
 public import Pochhammer.Estimates
 public import Pochhammer.Gamma
 public import Pochhammer.Identities
+public import ToMathlib.Algebra.Polynomial.IntegerPochhammer
 public import Pochhammer.PochhammerTransform
 public import Pochhammer.Vandermonde
 public import Pochhammer.BetaShift

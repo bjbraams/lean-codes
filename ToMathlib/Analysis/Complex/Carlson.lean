@@ -294,14 +294,13 @@ private theorem differentiableAt_carlsonDamping (α : ℝ) {z : ℂ} (hz : -1 < 
   have h1 : DifferentiableAt ℂ (fun w : ℂ ↦ w + 1) z := by fun_prop
   exact ((h1.mul (h1.clog hs)).const_mul _).cexp
 
-/-- **Carlson's theorem** for complex-valued functions; see `eqOn_zero_of_natCast_eq_zero`.
-The proof uses the quotient `z f(z) / sin (π z)`, which is continuous at the boundary zero `z = 0`
-under continuity of `f` alone. -/
-private theorem eqOn_zero_of_natCast_eq_zero_complex {f : ℂ → ℂ}
-    (hf : DiffContOnCl ℂ f {z | 0 < z.re}) {C τ c : ℝ}
-    (hexp : ∀ z : ℂ, 0 ≤ z.re → ‖f z‖ ≤ C * Real.exp (τ * ‖z‖))
-    (him : ∀ y : ℝ, ‖f (y * I)‖ ≤ C * Real.exp (c * |y|)) (hc : c < π)
-    (hzero : ∀ n : ℕ, f n = 0) : ∀ z : ℂ, 0 ≤ z.re → f z = 0 := by
+/-- The zero-filled sine quotient is holomorphic in the open half-plane;
+multiplication by the coordinate makes it continuous also at the boundary zero. -/
+private theorem sinPiQuot_halfPlane_regular {f : ℂ → ℂ}
+    (hf : DiffContOnCl ℂ f {z | 0 < z.re}) (hzero : ∀ n : ℕ, f n = 0) :
+    (∀ z : ℂ, 0 < z.re → DifferentiableAt ℂ (sinPiQuot f) z) ∧
+      ∀ z : ℂ, 0 ≤ z.re → ContinuousWithinAt (fun w ↦ w * sinPiQuot f w)
+        {w : ℂ | 0 ≤ w.re} z := by
   set G := sinPiQuot f
   set G₁ : ℂ → ℂ := fun z ↦ z * G z
   have hnat : ∀ n : ℤ, 0 ≤ ((n : ℂ)).re → f n = 0 := fun n hn ↦ by
@@ -312,7 +311,6 @@ private theorem eqOn_zero_of_natCast_eq_zero_complex {f : ℂ → ℂ}
   have hfU : DifferentiableOn ℂ f {z | 0 < z.re} := hf.differentiableOn
   have hfc : ContinuousOn f {z : ℂ | 0 ≤ z.re} := by
     simpa only [closure_setOfPred_lt_re] using hf.continuousOn
-  have hzexp : ∀ z : ℂ, ‖z‖ ≤ Real.exp ‖z‖ := fun z ↦ by linarith [Real.add_one_le_exp ‖z‖]
   -- Regularity of the quotients.
   have hGd : ∀ z : ℂ, 0 < z.re → DifferentiableAt ℂ G z := by
     intro z hz
@@ -360,7 +358,21 @@ private theorem eqOn_zero_of_natCast_eq_zero_complex {f : ℂ → ℂ}
         · filter_upwards [eventually_nhdsWithin_of_eventually_nhds hev] with w hw
           simp only [G₁, G, sinPiQuot_of_ne hw]
         · simp only [G₁, G, sinPiQuot_of_ne hs]
-  -- Exponential type of the quotients.
+  exact ⟨hGd, hG₁c⟩
+
+/-- Removing the integer zeros preserves exponential type on the closed half-plane.
+The maximum-modulus argument controls the quotient near each positive integer. -/
+private theorem exists_bound_mul_sinPiQuot {f : ℂ → ℂ}
+    (hf : DiffContOnCl ℂ f {z | 0 < z.re}) {C τ : ℝ}
+    (hexp : ∀ z : ℂ, 0 ≤ z.re → ‖f z‖ ≤ C * Real.exp (τ * ‖z‖))
+    (hzero : ∀ n : ℕ, f n = 0) :
+    ∃ M : ℝ, 0 ≤ M ∧ ∀ z : ℂ, 0 ≤ z.re →
+      ‖z * sinPiQuot f z‖ ≤ M * Real.exp ((|τ| + 1) * ‖z‖) := by
+  set G := sinPiQuot f
+  set G₁ : ℂ → ℂ := fun z ↦ z * G z
+  obtain ⟨hGd, hG₁c⟩ := sinPiQuot_halfPlane_regular hf hzero
+  have hzexp : ∀ z : ℂ, ‖z‖ ≤ Real.exp ‖z‖ := fun z ↦ by
+    linarith [Real.add_one_le_exp ‖z‖]
   set C' := max C 0
   set τ' := |τ|
   have hC' : 0 ≤ C' := le_max_right _ _
@@ -457,28 +469,59 @@ private theorem eqOn_zero_of_natCast_eq_zero_complex {f : ℂ → ℂ}
       gcongr
       exact (le_mul_of_one_le_right (by positivity) (Real.one_le_exp (by positivity))).trans
         (le_max_right _ _)
-  -- The quotient on the imaginary axis.
-  have hGim : ∀ y : ℝ, 1 / 4 ≤ |y| →
-      ‖G₁ (y * I)‖ ≤ 4 * C' * (|y| * Real.exp ((c - π) * |y|)) := by
-    intro y hy
-    have hq := exp_div_four_le_norm_sin_pi_mul_I hy
-    have hpos : 0 < ‖sin (π * (y * I))‖ := lt_of_lt_of_le (by positivity) hq
-    have hs : sin (π * (y * I)) ≠ 0 := norm_pos_iff.mp hpos
-    have hf' : ‖f (y * I)‖ ≤ C' * Real.exp (c * |y|) :=
-      (him y).trans (mul_le_mul_of_nonneg_right (le_max_left _ _) (Real.exp_pos _).le)
-    have hG : ‖G (y * I)‖ ≤ 4 * C' * Real.exp ((c - π) * |y|) := by
-      rw [show G (y * I) = f (y * I) / sin (π * (y * I)) from sinPiQuot_of_ne hs, norm_div,
-        div_le_iff₀ hpos]
-      calc ‖f (y * I)‖ ≤ C' * Real.exp (c * |y|) := hf'
-        _ = 4 * C' * Real.exp ((c - π) * |y|) * (Real.exp (π * |y|) / 4) := by
-            rw [sub_mul, Real.exp_sub]; field_simp
-        _ ≤ _ := by gcongr
-    have hn : ‖(y : ℂ) * I‖ = |y| := by simp
-    simp only [G₁]
-    rw [norm_mul, hn]
-    calc |y| * ‖G (y * I)‖ ≤ |y| * (4 * C' * Real.exp ((c - π) * |y|)) := by gcongr
-      _ = _ := by ring
-  -- The damped function.
+  exact ⟨M, hM0, hGbd⟩
+
+/-- Carlson's damping factor changes any exponential bound into decay faster
+than every exponential on the positive real axis. -/
+private theorem superpolynomialDecay_mul_carlsonDamping {G₁ : ℂ → ℂ} {M τ α : ℝ}
+    (hτ : 0 ≤ τ) (hα : 0 < α)
+    (hGbd : ∀ z : ℂ, 0 ≤ z.re → ‖G₁ z‖ ≤ M * Real.exp (τ * ‖z‖)) :
+    SuperpolynomialDecay atTop Real.exp
+      (fun x : ℝ ↦ ‖G₁ x * carlsonDamping α x‖) := by
+  let K : ℂ → ℂ := fun z ↦ G₁ z * carlsonDamping α z
+  intro n
+  set L : ℝ := n + τ
+  have hb : ∀ x : ℝ, 0 ≤ x → Real.exp x ^ n * ‖K x‖ ≤
+      M * Real.exp (L * x - α * ((x + 1) * Real.log (x + 1))) := by
+    intro x hx
+    have hG := hGbd x (by simpa using hx)
+    rw [norm_real, Real.norm_of_nonneg hx] at hG
+    simp only [K, norm_mul, norm_carlsonDamping_ofReal α hx]
+    calc Real.exp x ^ n * (‖G₁ x‖ * Real.exp (-α * ((x + 1) * Real.log (x + 1))))
+        ≤ Real.exp x ^ n * ((M * Real.exp (τ * x)) *
+            Real.exp (-α * ((x + 1) * Real.log (x + 1)))) := by gcongr
+      _ = M * Real.exp (L * x - α * ((x + 1) * Real.log (x + 1))) := by
+          rw [← Real.exp_nat_mul]
+          simp only [L]
+          rw [show (↑n + τ) * x - α * ((x + 1) * Real.log (x + 1)) =
+            ↑n * x + τ * x + -α * ((x + 1) * Real.log (x + 1)) by ring,
+            Real.exp_add, Real.exp_add]
+          ring
+  have ht : Tendsto (fun x : ℝ ↦ L * x - α * ((x + 1) * Real.log (x + 1))) atTop atBot := by
+    refine tendsto_atBot_mono' atTop ?_ tendsto_neg_atTop_atBot
+    have hL : 0 ≤ L := by positivity
+    filter_upwards [eventually_ge_atTop (Real.exp ((L + 1) / α)), eventually_ge_atTop 0]
+      with x hx hx0
+    have hlog : (L + 1) / α ≤ Real.log (x + 1) :=
+      (Real.le_log_iff_exp_le (by linarith)).mpr (by linarith)
+    have hlog' : L + 1 ≤ α * Real.log (x + 1) := by
+      rwa [div_le_iff₀ hα, mul_comm] at hlog
+    nlinarith
+  refine tendsto_of_tendsto_of_tendsto_of_le_of_le' tendsto_const_nhds
+    (by simpa using (Real.tendsto_exp_atBot.comp ht).const_mul M) ?_ ?_
+  · exact Eventually.of_forall fun x ↦ by positivity
+  · filter_upwards [eventually_ge_atTop 0] with x hx using hb x hx
+
+/-- Exponential growth and the imaginary-axis decay of the sine quotient
+force it to vanish, by the damped Phragmén–Lindelöf argument. -/
+private theorem eqOn_zero_of_sinPiQuot_bounds {G₁ : ℂ → ℂ} {M τ C' c : ℝ}
+    (hM0 : 0 ≤ M) (hτ : 0 ≤ τ) (hC' : 0 ≤ C') (hc : c < π)
+    (hG₁d : ∀ z : ℂ, 0 < z.re → DifferentiableAt ℂ G₁ z)
+    (hG₁c : ∀ z : ℂ, 0 ≤ z.re → ContinuousWithinAt G₁ {w : ℂ | 0 ≤ w.re} z)
+    (hGbd : ∀ z : ℂ, 0 ≤ z.re → ‖G₁ z‖ ≤ M * Real.exp (τ * ‖z‖))
+    (hGim : ∀ y : ℝ, 1 / 4 ≤ |y| →
+      ‖G₁ (y * I)‖ ≤ 4 * C' * (|y| * Real.exp ((c - π) * |y|))) :
+    ∀ z : ℂ, 0 ≤ z.re → G₁ z = 0 := by
   set α := (π - c) / π
   have hα : 0 < α := div_pos (by linarith) Real.pi_pos
   obtain ⟨κ, hκdef⟩ : ∃ κ : ℝ, κ = (π - c) / 2 := ⟨_, rfl⟩
@@ -494,19 +537,19 @@ private theorem eqOn_zero_of_natCast_eq_zero_complex {f : ℂ → ℂ}
       (by simp only [mem_ofPred_eq] at hz; linarith)).continuousAt.continuousWithinAt
   have hKexp : ∃ c < (2 : ℝ), ∃ B,
       K =O[Bornology.cobounded ℂ ⊓ 𝓟 {z | 0 < z.re}] fun z ↦ Real.exp (B * ‖z‖ ^ c) := by
-    refine ⟨1, one_lt_two, τ'' + α * (π / 2), IsBigO.of_bound M ?_⟩
+    refine ⟨1, one_lt_two, τ + α * (π / 2), IsBigO.of_bound M ?_⟩
     refine eventually_inf_principal.mpr (Eventually.of_forall fun z hz ↦ ?_)
     have hz' : 0 ≤ z.re := le_of_lt hz
     rw [Real.rpow_one, Real.norm_of_nonneg (Real.exp_pos _).le, norm_mul]
     calc ‖G₁ z‖ * ‖carlsonDamping α z‖
-        ≤ (M * Real.exp (τ'' * ‖z‖)) * Real.exp (α * (π / 2) * ‖z‖) :=
+        ≤ (M * Real.exp (τ * ‖z‖)) * Real.exp (α * (π / 2) * ‖z‖) :=
           mul_le_mul (hGbd z hz') ((norm_carlsonDamping_le hα.le hz').trans
             (Real.exp_le_exp.mpr (mul_le_mul_of_nonneg_left (abs_im_le_norm z)
               (by positivity)))) (norm_nonneg _) (by positivity)
-      _ = M * Real.exp ((τ'' + α * (π / 2)) * ‖z‖) := by
+      _ = M * Real.exp ((τ + α * (π / 2)) * ‖z‖) := by
           rw [mul_assoc, ← Real.exp_add]; ring_nf
   have hKim : ∃ C, ∀ x : ℝ, ‖K (x * I)‖ ≤ C := by
-    refine ⟨max (4 * C' / κ) (M * Real.exp (τ'' / 4) * Real.exp (α * (π / 2) / 4)), fun y ↦ ?_⟩
+    refine ⟨max (4 * C' / κ) (M * Real.exp (τ / 4) * Real.exp (α * (π / 2) / 4)), fun y ↦ ?_⟩
     have hre : 0 ≤ ((y : ℂ) * I).re := by simp
     have himy : |((y : ℂ) * I).im| = |y| := by simp
     have hD := norm_carlsonDamping_le hα.le hre
@@ -530,52 +573,61 @@ private theorem eqOn_zero_of_natCast_eq_zero_complex {f : ℂ → ℂ}
       have hn : ‖(y : ℂ) * I‖ = |y| := by simp
       have h1 := hGbd _ hre
       rw [hn] at h1
-      have hτ : 0 ≤ τ'' := by positivity
+      have hτ0 : 0 ≤ τ := hτ
       have hy' : |y| ≤ 1 / 4 := hy.le
       refine mul_le_mul (h1.trans ?_) (hD.trans ?_) (norm_nonneg _) (by positivity)
       · gcongr; nlinarith
       · gcongr; nlinarith [Real.pi_pos, hα, abs_nonneg y]
-  have hKre : SuperpolynomialDecay atTop Real.exp fun x : ℝ ↦ ‖K x‖ := by
-    intro n
-    set L : ℝ := n + τ''
-    have hb : ∀ x : ℝ, 0 ≤ x → Real.exp x ^ n * ‖K x‖ ≤
-        M * Real.exp (L * x - α * ((x + 1) * Real.log (x + 1))) := by
-      intro x hx
-      have hG := hGbd x (by simpa using hx)
-      rw [norm_real, Real.norm_of_nonneg hx] at hG
-      simp only [K, norm_mul, norm_carlsonDamping_ofReal α hx]
-      calc Real.exp x ^ n * (‖G₁ x‖ * Real.exp (-α * ((x + 1) * Real.log (x + 1))))
-          ≤ Real.exp x ^ n * ((M * Real.exp (τ'' * x)) *
-              Real.exp (-α * ((x + 1) * Real.log (x + 1)))) := by gcongr
-        _ = M * Real.exp (L * x - α * ((x + 1) * Real.log (x + 1))) := by
-            rw [← Real.exp_nat_mul]
-            simp only [L]
-            rw [show (↑n + τ'') * x - α * ((x + 1) * Real.log (x + 1)) =
-              ↑n * x + τ'' * x + -α * ((x + 1) * Real.log (x + 1)) by ring,
-              Real.exp_add, Real.exp_add]
-            ring
-    have ht : Tendsto (fun x : ℝ ↦ L * x - α * ((x + 1) * Real.log (x + 1))) atTop atBot := by
-      refine tendsto_atBot_mono' atTop ?_ tendsto_neg_atTop_atBot
-      have hL : 0 ≤ L := by positivity
-      filter_upwards [eventually_ge_atTop (Real.exp ((L + 1) / α)), eventually_ge_atTop 0]
-        with x hx hx0
-      have hlog : (L + 1) / α ≤ Real.log (x + 1) :=
-        (Real.le_log_iff_exp_le (by linarith)).mpr (by linarith)
-      have hlog' : L + 1 ≤ α * Real.log (x + 1) := by
-        rwa [div_le_iff₀ hα, mul_comm] at hlog
-      nlinarith
-    refine tendsto_of_tendsto_of_tendsto_of_le_of_le' tendsto_const_nhds
-      (by simpa using (Real.tendsto_exp_atBot.comp ht).const_mul M) ?_ ?_
-    · exact Eventually.of_forall fun x ↦ by positivity
-    · filter_upwards [eventually_ge_atTop 0] with x hx using hb x hx
+  have hKre := superpolynomialDecay_mul_carlsonDamping hτ hα hGbd
   have hK0 := PhragmenLindelof.eq_zero_on_right_half_plane_of_superexponential_decay hKd hKexp
     hKre hKim
   intro z hz
-  have hKz : K z = 0 := hK0 hz
-  have hG₁z : G₁ z = 0 := (mul_eq_zero.mp hKz).resolve_right (exp_ne_zero _)
+  exact (mul_eq_zero.mp (hK0 hz)).resolve_right (exp_ne_zero _)
+
+/-- **Carlson's theorem** for complex-valued functions; see `eqOn_zero_of_natCast_eq_zero`.
+The proof uses the quotient `z f(z) / sin (π z)`, which is continuous at the boundary zero `z = 0`
+under continuity of `f` alone. -/
+private theorem eqOn_zero_of_natCast_eq_zero_complex {f : ℂ → ℂ}
+    (hf : DiffContOnCl ℂ f {z | 0 < z.re}) {C τ c : ℝ}
+    (hexp : ∀ z : ℂ, 0 ≤ z.re → ‖f z‖ ≤ C * Real.exp (τ * ‖z‖))
+    (him : ∀ y : ℝ, ‖f (y * I)‖ ≤ C * Real.exp (c * |y|)) (hc : c < π)
+    (hzero : ∀ n : ℕ, f n = 0) : ∀ z : ℂ, 0 ≤ z.re → f z = 0 := by
+  set G := sinPiQuot f
+  set G₁ : ℂ → ℂ := fun z ↦ z * G z
+  obtain ⟨hGd, hG₁c⟩ := sinPiQuot_halfPlane_regular hf hzero
+  have hG₁d : ∀ z : ℂ, 0 < z.re → DifferentiableAt ℂ G₁ z := fun z hz ↦
+    differentiableAt_id.mul (hGd z hz)
+  obtain ⟨M, hM0, hGbd⟩ := exists_bound_mul_sinPiQuot hf hexp hzero
+  set C' := max C 0
+  have hC' : 0 ≤ C' := le_max_right _ _
+  have hGim : ∀ y : ℝ, 1 / 4 ≤ |y| →
+      ‖G₁ (y * I)‖ ≤ 4 * C' * (|y| * Real.exp ((c - π) * |y|)) := by
+    intro y hy
+    have hq := exp_div_four_le_norm_sin_pi_mul_I hy
+    have hpos : 0 < ‖sin (π * (y * I))‖ := lt_of_lt_of_le (by positivity) hq
+    have hs : sin (π * (y * I)) ≠ 0 := norm_pos_iff.mp hpos
+    have hf' : ‖f (y * I)‖ ≤ C' * Real.exp (c * |y|) :=
+      (him y).trans (mul_le_mul_of_nonneg_right (le_max_left _ _) (Real.exp_pos _).le)
+    have hG : ‖G (y * I)‖ ≤ 4 * C' * Real.exp ((c - π) * |y|) := by
+      rw [show G (y * I) = f (y * I) / sin (π * (y * I)) from sinPiQuot_of_ne hs, norm_div,
+        div_le_iff₀ hpos]
+      calc ‖f (y * I)‖ ≤ C' * Real.exp (c * |y|) := hf'
+        _ = 4 * C' * Real.exp ((c - π) * |y|) * (Real.exp (π * |y|) / 4) := by
+            rw [sub_mul, Real.exp_sub]; field_simp
+        _ ≤ _ := by gcongr
+    have hn : ‖(y : ℂ) * I‖ = |y| := by simp
+    simp only [G₁]
+    rw [norm_mul, hn]
+    calc |y| * ‖G (y * I)‖ ≤ |y| * (4 * C' * Real.exp ((c - π) * |y|)) := by gcongr
+      _ = _ := by ring
+  have hall := eqOn_zero_of_sinPiQuot_bounds hM0 (by positivity) hC' hc hG₁d hG₁c hGbd hGim
+  intro z hz
+  have hG₁z : G₁ z = 0 := hall z hz
   by_cases hs : sin (π * z) = 0
   · obtain ⟨n, rfl⟩ := sin_pi_mul_eq_zero_iff.mp hs
-    exact hnat n hz
+    have hn : 0 ≤ n := by exact_mod_cast (show (0 : ℝ) ≤ n by simpa using hz)
+    obtain ⟨m, rfl⟩ := Int.eq_ofNat_of_zero_le hn
+    simpa using hzero m
   · have hz0 : z ≠ 0 := fun h ↦ hs (by simp [h])
     have hGz : G z = 0 := (mul_eq_zero.mp hG₁z).resolve_left hz0
     rw [show G z = f z / sin (π * z) from sinPiQuot_of_ne hs, div_eq_zero_iff] at hGz

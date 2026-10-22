@@ -191,6 +191,30 @@ families with common bounds, and the asymptotic equivalent when $A(0) \ne 0$.
   $x \mapsto \Gamma(x + r)/\Gamma(x)$ is nondecreasing for $r \ge 0$; $(x)_n \le (x + n)^n$;
   $|\Gamma(\tfrac12 + iy)|^2 = \pi/\cosh \pi y$ and $\Gamma(x)/|\Gamma(x + iy)| \le
   \sqrt{\cosh \pi y}$ for $x \ge \tfrac12$.
+* **Gamma asymptotics, product and digamma.** For arbitrary fixed complex $a,b$,
+  $\Gamma(x+a)\Gamma(x+b)^{-1}x^{b-a}\to1$ as real $x\to+\infty$.
+  The ordered Weierstrass products converge to $1/\Gamma(z)$ for every complex $z$.
+  At every nonpole parameter the absolutely convergent partial-fraction series gives
+  $\psi(z)=-\gamma-z^{-1}+\sum_{k\ge0}[(k+1)^{-1}-(z+k+1)^{-1}]$;
+  the equivalent logarithmic series is also proved. The Euler approximants converge
+  locally uniformly on the full complement of the Gamma poles.
+* **Beta parameter raising.** Termwise beta integration for a countable absolutely
+  summable family gives both general hypergeometric parameter-raising formulas of
+  Carlson Exercise 4.4-4, including the quadratic argument $u(1-u)z$. Endpoint
+  parameters have positive real parts and $z$ belongs to the original convergence ball.
+* **Appell's $F_1$.** The regularized double series is absolutely convergent on
+  $|x|,|y|<1$ for arbitrary complex parameters. Its total-degree grouping and the
+  ordinary Pochhammer-denominator series at nonpole denominator parameters are proved.
+* **Appell's $F_2$ and $F_3$.** Regularized series converge absolutely for all
+  complex parameters in $|x|+|y|<1$ and $|x|,|y|<1$, respectively. Total-degree
+  grouping and the ordinary series away from denominator poles are proved in
+  `AppellF2F3`, using scalar Gauss-series majorants and finite binomial sums.
+  `AppellParameter` proves local uniform convergence and entire dependence of
+  regularized $F_3$ on its denominator parameter, including nonpositive integers.
+* **Appell's $F_4$.** The regularized and ordinary series are defined in `AppellF4`.
+  Absolute convergence and total-degree grouping hold for all complex parameters
+  on $\sqrt{|x|}+\sqrt{|y|}<1$; the ordinary Pochhammer series excludes denominator
+  poles. The proof combines three scalar Gauss-series bounds with squared binomial sums.
 * **Bessel functions and ${}_0F_1$.** The regularized ${}_0F_1(c; z)$ is the sum of its
   series, bounded by $e^{|z|}/n!$ for $c = n + 1$, with termwise derivatives
   $\frac{d^n}{dz^n}\tilde F(c; z) = \tilde F(c + n; z)$, the contiguous relation, the formula
