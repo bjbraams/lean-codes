@@ -11,6 +11,11 @@ report that fact rather than proceeding without it.
 - Build output: `.lake/build-codes`; preserve the matching `buildDir` in `lakefile.toml`.
 - Ordinary build command: `lake build > /tmp/carlson-build.log 2>&1`.
 - Active work: StdSimplexMeasure/ or Dirichlet/ or SimplexMellin/ or Carlson/ or Pochhammer/
+- Package name `LeanCodes` (renamed from `Main` on 2026-10-25): lean-DLMF depends on this
+  package by path (`../lean-codes`) and builds its modules into `.lake/build-codes`. Keep the
+  name. The top-level prefix `ToMathlib` belongs to this project; lean-DLMF keeps its own
+  general results under `DLMFMathlib`, since two packages may not share a top-level prefix.
+  Changes here can break lean-DLMF's build; validate it after changing a module it imports.
 
 ## Project
 

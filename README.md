@@ -186,10 +186,26 @@ column parameters, permutation and transpose symmetries, merging, and power-seri
 Appell's `F₂` and `F₃` series converge absolutely on the full diamond and bidisk,
 respectively, and are identified with continued matrix averages at arbitrary complex parameters.
 The exceptional Gamma cancellation in the `F₃` representation is proved by removable limits.
-Appell's `F₄` has its absolutely convergent series on the full square-root region and its
-Jacobi expansion (the series part of Exercise 7.1-13). Regularized matrix averages have a separate entire
-continuation in both parameter vectors, jointly holomorphic in the entries in convex open
-scalar kernel domains, with continued permutation, merging, and binomial-series identities.
+Appell's `F₄` has its absolutely convergent series on the full square-root region, its
+Jacobi expansion, and its equal-denominator Gauss-average formula (Exercise 7.1-13).
+The equal-denominator two-by-two matrix representation holds as a native average and as a
+continued regularized identity with an explicit duplication ratio. Its third-order double
+series is also proved, including absolute convergence on the transformed bidisk.
+Bailey's restriction `b=a+1/2` has its centered-parallelogram matrix representation,
+including all complex parameters in the continued regularized form.
+The unrestricted two-by-three matrix representation is proved at every complex parameter
+on the absolute binomial reexpansion domain, with continuation on verified connected
+scaling domains and a native normalized form. Its proof sums the Burchnall–Chaundy
+coefficient identity. All six restricted two-by-two matrix cases are proved on explicit
+branch and convergence domains, including the scalar `F₁` reduction and second quadratic
+case. Their continued regularized forms retain exceptional complex parameters.
+The unrestricted and first three restricted identities extend throughout the positive
+triangle `x,y≥0`, `x+y<1`. Four quadratic matrix transformations from the 1976 paper,
+(2.3)–(2.6), are also proved on explicit domains. The named `F₂` transformations
+(2.10), (2.12) hold for nonnegative real angles with sum below `π/2`, including the axes;
+regularized forms retain exceptional parameters.
+Regularized matrix averages have a separate entire continuation in both parameter vectors, jointly holomorphic in the entries
+in convex open scalar kernel domains, with continued permutation, merging, and binomial-series identities.
 Remaining coverage gaps are listed in
 [SYNOPSIS_GAPS.md](SYNOPSIS_GAPS.md).
 

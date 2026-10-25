@@ -73,6 +73,9 @@ public import ToMathlib.Analysis.SpecialFunctions.AppellF1
 public import ToMathlib.Analysis.SpecialFunctions.AppellLinear
 public import ToMathlib.Analysis.SpecialFunctions.AppellF2F3
 public import ToMathlib.Analysis.SpecialFunctions.AppellF4
+public import ToMathlib.Analysis.SpecialFunctions.AppellF4Analytic
+public import ToMathlib.Analysis.InfiniteSum.FiniteFibers
+public import ToMathlib.Analysis.InfiniteSum.BinomialSubstitution
 public import ToMathlib.Analysis.SpecialFunctions.AppellParameter
 public import ToMathlib.Analysis.SpecialFunctions.GammaShiftBounds
 public import ToMathlib.Analysis.SpecialFunctions.ComplexPowerDeriv

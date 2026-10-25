@@ -144,8 +144,9 @@ project's support libraries. They are not formalized systematically; the invento
   the weighted Laguerre and Hermite representations assume growth control also on $f^{(n)}$.
 * The physical Examples 7.9-6, 7.9-7 and 7.10-5.
 * Open exercises: 7.1-4, 7.4-2 to 7.4-4, 7.6-1, 7.6-3, 7.6-4, 7.7-9 to 7.7-13, 7.8-2 to
-  7.8-4, 7.8-9, 7.8-10, 7.9-3, 7.9-4, 7.9-7, 7.9-9, 7.10-3; partial: 7.1-13
-  (Jacobi series proved; equal-denominator Gauss-average identity open), 7.5-2.
+  7.8-4, 7.8-9, 7.8-10, 7.9-3, 7.9-4, 7.9-7, 7.9-9, 7.10-3; partial: 7.5-2.
+  Exercise 7.1-13 now has both its Jacobi series and equal-denominator Gauss average,
+  using removable moment values and explicit monic Jacobi normalization exclusions.
 
 ### Chapter 8
 
@@ -249,12 +250,42 @@ project's support libraries. They are not formalized systematically; the invento
   at arbitrary complex parameters on the full diamond/bidisk, including removable
   Gamma cancellation for $F_3$. Continued matrix permutations, merging and the
   binomial expansion are proved on their convex kernel domains. The $F_4$ series
-  converges on the full square-root region, and its Jacobi expansion (Exercise
-  7.1-13, Jacobi-series part) is proved. The equal-denominator Gauss-average identity,
-  unrestricted matrix representation, six restricted matrix
-  cases, eight quadratic transformations, and generalized Landen/Bartky formulas
-  remain open, along with the matrix differential/Cauchy theory and the linear
-  transformation's arbitrary-order and several-variable extensions.
+  converges on the full square-root region. Both the Jacobi expansion and
+  equal-denominator Gauss average of Exercise 7.1-13 are proved, as is the
+  equal-denominator two-by-two matrix representation at all parameters in a
+  division-free regularized form. All six restricted two-by-two `F₄`
+  matrix presentations (4.1)–(4.6) now have proved identities on explicit
+  domains. Four of the eight quadratic matrix transformations, (2.3)–(2.6),
+  are now proved on explicit domains. The first two use centered coordinates
+  and verified continuation; (2.5)–(2.6) include the article's explicit matrices
+  with common series and branch hypotheses. The named `F₂` formulas (2.10),
+  (2.12) hold in particular for `θ,φ≥0`, `θ+φ<π/2`, including the axes.
+  The other four transformations and generalized Landen/Bartky formulas
+  remain open, along with the matrix
+  differential/Cauchy theory and the linear transformation's arbitrary-order
+  and several-variable extensions.
+  The explicit third-order double series is now proved, with absolute
+  convergence on its transformed bidisk. The unrestricted matrix has entire
+  finite moment formulas and a zero-column polynomial reduction. Its nonlinear
+  coefficient comparison with `F₄` is now proved for every complex parameter,
+  as are the coefficient reductions for the product-of-Gauss and `F₂` cases.
+  Infinite-series reassembly now proves the unrestricted analytic matrix
+  identity on the absolute binomial reexpansion domain, at every parameter,
+  and its continuation on preconnected scaling domains with verified series
+  convergence and right-half-plane matrix entries. The native normalized form
+  requires positive row and column real parts. The product-of-Gauss and `F₂`
+  transformations and the scalar `F₁` reduction hold on the absolute reexpansion
+  domain, with their explicit two-by-two matrices. The second quadratic case
+  (4.5) holds on `‖x‖²+2‖y‖+‖y‖²<1` and on verified preconnected scaling
+  domains, retaining its duplication ratio at exceptional parameters.
+  The unrestricted and first three restricted matrices, and their scalar
+  Gauss/`F₁`/`F₂` reductions, now hold on the full positive triangle
+  `x≥0`, `y≥0`, `x+y<1`. The second quadratic case also holds for complex
+  `x,y` with `‖x‖+‖y‖<1` whenever its endpoint matrix is in the right half-plane.
+  Other broader complex node domains require branch and continuation verification.
+  Bailey's restricted case
+  `b=a+1/2` is also proved, independently of that comparison, with the full
+  squared-argument region and every complex parameter in its continued form.
   See the [article review](CARLSON_ARTICLES.md#lean-coverage-review-of-the-appell-papers).
 * **Carlson–Gustafson (1983)** (total positivity) and the remaining articles reviewed in
   `CARLSON_ARTICLES.md` (mixed and logarithmic means,

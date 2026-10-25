@@ -66,6 +66,19 @@ theorem Gamma_mul_quadraticGammaRatio {β : ℂ} (hβ : 0 < β.re) :
       field_simp
     _ = _ := by linear_combination -H
 
+/-- Legendre duplication cancels the ratio away from its Gamma poles. -/
+theorem Gamma_mul_quadraticGammaRatio_of_ne {β : ℂ}
+    (hβ : ∀ k : ℕ, β ≠ -(k : ℂ)) :
+    Gamma (β + β) * quadraticGammaRatio β = Gamma (β + 1 / 2) := by
+  have hG := Gamma_ne_zero hβ
+  apply mul_right_cancel₀ hG
+  dsimp [quadraticGammaRatio]
+  rw [show β + β = 2 * β by ring]
+  have H := Gamma_mul_Gamma_add_half β
+  calc
+    _ = Gamma (2 * β) * (2 : ℂ) ^ (1 - 2 * β) * (Real.sqrt Real.pi : ℂ) := by field_simp
+    _ = _ := by linear_combination -H
+
 /-- Permanence of functional relations in the two complex parameters. -/
 private theorem quadratic_parameter_identity
     (l : ℂ → ℂ) (r : ℂ → ℂ → Fin 2 → ℂ)

@@ -235,6 +235,58 @@ expansion hold at arbitrary parameters on the stated convex kernel domains.
 `Carlson.Jacobi.AppellF4` proves the $F_4$ Jacobi expansion of Exercise 7.1-13 on
 $\sqrt{|x|}+\sqrt{|y|}<1$. Its numerator form has no parameter exclusions; the
 monic Jacobi form requires nonvanishing normalization factors.
+`AppellF4Equal` and `AppellF4Average` prove the equal-denominator Gauss-average
+part of that exercise: the moment series holds for all complex parameters,
+with removable moment normalizations filled, and the native integral requires
+$\operatorname{Re}c>1/2$. `AppellF4Matrix` proves the equal-denominator two-by-two
+matrix representation of Carlson (1975), (2.8)/(4.6), throughout
+$|x|+|y|<1$ for the squared arguments. Its continued regularized form includes
+the explicit duplication ratio and holds at every complex parameter.
+`AppellF4ThirdOrder` proves the third-order double series (1975, (2.5)),
+with absolute convergence on the full transformed bidisk. Its regularized
+form includes every parameter; the ordinary Pochhammer form excludes poles
+of the displayed `c` and `2c-1` denominators. `AppellF4GeneralMatrix` proves
+entire finite moments of the unrestricted two-by-three matrix.
+`AppellF4Coefficients` proves its Burchnall–Chaundy coefficient comparison with
+$F_4$ at every parameter, including the product-of-Gauss and $F_2$ coefficient
+reductions. `AppellF4Reassembly` sums these identities: the unrestricted matrix
+represents substituted $F_4$ on its absolute reexpansion domain, with every
+parameter in the continued form and native normalized forms on the positive
+row/column region. The identity continues along verified preconnected scaling
+domains; no endpoint reexpansion bound is then required. The product-of-Gauss
+and $F_2$ transformations also hold as analytic identities near the origin.
+`AppellF4Bailey` proves the restricted
+case $b=a+1/2$ as a centered-parallelogram matrix average, at arbitrary complex
+parameters in the division-free continued normalization. The native normalized
+form assumes $\operatorname{Re}c,\operatorname{Re}d>1/2$.
+`AppellF4Restricted` proves the explicit matrices (4.1)–(4.3) on the absolute
+reexpansion domain. `AppellF4F1` proves (4.2)'s scalar reduction to $F_1$,
+including its reciprocal $\Gamma(b)$ factor at every parameter.
+`AppellF4SecondQuadratic` proves (4.5) on $|x|^2+2|y|+|y|^2<1$ and on
+verified preconnected scaling domains. Its continued regularized identity
+retains the duplication ratio for $\beta=a-b+1/2$; its native normalized
+form assumes positive real parts of $(b,c-b)$ and $\beta$.
+Thus all six restricted matrices have proved identities on their stated domains.
+`AppellF4Domains` extends (3.5), (4.1)–(4.3), and the scalar Gauss/$F_1$/$F_2$
+reductions to $x,y\geq0$, $x+y<1$, including the axes. It extends (4.5) to
+$|x|+|y|<1$ with only the endpoint right-half-plane matrix condition.
+`AppellQuadraticMatrix` proves the 1976 transformations (2.3)–(2.4) by
+eliminating $F_4$. In centered coordinates, (2.4) needs only the two matrix
+branch conditions, and also has a scaled form. Equation (2.3) has a concrete
+series-domain form and continuation along verified scaling domains. The
+regularized (2.4) retains $\operatorname{quadraticGammaRatio}(\mu)$;
+(2.3) has the same normalization on both sides. Native versions impose the
+corresponding positive real parts on the averaging parameters.
+`AppellF2Quadratic` and `AppellF2QuadraticMatrix` add the 1976 transformations
+(2.5)–(2.6), including the printed matrices, their polynomial coordinate maps,
+and the named $F_2$ formulas (2.10), (2.12). The explicit matrix theorems use
+common series bounds and verified scale and node branches. Equation (2.6)
+also has a native normalized form; (2.5) requires continued averages because
+native positivity on both sides is incompatible.
+`AppellF2QuadraticReal` proves both named formulas for $\theta,\phi\geq0$,
+$\theta+\phi<\pi/2$, including the axes. The regularized formulas retain
+all complex parameters; the ordinary (2.10) formula excludes nonpositive
+integral values of $2\mu$ and $2\alpha-2\mu$.
 
 ## 6. Two variables (Sections 6.2–6.11, 8.3)
 

@@ -12,6 +12,7 @@ public import Carlson.Mean
 public import Carlson.S
 public import Carlson.T
 public import Carlson.Normalization
+public import Carlson.MatrixHomogeneity
 public import Carlson.TwoVariable
 public import Carlson.Aggregation
 public import Carlson.ZeroParameter

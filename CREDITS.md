@@ -451,3 +451,152 @@ recurrences and the Jacobi/R-polynomial bridge for Carlson (1975), equation (2.2
 and book Exercise 7.1-13. Its division-free numerator version covers exceptional
 parameters; the normalized Jacobi version states its nondegeneracy hypotheses.
 No new dependency or shared complex-analysis implementation is introduced.
+
+
+## Equal-denominator F₄ averages — 22 October 2026
+
+`Carlson.TwoVariable.EqualParameterPolynomial` applies the existing removable
+Gamma normalization and Legendre duplication to polynomial moments.
+`AppellF4Equal` combines Carlson's polynomial quadratic transformation with
+Mathlib's analytic identity theorem and the previously proved absolute F₄
+convergence. This proves Carlson (1975), (2.4), including removable moment
+values, rather than imposing exclusions on `(2c-1)ₙ`.
+`AppellF4Average` reuses Mathlib's Gauss power series and the local entire
+Dirichlet Taylor continuation for the native Gauss integral formula.
+`AppellF4Matrix` combines separated native moments, uniqueness of entire
+matrix continuation and the continued binomial series for (2.6)–(2.8)/(4.6).
+These results also complete the equal-denominator part of book Exercise 7.1-13.
+No upstream proof is copied and no new dependency is introduced.
+
+
+## Third-order F₄ series and unrestricted matrix moments — 22 October 2026
+
+`AppellF4ThirdOrder` reuses Mathlib's regularized hypergeometric convergence
+radius and formal-multilinear-series norm summability. The local Pochhammer
+norm estimate and Chu–Vandermonde identity give a scalar `₃F₂` majorant on the
+full transformed bidisk. The coefficient identity follows from the continued
+polynomial matrix moments, and Legendre duplication supplies the ordinary
+normalization for Carlson (1975), (2.5).
+`Dirichlet.Average.MatrixMoments` evaluates overlapping coordinate blocks by
+finite binomial expansion, native monomial moments and Chu–Vandermonde.
+`AppellF4GeneralMatrix` uses those moments and analytic uniqueness to obtain
+entire polynomial moments for the matrix in (3.5). Its identification with
+$F_4$ is not assumed. The rising-factorial product linearization in
+`Pochhammer.Vandermonde` combines the existing binary identity with Mathlib's
+polynomial multiplication identity. No new dependency or copied upstream
+proof is introduced.
+
+`AppellF4Bailey` proves Carlson (1975), (2.10)/(4.4), independently of the
+unrestricted matrix identification. It reuses the local opposite-node
+polynomial moments and Pochhammer duplication, fills the even moment values
+by Mathlib's analytic identity theorem, and embeds the F₄ double series into
+the even coordinate pairs. Uniqueness of the continued matrix moments then
+identifies the full binomial expansion. Both duplication ratios remain explicit
+at exceptional averaging parameters.
+
+
+## Burchnall–Chaundy coefficient transformation — 22 October 2026
+
+`Pochhammer.Convolution` proves the finite transformation underlying Carlson
+(1975), (3.5), using the existing local Chu–Vandermonde identity, Mathlib's
+binomial multiplication identity, and finite-sum bijections. The shifted-product
+expansion and the transformation hold over every commutative ring.
+`AppellF4Coefficients` applies reciprocal Gamma recurrence and Pochhammer
+reflection to the actual binomial substitution coefficients. This preserves
+all exceptional complex parameters and avoids division by parameter
+polynomials. Its weighted matrix moment expansion verifies the matrix-side
+terms, and the product-of-Gauss and `F₂` restrictions follow at the coefficient
+level. These finite identities do not assume or establish infinite-series
+reassembly. No dependency or copied upstream implementation is added.
+
+
+## Analytic reassembly of the unrestricted F₄ matrix — 22 October 2026
+
+`ToMathlib.Analysis.InfiniteSum.FiniteFibers` specializes Mathlib's sigma
+summation theorem to explicit finite fibers. `BinomialSubstitution` uses
+Mathlib's finite binomial theorem and absolute Fubini summation to reassemble
+the coupled substitution. Its positive binomial majorants also control the
+expanded matrix series. `AppellF4MatrixBounds` combines the local sharp
+Pochhammer estimate with scalar regularized hypergeometric coefficient bounds,
+including at Gamma poles. `AppellF4Reassembly` sums the previous finite
+coefficient identity and gives continued, native regularized, and native
+normalized forms of Carlson (1975), (3.5). The analytic transformations (4.1)
+and (4.3) follow on the same reexpansion domain.
+
+`SpecialFunctions.AppellF4Analytic` applies Mathlib's Weierstrass theorem
+(`differentiableOn_tsum_of_summable_norm`) with larger positive radii to prove
+holomorphy of scalar substitutions on the full square-root region. Mathlib's
+analytic identity principle then continues the matrix equality along any
+preconnected scaling domain with verified convergence and right-half-plane
+matrix entries. No parameter exclusions, new dependencies, or copied upstream
+implementations are introduced.
+
+
+## Remaining restricted F₄ matrices — 22 October 2026
+
+`AppellF4Restricted` reuses the local continued-matrix binomial theorem,
+Mathlib's finite binomial expansion and analytic uniqueness, and reciprocal
+Gamma recurrence for parameter-zero column deletion. The added two-coordinate
+moments in `Dirichlet.Average.MatrixMoments` specialize the existing native
+Dirichlet monomial integral. `AppellF4F1` reuses the local translated
+R-polynomial identity, zero-node numerator reduction, and R homogeneity.
+`Carlson.R.BinomialSeries` applies the existing scalar Taylor continuation
+and the complex-power derivative formula.
+
+`AppellSlicedSeries` uses Mathlib's `HasSum.prod_fiberwise` and Pochhammer
+addition to recover Gauss slices of the absolutely convergent Appell series.
+`AppellF4SecondQuadratic` applies the local second quadratic R-transformation
+slice by slice, then Mathlib's analytic identity theorem to remove the auxiliary
+F₂ series restriction. `Carlson.MatrixHomogeneity` uses the local principal-power
+multiplication theorem for positive real parts and entire parameter uniqueness.
+All regularized formulas retain reciprocal Gamma and duplication factors at
+exceptional parameters. No new TauCeti theorem is used in this extension.
+
+
+## Appell domains and two quadratic matrix transformations — 22 October 2026
+
+`AppellF4Domains` uses Mathlib's real square-root inequalities, connected images
+of intervals, and analytic identity theorem to extend the existing `F₄` formulas
+to the positive triangle. Its Gauss factors use Mathlib's regularized Gauss
+power series and its proved radius bound. A polynomial radial-contraction
+identity supplies the second quadratic matrix's branch control.
+
+`AppellQuadraticMatrix` follows Carlson (1976), pages 294 and 296, eliminating
+`F₄` between the 1975 matrix reductions: (4.5)/(4.6) give (2.3), and
+(4.4)/(4.6) give (2.4). It reuses the local continued row permutations,
+matrix homogeneity, Gamma duplication ratio and native-continuation agreement.
+Mathlib's analytic identity theorem and convexity extend the centered identities
+on explicitly verified branches. No duplication ratio is cancelled at its zeros;
+only the native normalized form uses positive-parameter Gamma normalization.
+No new TauCeti theorem is used in this extension.
+
+
+## F₂ quadratic transformations and explicit matrices — 22 October 2026
+
+`AppellF2Quadratic` follows Carlson (1976), page 296: comparison of the 1975
+F₄ reductions yields (2.5)–(2.6) and the named formulas (2.10), (2.12).
+The new F₄-to-F₁ reduction reuses the existing equal-denominator F₄ expansion,
+Mathlib's absolutely convergent F₁ series, the two-node numerator convolution,
+and entire parameter uniqueness. `EqualParameterPolynomial` now proves the
+Pochhammer-times-moment numerator identity at every removable parameter.
+The existing numerator/factorial helper in `AppellF1` is exposed for reuse.
+The non-pole duplication helper is moved from `AppellF4ThirdOrder` to
+`QuadraticContinuation` and exposed, avoiding a duplicate Gamma proof.
+
+`AppellF2QuadraticMatrix` uses the local continued row and column permutations
+and matrix homogeneity. Elementary polynomial identities verify the article's
+quadratic and quartic coordinate maps. Duplication factors remain explicit in
+the regularized formulas; native normalization is supplied only where both
+native parameter regions can meet, as in (2.6).
+`AppellF2QuadraticReal` uses Mathlib's trigonometric identities and positivity
+bounds together with the proved positive-triangle F₄ continuation. This gives
+the named formulas on the full stated nonnegative real angle triangle.
+No new TauCeti theorem is used in this extension.
+
+## Package rename and TauCeti's analyticity theorem — 25 October 2026
+
+The package is now `LeanCodes` (formerly `Main`) so that lean-DLMF can depend on it by path.
+`SeveralComplexVariables/Analyticity.lean` no longer declares its own
+`DifferentiableOn.analyticOnNhd_of_finiteDimensional` and imports the identical theorem from
+TauCeti's `TauCeti.Analysis.Complex.CauchyIntegralPolydisc`, so both libraries can be imported
+together.

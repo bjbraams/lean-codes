@@ -163,4 +163,14 @@ theorem regCarlsonR_mul_of_arg_add (t : ℂ) (b : ι → ℂ) {μ : ℂ} {z : ι
   filter_upwards [eventually_gt_nhds (show (0 : ℝ) < 1 by norm_num)] with x hx
   exact regCarlsonR_smul_of_pos t b hx hz
 
+/-- Positive real parts of a scalar and all nodes ensure the principal homogeneity branch. -/
+theorem regCarlsonR_mul_of_re_pos (t : ℂ) (b : ι → ℂ) {μ : ℂ} {z : ι → ℂ}
+    (hz : z ∈ carlsonRVariableDomain) (hμ : 0 < μ.re) :
+    regCarlsonR t b (fun i => μ * z i) = μ ^ t * regCarlsonR t b z := by
+  apply regCarlsonR_mul_of_arg_add t b (carlsonRVariableDomain_subset_slitDomain hz) (Or.inl hμ)
+  intro i
+  have hm := abs_lt.mp (abs_arg_lt_pi_div_two_iff.mpr (Or.inl hμ))
+  have hi := abs_lt.mp (abs_arg_lt_pi_div_two_iff.mpr (Or.inl (hz i)))
+  constructor <;> linarith [Real.pi_pos]
+
 end Carlson

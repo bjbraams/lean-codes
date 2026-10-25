@@ -29,7 +29,7 @@ Legend:
 | 7.1-10 | Proved | `hasSum_besselJ_zero_mul_besselI_zero` |
 | 7.1-11 | Proved | `jacobiOn_casoratian` (`α + β + 1` regular) |
 | 7.1-12 | Proved | `factorial_mul_eval_gegenbauer_two_mul_cos_half`, `factorial_mul_eval_gegenbauer_two_mul_add_one_cos_half` (division-free numerator form) |
-| 7.1-13 | Partial | `hasSum_regularizedAppellF4_RPolynomial` (all parameters), `hasSum_regularizedAppellF4_jacobiOn`, `hasSum_appellF4_jacobiOn` (explicit normalization exclusions); equal-denominator Gauss-average identity remains open |
+| 7.1-13 | Proved | `hasSum_regularizedAppellF4_RPolynomial` (all parameters), `hasSum_regularizedAppellF4_jacobiOn`, `hasSum_appellF4_jacobiOn` (explicit monic normalization exclusions); `hasSum_appellF4_equalRPolynomial` (all admissible denominators, with removable moment values), `carlsonDirichletAverage_equalF4` (native Gauss average for `re c > 1/2`) |
 | 7.2-1 | Proved | `circleIntegral_gegenbauer_mul_jacobiSecondKind` (circle contour; also assumes `ν` and `2ν` are not nonpositive integers) |
 | 7.2-2 | Proved | `affine_pow_eq_sum_jacobiOn` |
 | 7.3-1 | Proved | `unsold` |

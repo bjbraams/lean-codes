@@ -25,6 +25,7 @@ degree. These complement Mathlib’s falling-factorial identities in
   shape of `Ring.descPochhammer_smeval_add`.
 * `ascPochhammer_eval_add_sum_range`: Range form of `ascPochhammer_eval_add`.
 * `ascPochhammer_eval_sum`: **Multinomial Chu–Vandermonde identity** for the rising factorial.
+* `ascPochhammer_eval_mul_eq_sum`: Linearization of a product of rising factorials.
 
 ## References
 
@@ -126,3 +127,21 @@ theorem ascPochhammer_eval_sum [CommSemiring R] {ι : Type*} [DecidableEq ι]
     ring
 
 end
+
+/-- Linearization of a product of rising factorials in the rising-factorial basis.
+The terminating factor `(-m)ᵢ` automatically kills indices above `m`, so the identity
+has no divisions and holds in every commutative ring. -/
+public theorem ascPochhammer_eval_mul_eq_sum {R : Type*} [CommRing R] (b : R) (m n : ℕ) :
+    (ascPochhammer R m).eval b * (ascPochhammer R n).eval b =
+      ∑ p ∈ antidiagonal n, (n.choose p.1 : R) *
+        (ascPochhammer R p.1).eval (-(m : R)) *
+          (ascPochhammer R (m + p.2)).eval b := by
+  have h := ascPochhammer_eval_add (-(m : R)) (b + m) n
+  rw [show -(m : R) + (b + m) = b by ring] at h
+  rw [h, Finset.mul_sum]
+  apply Finset.sum_congr rfl
+  intro p _
+  rw [← ascPochhammer_mul R m p.2]
+  simp only [Polynomial.eval_mul, Polynomial.eval_comp, Polynomial.eval_add,
+    Polynomial.eval_X, Polynomial.eval_natCast]
+  ring

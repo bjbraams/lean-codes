@@ -151,6 +151,6 @@
    "inputRev": "main",
    "inherited": true,
    "configFile": "lakefile.toml"}],
- "name": "Main",
+ "name": "LeanCodes",
  "lakeDir": ".lake",
  "fixedToolchain": false}

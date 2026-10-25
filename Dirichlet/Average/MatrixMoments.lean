@@ -7,6 +7,7 @@ module
 
 public import Dirichlet.Average.MatrixSeries
 public import Dirichlet.Polynomial
+public import Pochhammer.Vandermonde
 
 /-!
 # Separated kernels and binomial moments of matrix averages
@@ -16,6 +17,7 @@ integrated termwise. Applying the binomial theorem gives the mixed moments
 needed for the Appell `F₂` and `F₃` matrix identifications.
 -/
 
+open Polynomial
 open Complex MeasureTheory MeasureTheory.Measure ProbabilityTheory Set Finset
 @[expose] public noncomputable section
 namespace Dirichlet
@@ -123,5 +125,103 @@ theorem regDirichletIntegral_fin_three_pow_mul {b : Fin 3 → ℂ}
     ring
   simpa [regDirichletMonomialTransform, mvPochhammer, Fin.prod_univ_three, hs,
     div_eq_mul_inv] using h
+
+/-- A finite sum of continuous kernels commutes with a native regularized Dirichlet integral. -/
+theorem regDirichletIntegral_finsetSum {τ : Type*} {b : ι → ℂ}
+    (hb : b ∈ mvBetaConvergent) (s : Finset τ) (f : τ → (ι → ℝ) → ℂ)
+    (hf : ∀ k ∈ s, ContinuousOn (f k) (Convexity.StdSimplex.coordinateSet ℝ ι)) :
+    regDirichletIntegral b (fun u => ∑ k ∈ s, f k u) =
+      ∑ k ∈ s, regDirichletIntegral b (f k) := by
+  unfold regDirichletIntegral
+  simp_rw [Finset.mul_sum]
+  exact integral_finsetSum s (fun k hk => integrableOn_regDirichletDensity_mul b hb (hf k hk))
+
+/-- A coordinate power times a two-coordinate block power has an explicit beta moment.
+The split block is allowed to overlap the prescribed coordinate. -/
+theorem regDirichletIntegral_fin_three_pow_mul_add_pow {β : Fin 3 → ℂ}
+    (hβ : β ∈ mvBetaConvergent) (k n : ℕ) :
+    regDirichletIntegral β (fun v => (v 0 : ℂ) ^ k * ((v 0 : ℂ) + v 1) ^ n) =
+      (ascPochhammer ℂ k).eval (β 0) * (ascPochhammer ℂ n).eval (β 0 + β 1 + k) /
+        Gamma (β 0 + β 1 + β 2 + (k + n : ℕ)) := by
+  have he : (fun v : Fin 3 → ℝ => (v 0 : ℂ) ^ k * ((v 0 : ℂ) + v 1) ^ n) =
+      fun v => ∑ p ∈ antidiagonal n, (n.choose p.1 : ℂ) *
+        ((v 0 : ℂ) ^ (k + p.1) * (v 1 : ℂ) ^ p.2) := by
+    funext v
+    rw [(Commute.all (v 0 : ℂ) (v 1 : ℂ)).add_pow', Finset.mul_sum]
+    apply Finset.sum_congr rfl
+    intro p _
+    rw [pow_add]
+    simp only [nsmul_eq_mul]
+    ring
+  rw [he, regDirichletIntegral_finsetSum hβ _ _ (fun _ _ => by fun_prop)]
+  simp_rw [regDirichletIntegral_smul, regDirichletIntegral_fin_three_pow_mul hβ]
+  calc
+    _ = ((ascPochhammer ℂ k).eval (β 0) /
+        Gamma (β 0 + β 1 + β 2 + (k + n : ℕ))) *
+        ∑ p ∈ antidiagonal n, (n.choose p.1 : ℂ) *
+          ((ascPochhammer ℂ p.1).eval (β 0 + k) * (ascPochhammer ℂ p.2).eval (β 1)) := by
+      rw [Finset.mul_sum]
+      apply Finset.sum_congr rfl
+      intro p hp
+      have hdeg := mem_antidiagonal.mp hp
+      rw [ascPochhammer_add_eval, Nat.add_assoc k p.1 p.2, hdeg]
+      ring
+    _ = _ := by
+      rw [← ascPochhammer_eval_add, show (β 0 + k) + β 1 = β 0 + β 1 + k by ring]
+      ring
+
+/-- The column polynomial occurring in Carlson's unrestricted F₄ matrix has explicit moments. -/
+theorem regDirichletIntegral_fin_three_one_sub_pow_mul_block_pow {β : Fin 3 → ℂ}
+    (hβ : β ∈ mvBetaConvergent) (y : ℂ) (m n : ℕ) :
+    regDirichletIntegral β (fun v => (1 - y * (v 0 : ℂ)) ^ m *
+      (y * ((v 0 : ℂ) + v 1)) ^ n) =
+      ∑ q ∈ antidiagonal m, (m.choose q.1 : ℂ) * (-y) ^ q.1 * y ^ n *
+        ((ascPochhammer ℂ q.1).eval (β 0) *
+          (ascPochhammer ℂ n).eval (β 0 + β 1 + q.1) /
+            Gamma (β 0 + β 1 + β 2 + (q.1 + n : ℕ))) := by
+  have he : (fun v : Fin 3 → ℝ => (1 - y * (v 0 : ℂ)) ^ m *
+      (y * ((v 0 : ℂ) + v 1)) ^ n) = fun v =>
+        ∑ q ∈ antidiagonal m, ((m.choose q.1 : ℂ) * (-y) ^ q.1 * y ^ n) *
+          ((v 0 : ℂ) ^ q.1 * ((v 0 : ℂ) + v 1) ^ n) := by
+    funext v
+    rw [show 1 - y * (v 0 : ℂ) = (-y) * (v 0 : ℂ) + 1 by ring,
+      (Commute.all ((-y) * (v 0 : ℂ)) 1).add_pow', Finset.sum_mul]
+    apply Finset.sum_congr rfl
+    intro q _
+    simp only [mul_pow, one_pow, mul_one, nsmul_eq_mul]
+    ring
+  rw [he, regDirichletIntegral_finsetSum hβ _ _ (fun _ _ => by fun_prop)]
+  simp_rw [regDirichletIntegral_smul, regDirichletIntegral_fin_three_pow_mul_add_pow hβ]
+
+/-- A coordinate moment in a two-node regularized Dirichlet integral, at either endpoint. -/
+theorem regDirichletIntegral_fin_two_coordinate_pow {b : Fin 2 → ℂ}
+    (hb : b ∈ mvBetaConvergent) (i : Fin 2) (n : ℕ) :
+    regDirichletIntegral b (fun u => (u i : ℂ) ^ n) =
+      (ascPochhammer ℂ n).eval (b i) / Gamma (b 0 + b 1 + n) := by
+  fin_cases i
+  · exact regDirichletIntegral_fin_two_pow hb n
+  · have h := regDirichletIntegral_monomial hb ![0, n]
+    simpa [regDirichletMonomialTransform, mvPochhammer, Fin.sum_univ_two,
+      Fin.prod_univ_two, div_eq_mul_inv, add_comm, add_left_comm, add_assoc] using h
+
+/-- An affine power times a coordinate power has a finite beta-moment expansion. -/
+theorem regDirichletIntegral_fin_two_one_sub_pow_mul_pow {b : Fin 2 → ℂ}
+    (hb : b ∈ mvBetaConvergent) (i : Fin 2) (y : ℂ) (m n : ℕ) :
+    regDirichletIntegral b (fun v => (1 - y * (v i : ℂ)) ^ m * (y * (v i : ℂ)) ^ n) =
+      ∑ q ∈ antidiagonal m, (m.choose q.1 : ℂ) * (-y) ^ q.1 * y ^ n *
+        ((ascPochhammer ℂ (q.1 + n)).eval (b i) / Gamma (b 0 + b 1 + (q.1 + n : ℕ))) := by
+  have he : (fun v : Fin 2 → ℝ =>
+      (1 - y * (v i : ℂ)) ^ m * (y * (v i : ℂ)) ^ n) =
+      fun v => ∑ q ∈ antidiagonal m,
+        ((m.choose q.1 : ℂ) * (-y) ^ q.1 * y ^ n) * (v i : ℂ) ^ (q.1 + n) := by
+    funext v
+    rw [show 1 - y * (v i : ℂ) = (-y) * (v i : ℂ) + 1 by ring,
+      (Commute.all ((-y) * (v i : ℂ)) 1).add_pow', Finset.sum_mul]
+    apply Finset.sum_congr rfl
+    intro q _
+    simp only [mul_pow, one_pow, mul_one, nsmul_eq_mul, pow_add]
+    ring
+  rw [he, regDirichletIntegral_finsetSum hb _ _ (fun _ _ => by fun_prop)]
+  simp_rw [regDirichletIntegral_smul, regDirichletIntegral_fin_two_coordinate_pow hb]
 
 end Dirichlet

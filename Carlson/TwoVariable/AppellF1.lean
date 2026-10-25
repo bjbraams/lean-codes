@@ -36,7 +36,7 @@ def appellCarlsonNodes (x y : ℂ) : (Fin 2 ⊕ Unit) → ℂ :=
   Sum.elim (pair (1 - x) (1 - y)) (fun _ => 1)
 
 /-- Adjoining a node zero leaves the Pochhammer numerator unchanged. -/
-private theorem numerator_sumElim_zero {ι : Type*} [Fintype ι]
+theorem numerator_sumElim_zero {ι : Type*} [Fintype ι]
     (n : ℕ) (b z : ι → ℂ) (β : ℂ) :
     carlsonRPolynomialNumerator n (Sum.elim b (fun _ : Unit => β))
         (Sum.elim z (fun _ : Unit => 0)) = carlsonRPolynomialNumerator n b z := by
@@ -51,7 +51,7 @@ private theorem numerator_sumElim_zero {ι : Type*} [Fintype ι]
     exact (hn (Finset.mem_range.mpr n.lt_succ_self)).elim
 
 /-- The two-node numerator divided by `n!` is its factorial-normalized convolution. -/
-private theorem numerator_pair_div_factorial (n : ℕ) (b₁ b₂ x y : ℂ) :
+theorem numerator_pair_div_factorial (n : ℕ) (b₁ b₂ x y : ℂ) :
     carlsonRPolynomialNumerator n (pair b₁ b₂) (pair x y) / (n.factorial : ℂ) =
       ∑ p ∈ Finset.antidiagonal n,
         ((ascPochhammer ℂ p.1).eval b₁ / (p.1.factorial : ℂ)) *

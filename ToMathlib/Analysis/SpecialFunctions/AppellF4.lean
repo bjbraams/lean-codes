@@ -50,7 +50,7 @@ theorem regularizedAppellF4Coeff_eq (a b c d : ℂ) (m n : ℕ) :
     Nat.cast_ne_zero.mpr n.factorial_ne_zero]
 
 /-- Scalar Gauss-type coefficients are geometrically bounded at each radius below one. -/
-private theorem exists_bound_HG_unit {A C : Multiset ℂ} (hcard : A.card = C.card + 1)
+theorem exists_bound_regularizedHGFunCoeff_mul_pow {A C : Multiset ℂ} (hcard : A.card = C.card + 1)
     {r : ℝ} (hr : 0 ≤ r) (hr1 : r < 1) :
     ∃ B : ℝ, 0 ≤ B ∧ ∀ n : ℕ, ‖regularizedHGFunCoeff A C n * (r : ℂ) ^ n‖ ≤ B := by
   have hs : Summable (fun n => regularizedHGFunCoeff A C n * (r : ℂ) ^ n) := by
@@ -132,9 +132,12 @@ theorem summable_norm_regularizedAppellF4 (a b c d : ℂ) {x y : ℂ}
   obtain ⟨r, hr, hr1⟩ := exists_between hxy
   have hr0 : 0 < r := lt_of_le_of_lt (by positivity) hr
   have hrC : (r : ℂ) ≠ 0 := ofReal_ne_zero.mpr hr0.ne'
-  obtain ⟨C, hC, hA⟩ := exists_bound_HG_unit (A := {a, b}) (C := {1}) (by simp) hr0.le hr1
-  obtain ⟨E, hE, hB⟩ := exists_bound_HG_unit (A := {1, 1}) (C := {c}) (by simp) hr0.le hr1
-  obtain ⟨F, hF, hD⟩ := exists_bound_HG_unit (A := {1, 1}) (C := {d}) (by simp) hr0.le hr1
+  obtain ⟨C, hC, hA⟩ :=
+    exists_bound_regularizedHGFunCoeff_mul_pow (A := {a, b}) (C := {1}) (by simp) hr0.le hr1
+  obtain ⟨E, hE, hB⟩ :=
+    exists_bound_regularizedHGFunCoeff_mul_pow (A := {1, 1}) (C := {c}) (by simp) hr0.le hr1
+  obtain ⟨F, hF, hD⟩ :=
+    exists_bound_regularizedHGFunCoeff_mul_pow (A := {1, 1}) (C := {d}) (by simp) hr0.le hr1
   let A := fun n => regularizedHGFunCoeff {a, b} {1} n * (r : ℂ) ^ n
   let B := fun n => regularizedHGFunCoeff {1, 1} {c} n * (r : ℂ) ^ n
   let D := fun n => regularizedHGFunCoeff {1, 1} {d} n * (r : ℂ) ^ n

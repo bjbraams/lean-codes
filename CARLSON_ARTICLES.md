@@ -1330,9 +1330,10 @@ Equation numbers in this section belong to the **articles**. Coverage includes
 the single-average foundations, the 1976 linear series transformation,
 independent matrix double averages with entire parameter continuation, the
 `F₂` and `F₃` matrix identifications at arbitrary complex parameters, the
-`F₄` series and Jacobi expansion, and selected polynomial and elliptic consequences.
-The unrestricted `F₄` matrix representation and broader quadratic transformations
-remain open.
+`F₄` series, Jacobi and third-order expansions, equal-denominator Gauss average,
+all six restricted matrix representations on explicit domains, and selected polynomial
+and elliptic consequences. The unrestricted matrix representation is also proved; broader
+quadratic transformations remain open.
 The existing `AppellSequence` modules concern polynomial sequences satisfying
 a binomial theorem, a different subject from the functions `F₁`–`F₄`.
 
@@ -1442,10 +1443,12 @@ introduces the independent row/column average of `f(∑ᵢⱼ uᵢ Zᵢⱼ vⱼ)
   domain, including the right half-plane. It does not establish the disputed
   assertion for arbitrary cut-plane configurations.
 
-### Carlson (1975): F₄ series and Jacobi expansion proved; matrix theory remains
+### Carlson (1975): F₄ expansions and all six restricted matrices proved
 
 [*Appell's Function F4 as a Double Average*](Carlson/References/Carlson1975AppellFunctionF4DoubleAverage-SIAM.JMathAnal06.pdf)
-has its defining series and the Jacobi expansion (2.2) formalized.
+has its defining series, Jacobi expansion (2.2), equal-denominator expansion
+(2.4), third-order double series (2.5), equal-denominator matrix (2.6)–(2.8),
+and all six restricted matrices (4.1)–(4.6) formalized on explicit domains.
 
 - [SpecialFunctions/AppellF4](ToMathlib/Analysis/SpecialFunctions/AppellF4.lean)
   defines regularized and ordinary `F₄`, proves absolute convergence for all
@@ -1455,18 +1458,128 @@ has its defining series and the Jacobi expansion (2.2) formalized.
   the full square-root convergence region.
 - [Jacobi/AppellF4](Carlson/Jacobi/AppellF4.lean) proves the homogeneous
   coefficient identity and Jacobi expansion (2.2), proving the Jacobi-series
-  part of **Exercise 7.1-13**. Its equal-denominator Gauss-average part remains open.
+  part of **Exercise 7.1-13**.
   The R-polynomial numerator form is division-free and has no parameter
   exclusions. The monic Jacobi form explicitly requires each normalizing
   Pochhammer factor to be nonzero; the ordinary form also excludes the two
   denominator pole sets. See [the exercise review](CarlsonChapter7Exercises.md).
-- The equal-denominator Gauss-average identity in Exercise 7.1-13, the
-  equal-denominator quadratic transformation and third-order series
-  (2.4)–(2.8), unrestricted two-by-three matrix representation (3.5), and six
-  restricted two-by-two cases (4.1)–(4.6) remain unformalized. The Pochhammer,
-  two-node R-polynomial and Jacobi/Gegenbauer ingredients are available.
+- [AppellF4Equal](Carlson/TwoVariable/AppellF4Equal.lean) proves the
+  equal-denominator expansion (2.4), coefficient by coefficient and as a
+  convergent series on `‖x‖ + ‖y‖ < 1` for the squared arguments.
+  [EqualParameterPolynomial](Carlson/TwoVariable/EqualParameterPolynomial.lean)
+  fills the removable values of `Rₙ(c-1/2,c-1/2;u,v)/Γ(c)`. Thus the regularized
+  identity holds at every complex parameter, even when `(2c-1)ₙ` vanishes.
+  The ordinary series needs only `c` away from the nonpositive integers.
+- [AppellF4Average](Carlson/TwoVariable/AppellF4Average.lean) identifies this
+  series with the entire continuation of the Gauss-function Dirichlet average.
+  For `re c > 1/2` it proves the actual native normalized integral, with arbitrary
+  numerator parameters. Together these results complete **Exercise 7.1-13**,
+  retaining the explicit normalization qualifications of its Jacobi part.
+- [AppellF4Matrix](Carlson/TwoVariable/AppellF4Matrix.lean) proves the
+  separated polynomial moments (2.6) for independent row and column parameters,
+  their entire continuation, and the equal-denominator two-by-two matrix
+  representation (2.8), also listed as (4.6), up to a row permutation.
+  Its rows are `(1-(x+y)²,1-(x-y)²)` and `(1,1)`, with row parameters
+  `(b,c-b)` and column parameters `(c-1/2,c-1/2)`. The continued regularized
+  average equals `quadraticGammaRatio(c-1/2) * F₄reg(a,b;c,c;x²,y²)`
+  at every complex parameter. The explicit ratio is retained at its zeros;
+  no cancellation by a vanishing value is claimed. The native normalized
+  identity requires positive real parts of both averaging parameter vectors.
+- [AppellF4ThirdOrder](Carlson/TwoVariable/AppellF4ThirdOrder.lean) proves
+  the explicit third-order double series (2.5), with absolute convergence on
+  the full transformed bidisk. Its general coefficient allows independent
+  split and denominator parameters; a scalar regularized `₃F₂` majorant
+  proves convergence at every complex parameter. The equal-denominator
+  specialization equals the duplication ratio times regularized `F₄`.
+  The ordinary Pochhammer form excludes the displayed denominator pole sets
+  for `c` and `2c-1`; the regularized formula states the division-free identity
+  at exceptional parameters.
+- [AppellF4GeneralMatrix](Carlson/TwoVariable/AppellF4GeneralMatrix.lean)
+  defines the unrestricted two-by-three matrix (3.5) and its column parameters.
+  Its shifted polynomial moments have explicit finite formulas, proved for
+  independent arbitrary row and column parameters. The proof uses new
+  overlapping-block beta moments in
+  [MatrixMoments](Dirichlet/Average/MatrixMoments.lean). A zero first column
+  parameter reduces these polynomial moments to the `F₂` parallelogram formula.
+  The corresponding continued power-kernel reduction is proved on the common
+  `F₂` diamond and full matrix entry disk. The matrix series uses the exact
+  maximum distance of its entries from one.
+- [AppellF4Coefficients](Carlson/TwoVariable/AppellF4Coefficients.lean)
+  proves the Burchnall–Chaundy coefficient transformation for
+  `(x,y) ↦ (x(1-y),y(1-x))`. The actual finite binomial substitution sum
+  collapses by reciprocal-Gamma recurrence and Chu–Vandermonde, and equals
+  the coefficient collected from the weighted matrix moments. All complex
+  parameters are allowed, including denominator poles. The proof uses the
+  division-free rising-factorial convolutions in
+  [Convolution](Pochhammer/Convolution.lean), over arbitrary commutative rings.
+  The product-of-Gauss restriction (4.1) and the `F₂` restriction (4.3) are
+  also proved at the coefficient level.
+- [AppellF4Reassembly](Carlson/TwoVariable/AppellF4Reassembly.lean) proves
+  the analytic unrestricted matrix identity (3.5), including native regularized
+  and normalized forms. The continued regularized identity allows every complex
+  parameter. Absolute binomial reexpansion is justified on
+  `sqrt(‖x‖(1+‖y‖)) + sqrt(‖y‖(1+‖x‖)) < 1`.
+  [AppellF4MatrixBounds](Carlson/TwoVariable/AppellF4MatrixBounds.lean)
+  separately proves absolute convergence of the expanded matrix series on
+  `‖x‖+‖y‖+‖x‖‖y‖<1`, using scalar regularized Gauss majorants.
+  The identity also propagates along any preconnected scalar domain containing
+  zero on which the transformed `F₄` series converges and all scaled matrix
+  entries stay in the right half-plane. Its endpoint form removes the absolute
+  reexpansion bound at the endpoint when these continuation hypotheses hold.
+  Holomorphy of scalar substitutions is proved throughout the full `F₄`
+  square-root region in
+  [AppellF4Analytic](ToMathlib/Analysis/SpecialFunctions/AppellF4Analytic.lean).
+  The product-of-Gauss (4.1) and `F₂` (4.3) transformations are now also
+  identities of analytic functions on the displayed reexpansion domain.
+- [AppellF4Bailey](Carlson/TwoVariable/AppellF4Bailey.lean) proves Bailey's
+  restricted matrix representation (2.10)/(4.4), with `b = a+1/2`.
+  The matrix is the centered parallelogram with entries `1±x±y` and averaging
+  parameters `(c-1/2,c-1/2)` and `(d-1/2,d-1/2)`. Even symmetric beta moments
+  give the `F₄` coefficients by duplication; odd moments vanish. The continued
+  regularized identity holds at every complex parameter on `‖x‖+‖y‖<1` for
+  squared `F₄` arguments, retaining both duplication ratios. The native
+  normalized identity requires `re c > 1/2` and `re d > 1/2`.
+- [AppellF4Restricted](Carlson/TwoVariable/AppellF4Restricted.lean) supplies
+  the explicit two-by-two matrices (4.1)–(4.3), their continued regularized
+  identities at every parameter, and native normalized forms. The product and
+  repeated-row matrices follow from zero-column deletion in the unrestricted
+  matrix, proved throughout its unit entry disk using reciprocal Gamma
+  recurrence. The `F₄` identifications use the absolute reexpansion domain above.
+- [AppellF4F1](Carlson/TwoVariable/AppellF4F1.lean) proves the scalar reduction
+  (4.2): `F₄reg(a,b;c,b;x(1-y),y(1-x))` equals
+  `Γ(b)⁻¹ (1-y)^(-a) F₁reg(a;1+a-c,c+b-a-1;c;x/(1-y),x)`
+  on that reexpansion domain, including every complex parameter. Its proof
+  collapses the matrix to a three-node R-function and uses homogeneity. The
+  ordinary normalized formula requires `b` not to be a nonpositive integer;
+  the usual series interpretation also requires admissible denominator `c`.
+- [AppellF4SecondQuadratic](Carlson/TwoVariable/AppellF4SecondQuadratic.lean)
+  proves (4.5) for the matrix with rows
+  `((1+y)²-x²,(1-y)²-x²)` and `((1+y)²,(1-y)²)`, row parameters
+  `(b,c-b)` and equal column parameters `β=a-b+1/2`. The continued average is
+  `quadraticGammaRatio(β) * F₄reg(a,b;c,a-b+1;x²,y²)` on
+  `‖x‖²+2‖y‖+‖y‖²<1`. It also continues along any preconnected scaling domain
+  containing zero on which matrix entries remain in the right half-plane and
+  `‖wx‖+‖wy‖<1`. The initial proof uses Gauss slices of `F₂` and `F₄`;
+  analytic continuation removes its auxiliary `F₂` convergence restriction.
+  All parameters are retained in the regularized formula. Native normalization
+  assumes positive real parts of the row parameters and `β`.
+- [AppellF4Domains](Carlson/TwoVariable/AppellF4Domains.lean) extends (3.5) and
+  the restricted matrices (4.1)–(4.3) to the full real positive triangle
+  `x≥0`, `y≥0`, `x+y<1`, including both coordinate axes. The exact matrix
+  entry radius there is `x+y`, and the substituted `F₄` arguments satisfy
+  their square-root convergence condition. The product-of-Gauss, scalar `F₁`,
+  and scalar `F₂` reductions also hold throughout this triangle. Continued
+  regularized identities retain all parameters; native normalized versions
+  keep their positivity hypotheses, and the ordinary `F₁` reduction keeps
+  the condition on the cancelled `Γ(b)` factor.
+  For (4.5), the same module replaces the entry-disk bound by the full
+  squared-argument series condition `‖x‖+‖y‖<1` and the endpoint condition
+  that all entries of the second quadratic matrix have positive real part.
+  A proved radial-contraction property supplies the intermediate branches.
+- Other broader node domains still require verification of continuation and
+  branch hypotheses; these results do not provide global cut-plane Appell functions.
 
-### Carlson (1976): quadratic-transform consequences, not the full family
+### Carlson (1976): four matrix transformations and the named F₂ formulas
 
 [*Quadratic Transformations of Appell Functions*](Carlson/References/Carlson1976QuadraticTransformationsAppellFunctions-SIAM.JMathAnal07.pdf)
 has meaningful coverage of its ingredients and applications.
@@ -1488,9 +1601,60 @@ has meaningful coverage of its ingredients and applications.
   [LandenExercises](Carlson/Elliptic/LandenExercises.lean) includes second-kind
   transformations. The native double-average framework is now defined, but
   these consequences were proved independently of its transformation theory.
-- **Missing main family.** The eight matrix transformations (2.1)–(2.8), the
-  named `F₂` transformations (2.10), (2.12), and the full two-parameter `F₁`
-  transformations (4.1)–(4.2), equivalently (4.9), (4.12), are not packaged.
+- **Proved matrix transformations.**
+  [AppellQuadraticMatrix](Carlson/TwoVariable/AppellQuadraticMatrix.lean)
+  compares the established `F₄` reductions, following the paper's proof on
+  page 296. Equation (2.4) holds for the centered parallelogram with vertices
+  `1-x-y,1-x+y,1+x-y,1+x+y` and transformed matrix with rows `(1,1)` and
+  `(1-(x+y)²,1-(x-y)²)`. It holds for all complex parameters whenever both
+  matrices lie in the right half-plane, with no series convergence bound.
+  In regularized form its right side has the factor `quadraticGammaRatio(μ)`;
+  native normalization removes this factor on its positive-parameter domain.
+  A scaled form restores a complex common center under explicit power-branch
+  conditions; polynomial identities identify the transformed entries as the
+  paper's arithmetic and geometric means.
+  Equation (2.3) is proved in coordinates `p=1+y`, `q=1-y`, `z=x`, with
+  row parameters `(2ν+t,1/2-ν-t)` and equal column parameters `ν`.
+  Its concrete domain is `‖x‖+‖y‖<1` with right-half-plane entries of the
+  squared-node matrix. Both sides have the same normalization, so no Gamma
+  prefactor is needed. It also continues along preconnected scaling domains
+  containing zero on which both matrices stay in the right half-plane, removing
+  the endpoint series bound. A native normalized version is proved on the
+  concrete domain with positive real parts of the averaging parameters.
+- **Proved F₂ transformations.**
+  [AppellF2Quadratic](Carlson/TwoVariable/AppellF2Quadratic.lean) proves the
+  algebraic comparisons for (2.5)–(2.6), the equal-denominator reduction
+  `F₄reg(2α,b;α+1/2,α+1/2;x²,y²) = Γ(α+1/2)⁻¹`
+  `F₁reg(b;α,α;α+1/2;(x+y)²,(x-y)²)`, and the named trigonometric
+  formulas (2.10) and (2.12). Complex angles have explicit common convergence
+  bounds. Reciprocal Gamma and duplication factors retain every complex
+  parameter in the regularized formulas. The ordinary (2.10) formula excludes
+  nonpositive integral values of `2μ` and `2α-2μ`; the ordinary functions'
+  usual Pochhammer-series interpretation also requires admissible denominator
+  parameters. The filled-in Gamma-normalized (2.12) identity is proved even
+  at denominator poles.
+  [AppellF2QuadraticReal](Carlson/TwoVariable/AppellF2QuadraticReal.lean)
+  removes the auxiliary reexpansion bounds from both named formulas for
+  `θ≥0`, `φ≥0`, `θ+φ<π/2`, including the axes. Elementary trigonometric
+  inequalities put every displayed series in its convergence domain, and the
+  positive-triangle `F₄` continuation gives the formulas throughout this region.
+- **Explicit matrices (2.5)–(2.6).**
+  [AppellF2QuadraticMatrix](Carlson/TwoVariable/AppellF2QuadraticMatrix.lean)
+  proves the polynomial coordinate maps and both identities for the matrices
+  printed in the article. For (2.5), the common diagonal-square sum is `2C`;
+  the input scale is `C` and the quartic output scale is `C²`. The regularized
+  right side has the factors `quadraticGammaRatio(μ)` and
+  `quadraticGammaRatio(-μ-t)`. For (2.6), `ℓ²` is the common bottom-row
+  value and the factor is `quadraticGammaRatio(-t)`; a native normalized
+  form is also proved. Equation (2.5) is stated for continued averages:
+  simultaneous native positivity on its two sides cannot hold.
+  These explicit matrix theorems currently use common series bounds in the
+  normalized coordinates, together with right-half-plane conditions on both
+  matrices and their scales. They do not yet have the full branch-domain
+  extension available for centered (2.4).
+- **Remaining main family.** Equations (2.1), (2.2), (2.7), (2.8), and the
+  full two-parameter `F₁` transformations (4.1)–(4.2), equivalently (4.9),
+  (4.12), are not packaged.
   The complete Bartky third-kind transformation (4.14) is also not separately
   proved in the article's form. General product-series and boundary-value
   applications in Section 3 should not be counted as completed merely from
@@ -1542,13 +1706,20 @@ Gauss/`F₁` series identifications alone only cover the unit disk/bidisk.
 
 ### Suggested order and verification
 
-1. Prove the unrestricted `F₄` matrix representation and its six parameter
-   restrictions, using the now-proved series and Jacobi expansion.
+1. Extend concrete complex node domains for the proved unrestricted and six
+   restricted matrix identities, beyond the positive triangle and the verified
+   scaling domains. The second quadratic case already has its full
+   right-half-plane squared-argument series domain. All six restricted cases
+   now have matrix identities; their product-of-Gauss, `F₁`, `F₂`, and quadratic reductions are proved on
+   the domains stated above.
 2. Develop the general restricted/bare forms and named Appell linear transformations
    from the continued matrix symmetries.
 3. Prove the matrix differential system and double-average Cauchy formula.
-4. Prove the eight quadratic transformations and their generalized
-   Landen/Bartky consequences. Extend node domains only with proved continuation.
+4. Complete the four remaining quadratic transformations (2.1), (2.2),
+   (2.7), (2.8), next developing the `F₁` transformations (2.7)–(2.8) and
+   their generalized Landen/Bartky consequences. Equations (2.3)–(2.6) now
+   have continued matrix forms; the named `F₂` formulas (2.10), (2.12)
+   also have the positive real angle domain described above.
 5. Generalize the 1976 linear series transformation to arbitrary order and
    several variables, and formalize the comparison of Horn orders if desired.
 
@@ -1576,8 +1747,51 @@ and `Quot.sound`, with no admissions. The full build passed (10051 jobs), and
 strict-option checks passed for all ten new implementation modules, the modified
 Gamma module, and the affected entry modules. All project Lean lines remain
 within 100 characters; shared implementations match their primary copies, and
-local documentation links and `git diff --check` pass. Exercise 7.1-13 is marked
-**partial** because the separate equal-denominator Gauss-average part remains open.
+local documentation links and `git diff --check` pass. The subsequent
+equal-denominator implementation completes the Gauss-average part of Exercise
+7.1-13 and proves the equal-denominator two-by-two matrix representation;
+the current coverage and normalization qualifications are described above.
+All **18 new public theorems** passed a transitive axiom audit with only the
+three standard axioms and no admissions. The full build passed (10059 jobs),
+as did strict-option checks of the four new modules and affected entry modules.
+All 608 project Lean files have lines of at most 100 characters; the exact
+shared subset and shared support copies match their primary projects.
+
+The third-order and Bailey implementation adds **37 public theorems**.
+Their transitive axiom audit found only the three standard axioms and no
+admissions. The full build passed (10065 jobs), along with strict-option
+checks of all five new or modified implementation modules and the Carlson,
+Dirichlet and Pochhammer entry modules. All 611 project Lean files have lines
+of at most 100 characters. The exact shared subset, shared support copies,
+local documentation links and `git diff --check` also passed.
+
+The restricted-matrix completion proves (4.1)–(4.3), the scalar `F₁` reduction,
+and the second quadratic case (4.5), with the domains and exceptional-parameter
+qualifications described above. All **36 new or newly exposed public theorems**
+passed a transitive axiom audit using only the same three standard axioms.
+The full build passed (10091 jobs); strict-option checks passed for all 30
+currently changed or untracked Lean files and the Dirichlet entry module.
+There are no admissions in those files. All 624 project Lean files satisfy
+the 100-character line limit. Shared-source equality, local documentation
+links, and `git diff --check` also passed.
+
+The subsequent domain and quadratic-transformation extension adds **28 public
+theorems** in `AppellF4Domains` and `AppellQuadraticMatrix`. All passed the
+transitive axiom audit with only `propext`, `Classical.choice`, and `Quot.sound`.
+The full build passed (10095 jobs), as did strict-option checks of both new
+modules and the two affected Carlson entry modules. No admissions were added.
+All 626 project Lean files remain within the 100-character line limit; the
+shared-source, documentation-link and `git diff --check` validations also passed.
+
+The F₂ extension proves (2.5)–(2.6) for the article's explicit matrices and
+both named formulas (2.10), (2.12), with the domain and normalization
+qualifications above. All **29 new or newly exposed public theorems** passed
+a transitive axiom audit using only the same three standard axioms. The full
+build passed (10101 jobs), as did strict-option checks of all seven new or
+modified implementation files and the two affected Carlson entry modules.
+No admissions were introduced. All 629 Lean files satisfy the 100-character
+line limit; shared-source equality, local documentation links, and
+`git diff --check` also passed.
 
 ## Overall relation of the collection to the book
 

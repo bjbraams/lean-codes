@@ -1,4 +1,4 @@
-name = "Main"
+name = "LeanCodes"
 version = "0.2.0"
 defaultTargets = ["Main"]
 buildDir = ".lake/build-codes"

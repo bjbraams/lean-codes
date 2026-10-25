@@ -11,6 +11,7 @@ public import Mathlib.Analysis.Complex.CauchyIntegral
 public import Mathlib.Analysis.Normed.Module.FiniteDimension
 public import Mathlib.LinearAlgebra.FiniteDimensional.Basic
 public import SeveralComplexVariables.Osgood
+public import TauCeti.Analysis.Complex.CauchyIntegralPolydisc
 
 /-!
 # Analyticity of holomorphic maps in finite dimension
@@ -80,18 +81,10 @@ section FiniteDimensional
 variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
   [FiniteDimensional ℂ E] [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
 
-/-- Complex differentiability on an open finite-dimensional domain implies analyticity. No choice of
-coordinates occurs in the statement. -/
-theorem DifferentiableOn.analyticOnNhd_of_finiteDimensional {U : Set E} {f : E → F}
-    (hf : DifferentiableOn ℂ f U) (hU : IsOpen U) : AnalyticOnNhd ℂ f U := by
-  let e := (Module.finBasis ℂ E).equivFunL
-  have hg : DifferentiableOn ℂ (f ∘ e.symm) (e.symm ⁻¹' U) :=
-    hf.comp e.symm.differentiable.differentiableOn (fun _ hx => hx)
-  have ha := hg.analyticOnNhd_pi (hU.preimage e.symm.continuous)
-  intro x hx
-  have hmem : e x ∈ e.symm ⁻¹' U := by simpa using hx
-  simpa [Function.comp_def] using
-    (ha (e x) hmem).comp_of_eq (e.toContinuousLinearMap.analyticAt x) rfl
+-- `DifferentiableOn.analyticOnNhd_of_finiteDimensional` (complex differentiability on an open
+-- finite-dimensional domain implies analyticity) is TauCeti's, from
+-- `TauCeti.Analysis.Complex.CauchyIntegralPolydisc`; the former local duplicate was removed on
+-- 2026-10-25 because lean-DLMF imports both libraries.
 
 /-- On an open finite-dimensional domain, holomorphy may be expressed using either complex Fréchet
 differentiability or Mathlib's analytic predicate. -/

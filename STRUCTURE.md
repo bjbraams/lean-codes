@@ -312,6 +312,77 @@ merging and kernel linearity to arbitrary parameters.
 `ToMathlib.Analysis.SpecialFunctions.AppellF4` gives absolute convergence on the
 full square-root region. `Carlson.Jacobi.AppellF4` proves the all-parameter numerator
 expansion and the normalized Jacobi series under explicit nondegeneracy assumptions.
+`Carlson.TwoVariable.EqualParameterPolynomial` supplies entire equal-parameter moments,
+with removable values filled where the usual Pochhammer quotient degenerates.
+`AppellF4Equal` proves the equal-denominator moment series at every complex parameter;
+`AppellF4Average` identifies it with the continued Gauss average and its native integral
+for `re c > 1/2`. These complete Exercise 7.1-13, with the previously stated exclusions
+for the monic Jacobi normalization. `AppellF4Matrix` proves the equal-denominator
+two-by-two matrix representation, including entire moment formulas in independent row
+and column parameters. Its continued identity retains the duplication ratio rather than
+dividing by its possibly zero value.
+`AppellF4ThirdOrder` proves the explicit third-order double series (1975, (2.5)),
+with independent complex split and denominator parameters and absolute convergence
+on the full transformed bidisk, using a scalar regularized `₃F₂` majorant.
+`AppellF4GeneralMatrix` supplies the unrestricted two-by-three matrix and its
+entire finite moment formulas. Its column moments use overlapping beta blocks;
+a zero first column parameter gives the `F₂` polynomial moments.
+`AppellF4Coefficients` proves the Burchnall–Chaundy transformation between the
+finite substitution coefficients and the matrix series coefficients, including
+all exceptional parameters. It also gives coefficient reductions for the
+product-of-Gauss and `F₂` restrictions.
+`AppellF4MatrixBounds` proves absolute convergence of the expanded matrix
+series on `‖x‖+‖y‖+‖x‖‖y‖<1`, at every complex parameter.
+`AppellF4Reassembly` identifies the unrestricted matrix with substituted `F₄`
+on the absolute binomial reexpansion domain and supplies native normalized
+forms. It also proves continuation on preconnected scaling domains with
+verified series and right-half-plane branch conditions. The product-of-Gauss
+and `F₂` coefficient reductions are summed into analytic transformations.
+The generic finite-fiber and binomial reassembly lemmas live in
+`ToMathlib.Analysis.InfiniteSum`; `SpecialFunctions.AppellF4Analytic` proves
+holomorphy of scalar substitutions on the full square-root region.
+`Pochhammer.Vandermonde` supplies product linearization of rising factorials;
+`Pochhammer.Convolution` adds shifted-product expansion, reassociation of
+three-index binomial sums and the finite Burchnall–Chaundy identity, without
+divisions over every commutative ring.
+`AppellF4Bailey` independently proves Bailey's restricted case `b=a+1/2` as a
+centered-parallelogram matrix average. Its even symmetric beta moments are filled
+at removable parameters, and the vanishing odd moments embed the absolutely
+convergent `F₄` series into the matrix binomial series. The continued identity
+has no parameter exclusions; the native normalized form assumes `re c,re d>1/2`.
+`AppellF4Restricted` adds the product, repeated-row and `F₂` matrices (4.1)–(4.3)
+and proves zero-column deletion throughout the unrestricted matrix's unit entry disk.
+`AppellF4F1` collapses the repeated-row matrix to a three-node R-function and
+proves the scalar `F₁` reduction, with reciprocal Gamma normalization retained.
+`AppellSlicedSeries` supplies Gauss slices of the `F₂` and `F₄` series.
+`AppellF4SecondQuadratic` uses those slices and `Carlson.MatrixHomogeneity`
+to prove the second quadratic matrix (4.5), first on a common series region,
+then on preconnected scaling domains by analytic continuation. Its concrete
+entry-disk bound is `‖x‖²+2‖y‖+‖y‖²<1`; native normalization requires positive
+real parts of the row parameters and `a-b+1/2`.
+`Carlson.R.BinomialSeries` provides the scalar R-function's binomial series
+at every Dirichlet parameter on the full unit node disk.
+`AppellF4Domains` proves the exact matrix radius and substituted-series convergence
+on the positive triangle, extending the unrestricted identity, the first three
+restricted matrices and their scalar reductions to this region. It also proves
+radial preservation of the second quadratic branch domain inside the full
+squared-argument convergence diamond.
+`AppellQuadraticMatrix` eliminates `F₄` between the existing reductions to prove
+Carlson (1976), (2.3)–(2.4), in centered coordinates. Equation (2.4) holds on the
+full centered right-half-plane branch domain and has a scaled form with explicit
+principal-power conditions. Both transformations have continuation on verified
+preconnected scaling domains and native normalized versions.
+`AppellF2Quadratic` compares the `F₂`, Bailey and equal-denominator reductions
+of `F₄`, proving the algebraic quadratic transformations and named trigonometric
+formulas (2.10), (2.12). It also supplies the all-parameter `F₄`-to-`F₁` reduction.
+`AppellF2QuadraticMatrix` verifies the polynomial coordinate maps for the exact
+matrices (2.5)–(2.6), then applies row/column permutations and matrix homogeneity.
+Both continued formulas state common series and branch conditions; (2.6) also
+has a native normalized form. Native positivity on both sides of (2.5) is impossible.
+`AppellF2QuadraticReal` proves convergence throughout the nonnegative angle
+triangle `θ+φ<π/2` and derives both named formulas there without auxiliary
+reexpansion bounds. The ordinary (2.10) formula excludes its transformed
+denominator poles; regularized formulas retain all complex parameters.
 
 ### `Dirichlet.Beta.Complex.Basic`
 
