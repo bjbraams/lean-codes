@@ -5,8 +5,8 @@ proved; this file lists what is not, for the three target libraries. A gap here 
 corresponding Lean statement exists, or that the statement is proved under narrower hypotheses
 than in the source. No gap is represented by an admitted proof: the libraries contain no `sorry`
 and no additional axioms. Printed statements of Carlson (1977) found to be false or in need of
-qualification are listed separately in [CARLSON_ERRATA.md](CARLSON_ERRATA.md); the corrected
-versions are proved.
+qualification are listed separately in
+[reports/CARLSON_ERRATA.pdf](reports/CARLSON_ERRATA.pdf); the corrected versions are proved.
 
 The detailed section-by-section inventory is `CarlsonCoverage.md`, with the exercise tables
 `CarlsonChapter6Exercises.md` and `CarlsonChapter7Exercises.md`; see also `CARLSON_ARTICLES.md`

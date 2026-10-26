@@ -260,7 +260,9 @@ Each directory has a matching umbrella module (for `ToMathlib`, the three module
 `ToMathlib.Algebra`, `ToMathlib.Analysis`, and `ToMathlib.Topology`). `Main.lean` imports all of them.
 See the [module structure guide](STRUCTURE.md) for the finer topic splits and import paths.
 Statements of Carlson's book found false or in need of qualification during the formalization
-are listed, with counterexamples and corrections, in [CARLSON_ERRATA.md](CARLSON_ERRATA.md).
+are listed, with counterexamples and corrections, in
+[reports/CARLSON_ERRATA.pdf](reports/CARLSON_ERRATA.pdf) (LaTeX source
+[reports/CARLSON_ERRATA.tex](reports/CARLSON_ERRATA.tex); `latexmk -lualatex` in `reports/`).
 A mathematical synopsis addressed to mathematicians starts at [SYNOPSIS.md](SYNOPSIS.md), which
 summarizes the whole project and points to one synopsis per library: general algebra, topology
 and analysis (`SYNOPSIS_ALGEBRA.md`, `SYNOPSIS_TOPOLOGY.md`, `SYNOPSIS_ANALYSIS.md`), one and

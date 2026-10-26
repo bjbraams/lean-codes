@@ -33,7 +33,7 @@ Banach-valued functions, general domains or fewer hypotheses) the specialized sy
 `SeveralComplexVariables` are the parts of the separate libraries `lean-CA` and `lean-SCV`
 used here. Open problems and unformalized material of the three target libraries are collected
 in [SYNOPSIS_GAPS.md](SYNOPSIS_GAPS.md), and printed errors found in Carlson's book in
-[CARLSON_ERRATA.md](CARLSON_ERRATA.md).
+[reports/CARLSON_ERRATA.pdf](reports/CARLSON_ERRATA.pdf).
 
 ## Conventions
 

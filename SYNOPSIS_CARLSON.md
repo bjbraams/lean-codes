@@ -17,7 +17,7 @@ the nodes, and regularized functions are ordinary ones divided by $\Gamma(\Sigma
 *product slit plane* is the set of $z$ with every $z_i \notin (-\infty, 0]$. Statements in
 regularized form hold for all complex parameters, including the Gamma poles of the ordinary
 normalization. Printed statements of [Carl77] found to be false or in need of qualification are
-collected in [CARLSON_ERRATA.md](CARLSON_ERRATA.md).
+collected in [reports/CARLSON_ERRATA.pdf](reports/CARLSON_ERRATA.pdf).
 
 ## 1. R-polynomials (Sections 5.7, 6.1–6.6)
 

@@ -1,0 +1,71 @@
+% leanreport.sty -- shared preamble for the LaTeX reports of lean-codes and its sibling
+% projects (lean-DLMF, lean-CA, lean-SCV, lean-LCS, lean-PR). Maintained in lean-codes;
+% other projects find it through TEXINPUTS (see their reports/latexmkrc). Compile with LuaLaTeX:
+%   latexmk -lualatex FILE.tex
+% It holds only what all reports share: page layout, fonts, common packages, link macros for
+% Lean names, modules and files, and basic mathematical notation. Document-specific notation
+% and entry layouts stay in the document or in a project style file.
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{leanreport}[2026/10/26 Shared preamble for Lean project reports]
+
+\RequirePackage{iftex}
+\ifluatex\else
+  \PackageError{leanreport}{Compile with LuaLaTeX (latexmk -lualatex)}{}
+\fi
+
+% ---------------------------------------------------------------- layout and fonts
+\RequirePackage[margin=25mm]{geometry}
+\RequirePackage{amsmath,amssymb,mathtools}
+\RequirePackage{fontspec}
+\RequirePackage[math-style=TeX,bold-style=TeX]{unicode-math}
+\setmainfont{Latin Modern Roman}
+\setmathfont{Latin Modern Math}
+\AtBeginDocument{\renewcommand{\boldsymbol}[1]{\symbf{#1}}}
+\setmonofont{DejaVu Sans Mono}[Scale=0.82]
+\RequirePackage[english]{babel}
+\RequirePackage{microtype}
+
+% ---------------------------------------------------------------- common packages
+\RequirePackage{booktabs}
+\RequirePackage{array}
+\RequirePackage{tabularx}
+\RequirePackage{enumitem}
+\RequirePackage{needspace}
+\RequirePackage{ragged2e}
+\RequirePackage{xcolor}
+\RequirePackage[obeyspaces]{url}
+\RequirePackage[hidelinks]{hyperref}
+\hypersetup{
+  pdfauthor={Bastiaan J. Braams},
+  colorlinks=true, linkcolor={blue!50!black}, urlcolor={blue!50!black},
+  citecolor={green!40!black}}
+
+% ---------------------------------------------------------------- Lean names, modules, files
+% \lean{Name.with_underscores}, \module{Carlson.Elliptic.Tables}, \file{DLMF/Area/File.lean}:
+% typewriter, breakable after _ . / - '.
+% \repofile{lean-DLMF}{DLMF/Area/File.lean}: the path, linked to the file on GitHub (main branch).
+% Relative links do not work in a PDF, so links into a repository use absolute URLs.
+\def\UrlBreaks{\do\_\do\.\do\/\do\-\do\'}
+\def\UrlBigBreaks{}
+\DeclareUrlCommand\lean{\urlstyle{tt}}
+\DeclareUrlCommand\module{\urlstyle{tt}}
+\DeclareUrlCommand\file{\urlstyle{tt}}
+\Urlmuskip=0mu
+\newcommand{\leanreportGitHub}{https://github.com/bjbraams}
+\newcommand{\repofile}[2]{\href{\leanreportGitHub/#1/blob/main/#2}{\file{#2}}}
+
+% ---------------------------------------------------------------- basic notation
+\newcommand{\iu}{\mathrm{i}}            % imaginary unit
+\newcommand{\eu}{\mathrm{e}}            % Euler's number
+\newcommand{\dd}{\mathrm{d}}            % differential
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\QQ}{\mathbb{Q}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\CC}{\mathbb{C}}
+
+% ---------------------------------------------------------------- line breaking
+\setlength{\emergencystretch}{3em}
+\tolerance=800
+
+\endinput

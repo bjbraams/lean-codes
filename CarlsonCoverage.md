@@ -11,8 +11,8 @@ in the book, the hypotheses are stated. No item is represented by an admitted pr
 proof libraries; the separate registry's intentional placeholders in `Statement.lean` have
 proved counterparts in `Solution.lean`. Related documents:
 
-* [CARLSON_ERRATA.md](CARLSON_ERRATA.md): printed statements found false or needing
-  qualification, with counterexamples and the proved corrections.
+* [reports/CARLSON_ERRATA.pdf](reports/CARLSON_ERRATA.pdf): printed statements found false or
+  needing qualification, with counterexamples and the proved corrections.
 * [SYNOPSIS_CARLSON.md](SYNOPSIS_CARLSON.md) and [SYNOPSIS_GAPS.md](SYNOPSIS_GAPS.md): the
   mathematical summary and the list of open items.
 * [CarlsonChapter6Exercises.md](CarlsonChapter6Exercises.md),

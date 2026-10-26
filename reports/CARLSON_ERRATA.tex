@@ -1,0 +1,173 @@
+% Errata for B. C. Carlson, Special Functions of Applied Mathematics (1977),
+% found in the lean-codes formalization. Compile with: latexmk -lualatex CARLSON_ERRATA.tex
+\documentclass[11pt,a4paper]{article}
+\usepackage{leanreport}
+\hypersetup{pdftitle={Errata for B. C. Carlson, Special Functions of Applied Mathematics (1977)}}
+
+\newcommand{\entry}[1]{\par\addvspace{1.5ex}\needspace{5\baselineskip}%
+  \subsection{#1}}
+\newenvironment{fields}{\begin{description}[font=\normalfont\itshape,
+  leftmargin=1.5em, labelindent=0pt, itemsep=0.4ex, topsep=0.3ex, parsep=0.3ex]%
+  \setlength{\parindent}{0pt}\RaggedRight\emergencystretch=3em}{\end{description}}
+
+\newcommand{\Real}{\operatorname{Re}}
+\newcommand{\Imag}{\operatorname{Im}}
+\newcommand{\RF}{R_F}
+\newcommand{\RC}{R_C}
+\DeclareMathOperator{\csch}{csch}
+
+\title{Errata for B.\,C. Carlson, \emph{Special Functions of Applied Mathematics} (1977)}
+\author{Bastiaan J. Braams}
+\date{2026-10-26}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+  This report lists printed statements in Carlson's book \cite{Carlson1977} that were found to
+  be false, or to need a qualification, while the book was formalized in the Lean~4 project
+  \texttt{lean-codes}. Each entry gives the statement as printed, a counterexample, a
+  correction, and the Lean declarations that record it. All Lean results cited depend only on
+  the standard axioms (\lean{propext}, \lean{Classical.choice}, \lean{Quot.sound}).
+\end{abstract}
+
+\section{Summary}
+
+\begin{center}
+\small
+\begin{tabularx}{\textwidth}{@{}>{\RaggedRight}p{3.4cm}>{\RaggedRight}X>{\RaggedRight\arraybackslash}p{6.6cm}@{}}
+  \toprule
+  Location & Kind & Lean \\
+  \midrule\addlinespace
+  Theorem 6.6-2 & False as printed (lower bound)
+    & \lean{carlsonRPolynomial_coincident_counterexample} \\\addlinespace
+  Exercise 6.9-17, last two formulas & False on half of the stated domain
+    & \lean{carlsonRC_cot_sq_csc_sq_complex}, \lean{carlsonRC_coth_sq_csch_sq_complex} \\\addlinespace
+  Theorem 7.4-2 & Definition needs a qualification
+    & \lean{carlson_polynomial_two_saddle_ratio_counterexample} \\\addlinespace
+  Table 9.3-1, row $2b=(1,3,3)$ & Wrong sign of $C$ & \lean{carlsonR_table_9_3_1_row4} \\\addlinespace
+  Exercise 9.7-2 & False as stated (missing branch condition)
+    & \lean{carlsonRF_add_carlsonRF_shift} \\\addlinespace
+  Exercise 9.8-6 & False as stated (missing sign condition)
+    & \lean{integral_quartic_eq_integral_cubic_of_nonneg} \\
+  \bottomrule
+\end{tabularx}
+\end{center}
+
+\section{Entries}
+
+\entry{Theorem 6.6-2 (growth of $R$-polynomials)}
+\begin{fields}
+\item[As printed] For $z_i\ne0$ and $c=\sum b_i$ not a nonpositive integer,
+  \[
+    \limsup_{n\to\infty}\lVert R_n(b,z)\rVert^{1/n}=\max_i\lVert z_i\rVert .
+  \]
+\item[Counterexample] $b=(\tfrac12,-\tfrac12,1)$, $z=(2,2,1)$. All printed hypotheses hold,
+  but the generating function (6.6-1) is
+  \[
+    (1-2s)^{-1/2}(1-2s)^{1/2}(1-s)^{-1}=(1-s)^{-1},
+  \]
+  and since $(c)_n/n!=1$, $R_n(b,z)=1$ for every $n$. The limsup is $1$, not $2$.
+\item[Cause] The proof asserts that the singularity of each factor $(1-tz_i)^{-b_i}$ survives
+  in the product; parameters at a repeated node can cancel.
+\item[Correction] The upper bound $\limsup\lVert R_n(b,z)\rVert^{1/n}\le\max_i\lVert z_i\rVert$
+  holds as printed. For the lower bound, either require pairwise distinct nodes with the
+  parameter at a maximal node not a nonpositive integer, or first aggregate equal nodes and
+  require that the summed parameter at a maximal node is not a nonpositive integer.
+\item[Lean] \lean{Carlson.carlsonRPolynomial_coincident_counterexample},
+  \lean{Carlson.eventually_norm_carlsonRPolynomial_le},
+  \lean{Carlson.frequently_le_norm_carlsonRPolynomial} (\module{Carlson.RPolynomial.Growth}),
+  \lean{Carlson.frequently_le_norm_carlsonRPolynomial_aggregate}
+  (\module{Carlson.Aggregation}).
+\end{fields}
+
+\entry{Exercise 6.9-17 (last two formulas)}
+\begin{fields}
+\item[As stated] For complex $\theta,\varphi\ne0$ with $\lvert\Real\theta\rvert<\pi/2$ and
+  $\lvert\Imag\varphi\rvert<\pi/2$,
+  \[
+    \theta=\RC(\cot^2\theta,\csc^2\theta),\qquad
+    \varphi=\RC(\coth^2\varphi,\csch^2\varphi).
+  \]
+\item[Counterexample] The right sides are even functions of the angle, the left sides are odd.
+  For $\theta=-\pi/4$ the right side is $\RC(1,2)=\pi/4$ (the exercise itself states
+  $4\RC(1,2)=\pi$), not $-\pi/4$; similarly for $\varphi=-1$.
+\item[Correction] The first formula holds for $0<\Real\theta<\pi/2$, the second for
+  $\Real\varphi>0$ and $\lvert\Imag\varphi\rvert<\pi/2$; for negative real parts the left sides
+  must be replaced by $-\theta$ and $-\varphi$.
+\item[Lean] \lean{Carlson.TwoVariable.carlsonRC_cot_sq_csc_sq_complex},
+  \lean{Carlson.TwoVariable.carlsonRC_coth_sq_csch_sq_complex}
+  (\module{Carlson.TwoVariable.R.ElementaryValues}).
+\end{fields}
+
+\entry{Theorem 7.4-2 (two-saddle asymptotics of Jacobi polynomials), p.~198}
+\begin{fields}
+\item[As printed] A two-saddle approximation on
+  $V=\{(x,y): xy\ne0,\ x^2\ne y^2\}$, with uniform asymptotics defined by convergence of the
+  quotient to one.
+\item[Problem] At $\alpha=\beta=-\tfrac12$, $(x,y)=(1,\iu)$, the polynomial vanishes in every
+  odd degree (its normalization is nonsingular in every degree). No quotient of it by any
+  sequence can converge to one along the odd degrees.
+\item[Correction] Read the quotient with removable extensions, or state the result as a
+  two-saddle expansion with an additive error controlled by the sum of the magnitudes of the
+  two saddle terms. Neither formulation is refuted by the example; neither is yet proved here
+  at general parameters.
+\item[Lean] \lean{Carlson.TwoVariable.carlson_polynomial_two_saddle_ratio_counterexample}
+  (\module{Carlson.Jacobi.AsymptoticZeros}).
+\end{fields}
+
+\entry{Table 9.3-1, row $2b=(1,3,3)$}
+\begin{fields}
+\item[As printed] $C=(z-y)\,d/5$, with $d=(x-y)(y-z)(z-x)$.
+\item[Correction] $C=(y-z)\,d/5$; the coefficients $C_G=2(3x-t)$, $C_F=3yz-s$,
+  $C_A=x(t^2-2s-xt)$ are correct. Confirmed formally and numerically.
+\item[Lean] \lean{Carlson.carlsonR_table_9_3_1_row4} (\module{Carlson.Elliptic.ReductionTables}),
+  stated with $C=-(x-y)(x-z)(y-z)^2/5$.
+\end{fields}
+
+\entry{Exercise 9.7-2}
+\begin{fields}
+\item[As stated] For $x,y,z,\lambda,\mu,\nu\ge0$ with at most one of $x+\nu$, $y+\nu$, $z+\nu$
+  zero, $\lambda>\nu$, $\mu>\nu$, and $\nu$ given by Carlson's formula,
+  \[
+    \RF(x+\lambda,y+\lambda,z+\lambda)+\RF(x+\mu,y+\mu,z+\mu)=\RF(x+\nu,y+\nu,z+\nu).
+  \]
+\item[Counterexample] $x=y=1$, $z=1/100$, with $\lambda,\mu>0$ on the other branch of Euler's
+  relation (9.7-11). The formula gives $\nu=0$ and all stated hypotheses hold, but numerically
+  the left side is $\approx1.6794$ while $\RF(x,y,z)\approx1.4780$.
+\item[Correction] Add the branch condition of Theorem 9.7-1, $(\lambda-\nu)(\mu-\nu)>f(\nu)$.
+\item[Lean] \lean{Carlson.carlsonRF_add_carlsonRF_shift}
+  (\module{Carlson.Elliptic.ChapterNineExercises}).
+\end{fields}
+
+\entry{Exercise 9.8-6}
+\begin{fields}
+\item[As stated] For $a>0$ and $Q(s)=as^4+bs^3+cs^2+ds+e$ positive on $(0,\infty)$ (with
+  $e\ge0$), and $C(t)=t^3+ft^2+gt+h$ with
+  \[
+    f=c+6\sqrt{ae},\qquad g=bd+4c\sqrt{ae}+8ae,\qquad h=\bigl(b\sqrt e+d\sqrt a\bigr)^2,
+  \]
+  \[
+    \int_0^\infty Q(s)^{-1/2}\,\dd s=\int_0^\infty C(t)^{-1/2}\,\dd t .
+  \]
+\item[Counterexample] $Q(s)=s^4-1.9s^3+2s^2-1.9s+1$ is positive on $(0,\infty)$, but the two
+  sides are $3.3721\ldots$ and $1.2574\ldots$. Since $C$ depends on $b,d$ only through $bd$ and
+  $(b\sqrt e+d\sqrt a)^2$, it is unchanged when $b$ and $d$ change sign together, while the
+  left side is not.
+\item[Correction] Numerically the identity holds exactly when $b\sqrt e+d\sqrt a\ge0$, which is
+  when the substitution
+  \[
+    t=2as^2+bs+2\sqrt a\,\sqrt{Q(s)}-2\sqrt{ae}\qquad\bigl(\text{for which }C(t)=t'(s)^2Q(s)\bigr)
+  \]
+  is increasing. It is proved here for nonnegative coefficients; the sharp condition is not yet
+  proved.
+\item[Lean] \lean{Carlson.integral_quartic_eq_integral_cubic_of_nonneg}
+  (\module{Carlson.Elliptic.QuarticIntegral}).
+\end{fields}
+
+\begin{thebibliography}{9}
+\bibitem{Carlson1977} B.\,C. Carlson, \emph{Special Functions of Applied Mathematics},
+  Academic Press, New York, 1977.
+\end{thebibliography}
+
+\end{document}
