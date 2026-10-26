@@ -91,10 +91,11 @@ this report to the task; documentation-only work does not require a theorem inve
 - Put new Markdown documentation at the project root, not in subdirectories.
 - Do not use Tables in Markdown files. If a tabular presentation is a candidate, use a
   list or an itemized list instead.
+- Do not use \operatorname{V} in Markdown files; use \mathop{\mathrm{V}} instead.
 - `README.md` is the public entry point. Follow the local file roles for detailed
   reviews, structure and mathematical summaries. `REMINDERS.md`, where used, is private
   documentation for the owner and editors.
-- Put changes common to the six projects in this shared file; put project-specific
+- Put changes common to the several projects in this shared file; put project-specific
   settings, scope, mathematical conventions and exceptions in the local `AGENTS.md`.
 - The sibling checkout of `lean-codes` is needed to read these shared instructions.
   For an isolated checkout, provide that file and update the local reading path.
