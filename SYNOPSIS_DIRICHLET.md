@@ -8,7 +8,7 @@ depends on all the support libraries: [ToMathlib](SYNOPSIS_ANALYSIS.md),
 
 Throughout, $I$ is a finite index set (possibly empty), $E_I$ the standard simplex with the
 hyperplane measure $\sigma$, and $b \in \mathbb C^{I}$ the *Dirichlet parameters*. The
-*convergence region* is $\{b : \operatorname{Re} b_i > 0\ \forall i\}$, and
+*convergence region* is $\{b : \mathop{\mathrm{Re}} b_i > 0\ \forall i\}$, and
 $b + e_i$ denotes $b$ with its $i$-th coordinate raised by one. Mathlib has the one-variable
 beta and gamma distributions; the multivariate beta function, the Dirichlet distribution and
 everything below are formalized here (the TauCeti library has a Dirichlet law, identified with
@@ -28,7 +28,7 @@ parameter vector at a fixed positive total, unless the parameters are already eq
 (Exercises 4.2-3 and 4.3-2).
 
 Liouville's reduction (Corollary 4.4-5) is also proved in solid coordinates: for $n>0$,
-$\operatorname{Re}b_i>0$ and $g$ continuous on $[0,1]$,
+$\mathop{\mathrm{Re}}b_i>0$ and $g$ continuous on $[0,1]$,
 $$\int_{\Delta_n}\prod_i x_i^{b_i-1}g(\sum_i x_i)\,dx
 = B(b)\int_0^1 t^{\sum_i b_i-1}g(t)\,dt.$$
 The double-beta binomial integral of Exercise 4.4-3 is a regularized ${}_3F_2$ on
@@ -38,25 +38,25 @@ Exercise 4.4-4 are in `ToMathlib.Analysis.SpecialFunctions.HypergeometricBeta`.
 ## The Dirichlet distribution
 
 For $b_i > 0$ the density $B(b)^{-1}\prod_i u_i^{b_i - 1}$ on the interior of $E_I$ defines a
-probability measure $\operatorname{Dir}(b)$ on $\mathbb R^{I}$ carried by the simplex (uniform for
+probability measure $\mathop{\mathrm{Dir}}(b)$ on $\mathbb R^{I}$ carried by the simplex (uniform for
 $b = \mathbf 1$), invariant under simultaneous permutation of coordinates and parameters.
 
 * **Moments.** $\mathbb E\prod_i u_i^{m_i} = \prod_i(b_i)_{m_i}/(\Sigma)_{|m|}$ with
   $\Sigma = \sum_i b_i$, also for real power products; $\mathbb E u_i = b_i/\Sigma$,
-  $\operatorname{Var} u_i = b_i(\Sigma - b_i)/(\Sigma^2(\Sigma + 1))$,
-  $\operatorname{Cov}(u_i, u_j) = -b_ib_j/(\Sigma^2(\Sigma + 1))$.
+  $\mathop{\mathrm{Var}} u_i = b_i(\Sigma - b_i)/(\Sigma^2(\Sigma + 1))$,
+  $\mathop{\mathrm{Cov}}(u_i, u_j) = -b_ib_j/(\Sigma^2(\Sigma + 1))$.
 * **Aggregation.** For surjective $f : I \to K$ the pushforward under block sums is
-  $\operatorname{Dir}((\sum_{f(i) = k}b_i)_k)$; coordinate marginals are beta laws, and for two
-  coordinates the first coordinate has Mathlib's $\operatorname{Beta}(b_0, b_1)$.
+  $\mathop{\mathrm{Dir}}((\sum_{f(i) = k}b_i)_k)$; coordinate marginals are beta laws, and for two
+  coordinates the first coordinate has Mathlib's $\mathop{\mathrm{Beta}}(b_0, b_1)$.
 * **Gamma construction.** If $X_i$ are independent $\Gamma(b_i, r)$ with a common rate and $I$
-  nonempty, then $\sum X_i \sim \Gamma(\Sigma, r)$, $(X_i/\sum_j X_j)_i \sim \operatorname{Dir}(b)$,
+  nonempty, then $\sum X_i \sim \Gamma(\Sigma, r)$, $(X_i/\sum_j X_j)_i \sim \mathop{\mathrm{Dir}}(b)$,
   and the two are independent (from radial integration, without analytic continuation). Through
   this, the Dirichlet measure here is identified with TauCeti's Dirichlet law, with transfer of
   integrals.
 * **Merging (stick-breaking).** For $a \ne a'$, writing $u_a = v_0 s$, $u_{a'} = v_1 s$, the
-  proportions $v$ have the two-point law $\operatorname{Dir}(b_a, b_{a'})$, independent of the
+  proportions $v$ have the two-point law $\mathop{\mathrm{Dir}}(b_a, b_{a'})$, independent of the
   merged vector, which is Dirichlet with parameter $b_a + b_{a'}$ at the merged coordinate;
-  equivalently $\operatorname{Dir}(b)$ is the image of the product law under the merging map
+  equivalently $\mathop{\mathrm{Dir}}(b)$ is the image of the product law under the merging map
   (proved by moment determination).
 * **Averages of affine combinations.** For continuous $f$ and nodes $x \in \mathbb R^{I}$,
   $u \mapsto f(\sum u_i x_i)$ is integrable; Jensen bounds place its average between $f$ at the
@@ -68,16 +68,16 @@ $b = \mathbf 1$), invariant under simultaneous permutation of coordinates and pa
 * **Concentration.** For normalized weights $w$ and concentration $c$, the second moment of an
   affine combination is $A^2 + V/(c + 1)$ ($A$, $V$ the weighted mean and variance of the
   nodes); two-node averages are beta averages, strictly decreasing in $c$ for strictly convex
-  kernels and distinct nodes; as $c \to \infty$, $\operatorname{Dir}(cw)$ concentrates at $w$,
+  kernels and distinct nodes; as $c \to \infty$, $\mathop{\mathrm{Dir}}(cw)$ concentrates at $w$,
   with explicit bounds for Lipschitz kernels and convergence for $C^1$ kernels.
 
 ## Complex Dirichlet integrals
 
-For nonempty $I$ and $\operatorname{Re}b_i>0$, the normalized density also defines a bundled
+For nonempty $I$ and $\mathop{\mathrm{Re}}b_i>0$, the normalized density also defines a bundled
 complex measure $\mu_b$. Its mass is one and its variation is
-$|\mu_b|=B(\operatorname{Re}b)/|B(b)|\,\operatorname{Dir}(\operatorname{Re}b)$, with finite total
-mass $B(\operatorname{Re}b)/|B(b)|$. When $\operatorname{Re}b_i\ge\tfrac12$, this is at most
-$\exp(\tfrac\pi2\sum_i|\operatorname{Im}b_i|)$ (Exercise 4.4-8).
+$|\mu_b|=B(\mathop{\mathrm{Re}}b)/|B(b)|\,\mathop{\mathrm{Dir}}(\mathop{\mathrm{Re}}b)$, with finite total
+mass $B(\mathop{\mathrm{Re}}b)/|B(b)|$. When $\mathop{\mathrm{Re}}b_i\ge\tfrac12$, this is at most
+$\exp(\tfrac\pi2\sum_i|\mathop{\mathrm{Im}}b_i|)$ (Exercise 4.4-8).
 Native complex integration conserves coordinate block sums for every continuous simplex
 kernel, and a function of one block sum reduces to a single Euler beta integral
 (Theorem 4.4-3, Corollary 4.4-4); no entire-continuation assumption is needed.
@@ -86,7 +86,7 @@ The *regularized Dirichlet density*
 $\rho_b(u) = \mathbf 1_{E_I}(u)\prod_i u_i^{b_i - 1}/\Gamma(b_i)$ is entire in $b$ pointwise; the
 *regularized Dirichlet integral* of $f$ is $T_b[f] = \int_{E_I}\rho_b f\,d\sigma$, and the
 *normalized* integral is $\Gamma(\sum_i b_i)T_b[f]$. On positive real parameters the normalized
-integral is the $\operatorname{Dir}(b)$-expectation and $T_b[f]$ is that expectation divided by
+integral is the $\mathop{\mathrm{Dir}}(b)$-expectation and $T_b[f]$ is that expectation divided by
 $\Gamma(\Sigma)$, for arbitrary integrands. On the convergence region $\rho_b$ is integrable,
 $T_b[1] = 1/\Gamma(\Sigma)$, and $b \mapsto T_b[f]$ is analytic for $f$ continuous on the
 simplex, jointly analytic with auxiliary parameters for kernels holomorphic on a complex
@@ -95,7 +95,7 @@ neighbourhood of the simplex.
 * **Parameter shifts.** $u_i\rho_b = b_i\rho_{b + e_i}$, hence $T_b[u_if] = b_iT_{b+e_i}[f]$ and
   $T_b[f] = \sum_i b_iT_{b + e_i}[f]$.
 * **Tangential integration by parts.** For $f$ differentiable near the simplex and
-  $\operatorname{Re} b_k > 2$,
+  $\mathop{\mathrm{Re}} b_k > 2$,
   $T_b[\partial_{e_j - e_i}f] = T_{b - e_i}[f] - T_{b - e_j}[f]$, without boundary terms (via the
   derivative of $x_+^{a-1}/\Gamma(a)$).
 * **Polynomials.** $T_b[u^m] = \prod_i(b_i)_{m_i}/\Gamma(\sum_i(b_i + m_i))$, entire in $b$, and
@@ -109,7 +109,7 @@ exists (identity theorem on the connected convergence region), recognized by its
 positive real parameters, insensitive to changes of $g$ off the simplex, and linear in $g$.
 
 **Existence.** If $g$ is $C^{(|I| - 1)N}$ near the simplex, $b \mapsto T_b[g]$ continues
-analytically to $\{\operatorname{Re} b_i > -N\ \forall i\}$, by an explicit finite formula
+analytically to $\{\mathop{\mathrm{Re}} b_i > -N\ \forall i\}$, by an explicit finite formula
 (iterating the parameter shift backwards and integrating by parts tangentially); if $g$ is
 $C^\infty$ near the simplex the continuation is entire. A parametric version keeps auxiliary
 holomorphic parameters throughout (by complexifying the simplex coordinates) and gives joint
@@ -120,7 +120,7 @@ the continued transform.
 multiplication $T_b[u_ig] = b_iT_{b + e_i}[g]$; the sum rule $T_b[g] = \sum_i b_iT_{b + e_i}[g]$;
 tangential differentiation $T_b[\partial_{e_j - e_i}g] = T_{b - e_i}[g] - T_{b - e_j}[g]$;
 permutation; monomial multiplication; vanishing at $b_i = 0$ for kernels divisible by $u_i$;
-aggregation (the transform of $g \circ \operatorname{Agg}_q$ at $b$ is the transform of $g$ at
+aggregation (the transform of $g \circ \mathop{\mathrm{Agg}}_q$ at $b$ is the transform of $g$ at
 the block-summed parameters, for surjective $q$); termwise transformation of uniformly summable
 series, and recognition of locally uniformly convergent series of continued transforms.
 
@@ -132,7 +132,7 @@ analytic substitution of the exponents.
 
 **Merging identity.** For $a \ne a'$, with $b'$ the merged parameters,
 $$\Gamma(b_a + b_{a'})^{-1}\,T_b[g] = \mathcal E_{b_a, b_{a'}}\bigl[v \mapsto T_{b'}[y \mapsto
-g(\operatorname{merge}(v, y))]\bigr]$$
+g(\mathop{\mathrm{merge}}(v, y))]\bigr]$$
 natively for continuous kernels and positive parameters, and as an identity of entire functions
 whenever the inner transform depends holomorphically on $v$ (as it does for kernels holomorphic
 near the simplex). Iterating represents $T_b[g]$ as an iterated Euler integral.
@@ -146,7 +146,7 @@ extends jointly analytically (Hartogs).
 
 For nodes $z \in \mathbb C^{I}$ and a scalar function $f$, the *regularized Dirichlet average*
 is $\mathcal R_b(z; f) = T_b[u \mapsto f(\sum_i u_iz_i)]$; Carlson's average is
-$\Gamma(\Sigma)\mathcal R_b(z; f)$, the $\operatorname{Dir}(b)$-expectation of
+$\Gamma(\Sigma)\mathcal R_b(z; f)$, the $\mathop{\mathrm{Dir}}(b)$-expectation of
 $f(\langle u, z\rangle)$ for positive parameters. The affine form maps the simplex onto the convex
 hull of the nodes.
 

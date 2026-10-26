@@ -21,7 +21,7 @@ permutations, and identify Mathlib's intrinsic simplex with its coordinate reali
 through a closed, measurable topological embedding. Normalization by the coordinate sum is
 measurable (defined also at sum zero) and recovers a simplex point and its scale.
 
-**Aggregation.** For a map $f : I \to J$ of finite sets, $(\operatorname{Agg}_f u)_k =
+**Aggregation.** For a map $f : I \to J$ of finite sets, $(\mathop{\mathrm{Agg}}_f u)_k =
 \sum_{f(i) = k} u_i$ maps $E_I$ to $E_J$ and realizes Mathlib's map of simplices induced by $f$;
 fibre cardinalities give the exponents in the aggregation densities below.
 
@@ -37,7 +37,7 @@ hyperplanes in finite products are null, so almost every simplex point has all c
 positive; the interior is open in the intrinsic simplex and measurable.
 
 **Aggregation of measures.** For surjective $f : I \to J$, the pushforward of
-$\sigma_I|_{E_I}$ under $\operatorname{Agg}_f$ has density proportional to
+$\sigma_I|_{E_I}$ under $\mathop{\mathrm{Agg}}_f$ has density proportional to
 $\prod_{k \in J} y_k^{|f^{-1}(k)| - 1}$ with respect to $\sigma_J$; the analogous formula for solid
 simplices is obtained by disintegration along the fibres.
 
@@ -45,7 +45,7 @@ simplices is obtained by disintegration along the fibres.
 
 * Integrals over $E_I$ are computed in any chart; continuous functions are integrable; the
   two-coordinate simplex is the unit interval with Lebesgue measure.
-* **Solid simplices.** $\operatorname{vol}\Delta_I(r) = r^{|I|}/|I|!$, and for nonnegative
+* **Solid simplices.** $\mathop{\mathrm{vol}}\Delta_I(r) = r^{|I|}/|I|!$, and for nonnegative
   measurable $g$, $\int_{\Delta_I(r)} g(\sum_i x_i)\,dx = \int_0^r\frac{s^{n-1}}{(n-1)!}g(s)\,ds$,
   $n = |I|$; slices of solid simplices are solid simplices of reduced radius.
 * **Slicing.** Separating $u_i = t$ writes an integral over $E_I$ as an iterated integral over

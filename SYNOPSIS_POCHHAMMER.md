@@ -38,7 +38,7 @@ multiplication by $X$ with the shift $X \mapsto X + 1$.
 
 $|(a)_n| \le (|a|)_n$; $|(a)_n| \le n!\,(1 + |a|)^n$ and related factorial-geometric bounds;
 a common bound for products of prescribed total degree; power lower bounds from a lower bound on
-$\operatorname{Re} a$; $(a)_n \ne 0$ for $\operatorname{Re} a > 0$; comparison of $(1/2)_n$ with
+$\mathop{\mathrm{Re}} a$; $(a)_n \ne 0$ for $\mathop{\mathrm{Re}} a > 0$; comparison of $(1/2)_n$ with
 factorials. The support module `ToMathlib.Analysis.SpecialFunctions.PochhammerStirling`
 proves the exact formula
 $$(1/2)_n=\sqrt2\,n^n\exp(-n-\theta/(24n)),\qquad 0<\theta<1,$$
@@ -56,7 +56,7 @@ absolute convergence.
   integer); Gamma-regularity is stable under positive integer shifts and implies
   $(w)_n \ne 0$.
 * Reciprocal Gamma gains factorial decay under integer shifts: $|1/\Gamma(s + n)|$ is bounded by
-  a constant over $n!$ on $\operatorname{Re} s \ge 1$, and uniformly on compact sets after a
+  a constant over $n!$ on $\mathop{\mathrm{Re}} s \ge 1$, and uniformly on compact sets after a
   common natural shift, also for shifts of a total parameter $\sum_i b_i$.
 * **Simultaneous beta shifts.** The reciprocal beta normalization
   $\Gamma(a + b + 2n)/(\Gamma(a + n)\Gamma(b + n))$ has consecutive ratios tending to $4$, so
@@ -71,20 +71,20 @@ set-integral and nonnegative forms) and $\int_0^1 x^m(1 - x)^n dx = m!\,n!/(m + 
 ## Positive powers
 
 The functions $x \mapsto x_+^{s}$ (principal power on $(0, \infty)$, zero on $(-\infty, 0]$) and
-$x \mapsto x_+^{s-1}/\Gamma(s)$: continuity across zero for $\operatorname{Re} s > 0$
+$x \mapsto x_+^{s-1}/\Gamma(s)$: continuity across zero for $\mathop{\mathrm{Re}} s > 0$
 (respectively $> 1$), and differentiability with
 $\frac{d}{dx}\frac{x_+^{s-1}}{\Gamma(s)} = \frac{x_+^{s-2}}{\Gamma(s-1)}$ for
-$\operatorname{Re} s > 2$. These are the factors of the Dirichlet density in a chart and drive
+$\mathop{\mathrm{Re}} s > 2$. These are the factors of the Dirichlet density in a chart and drive
 tangential integration by parts on the simplex.
 
 ## Regularized incomplete Mellin transforms
 
-For $K$ on $[0, a]$ and $\operatorname{Re}\alpha > 0$ put
+For $K$ on $[0, a]$ and $\mathop{\mathrm{Re}}\alpha > 0$ put
 $\mathcal M_\alpha K = \frac1{\Gamma(\alpha)}\int_0^a t^{\alpha-1}K(t)\,dt$. For $K \in C^N[0, a]$,
 subtracting the Taylor polynomial of order $N - 1$ at $0$ gives the exact identity
 $$\mathcal M_\alpha K = \sum_{k < N}\frac{K^{(k)}(0)}{k!}\frac{a^{\alpha + k}(\alpha)_k}{\Gamma(\alpha
 + k + 1)} + (\alpha)_N\,\mathcal M_{\alpha + N}(\text{Peano remainder}),$$
-whose right side is holomorphic on $\operatorname{Re}\alpha > -N$. Hence
-$\alpha \mapsto \mathcal M_\alpha K$ continues holomorphically from $\operatorname{Re}\alpha > 0$
-to $\operatorname{Re}\alpha > -N$; multiplication of $K$ by $t^k$ acts as a Pochhammer shift.
+whose right side is holomorphic on $\mathop{\mathrm{Re}}\alpha > -N$. Hence
+$\alpha \mapsto \mathcal M_\alpha K$ continues holomorphically from $\mathop{\mathrm{Re}}\alpha > 0$
+to $\mathop{\mathrm{Re}}\alpha > -N$; multiplication of $K$ by $t^k$ acts as a Pochhammer shift.
 This is the one-dimensional engine of the continuation of regularized Dirichlet integrals.

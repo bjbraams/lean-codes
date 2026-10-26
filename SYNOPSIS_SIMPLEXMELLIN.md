@@ -27,11 +27,11 @@ $T$ is entire in $b$ for kernels smooth near $\Delta$; $S_g$ is the *simplex Mel
   transform at the positive integer parameters.
 * **Estimate.** On every compact set of parameters, $|T_b[g]| \le C\,A$ whenever the derivatives
   of $g$ up to a fixed order are bounded by $A$ on the simplex; on
-  $\{\operatorname{Re} b_i > -N\}$ the order $(|I| - 1)N$ suffices.
+  $\{\mathop{\mathrm{Re}} b_i > -N\}$ the order $(|I| - 1)N$ suffices.
 
 ## The Mellin bridge
 
-In simplicial polar coordinates $x = tu$, for a radial profile $\varphi$ and $\operatorname{Re}
+In simplicial polar coordinates $x = tu$, for a radial profile $\varphi$ and $\mathop{\mathrm{Re}}
 b_i > 0$,
 $$\int_{\mathbb R_{>0}^{I}}\prod_ix_i^{b_i - 1}\,\varphi\Bigl(\sum_ix_i\Bigr)\,g\Bigl(\frac{x}{\sum_i x_i}\Bigr)dx
 = \mathcal M[\varphi]\Bigl(\sum_ib_i\Bigr)\prod_i\Gamma(b_i)\,T_b[g],$$
@@ -46,7 +46,7 @@ only at $b_i \in -\mathbb N$.
 $\int_\Delta f = \int\prod_iu_i(w)\,f(u(w))\,dw$ with
 $\prod_iu_i(w) = e^{\sum w}Z(w)^{-|I|}$, $Z(w) = 1 + \sum_je^{w_j}$; the proof evaluates the bridge
 at positive parameters in two coordinate systems instead of computing a Jacobian.
-In particular, for every continuous boundary kernel and $\operatorname{Re}b_i>0$,
+In particular, for every continuous boundary kernel and $\mathop{\mathrm{Re}}b_i>0$,
 $$\prod_i\Gamma(b_i)T_b[g]
 =\int \exp\Bigl(\sum_i b_i\log u_i(w)\Bigr)g(u(w))\,dw.$$
 This allows monomial densities singular at the faces.
@@ -87,7 +87,7 @@ For a base point $\beta$ with positive real parts, set
 $Q_\beta(w)=\exp(\sum_i\beta_i\log u_i(w))$ and extend intrinsic frequencies by
 $\xi_{i_0}=-\sum_{j\ne i_0}\xi_j$. The weight $Q_\beta$ is Schwartz: the map
 $w\mapsto\log u(w)$ has temperate growth and a continuous linear left inverse, so it
-pulls back the double-exponential Schwartz weight to $Q_{\operatorname{Re}\beta}$,
+pulls back the double-exponential Schwartz weight to $Q_{\mathop{\mathrm{Re}}\beta}$,
 up to the constant $e^{-1}$. The imaginary part supplies a temperate oscillatory multiplier.
 The native transform at $b=\beta-2\pi i\xi$ is exactly the intrinsic Fourier transform
 of $Q_\beta(w)g(u(w))$. Bounded angular derivatives and Sobolev Fourier integrability in
@@ -134,12 +134,12 @@ measurable kernels. The index type must be nonempty; singleton coordinates are i
 
 For a smooth boundary kernel, `simplexMomentContinuation` is the product of the entire
 regularized transform and the coordinate Gamma factors. It agrees with the native integral
-on $\operatorname{Re} b_i>0$, is analytic away from $b_i\in-\mathbb N$, and has a joint
+on $\mathop{\mathrm{Re}} b_i>0$, is analytic away from $b_i\in-\mathbb N$, and has a joint
 analytic numerator divided by $\prod_{i\in J}(b_i+m_i)$ near an intersection of coordinate
 pole hyperplanes. Thus there are at most simple poles in each coordinate.
 
 Fixing the other parameters away from Gamma poles, the transverse residue is
-$$\operatorname{Res}_{b_i=-m} S_g(b)
+$$\mathop{\mathrm{Res}}\nolimits_{b_i=-m} S_g(b)
 =\frac{(-1)^m}{m!}\prod_{j\ne i}\Gamma(b_j)\,
   T_{(b_i=-m)}[g].$$
 The face formula expresses the last factor as a binomial sum of transforms of tangential
@@ -174,7 +174,7 @@ the total frequency grows, remains open.
 
 * **Estimates.** If $g$ is continuous and vanishes where some $u_i < \delta$, the native integral
   $T_b[g]$ is already entire (a Pochhammer shift identity), $|S_g(b)| \le \|g\|_1\prod_i\max(1,
-  \delta^{\operatorname{Re} b_i - 1})$ uniformly in $\operatorname{Im} b$, and with a smooth
+  \delta^{\mathop{\mathrm{Re}} b_i - 1})$ uniformly in $\mathop{\mathrm{Im}} b$, and with a smooth
   compactly supported radial factor $\mathcal M[\varphi](\sum b)S_g(b)$ is a Schwartz function on
   vertical planes.
 * **Hyperplanes.** On $\sum_ib_i = s$, $S_g(b) = \int e^{\langle b', w\rangle}Z(w)^{-s}g(u(w))\,dw$,
@@ -185,16 +185,16 @@ the total frequency grows, remains open.
   a continuous kernel vanishing near the faces.
 * **The image.** An entire function $S$ is $S_g$ for a kernel smooth near $\Delta$ and vanishing
   near its faces if and only if (a) $S(b) = \sum_iS(b + e_i)$, (b)
-  $|S(b)| \le C\prod_i\max(1, \delta^{\operatorname{Re} b_i - 1})$ for some $\delta > 0$, and (c)
+  $|S(b)| \le C\prod_i\max(1, \delta^{\mathop{\mathrm{Re}} b_i - 1})$ for some $\delta > 0$, and (c)
   $S$ has Paley–Wiener bounds on one hyperplane $\sum b = s_0$. Sufficiency uses Carlson's theorem
   on lines transversal to the hyperplanes $\sum b = s_0 - n$. Condition (b) cannot be dropped:
   $\sin(2\pi(\sum b - s_0))S_g(b)$ satisfies (a) and vanishes on $\sum b = s_0$.
-* **Lattice values.** For $g$ continuous, $S_g$ is holomorphic on $\operatorname{Re} b > 0$,
-  bounded by $\|g\|_1$ on $\operatorname{Re} b \ge 1$, and determined there by the monomial
+* **Lattice values.** For $g$ continuous, $S_g$ is holomorphic on $\mathop{\mathrm{Re}} b > 0$,
+  bounded by $\|g\|_1$ on $\mathop{\mathrm{Re}} b \ge 1$, and determined there by the monomial
   moments $S_g(n + \mathbf 1)$, $n \in \mathbb N^{I}$ (Carlson's theorem in several variables).
   Nonnegative lattice data satisfying the sum-shift equation, shifted by $\mathbf 1$, have a
-  unique continuation holomorphic on $\operatorname{Re} b > -1$ and bounded on
-  $\operatorname{Re} b \ge 0$, given by the measure solving the moment problem; the shift is
+  unique continuation holomorphic on $\mathop{\mathrm{Re}} b > -1$ and bounded on
+  $\mathop{\mathrm{Re}} b \ge 0$, given by the measure solving the moment problem; the shift is
   necessary (the point mass at a vertex has no such continuation unshifted).
 
 ## A master theorem with simplex structure
@@ -204,5 +204,5 @@ on the simplex, $\Phi(\sum x)g(x/\sum x) = \sum_k\varphi(k)(-\sum x)^kg(x/\sum x
 and
 $$\int_{\mathbb R_+^{I}}x^{b - 1}\Phi\Bigl(\sum x\Bigr)g\Bigl(\frac{x}{\sum x}\Bigr)dx =
 \frac{\pi}{\sin(\pi\sum b)}\,\varphi\Bigl(-\sum b\Bigr)\prod_i\Gamma(b_i)\,T_b[g]$$
-for $\operatorname{Re} b_i > 0$, $\operatorname{Re}\sum b < \delta$. For $g = 1$ this is the
+for $\mathop{\mathrm{Re}} b_i > 0$, $\mathop{\mathrm{Re}}\sum b < \delta$. For $g = 1$ this is the
 Mellin transform of a function of $\sum x$ alone.

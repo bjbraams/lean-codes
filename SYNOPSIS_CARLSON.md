@@ -55,7 +55,7 @@ $$\Gamma(n + \Sigma)\,\mathcal R_n(b, z) = N_n(b, z) = \sum_{|m| = n}\binom nm\p
 
 **Definition.** The regularized $R$-function $\mathcal R_t(b, z) = R_t(b, z)/\Gamma(\Sigma)$ is
 defined for every exponent $t \in \mathbb C$, $b \in \mathbb C^{I}$ and $z$ in the product slit plane.
-In the strip $\operatorname{Re} t < 0 < \operatorname{Re}(\Sigma + t)$ it is the doubly regularized
+In the strip $\mathop{\mathrm{Re}} t < 0 < \mathop{\mathrm{Re}}(\Sigma + t)$ it is the doubly regularized
 Euler integral
 $$\mathcal R_t(b, z) = \frac{1}{\Gamma(-t)\Gamma(\Sigma + t)}\int_0^1u^{-t-1}(1 - u)^{\Sigma + t - 1}
 \prod_i(1 - u + uz_i)^{-b_i}\,du,$$
@@ -100,7 +100,7 @@ $a + a' = \Sigma$.
   transform of $\prod_i(z_i + s)^{-b_i}$ is an $R$-function; Exercises 8.1-1, 8.1-2, 8.1-3, 8.1-5,
   8.1-6 (the average of $(u\cdot x)^{-a}(u\cdot y)^{-a'}$).
 * **Small-variable limit (Theorem 8.3-2).** With $a + a' = \Sigma$ and
-  $\operatorname{Re}(a' - b_k) > 0$, as $z \to z_0$ with $(z_0)_k = 0$ through the right
+  $\mathop{\mathrm{Re}}(a' - b_k) > 0$, as $z \to z_0$ with $(z_0)_k = 0$ through the right
   half-plane (the other nodes varying),
   $\mathcal R_{-a}(b, z) \to \frac{\Gamma(a' - b_k)}{\Gamma(a')}\mathcal R_{-a}(b^{\hat k}, z_0^{\hat k})$,
   the $k$-th coordinate deleted.
@@ -171,7 +171,7 @@ node domain where the convex hull avoids $0$; a principal-branch continuation ex
 slit-plane nodes, compatible when the hull lies in the slit plane. Carlson's ${}_2F_0(\alpha, \beta;
 x)$: the double and single Euler integrals, continuation through the remainder representation
 (5.12-10), symmetry (5.12-2), holomorphy (5.12-4), the error bound (5.12-15) and asymptotic
-expansion (5.12-17), continuation to the sector $|\operatorname{ph}(-x)| < 3\pi/2$ (Theorem
+expansion (5.12-17), continuation to the sector $|\mathop{\mathrm{ph}}(-x)| < 3\pi/2$ (Theorem
 5.12-6) with uniform bounds on closed subsectors and the simplified bound (5.12-16), the single
 integral (5.12-7), the connection formulas (5.12-18) and (5.12-20) (Theorems 5.12-8, 5.12-9),
 and the zero-node limit (5.12-2), (5.12-3).
@@ -238,7 +238,7 @@ monic Jacobi form requires nonvanishing normalization factors.
 `AppellF4Equal` and `AppellF4Average` prove the equal-denominator Gauss-average
 part of that exercise: the moment series holds for all complex parameters,
 with removable moment normalizations filled, and the native integral requires
-$\operatorname{Re}c>1/2$. `AppellF4Matrix` proves the equal-denominator two-by-two
+$\mathop{\mathrm{Re}}c>1/2$. `AppellF4Matrix` proves the equal-denominator two-by-two
 matrix representation of Carlson (1975), (2.8)/(4.6), throughout
 $|x|+|y|<1$ for the squared arguments. Its continued regularized form includes
 the explicit duplication ratio and holds at every complex parameter.
@@ -258,7 +258,7 @@ and $F_2$ transformations also hold as analytic identities near the origin.
 `AppellF4Bailey` proves the restricted
 case $b=a+1/2$ as a centered-parallelogram matrix average, at arbitrary complex
 parameters in the division-free continued normalization. The native normalized
-form assumes $\operatorname{Re}c,\operatorname{Re}d>1/2$.
+form assumes $\mathop{\mathrm{Re}}c,\mathop{\mathrm{Re}}d>1/2$.
 `AppellF4Restricted` proves the explicit matrices (4.1)–(4.3) on the absolute
 reexpansion domain. `AppellF4F1` proves (4.2)'s scalar reduction to $F_1$,
 including its reciprocal $\Gamma(b)$ factor at every parameter.
@@ -274,7 +274,7 @@ $|x|+|y|<1$ with only the endpoint right-half-plane matrix condition.
 eliminating $F_4$. In centered coordinates, (2.4) needs only the two matrix
 branch conditions, and also has a scaled form. Equation (2.3) has a concrete
 series-domain form and continuation along verified scaling domains. The
-regularized (2.4) retains $\operatorname{quadraticGammaRatio}(\mu)$;
+regularized (2.4) retains $\mathop{\mathrm{quadraticGammaRatio}}(\mu)$;
 (2.3) has the same normalization on both sides. Native versions impose the
 corresponding positive real parts on the averaging parameters.
 `AppellF2Quadratic` and `AppellF2QuadraticMatrix` add the 1976 transformations
@@ -306,7 +306,7 @@ For $I = \{0, 1\}$, nodes $(x, y)$ and parameters $(u, v)$ or $(\beta, \beta)$:
   $\mathcal R_t((u, v); (x, y)) = x^{t + v}y^{t + u}\mathcal R_{-u-v-t}((v, u); (x, y))$ with the
   $L$-version carrying $\log x + \log y$; the Gauss-series parameter–exponent interchange.
 * **Quadratic transformations (6.9-3, 6.10-1).** For all complex $t, \beta$ and
-  $\operatorname{Re} x, \operatorname{Re} y > 0$, with $A = ((x + y)/2)^2$, $G = xy$ and
+  $\mathop{\mathrm{Re}} x, \mathop{\mathrm{Re}} y > 0$, with $A = ((x + y)/2)^2$, $G = xy$ and
   $q(\beta) = 2^{1-2\beta}\sqrt\pi/\Gamma(\beta)$,
   $$\mathcal R_{2t}(\beta, \beta; x, y) = q(\beta)\,\mathcal R_t(\beta + t, \tfrac12 - t; A, G),\qquad
   \mathcal R_t(\beta, \beta; x^2, y^2) = q(\beta)\,\mathcal R_t(2\beta + t, \tfrac12 - \beta - t; A, G),$$
@@ -315,7 +315,7 @@ For $I = \{0, 1\}$, nodes $(x, y)$ and parameters $(u, v)$ or $(\beta, \beta)$:
   $\Gamma(\beta + \tfrac12)$ (Remark to 6.8-4), jointly holomorphic on slit-plane nodes, for which both
   transformations and the differentiated $L$-identities (6.4), (6.5), (6.8) of [Carl87] hold
   including $\beta = 0, -1, \dots$. The first transformation also holds for nodes in opposite
-  half-planes ($\operatorname{Im} x > 0 > \operatorname{Im} y$, $\operatorname{Re}(x + y) > 0$),
+  half-planes ($\mathop{\mathrm{Im}} x > 0 > \mathop{\mathrm{Im}} y$, $\mathop{\mathrm{Re}}(x + y) > 0$),
   and letting $y \to -x$ gives Exercise 8.3-9: for non-real $x$,
   $R_{2t}(\beta, \beta; x, -x) = \pi^{1/2}\Gamma(\beta + \tfrac12)(-x^2)^t/
   (\Gamma(\tfrac12 - t)\Gamma(\beta + \tfrac12 + t))$. Also the ${}_2F_1$ quadratic
@@ -330,7 +330,7 @@ For $I = \{0, 1\}$, nodes $(x, y)$ and parameters $(u, v)$ or $(\beta, \beta)$:
   three nodes in arithmetic progression ($S$ as ${}_1F_2$, $R$ as ${}_3F_2$).
 * **Gauss hypergeometric function (§8.3).** ${}_2F_1$ as an $R$-function (8.3-7), Corollary
   8.3-3, Gauss's theorem $F(\alpha, \beta; \gamma; 1) = \Gamma(\gamma)\Gamma(\gamma - \alpha - \beta)/
-  (\Gamma(\gamma - \alpha)\Gamma(\gamma - \beta))$ for $\operatorname{Re}(\gamma - \alpha - \beta) > 0$,
+  (\Gamma(\gamma - \alpha)\Gamma(\gamma - \beta))$ for $\mathop{\mathrm{Re}}(\gamma - \alpha - \beta) > 0$,
   and its terminating Chu--Vandermonde cases as Pochhammer quotients without that inequality.
   The digamma coefficient evaluation (8.3-15) is proved; the connection formula and the
   logarithmic series (8.3-13), (8.3-14) remain open. Kummer's theorems at $-1$ and
@@ -341,7 +341,7 @@ For $I = \{0, 1\}$, nodes $(x, y)$ and parameters $(u, v)$ or $(\beta, \beta)$:
   6.11-4 for complex angles, and (6.11-6).
 * **Fractional integrals.** Carlson's fractional integral (5.5-14) and its Riemann–Liouville
   form; its continuation in the order with $I^{-n}f = f^{(n)}$ (5.5-16), entire for $f$ holomorphic
-  on a convex set and on $\operatorname{Re}\nu > -n$ for $f \in C^n$ on a real interval.
+  on a convex set and on $\mathop{\mathrm{Re}}\nu > -n$ for $f \in C^n$ on a real interval.
 
 ## 7. Jacobi polynomials and series (Chapter 7)
 
@@ -357,7 +357,7 @@ integer where a basis is needed; coincident foci $r = s$ give Taylor theory.
   parameter, three-term recurrences, the Christoffel–Darboux formula, Bateman's relation; with
   both parameters lowered by the degree they form an Appell sequence (Carlson 1970).
 * **Orthogonality and Rodrigues.** Weighted orthogonality for real $\alpha, \beta > -1$ and bilinear
-  orthogonality for $\operatorname{Re}\alpha, \operatorname{Re}\beta > -1$, squared norms as a
+  orthogonality for $\mathop{\mathrm{Re}}\alpha, \mathop{\mathrm{Re}}\beta > -1$, squared norms as a
   Pochhammer factor times a beta function, Rodrigues' formula for real and (on the principal
   branch) complex parameters and at arbitrary complex endpoints, weighted coefficient integrals
   for $C^n$ functions, and orthogonality on complex segments (Theorem 7.8-3).
@@ -368,7 +368,7 @@ integer where a basis is needed; coincident foci $r = s$ give Taylor theory.
 * **Second-kind functions.** Joint analyticity in parameters, foci and the exterior point;
   differentiation by an index increase and parameter decreases; the adjoint differential
   equation; normalization $x^{n+1}q_n \to 1$; Cauchy representations for
-  $\operatorname{Re}\alpha, \operatorname{Re}\beta > -1$ with Plemelj boundary values and principal
+  $\mathop{\mathrm{Re}}\alpha, \mathop{\mathrm{Re}}\beta > -1$ with Plemelj boundary values and principal
   values; the jump (7.8-5) for all complex parameters (by Theorem 8 on rotated slit planes); the
   second-kind recurrence, Casoratian and Christoffel's second summation formula.
 * **Growth and convergence (§§7.4–7.6).** $\|p_n(x)\| \le C(\rho + \varepsilon)^n$ on closed
@@ -418,7 +418,7 @@ image in the polygon, and a proper local homeomorphism onto a simply connected s
 injective). Examples 8.2-2 and 8.2-3: $R_F(z - x_1, z - x_2, z - x_3)$ and Carlson's $v$ map the
 upper half-plane onto rectangles whose half-periods are complete integrals (8.2-8)–(8.2-10),
 (8.2-20), (8.2-21); the inverses satisfy the Weierstrass equation (8.2-11), (8.2-12) and
-$(\operatorname{sn}')^2 = (1 - \operatorname{sn}^2)(1 - k^2\operatorname{sn}^2)$. Also the lemniscate
+$(\mathop{\mathrm{sn}}')^2 = (1 - \mathop{\mathrm{sn}}^2)(1 - k^2\mathop{\mathrm{sn}}^2)$. Also the lemniscate
 (Exercise 8.3-7) and the equation $|dx/dt|^p + |x|^p = c^p$ (Exercise 8.3-8).
 
 **Reduction (§9.3).** Carlson's Tables 9.3-1 to 9.3-4 (all rows), each row a polynomial
@@ -429,7 +429,7 @@ and complete third-kind integrals to $R_F, R_H$ and $R_K, R_L$.
 $R_t(\tfrac12, \tfrac12, -t; x^2, y^2, z^2) = R_t(t + 1, -t, -t; u^2, v^2, w^2)$, $u = (x + y)/2$, for
 all positive $x, y, z$ (with $v^2, w^2$ complex conjugates when $z$ lies between $x$ and $y$);
 Landen's transformations of $R_F$, $R_E$, $R_G$ and $K$; the ascending Landen and descending Gauss
-algorithms with limits $(1/M)\operatorname{arcsinh}(M/S)$ and $(1/M)\arcsin(M/T)$, including the
+algorithms with limits $(1/M)\mathop{\mathrm{arcsinh}}(M/S)$ and $(1/M)\arcsin(M/T)$, including the
 endpoints $s_0 = 0$ and $t_0 = a_0$; $R_E(x^2, y^2) = B/M$ along the AGM (Exercises 9.5-3, 9.5-4).
 
 **Duplication and addition (§§9.6, 9.7).** The duplication theorem
@@ -439,7 +439,7 @@ $\frac\pi2R_K(x, y) = 2R_F(x + \sqrt{xy}, y + \sqrt{xy}, \sqrt{xy})$; convergenc
 $R_F(x_0^2, y_0^2, z_0^2) = 1/L$ for positive initial values, and convergence from
 $(x,y,0)$ for $x,y>0$ with boundary value $(\pi/2)R_K(x^2,y^2)=1/L$.
 Complex right-half-plane initial square roots also converge, with $R_F(x^2,y^2,z^2)=1/L$,
-$\operatorname{Re}L>0$, and an explicit $4^{-n}$ coordinate error bound. Pairwise sums
+$\mathop{\mathrm{Re}}L>0$, and an explicit $4^{-n}$ coordinate error bound. Pairwise sums
 in the right half-plane suffice for convergence, and the zero-coordinate boundary identity
 also holds for complex $x,y$ with positive real parts. The identities (9.6-9), (9.6-10)
 are proved for complex inputs; squared-difference contraction has no domain restriction. For initial coordinates bounded below by $m>0$,
@@ -466,7 +466,7 @@ $\rho \to \infty$, so $R_H$ is linearly independent of $(xyz)^{-1/2}$, $R_F$, $R
 coefficients polynomial in $\rho$ (part of Theorem 9.2-1).
 
 **Applications (§9.4).** The simple pendulum ((9.4-21), the separatrix (9.4-25) with
-$R_C(x^{-2}, x^{-2} - 1) = \operatorname{artanh} x$, rotation (9.4-26)); the anharmonic
+$R_C(x^{-2}, x^{-2} - 1) = \mathop{\mathrm{artanh}} x$, rotation (9.4-26)); the anharmonic
 oscillator ((9.4-17), period $2\pi R_K(1, 1 + \sigma)$); the perimeter $2\pi R_E(\alpha^2, \beta^2)$
 of an ellipse (9.4-5); the arc of a hyperbola (Exercise 9.4-1); the potential
 $R_F(\lambda + \alpha^2, \lambda + \beta^2, \lambda + \gamma^2)$ of a charged conducting ellipsoid,

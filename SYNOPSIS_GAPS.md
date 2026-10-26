@@ -54,7 +54,7 @@ and `DirichletTransformProgram.md`.
   integrability hypothesis.
   Weighted $L^2$ Plancherel and inversion onto the closed image are now proved for the
   exponential profile on the complete weighted simplex space (`SimplexMellin.WeightedL2`).
-* **Stationary-phase decay.** The decay $|\operatorname{Im} b|^{-(|I|-1)/2}$ of $S_g$ on
+* **Stationary-phase decay.** The decay $|\mathop{\mathrm{Im}} b|^{-(|I|-1)/2}$ of $S_g$ on
   same-sign rays is not formalized. Rapid decay on every positive fixed-sum vertical hyperplane
   is now proved for smooth boundary kernels, and order-$N$ decay for $C^N$ kernels.
 * **Master theorems for genuinely multivariable series** $\sum c(n)\prod(-x_i)^{n_i}/n_i!$ (the
@@ -123,7 +123,7 @@ project's support libraries. They are not formalized systematically; the invento
   (6.9-22), which needs a branch condition.
 * Exercises 6.3-1 (holomorphy on the plane cut along the segment), 6.7-6; partial: 6.2-7,
   6.2-14 (the homogeneity step), 6.3-6 (joint holomorphy on
-  $\mathbb C \setminus \operatorname{con}(z)$), 6.6-9 and 6.6-15 (Jordan-curve forms).
+  $\mathbb C \setminus \mathop{\mathrm{con}}(z)$), 6.6-9 and 6.6-15 (Jordan-curve forms).
 * The generating relations (2.14), (2.15) of Carlson (1970) in closed form.
 
 ### Chapter 7
@@ -136,11 +136,11 @@ project's support libraries. They are not formalized systematically; the invento
   zeros off the segment are proved for all complex parameters in `Jacobi.UniformGrowth`.
   Coefficient growth is expressed by explicit bounds rather than $\limsup$.
 * **Boundary theory.** Separate boundary values and principal values outside
-  $\operatorname{Re}\alpha, \operatorname{Re}\beta > -1$, endpoint finite parts, arbitrary approach
+  $\mathop{\mathrm{Re}}\alpha, \mathop{\mathrm{Re}}\beta > -1$, endpoint finite parts, arbitrary approach
   paths, and branches along contours crossing the focal segment (the jump (7.8-5) itself is
   proved for all parameters).
 * The second-kind recurrence at the exceptional values of $\alpha + \beta + 1$ for small degrees.
-* **Confluent limits.** The Laguerre second-kind limit assumes $\operatorname{Re}(1 + \beta + n) > 0$;
+* **Confluent limits.** The Laguerre second-kind limit assumes $\mathop{\mathrm{Re}}(1 + \beta + n) > 0$;
   the weighted Laguerre and Hermite representations assume growth control also on $f^{(n)}$.
 * The physical Examples 7.9-6, 7.9-7 and 7.10-5.
 * Open exercises: 7.1-4, 7.4-2 to 7.4-4, 7.6-1, 7.6-3, 7.6-4, 7.7-9 to 7.7-13, 7.8-2 to
@@ -183,7 +183,7 @@ project's support libraries. They are not formalized systematically; the invento
   Exercise 9.6-1 remain. Algorithm 9.6-2 now converges for complex initial square roots
   in the right half-plane, with $R_F(x^2,y^2,z^2)=1/L$ and an explicit $4^{-n}$ error bound.
   Convergence also holds when the three pairwise sums have positive real parts, including
-  all allowed zero-coordinate cases. For $(x,y,0)$ with $\operatorname{Re}x,\operatorname{Re}y>0$,
+  all allowed zero-coordinate cases. For $(x,y,0)$ with $\mathop{\mathrm{Re}}x,\mathop{\mathrm{Re}}y>0$,
   the boundary identity is $(\pi/2)R_K(x^2,y^2)=1/L$.
   Formulas (9.6-9), (9.6-10) are proved over the complex numbers. The arithmetic-mean
   approximation (9.6-11) has an explicit real $16^{-n}$ error bound; its complex counterpart

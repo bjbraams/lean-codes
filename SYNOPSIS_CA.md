@@ -41,19 +41,19 @@ vanishing there.
 ## The curve index and cycles
 
 * For a closed piecewise $C^1$ curve $\gamma$ avoiding $a$, the index
-  $\operatorname{ind}_\gamma(a) = \frac{1}{2\pi i}\int_\gamma \frac{dz}{z - a}$ is an integer
+  $\mathop{\mathrm{ind}}_\gamma(a) = \frac{1}{2\pi i}\int_\gamma \frac{dz}{z - a}$ is an integer
   (via $\exp\int g'/g = g(1)/g(0)$), equals the winding number of the TauCeti contour library,
   respects reversal and concatenation, vanishes in simply connected domains avoiding $a$, equals
   $1$ inside and $0$ outside a counterclockwise circle (radius zero included), and gives the
   index-weighted formula $\frac{1}{2\pi i}\int_\gamma \frac{f(z)}{z - a}dz =
-  \operatorname{ind}_\gamma(a) f(a)$. It is locally constant off the curve, constant on
+  \mathop{\mathrm{ind}}_\gamma(a) f(a)$. It is locally constant off the curve, constant on
   components of the complement, and zero on every unbounded component.
 * A *cycle* is a finite family of closed curves (integer combinations are realized by
   repetition and reversal); its integral and index are sums over the family. The index is an
   integer off the cycle, locally constant, zero far away, and additive under concatenation.
 * **Homology form of Cauchy's theorem.** If a $C^1$ cycle $\Gamma$ in an open $U$ has index zero
   at every point outside $U$, then for every holomorphic $f : U \to F$ and $z \in U$ off the cycle,
-  $\frac{1}{2\pi i}\int_\Gamma \frac{f(w)}{w - z}dw = \operatorname{ind}_\Gamma(z) f(z)$ and
+  $\frac{1}{2\pi i}\int_\Gamma \frac{f(w)}{w - z}dw = \mathop{\mathrm{ind}}_\Gamma(z) f(z)$ and
   $\int_\Gamma f = 0$ (Dixon's proof). No simple connectivity is assumed.
 * Counterclockwise circles are $C^1$ paths whose curve integrals are Mathlib's circle integrals.
 
@@ -86,7 +86,7 @@ only at $w$ and zero for an omitted value.
 
 * **Right half-plane.** Products and quotients of numbers with positive real part avoid the
   cut $(-\infty, 0]$; squares of such numbers lie in the slit plane; they have square roots in
-  the sector $|\operatorname{Im} x| < \operatorname{Re} x$; finitely many lie in a disc centred on
+  the sector $|\mathop{\mathrm{Im}} x| < \mathop{\mathrm{Re}} x$; finitely many lie in a disc centred on
   the positive axis and contained in the half-plane.
 * **Principal powers.** $(xw)^s = x^s w^s$ for $x > 0$, and for two factors in the right
   half-plane; $w^s$ is holomorphic on discs centred at $r > 0$ of radius $r$.

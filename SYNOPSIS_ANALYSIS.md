@@ -30,9 +30,9 @@ argument allows it.
 * Second-order Taylor bounds for $C^2$ maps between real normed spaces (possibly infinite
   dimensional): the Peano little-$o$ remainder and a uniform local bound.
 * **A minimum principle on the upper half-plane.** If $f$ is holomorphic on the upper
-  half-plane, continuous on its closure, satisfies $\liminf \operatorname{Im} f \ge 0$ at infinity
-  in the closed half-plane (for instance, a limit $L$ with $\operatorname{Im} L \ge 0$), and
-  $\operatorname{Im} f \ge 0$ on the real axis, then $\operatorname{Im} f \ge 0$ throughout
+  half-plane, continuous on its closure, satisfies $\liminf \mathop{\mathrm{Im}} f \ge 0$ at infinity
+  in the closed half-plane (for instance, a limit $L$ with $\mathop{\mathrm{Im}} L \ge 0$), and
+  $\mathop{\mathrm{Im}} f \ge 0$ on the real axis, then $\mathop{\mathrm{Im}} f \ge 0$ throughout
   (maximum modulus applied to $e^{if}$ on large half-discs).
 
 ## Integration
@@ -87,7 +87,7 @@ the density is differentiable there), the separate upper and lower vertical limi
 equal the principal value $\mp \pi i$ times the density; the principal value is the limit of
 symmetric real-axis truncations.
 
-**Laplace asymptotics with complex phase.** For $\operatorname{Re} q \ge c > 0$,
+**Laplace asymptotics with complex phase.** For $\mathop{\mathrm{Re}} q \ge c > 0$,
 $\|A(0)\| \le M$, $\|A(t) - A(0)\| \le L|t|$ and $\|q(t) - q(0)\| \le B|t|$ (measurable $A, q$),
 $$\Bigl\|\sqrt n \int A(t)\, e^{-n t^2 q(t)}\, dt - A(0)\Bigl(\frac{\pi}{q(0)}\Bigr)^{1/2}\Bigr\|
 \le \frac{L/c + M B/c^2}{\sqrt n},$$
@@ -116,12 +116,12 @@ families with common bounds, and the asymptotic equivalent when $A(0) \ne 0$.
 
 ## Fourier, Mellin and Carlson-type theorems
 
-* **The multivariable Mellin transform.** $\operatorname{mvMellin} f(s) =
+* **The multivariable Mellin transform.** $\mathop{\mathrm{mvMellin}} f(s) =
   \int_{x > 0} \prod_i x_i^{s_i - 1} f(x)\, dx$ on the open orthant of $\mathbb R^{I}$, with its
   convergence predicate. The substitution $x = e^{y}$ turns it into an integral over
-  $\mathbb R^{I}$, and on a vertical plane $\operatorname{Re} s = c$ into a Fourier transform;
+  $\mathbb R^{I}$, and on a vertical plane $\mathop{\mathrm{Re}} s = c$ into a Fourier transform;
   separable functions give products of one-variable Mellin transforms, and
-  $\operatorname{mvMellin}(e^{-\sum x_i})(s) = \prod_i \Gamma(s_i)$.
+  $\mathop{\mathrm{mvMellin}}(e^{-\sum x_i})(s) = \prod_i \Gamma(s_i)$.
 * **Classical $L^2$ Fourier theory.** On $L^1 \cap L^2$, the classical Fourier integral
   represents Mathlib's abstract $L^2$ transform almost everywhere and satisfies Plancherel.
   No derivatives or $L^1$ condition on the transform are needed. The identification uses
@@ -154,7 +154,7 @@ families with common bounds, and the asymptotic equivalent when $A(0) \ne 0$.
   from Faà di Bruno's formula); it is the Mellin weight of $e^{-\sum x_i}$ in logarithmic
   coordinates.
 * **Paley–Wiener on $\mathbb R^n$.** If $F$ is entire on $\mathbb C^{I}$ with
-  $\|F(\zeta)\| \le C_N (1 + \|\zeta\|)^{-N} \exp(2\pi\sum_i \rho_i |\operatorname{Im}\zeta_i|)$
+  $\|F(\zeta)\| \le C_N (1 + \|\zeta\|)^{-N} \exp(2\pi\sum_i \rho_i |\mathop{\mathrm{Im}}\zeta_i|)$
   for all $N$, then the inverse Fourier transform $f$ of $F|_{\mathbb R^{I}}$ is smooth,
   supported in the box $|x_i| \le \rho_i$, and $\hat f = F$ on $\mathbb R^{I}$. Conversely the
   Fourier–Laplace transform of a smooth function supported in the box satisfies these bounds,
@@ -170,24 +170,24 @@ families with common bounds, and the asymptotic equivalent when $A(0) \ne 0$.
   (by induction on the coordinates) gives uniqueness of continuations of data on $\mathbb N^{I}$.
 * **Mellin–Barnes tools.** Cauchy's theorem on a vertical strip, for vector-valued functions
   holomorphic in the open strip, continuous on its closure, integrable on the boundary lines and
-  tending to zero as $|\operatorname{Im} s| \to \infty$ uniformly in the strip; crossing a
+  tending to zero as $|\mathop{\mathrm{Im}} s| \to \infty$ uniformly in the strip; crossing a
   simple pole with residue $r$ changes a line integral by $2\pi r$; and the Mellin transform of
   an inverse Mellin transform.
 * **Ramanujan's master theorem (Hardy's form).** Let $\varphi$ be holomorphic on
-  $\operatorname{Re} z > -\delta$, $0 < \delta < 1$, with
-  $|\varphi(z)| \le C e^{P \operatorname{Re} z + A|\operatorname{Im} z|}$, $A < \pi$. The
+  $\mathop{\mathrm{Re}} z > -\delta$, $0 < \delta < 1$, with
+  $|\varphi(z)| \le C e^{P \mathop{\mathrm{Re}} z + A|\mathop{\mathrm{Im}} z|}$, $A < \pi$. The
   Mellin–Barnes integral $F(x) = \frac{1}{2\pi i}\int_{(c)} \frac{\pi}{\sin \pi s}\varphi(-s)
   x^{-s}\, ds$, $0 < c < \delta$, equals $\sum_k \varphi(k)(-x)^k$ for $0 < x < e^{-P}$, and
   $\int_0^\infty x^{s-1} F(x)\,dx = \frac{\pi}{\sin \pi s}\varphi(-s)$ for
-  $0 < \operatorname{Re} s < \delta$.
+  $0 < \mathop{\mathrm{Re}} s < \delta$.
 
 ## Special functions
 
-* **Gamma integral with a complex rate.** For $\operatorname{Re} a > 0$,
-  $\operatorname{Re} w > 0$: $\int_0^\infty y^{a-1} e^{-yw}\, dy = w^{-a}\Gamma(a)$ with the
+* **Gamma integral with a complex rate.** For $\mathop{\mathrm{Re}} a > 0$,
+  $\mathop{\mathrm{Re}} w > 0$: $\int_0^\infty y^{a-1} e^{-yw}\, dy = w^{-a}\Gamma(a)$ with the
   principal power, together with kernel bounds, integrability and holomorphy in $w$.
-* **Gamma bounds.** $|\Gamma(s)| \le \Gamma(\operatorname{Re} s)$ for
-  $\operatorname{Re} s > 0$; $\Gamma(x) \le \Gamma(y)$ for $1 \le x \le y$, $2 \le y$;
+* **Gamma bounds.** $|\Gamma(s)| \le \Gamma(\mathop{\mathrm{Re}} s)$ for
+  $\mathop{\mathrm{Re}} s > 0$; $\Gamma(x) \le \Gamma(y)$ for $1 \le x \le y$, $2 \le y$;
   $x \mapsto \Gamma(x + r)/\Gamma(x)$ is nondecreasing for $r \ge 0$; $(x)_n \le (x + n)^n$;
   $|\Gamma(\tfrac12 + iy)|^2 = \pi/\cosh \pi y$ and $\Gamma(x)/|\Gamma(x + iy)| \le
   \sqrt{\cosh \pi y}$ for $x \ge \tfrac12$.
@@ -231,7 +231,7 @@ families with common bounds, and the asymptotic equivalent when $A(0) \ne 0$.
   expectation of every strictly convex function. For $0 < w < 1$ the ratio
   $(cw)_n/(c)_n$ is decreasing and log-convex in $c > 0$, strictly for $n \ge 2$.
 * **Elementary power facts**: a power between two others is bounded by their sum; positive real
-  bases to complex powers as exponentials; $\operatorname{Re}(1 - v) > 0$ for $|v| < 1$.
+  bases to complex powers as exponentials; $\mathop{\mathrm{Re}}(1 - v) > 0$ for $|v| < 1$.
 
 ## Sequences satisfying a binomial theorem (Carlson 1970)
 
