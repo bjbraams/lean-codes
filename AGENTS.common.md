@@ -29,9 +29,16 @@ When moving to another project, read that project's local instructions too.
   before checking their dependents; a direct file check alone is not a full build.
 - Each `lakefile.toml` sets `autoImplicit = false` and `relaxedAutoImplicit = false` under
   `[leanOptions]` (the Mathlib convention), so undeclared names are errors rather than
-  auto-bound implicits. Declare every variable explicitly. `lake env lean` does not apply
-  package options: check single files with
-  `lake env lean -DautoImplicit=false -DrelaxedAutoImplicit=false f.lean`.
+  auto-bound implicits. Declare every variable explicitly.
+- `lake build <Module>` is the authoritative check: it applies the package's `[leanOptions]`,
+  including linter sets and `warningAsError`. `lake env lean` applies none of them. For a quick
+  single-file check, pass the relevant options with `-D`, for example
+  `lake env lean -DautoImplicit=false -DrelaxedAutoImplicit=false
+  -Dlinter.unusedVariables.analyzeTactics=true -DwarningAsError=true f.lean`.
+  Style linters (line length, file length, flexible tactics, `show`) are reliably caught
+  only by `lake build`.
+- When an upstream project changes its `[leanOptions]`, re-check every open branch against
+  the new options, not just the branch being worked on.
 
 ## Proof requirements and upstream reuse
 
@@ -54,7 +61,8 @@ When moving to another project, read that project's local instructions too.
 - Remove redundant local proofs and update callers when adopting upstream results.
   Small adapters may preserve useful interfaces without duplicating mathematics.
   Additional lemmas are welcome when they clarify mathematical structure.
-- Credit imported or adapted work in module headers and at the point of use; record
+- Credit imported or adapted work in module headers (the module docstring, not only the PR
+  description) and at the point of use; record
   adoption in `CREDITS.md`. Retain any stricter project-specific attribution rules.
   Resolve TauCeti prerequisites when preparing a Mathlib contribution.
 - Validate reuse with Lean. An upstream admission or roadmap entry is not a proved
@@ -74,11 +82,57 @@ When moving to another project, read that project's local instructions too.
 - Follow the local import hierarchy and rules for copying shared source files.
   When an authorized change affects a companion project, validate the affected projects.
 
+## Code intended for Mathlib or TauCeti
+
+These rules record what the Mathlib linters and the TauCeti review rubrics enforce. Apply them
+to code meant for either library, including code being ported from these projects.
+
+- **Unused names.** Delete unused hypotheses, and drop the `with h` from `set … with h` when
+  `h` is never used. If a tactic needs a fact without naming it (`nlinarith`, `field_simp`),
+  pass it explicitly (`nlinarith [h]`) rather than renaming it to `_h`.
+- **Tactic hygiene.**
+  - Do not restate goals with `show` or `change`; use `dsimp only`, `simp only [defs]` or
+    `calc`, or comment on why the change is needed.
+  - Do not leave a `ring` that only `ring_nf` closes (it prints "Try this", which CI rejects).
+  - Do not follow a non-terminal `simp` with a flexible tactic; use `simp only [...]` or make
+    the `simp` terminal.
+- **Layout.** Lines of at most 100 characters, files of at most 1500 lines, and spaces around
+  binary operators (`(a + n)`, not `(a+n)`).
+- **Module system.**
+  - Use `public import` only for what the statements need, and plain `import` for proof-only
+    dependencies.
+  - Do not put a blanket `@[expose]` on a section.
+  - Give each definition a defining lemma (`_def` or an iff) plus introduction and
+    elimination lemmas, so users never depend on unfolding it.
+- **Generality.**
+  - State results over the most general setting the proof allows: `[Field K] [CharZero K]`
+    instead of `ℂ`, `[CommRing R] [IsDomain R]`, values in a normed space `E`.
+  - Take the weakest natural hypotheses, for example "meromorphic at `p`" rather than
+    "simple pole", or "off the poles" rather than `0 < re c`.
+- **Placement and reuse.**
+  - A helper whose statement does not mention the file's topic is not `private`. Export it
+    from the lowest module it fits, such as `Gamma/Basic` or `Pochhammer`.
+  - Before proving a bridge lemma, search Mathlib and the pinned TauCeti for it (for example
+    Mathlib's `mellinInv_eq_fourierInv`).
+  - Drop imports that come in transitively anyway, and do not add thin wrapper lemmas.
+- **Naming.** Follow Mathlib: `natCast` in names, dot-notation namespaces such as
+  `ContinuousOn.foo`, and no `_of_pos` copies of a lemma that already holds in general.
+- **Documentation.** Every public declaration gets a docstring, and the module docstring
+  lists the main results. A docstring must be accurate about degenerate cases.
+- **Attribution.** Credit ported sources, such as lean-DLMF, in the module docstring itself,
+  not only in the PR description.
+- **Shared files across parallel PRs.** When two open PRs edit the same module, insert at
+  different places in it. For an open PR, merge main into the branch instead of rebasing, so
+  pushes stay fast-forward. Check with `git merge-tree --write-tree origin/main <branch>`
+  before pushing.
+
 ## Validation and completion report
 
-For each changed Lean file, run
+For each changed Lean file, run `lake build` on its module, which applies the package's
+linter options, and run
 `lake env lean -DautoImplicit=false -DrelaxedAutoImplicit=false path/to/File.lean` from the
-project root after building its imports. Also run `git diff --check` and scan affected Lean
+project root after building its imports, adding `-D` flags for any further `[leanOptions]`
+the package sets (see Build topology). Also run `git diff --check` and scan affected Lean
 sources with `rg -n '\bsorry\b' ...`. Retain local axiom-audit and entry-module checks.
 For documentation-only edits, check the documentation and diff; no Lean build is needed.
 
